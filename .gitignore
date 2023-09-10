@@ -1,0 +1,35 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/study365-frontend/node_modules
+/study365-frontend/.pnp
+/study365-frontend/.pnp.js
+
+# testing
+/study365-frontend/coverage
+
+# next.js
+/study365-frontend/.next/
+/study365-frontend/out/
+
+# production
+/study365-frontend/build
+
+# misc
+/study365-frontend/.DS_Store
+/study365-frontend/*.pem
+
+# debug
+/study365-frontend/npm-debug.log*
+/study365-frontend/yarn-debug.log*
+/study365-frontend/yarn-error.log*
+
+# local env files
+/study365-frontend/.env*.local
+
+# vercel
+/study365-frontend/.vercel
+
+# typescript
+/study365-frontend/*.tsbuildinfo
+/study365-frontend/next-env.d.ts
