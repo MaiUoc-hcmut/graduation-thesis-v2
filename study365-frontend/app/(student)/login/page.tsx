@@ -1,7 +1,15 @@
 'use client'
 import Image from 'next/image'
+import React from 'react'
 
 export default function Login() {
+
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
+        console.log("abcdef");
+    }
+
     return (
         <div className="mt-10 flex min-h-full flex-1 flex-col justify-center px-6 py-6 lg:px-8">
             <div className="w-1/3 bg-slate-50 rounded-lg shadow-lg p-6 mx-auto">
@@ -12,7 +20,7 @@ export default function Login() {
                 </div>
 
                 <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-sm">
-                    <form className="space-y-6" action="#" method="POST">
+                    <form className="space-y-6" onSubmit={handleSubmit}>
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900 focus:ring-1">
                                 Email

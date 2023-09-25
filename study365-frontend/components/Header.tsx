@@ -12,7 +12,7 @@ export default function Header() {
                             id={header['logo']}
                             width={120}
                             height={120}
-                            src="/logo-study365-no-background.png"
+                            src="/logo-study365.png"
                             alt="logo google"
                             style={{
                                 maxWidth: '200'
