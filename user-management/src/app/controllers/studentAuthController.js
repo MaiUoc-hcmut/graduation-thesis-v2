@@ -6,18 +6,22 @@ const bcrypt = require('bcryptjs');
 class Auth {
     register = async (req, res, next) => {
         try {
-            const { email, password, confirmPassword, name, grade } = req.body;
+            const { email, password, confirmPassword, name, grade, gender, address } = req.body;
             const existedStudent = await Student.findOne({
                 where: { email: email }
             });
             if (existedStudent) return res.send(createError.Conflict("The email already exist!"));
+            console.log(password);
+            console.log(confirmPassword);
             if (password !== confirmPassword) return res.send(createError.BadRequest("Password does not match!"));
             const hashPassword = await bcrypt.hash(password, 12);
             const newStudent = await Student.create({
                 email,
                 password: hashPassword,
                 name,
-                grade
+                grade,
+                gender,
+                address
             })
 
             const accessToken = SignToken.signAccessToken(newStudent.id);
@@ -50,7 +54,7 @@ class Auth {
                 user: req.user.dataValues
             });
         } catch (error) {
-            console.log(error.message);
+            console.log(error?.message);
         }
     }
 

@@ -17,6 +17,46 @@ const storage = getStorage();
 
 
 class StudentController {
+    getAllStudent = async (req, res, next) => {
+        try {
+            const students = await Student.findAll();
+            res.status(200).json(students);
+        } catch (error) {
+            console.log(error.message);
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    getStudentById = async (req, res, next) => {
+        try {
+            const student = await Student.findOne({
+                where: { id: req.body.id }
+            })
+
+            if (!student) return res.status(404).json({ message: "Student not found!" });
+
+            res.status(200).json(student);
+        } catch (error) {
+            console.log(error.message);
+            res.status(400).json(error.message);
+        }
+    }
+
+    getStudentByEmail = async (req, res, next) => {
+        try {
+            const student = await Student.findOne({
+                where: { email: req.body.email }
+            })
+
+            if (!student) return res.status(404).json({ message: "Student not found!" });
+
+            res.status(200).json(student);
+        } catch (error) {
+            console.log(error.message);
+            res.status(400).json(error.message);
+        }
+    }
+
     updateStudent = async (req, res, next) => {
         try {
             const student = Student.findOne({
@@ -39,6 +79,7 @@ class StudentController {
     uploadAvatar = async (req, res, next) => {
         try {
             const studentId = req.params.studentId;
+            if (req.student.dataValues.id !== studentId) return res.status(401).json(createError.Unauthorized('You do not have permission to do this action!'));
             const student = await Student.findOne({
                 where: {
                     id: studentId
