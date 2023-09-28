@@ -1,0 +1,15 @@
+#search-input:focus {
+    outline: none;
+    border: 2px solid rgb(99, 98, 98);
+}
+
+#search-input {
+    border: 1px solid rgb(163, 162, 162);
+    border-radius: 0.5rem;
+    color: #999;
+    font-size: 1rem;
+}
+
+#logo {
+    max-width: 120px;
+}
