@@ -6,7 +6,7 @@ const createError = require('http-errors');
 
 const studentAuthRouter = require('./app/route/studentAuthRoute');
 const studentRouter = require('./app/route/studentRoute');
-const teacherRouter = require('./app/route/teacherRoute');
+// const teacherRouter = require('./app/route/teacherRoute');
 
 const db = require('./config/db');
 db.connect();
@@ -21,7 +21,7 @@ app.use(express.json());
 
 app.use('/api/v1/auth', studentAuthRouter);
 app.use('/api/v1/student', studentRouter);
-app.use('/api/v1/teacher', teacherRouter);
+// app.use('/api/v1/teacher', teacherRouter);
 
 
 // wrong api

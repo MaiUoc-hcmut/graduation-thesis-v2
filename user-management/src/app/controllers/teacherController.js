@@ -30,7 +30,7 @@ class TeacherController {
     getTeacherById = async (req, res, next) => {
         try {
             const teacher = await Teacher.findOne({
-                where: { id: req.body.id }
+                where: { id: req.params.id }
             })
 
             if (!teacher) return res.status(404).json({ message: "Teacher not found!" });

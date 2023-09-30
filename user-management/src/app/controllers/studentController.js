@@ -30,7 +30,7 @@ class StudentController {
     getStudentById = async (req, res, next) => {
         try {
             const student = await Student.findOne({
-                where: { id: req.body.id }
+                where: { id: req.params.studentId }
             })
 
             if (!student) return res.status(404).json({ message: "Student not found!" });
@@ -79,7 +79,8 @@ class StudentController {
     uploadAvatar = async (req, res, next) => {
         try {
             const studentId = req.params.studentId;
-            if (req.student.dataValues.id !== studentId) return res.status(401).json(createError.Unauthorized('You do not have permission to do this action!'));
+            if (req.student.dataValues.id != studentId) 
+                return res.status(401).json(createError.Unauthorized('You do not have permission to do this action!'));
             const student = await Student.findOne({
                 where: {
                     id: studentId
