@@ -113,7 +113,9 @@ class DocumentController {
             const categories = [...body.categories];
             delete body.categories;
 
-            const newDocument = Document.create({ ...body, id_teacher });
+            const newDocument = Document.create({ ...body });
+
+            await newDocument.addCategories(categories);
 
             res.status(200).json(newDocument);
         } catch (error: any) {
