@@ -1,18 +1,55 @@
 'use client'
-import Image from 'next/image'
+import Image from 'next/image';
+import React, { useEffect } from 'react';
+import { login, reset } from '@/redux/features/authSlice';
+import { useAppSelector, AppDispatch } from '@/redux/store';
+import { useDispatch } from 'react-redux';
+import { redirect } from 'next/navigation';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { toastError, toastSuccess } from '@/utils/toast';
 
 export default function Login() {
+
+    const { isSuccess, isFailed, message } = useAppSelector(state => state.authReducer);
+    const dispatch = useDispatch<AppDispatch>();
+    const { 
+        register, 
+        handleSubmit, 
+        formState: { errors } 
+    } = useForm({
+        defaultValues: {
+            email: '',
+            password: '',
+        }
+    })
+
+    const handleLoginSubmit: SubmitHandler<{ email: string, password: string}> = async (data) => {
+        dispatch(login(data));
+    };
+
+    useEffect(() => {
+        dispatch(reset());
+        if (isSuccess) {
+            toastSuccess("Login success");
+            redirect('/teacher');
+        }
+        if (isFailed) {
+            toastError(message);
+        }
+        dispatch(reset());
+    }, [isSuccess, redirect, dispatch]);
+
     return (
         <div className="mt-10 flex min-h-full flex-1 flex-col justify-center px-6 py-6 lg:px-8">
             <div className="w-1/3 bg-slate-50 rounded-lg shadow-lg p-6 mx-auto">
                 <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-                    <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+                    <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">  
                         Đăng nhập
                     </h2>
                 </div>
 
                 <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-sm">
-                    <form className="space-y-6" action="#" method="POST">
+                    <form className="space-y-6" onSubmit={handleSubmit(handleLoginSubmit)}>
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900 focus:ring-1">
                                 Email
@@ -20,12 +57,14 @@ export default function Login() {
                             <div className="mt-2">
                                 <input
                                     id="email"
-                                    name="email"
                                     type="email"
                                     autoComplete="email"
-                                    required
+                                    {...register('email', { required: "Name is required" })}
                                     className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-900 shadow-sm ring-1 ring-input_primary ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-1 sm:text-sm sm:leading-6"
                                 />
+                                {errors.email?.message && (
+                                    <p className='text-sm text-red-400'>{errors.email?.message}</p>
+                                )}
                             </div>
                         </div>
 
@@ -43,12 +82,14 @@ export default function Login() {
                             <div className="mt-2">
                                 <input
                                     id="password"
-                                    name="password"
                                     type="password"
                                     autoComplete="current-password"
-                                    required
+                                    {...register('password', { required: "Password is required" })}
                                     className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-900 shadow-sm ring-1 ring-input_primary ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"
                                 />
+                                {errors.password?.message && (
+                                    <p className='text-sm text-red-400'>{errors.password?.message}</p>
+                                )}
                             </div>
                         </div>
 
@@ -113,4 +154,4 @@ export default function Login() {
             </div>
         </div>
     )
-}
+};

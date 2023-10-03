@@ -18,13 +18,27 @@ interface SignUpData {
 
 export const signup = createAsyncThunk('auth/register', async (user: SignUpData, thunkAPI) => {
     try {
-        const respone = await axiosConfig.post('auth/register', user);
-        if (respone.data) {
-            localStorage.setItem('accessToken', JSON.stringify(respone.data.accessToken));
-            localStorage.setItem('refreshToken', JSON.stringify(respone.data.refreshToken));
+        const response = await axiosConfig.post('auth/register', user);
+        if (response.data) {
+            localStorage.setItem('accessToken', JSON.stringify(response.data.accessToken));
+            localStorage.setItem('refreshToken', JSON.stringify(response.data.refreshToken));
         }
-        if (respone.status !== 201) return thunkAPI.rejectWithValue(respone.data.message);
-        return respone.data;
+        if (response.status !== 201) return thunkAPI.rejectWithValue(response.data.message);
+        return response.data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error);
+    }
+});
+
+export const signupTeacher = createAsyncThunk('auth-teacher/register', async (user: SignUpData, thunkAPI) => {
+    try {
+        const response = await axiosConfig.post('auth-teacher/register', user);
+        if (response.data) {
+            localStorage.setItem('accessToken', JSON.stringify(response.data.accessToken));
+            localStorage.setItem('refreshToken', JSON.stringify(response.data.refreshToken));
+        }
+        if (response.status !== 201) return thunkAPI.rejectWithValue(response.data.message);
+        return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error);
     }
@@ -32,13 +46,27 @@ export const signup = createAsyncThunk('auth/register', async (user: SignUpData,
 
 export const login = createAsyncThunk('auth/login', async (user: LogInData, thunkAPI) => {
     try {
-        const respone = await axiosConfig.post('auth/login', user);
-        if (respone.data) {
-            localStorage.setItem('accessToken', JSON.stringify(respone.data.accessToken));
-            localStorage.setItem('refreshToken', JSON.stringify(respone.data.refreshToken));
+        const response = await axiosConfig.post('auth/login', user);
+        if (response.data) {
+            localStorage.setItem('accessToken', JSON.stringify(response.data.accessToken));
+            localStorage.setItem('refreshToken', JSON.stringify(response.data.refreshToken));
         }
-        if (respone.status !== 200) return thunkAPI.rejectWithValue(respone.data.message);
-        return respone.data;
+        if (response.status !== 200) return thunkAPI.rejectWithValue(response.data.message);
+        return response.data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error);
+    }
+})
+
+export const loginTeacher = createAsyncThunk('auth-teacher/login', async (user: LogInData, thunkAPI) => {
+    try {
+        const response = await axiosConfig.post('auth-teacher/login', user);
+        if (response.data) {
+            localStorage.setItem('accessToken', JSON.stringify(response.data.accessToken));
+            localStorage.setItem('refreshToken', JSON.stringify(response.data.refreshToken));
+        }
+        if (response.status !== 200) return thunkAPI.rejectWithValue(response.data.message);
+        return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error);
     }
@@ -142,6 +170,55 @@ export const auth = createSlice({
                 console.log(action.payload);
             })
             .addCase(login.fulfilled, (state, action) => {
+                state.isAuth = true;
+                state.isLoading = false;
+                state.isSuccess = true;
+                state.user = action.payload;
+                console.log("Fullfiled")
+            })
+            .addCase(signupTeacher.pending, (state) => {
+                console.log("Pending");
+                state.isLoading = true;
+            })
+            .addCase(signupTeacher.rejected, (state, action) => {
+                console.log("Rejected");
+                state.isLoading = false;
+                state.isFailed = true;
+                if (typeof action.payload === 'string') {
+                    state.message = action.payload;
+                } else if (action.payload instanceof Error) {
+                    state.message = action.payload.message;
+                } else {
+                    // Handle other cases or assign a default message
+                    state.message = "An error occurred";
+                }
+                console.log(action.payload);
+            })
+            .addCase(signupTeacher.fulfilled, (state, action) => {
+                console.log('Fullfilled');
+                state.isAuth = true;
+                state.isLoading = false;
+                state.isSuccess = true;
+            })
+            .addCase(loginTeacher.pending, (state) => {
+                console.log("Pending");
+                state.isLoading = true;
+            })
+            .addCase(loginTeacher.rejected, (state, action) => {
+                console.log("Rejected");
+                state.isLoading = false;
+                state.isFailed = true;
+                if (typeof action.payload === 'string') {
+                    state.message = action.payload;
+                } else if (action.payload instanceof Error) {
+                    state.message = action.payload.message;
+                } else {
+                    // Handle other cases or assign a default message
+                    state.message = "An error occurred";
+                }
+                console.log(action.payload);
+            })
+            .addCase(loginTeacher.fulfilled, (state, action) => {
                 state.isAuth = true;
                 state.isLoading = false;
                 state.isSuccess = true;

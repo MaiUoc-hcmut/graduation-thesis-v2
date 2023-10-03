@@ -59,12 +59,14 @@ class StudentController {
 
     updateStudent = async (req, res, next) => {
         try {
-            const student = Student.findOne({
-                where: {
-                    id: req.body.id
-                }
-            })
-            if (!student) return res.status(404).send({ error: "Student not found!" });
+            const studentId = req.params.studentId;
+
+            if (studentId != req.student.dataValues.id)
+                return res.status(401).json({ message: "You do not have permission to do this action!" });
+
+            const student = await Student.findOne({
+                where: { id: studentId }
+            });
 
             await student.update(req.body);
             res.status(200).send({

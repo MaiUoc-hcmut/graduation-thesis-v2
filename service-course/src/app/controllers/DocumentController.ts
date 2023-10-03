@@ -55,7 +55,7 @@ class DocumentController {
     getDocumentCreatedByTeacher = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const teacherId = req.params.teacherId;
-            const teacherAuthId = req.teacher.dataValues.id
+            const teacherAuthId = req.teacher.data.id
             if (teacherId !== teacherAuthId) 
                 return res.status(401).json({ message: "You do not have permission to do this action!" });
 
@@ -151,7 +151,7 @@ class DocumentController {
     updateDocument = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const { teacherId, ...body } = req.body;
-            if (teacherId !== req.teacher.dataValues.id)
+            if (teacherId !== req.teacher.data.id)
                 return res.status(401).json({ message: "You do not have permission to do this action!" });
             const documentId = req.params.documentId;
 
@@ -169,7 +169,7 @@ class DocumentController {
     deleteDocument = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const { teacherId } = req.body;
-            if (teacherId !== req.teacher.dataValues.id)
+            if (teacherId !== req.teacher.data.id)
                 return res.status(401).json({ message: "You do not have permission to do this action!" });
             const documentId = req.params.documentId;
 
@@ -178,7 +178,10 @@ class DocumentController {
 
             await document.destroy();
 
-            res.status(200).json({ message: "Document has been deleted"});
+            res.status(200).json({ 
+                message: "Document has been deleted",
+                documentId
+            });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
@@ -189,7 +192,7 @@ class DocumentController {
     deleteMultiDocument = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const { teacherId } = req.body;
-            if (teacherId !== req.teacher.dataValues.id)
+            if (teacherId !== req.teacher.data.id)
                 return res.status(401).json({ message: "You do not have permission to do this action!" });
             const documentIds = req.body.documentIds;
             const existingId = await Document.findAll({

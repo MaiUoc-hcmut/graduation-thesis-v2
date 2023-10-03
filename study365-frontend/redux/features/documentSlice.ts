@@ -1,49 +1,73 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axiosConfig, { setAuthToken } from '../axios.config';
 
-export const updateTeacher = createAsyncThunk('/teacher/updateteacher', async (teacher: any, thunkAPI) => {
+export const getDocumentCreatedByTeacher = createAsyncThunk('/document/getAllDocument', async (teacherId: number, thunkAPI) => {
     try {
-        const response = await axiosConfig.put('/teacher/:teacherId', teacher);
+        const response = await axiosConfig.get(`/document/${teacherId}`);
+
+        if (response.status !== 200) return thunkAPI.rejectWithValue(response.data.message);
+
+        return response.data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error);
+    }
+})
+
+export const getDocumentById = createAsyncThunk('/document/getDocument/:documentId', async (documentId: number, thunkAPI) => {
+    try {
+        const response = await axiosConfig.get(`/document/${documentId}`);
+
+        if (response.status !== 200) return thunkAPI.rejectWithValue(response.data.message);
+
+        return response.data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error);
+    }
+})
+
+export const createDocument = createAsyncThunk('/document/createDocument', async (document, thunkAPI) => {
+    try {
+        const response = await axiosConfig.post('/document', document);
 
         if (response.status !== 201) return thunkAPI.rejectWithValue(response.data.message);
+
         return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error);
     }
-});
+})
 
-export const uploadAvatar = createAsyncThunk('/teacher/upload-avatar', async (file: File, thunkAPI) => {
+export const uploadFile = createAsyncThunk('/document/upload-file', async (file: File, thunkAPI) => {
     try {
         const formData = new FormData();
+        formData.append('document', file);
 
-        formData.append('avatar', file);
-
-        const response = await axiosConfig.post('/teacher/upload-avatar/:teacherId', formData);
+        const response = await axiosConfig.post('/document/upload-file', formData);
 
         if (response.status !== 200) return thunkAPI.rejectWithValue(response.data.message);
 
-        return response.data;
+        return response.data
     } catch (error) {
         return thunkAPI.rejectWithValue(error);
     }
 })
 
-export const changePassword = createAsyncThunk('/teacher/change-password', async (data: any, thunkAPI) => {
+export const updateDocument = createAsyncThunk('/document/updateDocument', async (document, thunkAPI) => {
     try {
-        const response = await axiosConfig.put('/teacher/change-password', data);
-        
+        const response = await axiosConfig.put('/document/:documentId', document);
+
         if (response.status !== 200) return thunkAPI.rejectWithValue(response.data.message);
 
-        return response.data;
+        return response.data
     } catch (error) {
         return thunkAPI.rejectWithValue(error);
     }
 })
 
-export const forgotPassword = createAsyncThunk('/teacher/forgot-password', async (email: string, thunkAPI) => {
+export const deleteDocument = createAsyncThunk('/document/deletDoument/:documentId', async (documentId: number, thunkAPI) => {
     try {
-        const response = await axiosConfig.post('/teacher/forgot-password', { email });
-        
+        const response = await axiosConfig.delete(`/document/delete/${documentId}`);
+
         if (response.status !== 200) return thunkAPI.rejectWithValue(response.data.message);
 
         return response.data;
@@ -52,80 +76,59 @@ export const forgotPassword = createAsyncThunk('/teacher/forgot-password', async
     }
 })
 
-export const resetPassword = createAsyncThunk('/teacher/reset-password', async (data: any, thunkAPI) => {
-    try {
-        const resetToken = [...data.resetToken];
-        delete data.resetToken;
-        const response = await axiosConfig.put(`/teacher/reset-password/${resetToken}`, data);
-        
-        if (response.status !== 200) return thunkAPI.rejectWithValue(response.data.message);
-
-        return response.data;
-    } catch (error) {
-        return thunkAPI.rejectWithValue(error);
-    }
-})
+type Document = {
+    id: number,
+    name: string,
+    url: string,
+    views: number,
+    downloads: number,
+    createdAt: Date,
+    updatedAt: Date,
+}
 
 type InitialState = {
+    isInit: boolean,
     isLoading: boolean,
     isSuccess: boolean,
     isFailed: boolean,
     message: string,
-    user: UserState,
-};
-
-type UserState = {
-    uid: number,
-    name: string,
-    email: string,
-    password: string,
-    phone: string,
-    address: string,
-    avatar: string,
-    gender: string,
-    grade: number,
-    status: boolean,
-    resetToken: string,
-};
+    document: Document[],
+}
 
 const initialState = {
     isLoading: false as boolean,
     isSuccess: false as boolean,
     isFailed: false as boolean,
-    message: "" as string,
-    user: {
-        uid: 0,
-        name: "",
-        email: "",
-        password: "",
-        phone: "",
-        address: "",
-        avatar: "",
-        gender: "",
-        grade: 0,
-        status: true,
-        resetToken: "",
-    } as UserState,
+    isInit: true as boolean,
+    message: '' as string,
+    document: [] as Document[],
 } as InitialState;
 
-export const teacher = createSlice({
-    name: 'teacher',
+export const document = createSlice({
+    name: "document",
     initialState,
     reducers: {
         reset: (state) => {
             state.isLoading = false;
             state.isFailed = false;
             state.isSuccess = false;
-            state.message = "";
         }
     },
     extraReducers(builder) {
         builder
-            .addCase(updateTeacher.pending, (state, action) => {
+            .addCase(getDocumentCreatedByTeacher.pending, (state) => {
+                console.log('pending');
                 state.isLoading = true;
-                console.log("Pending");
             })
-            .addCase(updateTeacher.rejected, (state, action) => {
+            .addCase(getDocumentCreatedByTeacher.fulfilled, (state, action) => {
+                console.log("Fullfiled");
+                state.isSuccess = true;
+                state.isInit = false;
+                state.isLoading = false;
+                state.document = action.payload;
+                console.log(action.payload);
+            })
+            .addCase(getDocumentCreatedByTeacher.rejected, (state, action) => {
                 console.log("Rejected");
                 state.isFailed = true;
                 state.isLoading = false;
@@ -138,17 +141,19 @@ export const teacher = createSlice({
                     state.message = "An error occurred";
                 }
             })
-            .addCase(updateTeacher.fulfilled, (state, action) => {
+            .addCase(createDocument.pending, (state) => {
+                console.log('pending');
+                state.isLoading = true;
+            })
+            .addCase(createDocument.fulfilled, (state, action) => {
                 console.log("Fullfiled");
                 state.isSuccess = true;
+                state.isInit = false;
                 state.isLoading = false;
-                state.user = action.payload;
+                state.document.push(action.payload);
+                console.log(action.payload);
             })
-            .addCase(uploadAvatar.pending, (state, action) => {
-                state.isLoading = true;
-                console.log("Pending");
-            })
-            .addCase(uploadAvatar.rejected, (state, action) => {
+            .addCase(createDocument.rejected, (state, action) => {
                 console.log("Rejected");
                 state.isFailed = true;
                 state.isLoading = false;
@@ -161,17 +166,19 @@ export const teacher = createSlice({
                     state.message = "An error occurred";
                 }
             })
-            .addCase(uploadAvatar.fulfilled, (state, action) => {
+            .addCase(uploadFile.pending, (state) => {
+                console.log('pending');
+                state.isLoading = true;
+            })
+            .addCase(uploadFile.fulfilled, (state, action) => {
                 console.log("Fullfiled");
                 state.isSuccess = true;
+                state.isInit = false;
                 state.isLoading = false;
-                state.user.avatar = action.payload;
+                state.document = action.payload;
+                console.log(action.payload);
             })
-            .addCase(changePassword.pending, (state, action) => {
-                state.isLoading = true;
-                console.log("Pending");
-            })
-            .addCase(changePassword.rejected, (state, action) => {
+            .addCase(uploadFile.rejected, (state, action) => {
                 console.log("Rejected");
                 state.isFailed = true;
                 state.isLoading = false;
@@ -184,17 +191,22 @@ export const teacher = createSlice({
                     state.message = "An error occurred";
                 }
             })
-            .addCase(changePassword.fulfilled, (state, action) => {
+            .addCase(updateDocument.pending, (state) => {
+                console.log('pending');
+                state.isLoading = true;
+            })
+            .addCase(updateDocument.fulfilled, (state, action) => {
                 console.log("Fullfiled");
                 state.isSuccess = true;
+                state.isInit = false;
                 state.isLoading = false;
-                state.user = action.payload;
+                const index = state.document.findIndex(
+                    doc => doc.id === action.payload.id
+                )
+                state.document[index] = action.payload;
+                console.log(action.payload);
             })
-            .addCase(forgotPassword.pending, (state, action) => {
-                state.isLoading = true;
-                console.log("Pending");
-            })
-            .addCase(forgotPassword.rejected, (state, action) => {
+            .addCase(updateDocument.rejected, (state, action) => {
                 console.log("Rejected");
                 state.isFailed = true;
                 state.isLoading = false;
@@ -207,17 +219,22 @@ export const teacher = createSlice({
                     state.message = "An error occurred";
                 }
             })
-            .addCase(forgotPassword.fulfilled, (state, action) => {
+            .addCase(deleteDocument.pending, (state) => {
+                console.log('pending');
+                state.isLoading = true;
+            })
+            .addCase(deleteDocument.fulfilled, (state, action) => {
                 console.log("Fullfiled");
                 state.isSuccess = true;
+                state.isInit = false;
                 state.isLoading = false;
-                state.user.resetToken = action.payload;
+                const index = state.document.findIndex(
+                    doc => doc.id === action.payload.documentId
+                )
+                state.document.splice(index, 1);
+                console.log(action.payload);
             })
-            .addCase(resetPassword.pending, (state, action) => {
-                state.isLoading = true;
-                console.log("Pending");
-            })
-            .addCase(resetPassword.rejected, (state, action) => {
+            .addCase(deleteDocument.rejected, (state, action) => {
                 console.log("Rejected");
                 state.isFailed = true;
                 state.isLoading = false;
@@ -229,15 +246,10 @@ export const teacher = createSlice({
                     // Handle other cases or assign a default message
                     state.message = "An error occurred";
                 }
-            })
-            .addCase(resetPassword.fulfilled, (state, action) => {
-                console.log("Fullfiled");
-                state.isSuccess = true;
-                state.isLoading = false;
-                state.user = action.payload;
             })
     }
-});
+})
 
-export const { reset } = teacher.actions;
-export default teacher.reducer;
+
+export const { reset } = document.actions;
+export default document.reducer;
