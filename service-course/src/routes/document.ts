@@ -14,7 +14,7 @@ router.route('/:documentId')
     .get(DocumentController.getDocumentById)
     .put(Authorize.protectedAPI, DocumentController.updateDocument)
     .delete(Authorize.protectedAPI, DocumentController.deleteDocument);
-router.route('/:teacherId')
+router.route('/teacher/:teacherId')
     .get(Authorize.protectedAPI, DocumentController.getDocumentCreatedByTeacher);
 router.route('/:courseId')
     .get(DocumentController.getDocumentBelongToCourse);

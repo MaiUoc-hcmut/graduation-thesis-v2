@@ -82,7 +82,7 @@ type InitialState = {
 };
 
 type UserState = {
-    uid: number,
+    id: number,
     name: string,
     email: string,
     password: string,
@@ -101,7 +101,7 @@ const initialState = {
     isFailed: false as boolean,
     message: "" as string,
     user: {
-        uid: 0,
+        id: 0,
         name: "",
         email: "",
         password: "",
@@ -219,11 +219,13 @@ export const auth = createSlice({
                 console.log(action.payload);
             })
             .addCase(loginTeacher.fulfilled, (state, action) => {
+                console.log("Fullfiled");
+                console.log(action.payload.user);
                 state.isAuth = true;
                 state.isLoading = false;
                 state.isSuccess = true;
-                state.user = action.payload;
-                console.log("Fullfiled")
+                state.user = action.payload.user;
+                console.log(state.user);
             })
     },
 });

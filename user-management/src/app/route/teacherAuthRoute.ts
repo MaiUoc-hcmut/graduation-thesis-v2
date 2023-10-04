@@ -1,15 +1,15 @@
-const expressApp = require('express');
-const router = expressApp.Router();
-const Auth = require('../controllers/authController');
+const expressTeacher = require('express');
+const routerTeacher = expressTeacher.Router();
+const AuthTeacher = require('../controllers/authController');
 const passportTeacher = require('passport');
 const authTeacher = require('../middleware/teacherAuth');
 
-router.post('/register', Auth.registerTeacher);
-router.post(
+routerTeacher.post('/register', AuthTeacher.registerTeacher);
+routerTeacher.post(
     '/login', 
-    passportTeacher.authenticate('local', { session: false, failureMessage: true }),
-    Auth.loginTeacher
+    authTeacher.loginAuth,
+    AuthTeacher.loginTeacher
 );
-router.post('/refresh-token', Auth.refreshToken);
+routerTeacher.post('/refresh-token', AuthTeacher.refreshToken);
 
-module.exports = router
+module.exports = routerTeacher;

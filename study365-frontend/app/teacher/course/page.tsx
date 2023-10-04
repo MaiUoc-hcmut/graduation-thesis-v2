@@ -21,7 +21,7 @@ export default function OverviewCourse() {
         fetchCourseList();
     }, []);
 
-    const listCourse = courseList.map((course) => {
+    const listCourse = courseList.map((course: any) => {
         return (
             <div key={course.id} className="w-full flex flex-row p-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
                 <div className="mr-5">

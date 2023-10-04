@@ -1,7 +1,7 @@
 'use client'
 import Image from 'next/image';
 import React, { useEffect } from 'react';
-import { login, reset } from '@/redux/features/authSlice';
+import { loginTeacher, reset } from '@/redux/features/authSlice';
 import { useAppSelector, AppDispatch } from '@/redux/store';
 import { useDispatch } from 'react-redux';
 import { redirect } from 'next/navigation';
@@ -24,7 +24,7 @@ export default function Login() {
     })
 
     const handleLoginSubmit: SubmitHandler<{ email: string, password: string}> = async (data) => {
-        dispatch(login(data));
+        dispatch(loginTeacher(data));
     };
 
     useEffect(() => {

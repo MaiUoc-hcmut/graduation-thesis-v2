@@ -87,14 +87,14 @@ class Auth {
 
     loginStudent = async (req, res, next) => {
         try {
-            const accessToken = SignToken.signAccessToken(req.user.dataValues.id);
-            const refreshToken = SignToken.signRefreshToken(req.user.dataValues.id);
+            const accessToken = SignToken.signAccessToken(req.student.id);
+            const refreshToken = SignToken.signRefreshToken(req.student.id);
 
             res.status(200).json({
                 success: true,
                 accessToken,
                 refreshToken,
-                user: req.user.dataValues
+                user: req.student
             });
         } catch (error) {
             console.log(error?.message);
@@ -103,14 +103,14 @@ class Auth {
 
     loginTeacher = async (req, res, next) => {
         try {
-            const accessToken = SignToken.signAccessToken(req.user.id);
-            const refreshToken = SignToken.signRefreshToken(req.user.id);
+            const accessToken = SignToken.signAccessToken(req.teacher.id);
+            const refreshToken = SignToken.signRefreshToken(req.teacher.id);
 
             res.status(200).json({
                 success: true,
                 accessToken,
                 refreshToken,
-                user: req.user
+                user: req.teacher
             });
         } catch (error) {
             console.log(error?.message);

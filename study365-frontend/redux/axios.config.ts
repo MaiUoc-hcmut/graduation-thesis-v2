@@ -50,7 +50,7 @@ instance.interceptors.request.use(
         // If there is access token exist, attach the access token to headers when send a request
         if (accessToken) {
             let parsedAccessToken = JSON.parse(accessToken);
-            config.headers.Authorization = `Bearer ${accessToken}`;
+            config.headers.Authorization = `Bearer ${parsedAccessToken}`;
             const decodedToken = jwtDecode(parsedAccessToken) as { [key: string]: any };
             expire = decodedToken.exp;
         }

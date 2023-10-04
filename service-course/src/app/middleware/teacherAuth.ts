@@ -38,6 +38,7 @@ declare global {
 
 // middleware verify access token
 exports.protectedAPI = (req: Request, res: Response, next: NextFunction) => {
+    console.log(req.headers.authorization);
     passport.authenticate('jwt', { session: false }, (err: any, teacher: any, info: any) => {
         if (err || !teacher) {
             return next(createError.Unauthorized(info?.message ? info.message : "User is not authorized"));

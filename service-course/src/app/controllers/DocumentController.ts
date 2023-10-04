@@ -51,12 +51,14 @@ class DocumentController {
         }
     }
 
-    // [GET] /api/v1/document/:teacherId
+    // [GET] /api/v1/document/teacher/:teacherId
     getDocumentCreatedByTeacher = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const teacherId = req.params.teacherId;
             const teacherAuthId = req.teacher.data.id
-            if (teacherId !== teacherAuthId) 
+            console.log(teacherAuthId);
+            console.log(teacherId);
+            if (teacherId != teacherAuthId) 
                 return res.status(401).json({ message: "You do not have permission to do this action!" });
 
             const documents = await Document.findAll({

@@ -221,7 +221,7 @@ module.exports = {
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
-      },
+      }, //npx sequelize-cli db:migrate --config src/db/config/config.json --migrations-path src/db/migrations
       lectureId: {
         type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,

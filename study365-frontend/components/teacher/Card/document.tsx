@@ -37,7 +37,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
         <div className="flex justify-between items-center">
             <a href={document.url} download className="title-xsm font-medium text-blue-700">gif gif ddos</a>
             <div className="mt-2">
-                <a className="py-1 px-1" target='blank' href='https://firebasestorage.googleapis.com/v0/b/study365-a3ffe.appspot.com/o/document%2FBTKTCTVVT.pdf%20%20%20%20%20%20%202023-9-30%2017%3A36%3A2?alt=media&token=75d1dc12-4745-4470-86c5-295ff67c9d19&_gl=1*10e8o60*_ga*MTk3NjczMTA5Mi4xNjgxMTIyMzgz*_ga_CW55HF8NVT*MTY5NjI1MTEzMy4xNS4xLjE2OTYyNTExNTAuNDMuMC4w'>
+                <a className="py-1 px-1" target='blank' href={document.url}>
                   <RemoveRedEyeOutlinedIcon className='text-black' />
                 </a>
                 <button className="py-1 px-1" onClick={handleOpenEditModal}>

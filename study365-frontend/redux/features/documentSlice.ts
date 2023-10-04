@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axiosConfig, { setAuthToken } from '../axios.config';
 
-export const getDocumentCreatedByTeacher = createAsyncThunk('/document/getAllDocument', async (teacherId: number, thunkAPI) => {
+export const getDocumentCreatedByTeacher = createAsyncThunk('/document/createdByTeacher', async (teacherId: number, thunkAPI) => {
     try {
-        const response = await axiosConfig.get(`/document/${teacherId}`);
+        const response = await axiosConfig.get(`/document/teacher/${teacherId}`);
 
         if (response.status !== 200) return thunkAPI.rejectWithValue(response.data.message);
 
