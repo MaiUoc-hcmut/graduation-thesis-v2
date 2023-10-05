@@ -74,6 +74,7 @@ export const loginTeacher = createAsyncThunk('auth-teacher/login', async (user: 
 
 type InitialState = {
     isAuth: boolean,
+    isAuthTeacher: boolean,
     isLoading: boolean,
     isSuccess: boolean,
     isFailed: boolean,
@@ -85,7 +86,6 @@ type UserState = {
     id: number,
     name: string,
     email: string,
-    password: string,
     phone: string,
     address: string,
     avatar: string,
@@ -96,6 +96,7 @@ type UserState = {
 
 const initialState = {
     isAuth: false as boolean,
+    isAuthTeacher: false as boolean,
     isLoading: false as boolean,
     isSuccess: false as boolean,
     isFailed: false as boolean,
@@ -104,7 +105,6 @@ const initialState = {
         id: 0,
         name: "",
         email: "",
-        password: "",
         phone: "",
         address: "",
         avatar: "",
@@ -173,8 +173,9 @@ export const auth = createSlice({
                 state.isAuth = true;
                 state.isLoading = false;
                 state.isSuccess = true;
-                state.user = action.payload;
+                state.user = action.payload.user;
                 console.log("Fullfiled")
+                console.log(action.payload)
             })
             .addCase(signupTeacher.pending, (state) => {
                 console.log("Pending");
@@ -221,7 +222,7 @@ export const auth = createSlice({
             .addCase(loginTeacher.fulfilled, (state, action) => {
                 console.log("Fullfiled");
                 console.log(action.payload.user);
-                state.isAuth = true;
+                state.isAuthTeacher = true;
                 state.isLoading = false;
                 state.isSuccess = true;
                 state.user = action.payload.user;

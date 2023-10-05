@@ -1,3 +1,12 @@
+'use client'
+import Header from '@/components/Header';
+import Intro from '@/components/home/intro';
+
 export default function Page() {
-    return <h1>Hello, Home page!</h1>
+    return (
+        <div>
+            <Header />
+            <Intro />
+        </div>
+    )
 }

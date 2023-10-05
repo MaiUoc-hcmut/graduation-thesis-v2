@@ -5,6 +5,7 @@ import { getDocumentCreatedByTeacher, reset } from '@/redux/features/documentSli
 import { useAppSelector, AppDispatch } from '@/redux/store';
 import { useDispatch } from 'react-redux';
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 const Document = () => {
 
@@ -16,6 +17,14 @@ const Document = () => {
         level: 'Advanced',
         url: 'www.example.com/my-document.pdf'
     };
+
+    const { isAuthTeacher } = useAppSelector(state => state.authReducer);
+
+    useEffect(() => {
+        if (!isAuthTeacher) {
+            redirect('/teacher/login');
+        }
+    }, [isAuthTeacher, redirect]);
 
     const teacherId = useAppSelector(state => state.authReducer.user.id);
     // let documentList = [];
@@ -40,7 +49,13 @@ const Document = () => {
 
     const documentList = document.map(doc => {
         return (
-            <div key={doc.id} className="w-full sm:w-1/2 lg:w-1/3 p-4">
+            <div 
+                key={doc.id} 
+                className="
+                    w-full flex flex-row p-4 bg-white 
+                    border border-gray-200 rounded-lg 
+                    shadow dark:bg-gray-800 dark:border-gray-700"
+            >
                 <DocumentCard document={documentData} />
             </div>
         )
