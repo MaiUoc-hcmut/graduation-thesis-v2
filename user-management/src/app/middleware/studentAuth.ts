@@ -1,4 +1,5 @@
 const passport = require('passport');
+const passportStudent = passport;
 const LocalStrategy = require('passport-local').Strategy;
 const JWTStrategy = require('passport-jwt').Strategy;
 const { ExtractJwt } = require('passport-jwt');
@@ -7,20 +8,31 @@ const createError = require('http-errors');
 const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv').config();
 
+import { Request, Response, NextFunction } from "express";
+
+declare global {
+    namespace Express {
+        interface Request {
+            student?: any;
+        }
+    }
+}
+
 // to authorize user using jwt
 const jwtConfig = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken('Authorization'),
     secretOrKey: process.env.ACCESS_TOKEN_SECRET,
 };
-passport.use(
-    new JWTStrategy(jwtConfig, async (payload, done) => {
+passportStudent.use(
+    'student-jwt',
+    new JWTStrategy(jwtConfig, async (payload: any, done: any) => {
         try {
             console.log(payload);
             const student = await Student.findOne({
                 where: { id: payload.id }
             });
             if (!student) {
-                done(new Exception('User not found!', 401), false);
+                done(new Error('User not found!'), false);
             }
             // success case
             return done(null, student);
@@ -30,14 +42,27 @@ passport.use(
     })
 );
 
+// middleware verify access token
+exports.protectedAPI = (req: Request, res: Response, next: NextFunction) => {
+    passportStudent.authenticate('student-jwt', { session: false }, (err: any, student: any, info: any) => {
+        if (err || !student) {
+            return next(createError.Unauthorized(info?.message ? info.message : "User is not authorized"));
+        } else {
+            req.student = student;
+            next();
+        }
+    })(req, res, next);
+};
+
 
 // to authenticate user with username and password
-const localConfig = {
+const localStudentConfig = {
     usernameField: 'email',
     passwordField: 'password',
 };
-passport.use(
-    new LocalStrategy(localConfig, async (email, password, done) => {
+passportStudent.use(
+    'student-local',
+    new LocalStrategy(localStudentConfig, async (email: string, password: string, done: any) => {
         try {
             if (!email || !password) {
                 done(createError.BadRequest('Email and password are required'));
@@ -59,14 +84,14 @@ passport.use(
     })
 );
 
-// middleware verify access token
-exports.protectedAPI = (req, res, next) => {
-    passport.authenticate('jwt', { session: false }, (err, student, info) => {
+
+exports.loginAuth = (req: Request, res: Response, next: NextFunction) => {
+    passportStudent.authenticate('student-local', { session: false, failureMessage: true }, (err: any, student: any, info: any) => {
         if (err || !student) {
-            return next(createError.Unauthorized(info?.message ? info.message : "User is not authorized"));
+            return next(createError.BadRequest(info?.message ? info.message : "Login failed"));
         } else {
             req.student = student;
             next();
         }
     })(req, res, next);
-};
+}

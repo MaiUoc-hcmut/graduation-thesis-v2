@@ -6,6 +6,7 @@ const createError = require('http-errors');
 
 const studentAuthRouter = require('./app/route/studentAuthRoute');
 const studentRouter = require('./app/route/studentRoute');
+const teacherAuthRouter = require('./app/route/teacherAuthRoute');
 const teacherRouter = require('./app/route/teacherRoute');
 
 const db = require('./config/db');
@@ -21,6 +22,7 @@ app.use(express.json());
 
 app.use('/api/v1/auth', studentAuthRouter);
 app.use('/api/v1/student', studentRouter);
+app.use('/api/v1/auth-teacher', teacherAuthRouter);
 app.use('/api/v1/teacher', teacherRouter);
 
 

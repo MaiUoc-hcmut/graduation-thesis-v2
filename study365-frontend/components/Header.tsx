@@ -1,8 +1,11 @@
-import Image from 'next/image'
-import Link from 'next/link'
-import header from '@/styles/header.module.css'
+'use client'
+import Image from 'next/image';
+import Link from 'next/link';
+import { useAppSelector } from '@/redux/store';
+import header from '@/styles/header.module.css';
 
 export default function Header() {
+    const { isAuth, user } = useAppSelector(state => state.authReducer);
     return (
         <div>
             <nav>
@@ -34,28 +37,33 @@ export default function Header() {
                                 </div>
                             </div>
                         </form>
-
                     </div>
-
-                    <div className='flex w-56 h-1/2'>
-                        <Link href="/login" className='w-full mr-2'>
-                            <button
-                                className="flex w-full justify-center items-center rounded-md bg-btn_primary px-3 py-1.5 text-sm font-semibold leading-6 border-b-2 border-b-[#196aac] shadow-sm"
-                                style={{
-                                    color: 'white'
-                                }}
-                            >
-                                Đăng nhập
-                            </button>
-                        </Link>
-                        <Link href="/signup" className='w-full'>
-                            <button
-                                className="flex w-full justify-center items-center rounded-md bg-slate-200 px-3 py-1.5 text-sm font-semibold leading-6 text-black border-b-2 border-b-slate-400 shadow-sm"
-                            >
-                                Đăng ký
-                            </button>
-                        </Link>
-                    </div>
+                    {
+                        isAuth && <p>Xin chao {user.name}</p>
+                    }
+                    {
+                        !isAuth && (
+                            <div className='flex w-56 h-1/2'>
+                                <Link href="/login" className='w-full mr-2'>
+                                    <button
+                                        className="flex w-full justify-center items-center rounded-md bg-btn_primary px-3 py-1.5 text-sm font-semibold leading-6 border-b-2 border-b-[#196aac] shadow-sm"
+                                        style={{
+                                            color: 'white'
+                                        }}
+                                    >
+                                        Đăng nhập
+                                    </button>
+                                </Link>
+                                <Link href="/signup" className='w-full'>
+                                    <button
+                                        className="flex w-full justify-center items-center rounded-md bg-slate-200 px-3 py-1.5 text-sm font-semibold leading-6 text-black border-b-2 border-b-slate-400 shadow-sm"
+                                    >
+                                        Đăng ký
+                                    </button>
+                                </Link>
+                            </div>
+                        )
+                    }
                 </div>
                 <div className='text-[white] bg-primary'>
                     <ul className='flex ml-10'>

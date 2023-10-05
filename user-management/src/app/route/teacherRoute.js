@@ -6,7 +6,7 @@ const Authorize = require('../middleware/teacherAuth');
 const Photo = require('../../config/firebase/photo');
 
 router.route('/get-all-teacher').get(TeacherController.getAllTeacher);
-router.route('/get-teacher-by-id').get(TeacherController.getTeacherById);
+router.route('/get-teacher-by-id/:teacherId').get(TeacherController.getTeacherById);
 router.route('/get-teacher-by-email').get(TeacherController.getTeacherByEmail);
 router.route('/change-password').put(Authorize.protectedAPI, TeacherController.changePassword);
 router.route('/forgot-password').post(TeacherController.forgotPassword);
