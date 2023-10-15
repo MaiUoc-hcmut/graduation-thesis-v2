@@ -72,6 +72,22 @@ export const loginTeacher = createAsyncThunk('auth-teacher/login', async (user: 
     }
 })
 
+export const signout = createAsyncThunk('/auth/signout', async (arg, thunkAPI) => {
+    try {
+        localStorage.removeItem('user');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('persist:authReducer');
+        localStorage.removeItem('persist:documentReducer');
+        localStorage.removeItem('persist:studentReducer');
+        localStorage.removeItem('persist:root');
+        // console.log(initialState);
+        return initialState;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error);
+    }
+})
+
 type InitialState = {
     isAuth: boolean,
     isAuthTeacher: boolean,
@@ -221,12 +237,27 @@ export const auth = createSlice({
             })
             .addCase(loginTeacher.fulfilled, (state, action) => {
                 console.log("Fullfiled");
-                console.log(action.payload.user);
                 state.isAuthTeacher = true;
                 state.isLoading = false;
                 state.isSuccess = true;
                 state.user = action.payload.user;
-                console.log(state.user);
+            })
+            .addCase(signout.pending, (state, action) => {
+                console.log("Pending");
+                state.isLoading = true;
+            })
+            .addCase(signout.rejected, (state, action) => {
+                console.log("Rejected");
+                state.isFailed = true;
+                state.isLoading = false;
+            })
+            .addCase(signout.fulfilled, (state, action) => {
+                console.log("Fullfiled");
+                state.isSuccess = true;
+                state.isLoading = false;
+                state.user = action.payload.user;
+                state.isAuth = false;
+                state.isAuthTeacher = false;
             })
     },
 });

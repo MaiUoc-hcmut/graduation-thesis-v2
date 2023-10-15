@@ -10,7 +10,7 @@ import { TypedUseSelectorHook, useSelector } from "react-redux";
 const rootReducer = combineReducers({
     authReducer: persistReducer({ key: 'authReducer', storage }, authReducer),
     documentReducer: persistReducer({ key: 'documentReducer', storage }, documentReducer),
-    studentReducer: persistReducer({ key: 'documentReducer', storage }, studentReducer),
+    studentReducer: persistReducer({ key: 'student', storage }, studentReducer),
 })
 
 

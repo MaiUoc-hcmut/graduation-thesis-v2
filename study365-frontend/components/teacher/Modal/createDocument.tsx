@@ -2,28 +2,16 @@
 import React, { useState } from "react";
 import Dropzone from "../DragAndDrop/dragAndDrop";
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { uploadFile, updateDocument, reset } from "@/redux/features/documentSlice";
+import { uploadFile, createDocument, reset } from "@/redux/features/documentSlice";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@/redux/store";
-import '@/styles/teacher/document/editModal.css';
 
-interface Document {
-    id: number;
-    title: string;
-    lastUpdated: Date;
-    class: number;
-    subject: string;
-    level: string;
-    url: string;
+type Props = {
+    isVisible: boolean,
+    onClose: () => void
 }
 
-interface ModalEditDocumentProps {
-    isVisible: boolean;
-    document: Document;
-    onClose: () => void;
-}
-
-const EditDocument: React.FC<ModalEditDocumentProps> = ({ isVisible, document, onClose }) => {
+const CreateDocumentModal: React.FC<Props> = ({ isVisible, onClose }) => {
     if (!isVisible) return null
 
     const [fileDocument, setFileDocument] = useState<null | File>(null);
@@ -47,7 +35,7 @@ const EditDocument: React.FC<ModalEditDocumentProps> = ({ isVisible, document, o
         }
     })
 
-    const handleUpdateSubmit: SubmitHandler<{
+    const handleCreateSubmit: SubmitHandler<{
         class: number,
         level: string,
         subject: string,
@@ -63,17 +51,17 @@ const EditDocument: React.FC<ModalEditDocumentProps> = ({ isVisible, document, o
                         subject: data.subject,
                     },
                     name: "abcd",
-                    url,
-                    id: document.id,
+                    url
                 }
                 dispatch(reset());
-                dispatch(updateDocument(formData));
+                dispatch(createDocument(formData));
             }
             dispatch(reset());
             if (isFailed) console.log(message)
             onClose();
         }
     }
+
     return (
         <div 
             className="
@@ -84,7 +72,7 @@ const EditDocument: React.FC<ModalEditDocumentProps> = ({ isVisible, document, o
         >
             <div className="w-[600px]">
                 <div className="bg-white p-4 rounded">
-                    <form onSubmit={handleSubmit(handleUpdateSubmit)}>
+                    <form onSubmit={handleSubmit(handleCreateSubmit)}>
                         <div className="flex flex-row justify-between items-center mt-4 mb-5 pr-5">
                             <div className="flex items-center w-full">
                                 <select 
@@ -100,8 +88,6 @@ const EditDocument: React.FC<ModalEditDocumentProps> = ({ isVisible, document, o
                                     {...register('class', {
                                         required: 'Class is required'
                                     })}
-                                    defaultChecked
-                                    defaultValue={document.class}
                                 >
                                     <option value={0}>Chọn lớp</option>
                                     <option value={10}>Lớp 10</option>
@@ -119,8 +105,6 @@ const EditDocument: React.FC<ModalEditDocumentProps> = ({ isVisible, document, o
                                     {...register('subject', {
                                         required: 'Subject is required'
                                     })}
-                                    defaultChecked
-                                    defaultValue={document.subject}
                                 >
                                     <option value="">Chọn môn học</option>
                                     <option value="math">Toán</option>
@@ -138,15 +122,13 @@ const EditDocument: React.FC<ModalEditDocumentProps> = ({ isVisible, document, o
                                     {...register('level', {
                                         required: 'Level is required'
                                     })}
-                                    defaultChecked
-                                    defaultValue={document.level}
                                 >
                                     <option value="">Chọn mức độ</option>
                                     <option value="advanced">Nâng cao</option>
                                 </select>
                             </div>
                         </div>
-                        <Dropzone setFileDocument={setFileDocument} existedFile={true} document={document} />
+                        <Dropzone setFileDocument={setFileDocument} />
                         <div className="flex justify-center mt-5">
                             <button 
                                 type="button" 
@@ -163,7 +145,7 @@ const EditDocument: React.FC<ModalEditDocumentProps> = ({ isVisible, document, o
                                     font-medium rounded-xl text-sm px-5 py-2.5 dark:bg-blue-500 
                                     dark:hover:bg-blue-700 font-bold w-20 ml-2"
                             >
-                                Lưu
+                                Tạo
                             </button>
                         </div>
                     </form>
@@ -173,4 +155,4 @@ const EditDocument: React.FC<ModalEditDocumentProps> = ({ isVisible, document, o
     )
 }
 
-export default EditDocument;
+export default CreateDocumentModal;

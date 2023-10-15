@@ -1,6 +1,19 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axiosConfig, { setAuthToken } from '../axios.config';
 
+interface DocData {
+    categories: Categories,
+    name: string,
+    url: string,
+    id?: number
+}
+
+interface Categories {
+    class: number,
+    level: string,
+    subject: string,
+}
+
 export const getDocumentCreatedByTeacher = createAsyncThunk('/document/createdByTeacher', async (teacherId: number, thunkAPI) => {
     try {
         const response = await axiosConfig.get(`/document/teacher/${teacherId}`);
@@ -25,11 +38,11 @@ export const getDocumentById = createAsyncThunk('/document/getDocument/:document
     }
 })
 
-export const createDocument = createAsyncThunk('/document/createDocument', async (document, thunkAPI) => {
+export const createDocument = createAsyncThunk('/document/createDocument', async (document: DocData, thunkAPI) => {
     try {
         const response = await axiosConfig.post('/document', document);
 
-        if (response.status !== 201) return thunkAPI.rejectWithValue(response.data.message);
+        if (response.status !== 201) return thunkAPI.rejectWithValue(response.data);
 
         return response.data;
     } catch (error) {
@@ -46,15 +59,15 @@ export const uploadFile = createAsyncThunk('/document/upload-file', async (file:
 
         if (response.status !== 200) return thunkAPI.rejectWithValue(response.data.message);
 
-        return response.data
+        return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error);
     }
 })
 
-export const updateDocument = createAsyncThunk('/document/updateDocument', async (document, thunkAPI) => {
+export const updateDocument = createAsyncThunk('/document/updateDocument', async (document: DocData, thunkAPI) => {
     try {
-        const response = await axiosConfig.put('/document/:documentId', document);
+        const response = await axiosConfig.put(`/document/${document.id}`, document);
 
         if (response.status !== 200) return thunkAPI.rejectWithValue(response.data.message);
 
@@ -64,9 +77,10 @@ export const updateDocument = createAsyncThunk('/document/updateDocument', async
     }
 })
 
-export const deleteDocument = createAsyncThunk('/document/deletDoument/:documentId', async (documentId: number, thunkAPI) => {
+export const deleteDocument = createAsyncThunk('/document/:documentId', async (documentId: number, thunkAPI) => {
+    console.log(localStorage.getItem('accessToken'));
     try {
-        const response = await axiosConfig.delete(`/document/delete/${documentId}`);
+        const response = await axiosConfig.delete(`/document/${documentId}`);
 
         if (response.status !== 200) return thunkAPI.rejectWithValue(response.data.message);
 
@@ -80,6 +94,9 @@ type Document = {
     id: number,
     name: string,
     url: string,
+    class: number,
+    subject: string,
+    level: string,
     views: number,
     downloads: number,
     createdAt: Date,
@@ -92,6 +109,7 @@ type InitialState = {
     isSuccess: boolean,
     isFailed: boolean,
     message: string,
+    url: string,
     document: Document[],
 }
 
@@ -101,6 +119,7 @@ const initialState = {
     isFailed: false as boolean,
     isInit: true as boolean,
     message: '' as string,
+    url: '' as string,
     document: [] as Document[],
 } as InitialState;
 
@@ -112,6 +131,8 @@ export const document = createSlice({
             state.isLoading = false;
             state.isFailed = false;
             state.isSuccess = false;
+            state.url = '';
+            state.message = '';
         }
     },
     extraReducers(builder) {
@@ -126,7 +147,6 @@ export const document = createSlice({
                 state.isInit = false;
                 state.isLoading = false;
                 state.document = action.payload;
-                console.log(action.payload);
             })
             .addCase(getDocumentCreatedByTeacher.rejected, (state, action) => {
                 console.log("Rejected");
@@ -151,7 +171,6 @@ export const document = createSlice({
                 state.isInit = false;
                 state.isLoading = false;
                 state.document.push(action.payload);
-                console.log(action.payload);
             })
             .addCase(createDocument.rejected, (state, action) => {
                 console.log("Rejected");
@@ -164,6 +183,7 @@ export const document = createSlice({
                 } else {
                     // Handle other cases or assign a default message
                     state.message = "An error occurred";
+                    console.log(action.payload);
                 }
             })
             .addCase(uploadFile.pending, (state) => {
@@ -175,8 +195,7 @@ export const document = createSlice({
                 state.isSuccess = true;
                 state.isInit = false;
                 state.isLoading = false;
-                state.document = action.payload;
-                console.log(action.payload);
+                state.url = action.payload;
             })
             .addCase(uploadFile.rejected, (state, action) => {
                 console.log("Rejected");

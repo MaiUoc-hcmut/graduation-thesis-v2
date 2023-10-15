@@ -3,9 +3,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useAppSelector } from '@/redux/store';
 import header from '@/styles/header.module.css';
+import Avatar from '@/components/home/avatar';
+import { useEffect } from 'react';
 
 export default function Header() {
     const { isAuth, user } = useAppSelector(state => state.authReducer);
+    useEffect(() => {
+        
+    }, [isAuth]);
     return (
         <div>
             <nav>
@@ -39,7 +44,7 @@ export default function Header() {
                         </form>
                     </div>
                     {
-                        isAuth && <p>Xin chao {user.name}</p>
+                        isAuth && <Avatar />
                     }
                     {
                         !isAuth && (

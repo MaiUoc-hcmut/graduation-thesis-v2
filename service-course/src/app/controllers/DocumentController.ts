@@ -112,14 +112,14 @@ class DocumentController {
             const id_teacher = req.teacher.data.id;
             const body = req.body;
             body.id_teacher = id_teacher;
-            const categories = [...body.categories];
+            const categories = body.categories;
             delete body.categories;
 
-            const newDocument = Document.create({ ...body });
+            const newDocument = await Document.create({ ...body });
 
-            await newDocument.addCategories(categories);
-
-            res.status(200).json(newDocument);
+            // await newDocument.addCategories(categories);
+            
+            res.status(201).json(newDocument);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
@@ -152,12 +152,14 @@ class DocumentController {
     // [PUT] /api/v1/document/:documentId
     updateDocument = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const { teacherId, ...body } = req.body;
-            if (teacherId !== req.teacher.data.id)
-                return res.status(401).json({ message: "You do not have permission to do this action!" });
+            const body = req.body;
+            
             const documentId = req.params.documentId;
 
             const updatedDocument = Document.findByPk(documentId);
+            const teacherId = updatedDocument.id_teacher;
+            if (teacherId !== req.teacher.data.id)
+                return res.status(401).json({ message: "You do not have permission to do this action!" });
             updatedDocument.update(body);
             
             res.status(200).json(updatedDocument);
@@ -170,13 +172,15 @@ class DocumentController {
     // [DELETE] /api/v1/document/:documentId
     deleteDocument = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const { teacherId } = req.body;
-            if (teacherId !== req.teacher.data.id)
-                return res.status(401).json({ message: "You do not have permission to do this action!" });
             const documentId = req.params.documentId;
 
             const document = await Document.findByPk(documentId);
             if (!document) return res.status(404).json({ message: "Document does not exist!"});
+
+            const teacherId = document.id_teacher;
+
+            if (teacherId !== req.teacher.data.id)
+                return res.status(401).json({ message: "You do not have permission to do this action!" });
 
             await document.destroy();
 

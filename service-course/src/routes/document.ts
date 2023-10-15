@@ -16,11 +16,11 @@ router.route('/:documentId')
     .delete(Authorize.protectedAPI, DocumentController.deleteDocument);
 router.route('/teacher/:teacherId')
     .get(Authorize.protectedAPI, DocumentController.getDocumentCreatedByTeacher);
-router.route('/:courseId')
+router.route('/course/:courseId')
     .get(DocumentController.getDocumentBelongToCourse);
-router.route('/chapterId')
+router.route('/chapter/:chapterId')
     .get(DocumentController.getDocumentBelongToChapter);
-router.route('/lectureId')
+router.route('/lecture/:lectureId')
     .get(DocumentController.getDocumentBelongToLecture);
 
 module.exports = router;
