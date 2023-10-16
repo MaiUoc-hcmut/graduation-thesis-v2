@@ -24,20 +24,21 @@ export default function Login() {
     })
 
     const handleLoginSubmit: SubmitHandler<{ email: string, password: string}> = async (data) => {
-        dispatch(loginTeacher(data));
+        await dispatch(loginTeacher(data));
     };
 
     useEffect(() => {
         dispatch(reset());
         if (isSuccess) {
             toastSuccess("Login success");
+            dispatch(reset());
             redirect('/teacher');
         }
         if (isFailed) {
             toastError(message);
+            dispatch(reset());
         }
-        dispatch(reset());
-    }, [isSuccess, redirect, dispatch]);
+    }, [dispatch, isSuccess]);
 
     return (
         <div className="mt-10 flex min-h-full flex-1 flex-col justify-center px-6 py-6 lg:px-8">

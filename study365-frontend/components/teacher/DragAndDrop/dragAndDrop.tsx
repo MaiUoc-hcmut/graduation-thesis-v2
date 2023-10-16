@@ -17,22 +17,10 @@ interface Document {
 type Props = {
     setFileDocument: React.Dispatch<React.SetStateAction<null |File>>;
     existedFile?: boolean;
-    document?: Document;
 }
 
-const Dropzone: React.FC<Props> = async ({ setFileDocument, existedFile = false, document }) => {
-    const [preview, setPreview] = useState<string | ArrayBuffer | null>(null);
-    const [isDrop, setIsDrop] = useState(false);
-
-    if (existedFile) {
-        setIsDrop(true);
-        if (document) {
-            const res = await axios.get(document?.url, { responseType: 'blob'});
-            const blob = new Blob([res.data]);
-            const file = new File([blob], document.title)
-            setFileDocument(file);
-        }
-    }
+const Dropzone: React.FC<Props> = ({ setFileDocument, existedFile = false }) => {
+    const [isDrop, setIsDrop] = useState(existedFile);
     const onDrop = useCallback((acceptedFiles: Array<File>) => {
         setIsDrop(true);
         setFileDocument(acceptedFiles[0]);
@@ -53,7 +41,7 @@ const Dropzone: React.FC<Props> = async ({ setFileDocument, existedFile = false,
             </label>
             <div 
                 className="mt-2 flex justify-center rounded-base 
-                    border border-dashed border-gray-900/25 px-6 
+                    border border-dashed border-blue-500 px-6 
                     py-10 cursor-pointer"
                 {...getRootProps()}
             >

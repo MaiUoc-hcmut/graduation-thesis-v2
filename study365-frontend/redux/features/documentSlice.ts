@@ -4,8 +4,8 @@ import axiosConfig, { setAuthToken } from '../axios.config';
 interface DocData {
     categories: Categories,
     name: string,
-    url: string,
-    id?: number
+    id?: number,
+    file?: File
 }
 
 interface Categories {
@@ -40,24 +40,24 @@ export const getDocumentById = createAsyncThunk('/document/getDocument/:document
 
 export const createDocument = createAsyncThunk('/document/createDocument', async (document: DocData, thunkAPI) => {
     try {
-        const response = await axiosConfig.post('/document', document);
+        // Upload file 
+        const formData = new FormData();
+        if (document.file) {
+            formData.append('document', document.file);
+        }
+        const responseUrl = await axiosConfig.post('/document/upload-file', formData);
+
+        if (responseUrl.status !== 200) return thunkAPI.rejectWithValue(responseUrl.data.message);
+
+        // After receive the Url, create the document
+        const docData = {
+            categories: document.categories,
+            name: document.name,
+            url: responseUrl.data
+        }
+        const response = await axiosConfig.post('/document', docData);
 
         if (response.status !== 201) return thunkAPI.rejectWithValue(response.data);
-
-        return response.data;
-    } catch (error) {
-        return thunkAPI.rejectWithValue(error);
-    }
-})
-
-export const uploadFile = createAsyncThunk('/document/upload-file', async (file: File, thunkAPI) => {
-    try {
-        const formData = new FormData();
-        formData.append('document', file);
-
-        const response = await axiosConfig.post('/document/upload-file', formData);
-
-        if (response.status !== 200) return thunkAPI.rejectWithValue(response.data.message);
 
         return response.data;
     } catch (error) {
@@ -78,7 +78,6 @@ export const updateDocument = createAsyncThunk('/document/updateDocument', async
 })
 
 export const deleteDocument = createAsyncThunk('/document/:documentId', async (documentId: number, thunkAPI) => {
-    console.log(localStorage.getItem('accessToken'));
     try {
         const response = await axiosConfig.delete(`/document/${documentId}`);
 
@@ -106,20 +105,30 @@ type Document = {
 type InitialState = {
     isInit: boolean,
     isLoading: boolean,
-    isSuccess: boolean,
-    isFailed: boolean,
+    isGetSuccess: boolean,
+    isGetFailed: boolean,
+    isCreateSuccess: boolean,
+    isCreateFailed: boolean,
+    isUpdateSuccess: boolean,
+    isUpdateFailed: boolean,
+    isDeleteSuccess: boolean,
+    isDeleteFailed: boolean,
     message: string,
-    url: string,
     document: Document[],
 }
 
 const initialState = {
     isLoading: false as boolean,
-    isSuccess: false as boolean,
-    isFailed: false as boolean,
+    isGetSuccess: false as boolean,
+    isGetFailed: false as boolean,
+    isCreateSuccess: false as boolean,
+    isCreateFailed: false as boolean,
+    isUpdateSuccess: false as boolean,
+    isUpdateFailed: false as boolean,
+    isDeleteSuccess: false as boolean,
+    isDeleteFailed: false as boolean,
     isInit: true as boolean,
     message: '' as string,
-    url: '' as string,
     document: [] as Document[],
 } as InitialState;
 
@@ -129,9 +138,12 @@ export const document = createSlice({
     reducers: {
         reset: (state) => {
             state.isLoading = false;
-            state.isFailed = false;
-            state.isSuccess = false;
-            state.url = '';
+            state.isGetFailed = false;
+            state.isGetSuccess = false;
+            state.isCreateFailed = false;
+            state.isCreateSuccess = false;
+            state.isDeleteFailed = false;
+            state.isDeleteSuccess = false;
             state.message = '';
         }
     },
@@ -143,14 +155,14 @@ export const document = createSlice({
             })
             .addCase(getDocumentCreatedByTeacher.fulfilled, (state, action) => {
                 console.log("Fullfiled");
-                state.isSuccess = true;
+                state.isGetSuccess = true;
                 state.isInit = false;
                 state.isLoading = false;
                 state.document = action.payload;
             })
             .addCase(getDocumentCreatedByTeacher.rejected, (state, action) => {
                 console.log("Rejected");
-                state.isFailed = true;
+                state.isGetFailed = true;
                 state.isLoading = false;
                 if (typeof action.payload === 'string') {
                     state.message = action.payload;
@@ -167,14 +179,14 @@ export const document = createSlice({
             })
             .addCase(createDocument.fulfilled, (state, action) => {
                 console.log("Fullfiled");
-                state.isSuccess = true;
+                state.isCreateSuccess = true;
                 state.isInit = false;
                 state.isLoading = false;
                 state.document.push(action.payload);
             })
             .addCase(createDocument.rejected, (state, action) => {
                 console.log("Rejected");
-                state.isFailed = true;
+                state.isCreateFailed = true;
                 state.isLoading = false;
                 if (typeof action.payload === 'string') {
                     state.message = action.payload;
@@ -186,37 +198,13 @@ export const document = createSlice({
                     console.log(action.payload);
                 }
             })
-            .addCase(uploadFile.pending, (state) => {
-                console.log('pending');
-                state.isLoading = true;
-            })
-            .addCase(uploadFile.fulfilled, (state, action) => {
-                console.log("Fullfiled");
-                state.isSuccess = true;
-                state.isInit = false;
-                state.isLoading = false;
-                state.url = action.payload;
-            })
-            .addCase(uploadFile.rejected, (state, action) => {
-                console.log("Rejected");
-                state.isFailed = true;
-                state.isLoading = false;
-                if (typeof action.payload === 'string') {
-                    state.message = action.payload;
-                } else if (action.payload instanceof Error) {
-                    state.message = action.payload.message;
-                } else {
-                    // Handle other cases or assign a default message
-                    state.message = "An error occurred";
-                }
-            })
             .addCase(updateDocument.pending, (state) => {
                 console.log('pending');
                 state.isLoading = true;
             })
             .addCase(updateDocument.fulfilled, (state, action) => {
                 console.log("Fullfiled");
-                state.isSuccess = true;
+                state.isUpdateSuccess = true;
                 state.isInit = false;
                 state.isLoading = false;
                 const index = state.document.findIndex(
@@ -227,7 +215,7 @@ export const document = createSlice({
             })
             .addCase(updateDocument.rejected, (state, action) => {
                 console.log("Rejected");
-                state.isFailed = true;
+                state.isUpdateFailed = true;
                 state.isLoading = false;
                 if (typeof action.payload === 'string') {
                     state.message = action.payload;
@@ -244,18 +232,14 @@ export const document = createSlice({
             })
             .addCase(deleteDocument.fulfilled, (state, action) => {
                 console.log("Fullfiled");
-                state.isSuccess = true;
+                state.isDeleteSuccess = true;
                 state.isInit = false;
                 state.isLoading = false;
-                const index = state.document.findIndex(
-                    doc => doc.id === action.payload.documentId
-                )
-                state.document.splice(index, 1);
-                console.log(action.payload);
+                state.document = state.document.filter(doc => doc.id != action.payload.documentId);
             })
             .addCase(deleteDocument.rejected, (state, action) => {
                 console.log("Rejected");
-                state.isFailed = true;
+                state.isDeleteFailed = true;
                 state.isLoading = false;
                 if (typeof action.payload === 'string') {
                     state.message = action.payload;

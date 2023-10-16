@@ -31,13 +31,14 @@ export default function Login() {
         dispatch(reset());
         if (isSuccess) {
             toastSuccess("Login success");
+            dispatch(reset());
             redirect('/');
         }
         if (isFailed) {
+            dispatch(reset());
             toastError(message);
         }
-        dispatch(reset());
-    }, [isSuccess, redirect, dispatch]);
+    }, [dispatch, redirect, isSuccess]);
 
     return (
         <div className="mt-10 flex min-h-full flex-1 flex-col justify-center px-6 py-6 lg:px-8">

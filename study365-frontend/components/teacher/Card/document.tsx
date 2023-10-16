@@ -12,6 +12,7 @@ interface Document {
     id: number;
     title: string;
     lastUpdated: Date;
+    created: Date;
     class: number;
     subject: string;
     level: string;
@@ -25,6 +26,8 @@ interface DocumentCardProps {
 const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
     const dispatch = useDispatch<AppDispatch>();
     const fileName = document.title.length > 20 ? `${document.title.substring(0, 17)}...` : document.title;
+    const updateDay = new Date(document.lastUpdated);
+    const createDay = new Date(document.created);
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -43,7 +46,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
                 <div className="flex justify-between items-center">
                     <a href={document.url} target='blank' className="title-xsm font-medium text-blue-700">{fileName}</a>
                     <div className="mt-2">
-                        <a className="py-1 px-1" href={document.url} download>
+                        <a className="py-1 px-1" href={document.url} download={true}>
                             <DownloadRoundedIcon className='text-black' />
                         </a>
                         <button 
@@ -63,7 +66,12 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
                 </div>
 
                 {/* Part 2 */}
-                <p className="block text-gray-500">Last updated</p>
+                <p className="block text-gray-500">
+                    Tạo ngày: {createDay.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh", hour12: false})}
+                </p>
+                <p className="block text-gray-500">
+                    Cập nhật lần cuối: {updateDay.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh", hour12: false})}
+                </p>
 
                 {/* Part 3 */}
                 <div className="flex text-black justify-between">

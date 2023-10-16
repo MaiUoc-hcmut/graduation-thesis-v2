@@ -28,7 +28,7 @@ const Document = () => {
     // let documentList = [];
 
     const dispatch = useDispatch<AppDispatch>();
-    const { isSuccess, isFailed, message, isInit, document } = useAppSelector(state => state.documentReducer);
+    const { isGetSuccess, isGetFailed, message, isInit, document } = useAppSelector(state => state.documentReducer);
 
     useEffect(() => {
         if (isInit) {
@@ -37,13 +37,15 @@ const Document = () => {
     }, [isInit])
 
     useEffect(() => {
-        if (isSuccess) {
-            
+        dispatch(reset());
+        if (isGetSuccess) {
+            dispatch(reset());
         }
-        if (isFailed) {
+        if (isGetFailed) {
+            dispatch(reset());
             console.log(message);
         }
-    }, [dispatch, isSuccess, isFailed, document, showCreateModal])
+    }, [dispatch, isGetSuccess, isGetFailed, document, showCreateModal])
 
     const handleClassChange = (e: any) => {
         setSelectedClass(e.target.value);
@@ -77,6 +79,7 @@ const Document = () => {
             id: doc.id,
             title: doc.name,
             lastUpdated: doc.updatedAt,
+            created: doc.createdAt,
             class: doc.class,
             subject: doc.subject,
             level: doc.level,

@@ -72,6 +72,8 @@ instance.interceptors.request.use(
                     .then(response => {
                         if (response.data.accessToken) localStorage.setItem('accessToken', JSON.stringify(response.data.accessToken));
                         if (response.data.refreshToken) localStorage.setItem('accessToken', JSON.stringify(response.data.refreshToken));
+                        let parsedAccessToken = JSON.parse(response.data.accessToken);
+                        config.headers.Authorization = `Bearer ${parsedAccessToken}`;
                     })
                     .catch(error => {
                         return Promise.reject(error);

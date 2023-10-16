@@ -1,8 +1,8 @@
 'use client'
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Dropzone from "../DragAndDrop/dragAndDrop";
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { uploadFile, createDocument, reset } from "@/redux/features/documentSlice";
+import { createDocument, reset } from "@/redux/features/documentSlice";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@/redux/store";
 
@@ -17,8 +17,7 @@ const CreateDocumentModal: React.FC<Props> = ({ isVisible, onClose }) => {
     const [fileDocument, setFileDocument] = useState<null | File>(null);
     const dispatch = useDispatch<AppDispatch>();
 
-    const { isSuccess, isFailed, url, message } = useAppSelector(state => state.documentReducer);
-
+    const { isCreateSuccess, isCreateFailed, message } = useAppSelector(state => state.documentReducer);
     const handleClose = (e: any) => {
         if (e.target.id === 'wrapper') onClose(); 
     }
@@ -41,26 +40,29 @@ const CreateDocumentModal: React.FC<Props> = ({ isVisible, onClose }) => {
         subject: string,
     }> = async (data) => {
         if (fileDocument) {
-            dispatch(reset());
-            await dispatch(uploadFile(fileDocument));
-            if (isSuccess) {
-                const formData = {
-                    categories: {
-                        class: data.class,
-                        level: data.level,
-                        subject: data.subject,
-                    },
-                    name: "abcd",
-                    url
-                }
-                dispatch(reset());
-                dispatch(createDocument(formData));
+            const formData = {
+                categories: {
+                    class: data.class,
+                    level: data.level,
+                    subject: data.subject,
+                },
+                name: fileDocument.name,
+                file: fileDocument
             }
             dispatch(reset());
-            if (isFailed) console.log(message)
+            await dispatch(createDocument(formData));
+            dispatch(reset());
             onClose();
         }
     }
+
+    useEffect(() => {
+        if (isCreateSuccess) {
+            
+        }
+        if (isCreateFailed) console.log(message)
+        dispatch(reset());
+    }, [dispatch, isCreateSuccess, isCreateFailed]);
 
     return (
         <div 
@@ -78,12 +80,12 @@ const CreateDocumentModal: React.FC<Props> = ({ isVisible, onClose }) => {
                                 <select 
                                     id="class" 
                                     className="
-                                        bg-gray-50 mx-5 border border-gray-300 
+                                        bg-gray-50 mx-5 border border-blue-300 
                                         text-gray-900 text-sm rounded-lg 
                                         focus:ring-blue-500 focus:border-blue-500 
                                         block w-1/2 p-2.5 dark:bg-gray-700 
                                         dark:border-gray-600 dark:placeholder-gray-400 
-                                        dark:text-white dark:focus:ring-blue-500 
+                                        dark:text-black dark:focus:ring-blue-500 
                                         dark:focus:border-blue-500"
                                     {...register('class', {
                                         required: 'Class is required'
@@ -95,12 +97,12 @@ const CreateDocumentModal: React.FC<Props> = ({ isVisible, onClose }) => {
                                 <select 
                                     id="subject" 
                                     className="
-                                        bg-gray-50 mx-5 border border-gray-300 
+                                        bg-gray-50 mx-5 border border-blue-300 
                                         text-gray-900 text-sm rounded-lg 
                                         focus:ring-blue-500 focus:border-blue-500 
                                         block w-1/2 p-2.5 dark:bg-gray-700 
                                         dark:border-gray-600 dark:placeholder-gray-400 
-                                        dark:text-white dark:focus:ring-blue-500 
+                                        dark:text-black dark:focus:ring-blue-500 
                                         dark:focus:border-blue-500"
                                     {...register('subject', {
                                         required: 'Subject is required'
@@ -112,13 +114,13 @@ const CreateDocumentModal: React.FC<Props> = ({ isVisible, onClose }) => {
                                 <select 
                                     id="level" 
                                     className="
-                                    bg-gray-50 mx-5 border border-gray-300 
-                                    text-gray-900 text-sm rounded-lg 
-                                    focus:ring-blue-500 focus:border-blue-500 
-                                    block w-1/2 p-2.5 dark:bg-gray-700 
-                                    dark:border-gray-600 dark:placeholder-gray-400 
-                                    dark:text-white dark:focus:ring-blue-500 
-                                    dark:focus:border-blue-500"
+                                        bg-gray-50 mx-5 border border-blue-300 
+                                        text-gray-900 text-sm rounded-lg 
+                                        focus:ring-blue-500 focus:border-blue-500 
+                                        block w-1/2 p-2.5 dark:bg-gray-700 
+                                        dark:border-gray-600 dark:placeholder-gray-400 
+                                        dark:text-black dark:focus:ring-blue-500 
+                                        dark:focus:border-blue-500"
                                     {...register('level', {
                                         required: 'Level is required'
                                     })}
