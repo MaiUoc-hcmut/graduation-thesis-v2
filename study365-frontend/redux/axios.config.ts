@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 
 const instance = axios.create({
     baseURL: 'http://localhost:4000/api/v1',
-    timeout: 2000,
+    timeout: 4000,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -28,7 +28,8 @@ instance.interceptors.request.use(
                 config.url.indexOf('/document') >= 0 ||
                 config.url.indexOf('/course') >= 0 ||
                 config.url.indexOf('/chapter') >= 0 || 
-                config.url.indexOf('/lecture') >= 0
+                config.url.indexOf('/lecture') >= 0 ||
+                config.url.indexOf('/folder') >= 0
             ) {
                 config.baseURL = 'http://localhost:3001/api/v1';
             }

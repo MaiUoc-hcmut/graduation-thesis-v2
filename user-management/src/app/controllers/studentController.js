@@ -93,7 +93,7 @@ class StudentController {
 
             const dateTime = Photo.giveCurrentDateTime();
 
-            const storageRef = ref(storage, `files/${req.file.originalname + "       " + dateTime}`);
+            const storageRef = ref(storage, `avatars/${req.file.originalname + "       " + dateTime}`);
 
             // Create file metadata including the content type
             const metadata = {

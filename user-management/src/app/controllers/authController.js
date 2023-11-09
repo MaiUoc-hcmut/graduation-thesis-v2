@@ -12,8 +12,6 @@ class Auth {
                 where: { email: email }
             });
             if (existedStudent) return res.send(createError.Conflict("The email already exist!"));
-            console.log(password);
-            console.log(confirmPassword);
             if (password !== confirmPassword) return res.send(createError.BadRequest("Password does not match!"));
             const hashPassword = await bcrypt.hash(password, 12);
             const newStudent = await Student.create({
@@ -45,14 +43,12 @@ class Auth {
 
     registerTeacher = async (req, res, next) => {
         try {
-            const { name, email, password, grade, gender, address, subject, phone } = req.body;
+            const { name, email, password, confirmPassword, grade, gender, address, subject, phone } = req.body;
             const existedTeacher = await Teacher.findOne({
                 where: { email: email }
             });
             if (existedTeacher) return res.send(createError.Conflict("The email already exist!"));
-            console.log(password);
-            // console.log(confirmPassword);
-            // if (password !== confirmPassword) return res.send(createError.BadRequest("Password does not match!"));
+            if (password !== confirmPassword) return res.send(createError.BadRequest("Password does not match!"));
             const hashPassword = await bcrypt.hash(password, 12);
             const newTeacher = await Teacher.create({
                 email,
@@ -119,9 +115,9 @@ class Auth {
 
     refreshToken = async (req, res, next) => {
         try {
-            const { refreshToken } = req.body;
-            if (!refreshToken) return next(createError.BadRequest('Refresh token are required'));
-            const id = await SignToken.verifyRefreshToken(refreshToken);
+            const { parsedRefreshToken } = req.body;
+            if (!parsedRefreshToken) return next(createError.BadRequest('Refresh token are required'));
+            const id = await SignToken.verifyRefreshToken(parsedRefreshToken);
             const accessToken = SignToken.signAccessToken(id);
             const refToken = SignToken.signRefreshToken(id);
             res.status(200).json({

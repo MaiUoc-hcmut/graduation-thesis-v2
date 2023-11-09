@@ -3,6 +3,8 @@ const multer = require('multer');
 class DocumentFile {
     upload = multer({ storage: multer.memoryStorage() }).single('document');
 
+    uploadMulti = multer({ storage: multer.memoryStorage() }).array('document');
+
     giveCurrentDateTime = () => {
         const today = new Date();
         const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();

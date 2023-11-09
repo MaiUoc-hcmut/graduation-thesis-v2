@@ -185,8 +185,10 @@ export default function Signup() {
                                         {...register('gender', { required: "Please choose your gender" })}
                                         value={0}
                                         className="block w-full rounded-md border-0 py-1.5 px-2  text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                                        defaultChecked
+                                        defaultValue="Nam"
                                     >
-                                        <option value="Name">Nam</option>
+                                        <option value="Nam">Nam</option>
                                         <option value="Nữ">Nữ</option>
                                         <option value="Khác">Khác</option>
                                     </select>
@@ -204,6 +206,8 @@ export default function Signup() {
                                         id="grade"
                                         {...register('grade', { required: "Please choose your grade" })}
                                         className="block w-full rounded-md border-0 py-1.5 px-2  text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                                        defaultChecked
+                                        defaultValue={10}
                                     >
                                         <option value={10}>Lớp 10</option>
                                         <option value={11}>Lớp 11</option>

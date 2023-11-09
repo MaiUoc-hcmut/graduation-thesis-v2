@@ -3,15 +3,24 @@ import axiosConfig, { setAuthToken } from '../axios.config';
 
 interface DocData {
     categories: Categories,
-    name: string,
-    id?: number,
-    file?: File
+    parentId?: number,
+    files: File[],
+}
+
+interface DocUpdateData {
+    categories: Categories,
+    id: number,
 }
 
 interface Categories {
     class: number,
     level: string,
     subject: string,
+}
+
+interface ResponseUploadFile {
+    name: string,
+    url: string,
 }
 
 export const getDocumentCreatedByTeacher = createAsyncThunk('/document/createdByTeacher', async (teacherId: number, thunkAPI) => {
@@ -38,24 +47,51 @@ export const getDocumentById = createAsyncThunk('/document/getDocument/:document
     }
 })
 
+export const getDocumentBelongToFolder = createAsyncThunk('/document/folder/:parentId', async (parentId: number, thunkAPI) => {
+    try {
+        const response = await axiosConfig.get(`/document/folder/${parentId}`);
+        
+        if (response.status !== 200) return thunkAPI.rejectWithValue(response.data.message);
+
+        return response.data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error);
+    }
+})
+
 export const createDocument = createAsyncThunk('/document/createDocument', async (document: DocData, thunkAPI) => {
     try {
         // Upload file 
         const formData = new FormData();
-        if (document.file) {
-            formData.append('document', document.file);
+        
+        if (document.files.length > 0) {
+            document.files.forEach((file, index) => {
+                if (file) {
+                    formData.append(`document[${index}]`, file);
+                }
+            })
         }
-        const responseUrl = await axiosConfig.post('/document/upload-file', formData);
+        const responseUrls = await axiosConfig.post('/document/upload-multi-file', formData);
 
-        if (responseUrl.status !== 200) return thunkAPI.rejectWithValue(responseUrl.data.message);
+        if (responseUrls.status !== 200) return thunkAPI.rejectWithValue(responseUrls.data.message);
+        
+        let parentId = -1;
+        if (document.parentId && document.parentId > 0) {
+            parentId = document.parentId;
+        }
 
         // After receive the Url, create the document
-        const docData = {
-            categories: document.categories,
-            name: document.name,
-            url: responseUrl.data
+        const docData = responseUrls.data.map((response: ResponseUploadFile) => {
+            return {
+                name: response.name,
+                url: response.url,
+            }
+        })
+        const requestData = {
+            fileData: docData,
+            parentId
         }
-        const response = await axiosConfig.post('/document', docData);
+        const response = await axiosConfig.post('/document', requestData);
 
         if (response.status !== 201) return thunkAPI.rejectWithValue(response.data);
 
@@ -65,7 +101,7 @@ export const createDocument = createAsyncThunk('/document/createDocument', async
     }
 })
 
-export const updateDocument = createAsyncThunk('/document/updateDocument', async (document: DocData, thunkAPI) => {
+export const updateDocument = createAsyncThunk('/document/updateDocument', async (document: DocUpdateData, thunkAPI) => {
     try {
         const response = await axiosConfig.put(`/document/${document.id}`, document);
 
@@ -156,6 +192,7 @@ export const document = createSlice({
             .addCase(getDocumentCreatedByTeacher.fulfilled, (state, action) => {
                 console.log("Fullfiled");
                 state.isGetSuccess = true;
+                state.isGetFailed = false;
                 state.isInit = false;
                 state.isLoading = false;
                 state.document = action.payload;
@@ -163,6 +200,7 @@ export const document = createSlice({
             .addCase(getDocumentCreatedByTeacher.rejected, (state, action) => {
                 console.log("Rejected");
                 state.isGetFailed = true;
+                state.isGetSuccess = false;
                 state.isLoading = false;
                 if (typeof action.payload === 'string') {
                     state.message = action.payload;
@@ -173,6 +211,31 @@ export const document = createSlice({
                     state.message = "An error occurred";
                 }
             })
+            .addCase(getDocumentBelongToFolder.pending, (state) => {
+                console.log('Pending');
+                state.isLoading = true;
+            })
+            .addCase(getDocumentBelongToFolder.rejected, (state, action) => {
+                console.log('Rejected');
+                state.isLoading = false;
+                state.isGetFailed = true;
+                state.isGetSuccess = false;
+                if (typeof action.payload === 'string') {
+                    state.message = action.payload;
+                } else if (action.payload instanceof Error) {
+                    state.message = action.payload.message;
+                } else {
+                    // Handle other cases or assign a default message
+                    state.message = "An error occurred";
+                }
+            })
+            .addCase(getDocumentBelongToFolder.fulfilled, (state, action) => {
+                console.log('Fullfiled');
+                state.isLoading = false;
+                state.isGetFailed = false;
+                state.isGetSuccess = true;
+                state.document = action.payload;
+            })
             .addCase(createDocument.pending, (state) => {
                 console.log('pending');
                 state.isLoading = true;
@@ -182,7 +245,7 @@ export const document = createSlice({
                 state.isCreateSuccess = true;
                 state.isInit = false;
                 state.isLoading = false;
-                state.document.push(action.payload);
+                state.document.concat(action.payload);
             })
             .addCase(createDocument.rejected, (state, action) => {
                 console.log("Rejected");

@@ -26,7 +26,7 @@ interface ModalEditDocumentProps {
 const EditDocument: React.FC<ModalEditDocumentProps> = ({ isVisible, document, onClose }) => {
     if (!isVisible) return null
 
-    const [fileDocument, setFileDocument] = useState<null | File>(null);
+    const [fileDocument, setFileDocument] = useState<Array<File>>([]);
     const dispatch = useDispatch<AppDispatch>();
 
     const { isUpdateSuccess, isUpdateFailed, message } = useAppSelector(state => state.documentReducer);
@@ -70,8 +70,8 @@ const EditDocument: React.FC<ModalEditDocumentProps> = ({ isVisible, document, o
             name: document.title,
             id: document.id,
         };
-        if (fileDocument) {
-            formData.file = fileDocument;
+        if (fileDocument.length > 0) {
+            formData.file = fileDocument[0];
         }
         dispatch(reset());
         await dispatch(updateDocument(formData));

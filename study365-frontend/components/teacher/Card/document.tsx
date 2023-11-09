@@ -40,9 +40,10 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
 
     return (
         <Fragment>
-            <div className="block p-6 max-w-lg mx-auto rounded-xl shadow-md items-center">
-            
-                {/* Part 1 */}
+            <div 
+                className="block p-6 max-w-lg mx-auto rounded-xl shadow-md items-center"
+                title={document.title}
+            >
                 <div className="flex justify-between items-center">
                     <a href={document.url} target='blank' className="title-xsm font-medium text-blue-700">{fileName}</a>
                     <div className="mt-2">
@@ -65,7 +66,6 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
                     </div>
                 </div>
 
-                {/* Part 2 */}
                 <p className="block text-gray-500">
                     Tạo ngày: {createDay.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh", hour12: false})}
                 </p>
@@ -73,7 +73,6 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
                     Cập nhật lần cuối: {updateDay.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh", hour12: false})}
                 </p>
 
-                {/* Part 3 */}
                 <div className="flex text-black justify-between">
                     <p>Grade 10</p>
                     <p>Math</p>

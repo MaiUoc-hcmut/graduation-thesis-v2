@@ -159,7 +159,6 @@ export const auth = createSlice({
                     // Handle other cases or assign a default message
                     state.message = "An error occurred";
                 }
-                console.log(action.payload);
             })
             .addCase(signup.fulfilled, (state, action) => {
                 console.log('Fullfilled');
@@ -183,7 +182,6 @@ export const auth = createSlice({
                     // Handle other cases or assign a default message
                     state.message = "An error occurred";
                 }
-                console.log(action.payload);
             })
             .addCase(login.fulfilled, (state, action) => {
                 state.isAuth = true;
@@ -191,7 +189,6 @@ export const auth = createSlice({
                 state.isSuccess = true;
                 state.user = action.payload.user;
                 console.log("Fullfiled")
-                console.log(action.payload)
             })
             .addCase(signupTeacher.pending, (state) => {
                 console.log("Pending");

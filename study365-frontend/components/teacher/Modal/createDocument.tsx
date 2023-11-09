@@ -8,13 +8,14 @@ import { AppDispatch, useAppSelector } from "@/redux/store";
 
 type Props = {
     isVisible: boolean,
+    parentId: number,
     onClose: () => void
 }
 
-const CreateDocumentModal: React.FC<Props> = ({ isVisible, onClose }) => {
+const CreateDocumentModal: React.FC<Props> = ({ isVisible, parentId, onClose }) => {
     if (!isVisible) return null
 
-    const [fileDocument, setFileDocument] = useState<null | File>(null);
+    const [fileDocuments, setFileDocuments] = useState<Array<File>>([]);
     const dispatch = useDispatch<AppDispatch>();
 
     const { isCreateSuccess, isCreateFailed, message } = useAppSelector(state => state.documentReducer);
@@ -39,16 +40,16 @@ const CreateDocumentModal: React.FC<Props> = ({ isVisible, onClose }) => {
         level: string,
         subject: string,
     }> = async (data) => {
-        if (fileDocument) {
+        if (fileDocuments && fileDocuments.length > 0) {
             const formData = {
                 categories: {
                     class: data.class,
                     level: data.level,
                     subject: data.subject,
                 },
-                name: fileDocument.name,
-                file: fileDocument
-            }
+                parentId,
+                files: fileDocuments
+            };
             dispatch(reset());
             await dispatch(createDocument(formData));
             dispatch(reset());
@@ -130,7 +131,7 @@ const CreateDocumentModal: React.FC<Props> = ({ isVisible, onClose }) => {
                                 </select>
                             </div>
                         </div>
-                        <Dropzone setFileDocument={setFileDocument} />
+                        <Dropzone setFileDocument={setFileDocuments} />
                         <div className="flex justify-center mt-5">
                             <button 
                                 type="button" 

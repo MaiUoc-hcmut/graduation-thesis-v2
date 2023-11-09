@@ -139,7 +139,7 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('student');
-    // await queryInterface.dropTable('teacher');
-    // await queryInterface.dropTable('admin');
+    await queryInterface.dropTable('teacher');
+    await queryInterface.dropTable('admin');
   },
 };

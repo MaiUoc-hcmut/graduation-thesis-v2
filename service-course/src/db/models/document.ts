@@ -2,6 +2,7 @@ const { sequelize } = require('../../config/db');
 import { Model, DataTypes } from 'sequelize';
 const Category = require('./category');
 const Lecture = require('./lecture');
+const Folder = require('./folder');
 
 class Document extends Model {}
 
@@ -15,6 +16,9 @@ Document.init(
         id_teacher: {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false
+        },
+        parent_folder_id: {
+            type: DataTypes.INTEGER.UNSIGNED,
         },
         name: {
             type: DataTypes.STRING(100),
@@ -51,5 +55,8 @@ Category.belongsToMany(Document, { through: 'documentcategory', foreignKey: "cat
 
 Document.belongsToMany(Lecture, { through: 'documentlecture', foreignKey: "documentId" });
 Lecture.belongsToMany(Document, { through: 'documentlecture', foreignKey: "lectureId" });
+
+Document.belongsTo(Folder, { foreignKey: 'parent_folder_id' });
+Folder.hasMany(Document, { foreignKey: 'parent_folder_id' });
 
 module.exports = Document;

@@ -7,7 +7,7 @@ import Avatar from '@/components/home/avatar';
 import { useEffect } from 'react';
 
 export default function Header() {
-    const { isAuth, user } = useAppSelector(state => state.authReducer);
+    const { isAuth } = useAppSelector(state => state.authReducer);
     useEffect(() => {
         
     }, [isAuth]);

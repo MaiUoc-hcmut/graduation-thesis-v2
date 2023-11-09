@@ -1,6 +1,15 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axiosConfig, { setAuthToken } from '../axios.config';
 
+type UploadAvatarData = {
+    file: File,
+    id: number
+}
+
+type StudentData = {
+    
+}
+
 export const updateStudent = createAsyncThunk('/student/updateStudent', async (student: any, thunkAPI) => {
     try {
         const response = await axiosConfig.put('/student/:studentId', student);
@@ -12,13 +21,15 @@ export const updateStudent = createAsyncThunk('/student/updateStudent', async (s
     }
 });
 
-export const uploadAvatar = createAsyncThunk('/student/upload-avatar', async (file: File, thunkAPI) => {
+export const uploadAvatar = createAsyncThunk('/student/upload-avatar', async (data: UploadAvatarData, thunkAPI) => {
     try {
         const formData = new FormData();
 
-        formData.append('avatar', file);
+        formData.append('avatar', data.file);
 
-        const response = await axiosConfig.post('/student/upload-avatar/:studentId', formData);
+        const studentId = data.id;
+
+        const response = await axiosConfig.post(`/student/upload-avatar/${studentId}`, formData);
 
         if (response.status !== 200) return thunkAPI.rejectWithValue(response.data.message);
 
@@ -61,6 +72,14 @@ export const resetPassword = createAsyncThunk('/student/reset-password', async (
         if (response.status !== 200) return thunkAPI.rejectWithValue(response.data.message);
 
         return response.data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error);
+    }
+})
+
+export const setStudent = createAsyncThunk('/student', async (data, thunkAPI) => {
+    try {
+        
     } catch (error) {
         return thunkAPI.rejectWithValue(error);
     }
@@ -165,7 +184,8 @@ export const student = createSlice({
                 console.log("Fullfiled");
                 state.isSuccess = true;
                 state.isLoading = false;
-                state.user.avatar = action.payload;
+                state.user.avatar = action.payload?.avatar;
+                console.log(action.payload);
             })
             .addCase(changePassword.pending, (state, action) => {
                 state.isLoading = true;

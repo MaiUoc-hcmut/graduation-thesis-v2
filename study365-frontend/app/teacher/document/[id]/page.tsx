@@ -1,26 +1,22 @@
 'use client'
-import React, { useEffect, useState } from "react";
-import { useAppSelector } from '@/redux/store';
-import { redirect } from "next/navigation";
+import { useParams } from 'next/navigation';
+import { useState } from 'react';
+import FolderList from '@/components/teacher/List/Folder';
+import DocumentList from '@/components/teacher/List/File';
+import DocumentLayout from '@/components/teacher/Layout/Document';
 import { Dropdown } from 'antd';
 import ContextMenuPage from '@/components/teacher/ContextMenu/page';
-import FolderList from "@/components/teacher/List/Folder";
-import DocumentList from "@/components/teacher/List/File";
-import DocumentLayout from "@/components/teacher/Layout/Document";
 import CreateDocumentModal from '@/components/teacher/Modal/createDocument';
 import NewFolder from '@/components/teacher/Modal/newFolder';
 
-const Document = () => {
-    const { isAuthTeacher } = useAppSelector(state => state.authReducer);
-
-    useEffect(() => {
-        if (!isAuthTeacher) {
-            redirect('/teacher/login');
-        }
-    }, [isAuthTeacher, redirect]);
+const FolderPage = () => {
+    const params = useParams()
+    const id = params.id;
 
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showCreateFolder, setShowCreateFolder] = useState(false);
+
+    const currentFolderId = parseInt(id as string, 10);
 
     return (
         <DocumentLayout>
@@ -33,24 +29,24 @@ const Document = () => {
                 }
             >
                 <div className="gap-4 p-5 mt-10">
-                    <FolderList currentFolderId={-1} />
+                    <FolderList currentFolderId={currentFolderId} />
                 </div>
                 <div className="gap-4 p-5 mt-10">
-                    <DocumentList currentFolderId={-1} />
+                    <DocumentList currentFolderId={currentFolderId} />
                 </div>
             </Dropdown>
             <CreateDocumentModal 
                 isVisible={showCreateModal} 
-                parentId={-1}
+                parentId={+id}
                 onClose={() => setShowCreateModal(false)} 
             />
             <NewFolder 
                 isVisible={showCreateFolder}
                 onClose={() => setShowCreateFolder(false)}
-                folderId={-1}
+                folderId={+id}
             />
         </DocumentLayout>
-    )
-}
+    );
+};
 
-export default Document;
+export default FolderPage;

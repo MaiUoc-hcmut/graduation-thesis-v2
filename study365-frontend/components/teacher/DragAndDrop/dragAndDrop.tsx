@@ -15,15 +15,17 @@ interface Document {
 }
 
 type Props = {
-    setFileDocument: React.Dispatch<React.SetStateAction<null |File>>;
+    setFileDocument: React.Dispatch<React.SetStateAction<Array<File>>>;
     existedFile?: boolean;
 }
 
 const Dropzone: React.FC<Props> = ({ setFileDocument, existedFile = false }) => {
     const [isDrop, setIsDrop] = useState(existedFile);
+    const [fileDrop, setFileDrop] = useState<File | null>(null);
     const onDrop = useCallback((acceptedFiles: Array<File>) => {
         setIsDrop(true);
-        setFileDocument(acceptedFiles[0]);
+        setFileDocument(acceptedFiles);
+        setFileDrop(acceptedFiles[0])
         console.log(acceptedFiles);
     }, [])
     const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
@@ -33,6 +35,9 @@ const Dropzone: React.FC<Props> = ({ setFileDocument, existedFile = false }) => 
         e.preventDefault();
         setIsDrop(false);
     }
+
+    const fileDropName = fileDrop?.name ? (fileDrop.name.length > 8 ? `${fileDrop.name.substring(0, 8)}...` : fileDrop.name) : null;
+    const classCenter = isDrop ? "" : "justify-center";
     
     return (
         <div className="col-span-full">
@@ -40,43 +45,48 @@ const Dropzone: React.FC<Props> = ({ setFileDocument, existedFile = false }) => 
                 Các file tài liệu
             </label>
             <div 
-                className="mt-2 flex justify-center rounded-base 
-                    border border-dashed border-blue-500 px-6 
-                    py-10 cursor-pointer"
+                className={
+                    `mt-2 flex rounded-base h-35 items-center ${classCenter}
+                    border border-dashed border-blue-500 cursor-pointer`
+                }
                 {...getRootProps()}
             >
-                <div className="text-center">
+                <div className="text-center ml-2.5">
                     <input {...getInputProps()} />
                     {isDrop ? (
-                        <div style={{ position: 'relative' }}>
-                        <Image 
-                            src='/pdf_preview.png' 
-                            alt="Preview"
-                            width={60}
-                            height={90}
-                        />
-                        <div
-                            onClick={handleRemoveFile}
-                            style={{
-                                position: 'absolute',
-                                top: '-5px',
-                                right: '5px',
-                                cursor: 'pointer',
-                                background: 'rgba(255,255,255,0.5)',
-                                borderRadius: '50%',
-                            }}
+                        <div 
+                            style={{ position: 'relative' }} 
+                            title={fileDrop?.name}
                         >
-                            <span
+                            <Image 
+                                src='/pdf_preview.png' 
+                                alt="Preview"
+                                width={100}
+                                height={150}
+                            />
+                            <p className='text-black'>{fileDropName}</p>
+                            <div
+                                onClick={handleRemoveFile}
                                 style={{
-                                    fontSize: '14px',
-                                    lineHeight: '14px',
-                                    fontWeight: 'bold',
+                                    position: 'absolute',
+                                    top: '-5px',
+                                    right: '5px',
+                                    cursor: 'pointer',
+                                    background: 'rgba(255,255,255,0.5)',
+                                    borderRadius: '50%',
                                 }}
                             >
-                                X
-                            </span>
+                                <span
+                                    style={{
+                                        fontSize: '14px',
+                                        lineHeight: '14px',
+                                        fontWeight: 'bold',
+                                    }}
+                                >
+                                    X
+                                </span>
+                            </div>
                         </div>
-                    </div>
                     ) : (
                         isDragActive ? (
                             <p>Thả tệp ở đây ...</p>

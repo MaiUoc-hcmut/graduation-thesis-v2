@@ -11,11 +11,13 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  // console.log(children?.toString())
   return (
     <html lang="en">
 
       <body>
         <ReduxProvider>
+          <Header />
           {children}
         </ReduxProvider>
       </body>

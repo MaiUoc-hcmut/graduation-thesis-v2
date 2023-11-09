@@ -90,6 +90,9 @@ exports.loginAuth = (req: Request, res: Response, next: NextFunction) => {
         if (err || !student) {
             return next(createError.BadRequest(info?.message ? info.message : "Login failed"));
         } else {
+            delete student.password;
+            delete student.createdAt;
+            delete student.updatedAt;
             req.student = student;
             next();
         }
