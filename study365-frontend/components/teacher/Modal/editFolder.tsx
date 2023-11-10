@@ -18,7 +18,7 @@ const EditFolder: React.FC<ModalEditDocumentProps> = ({ isVisible, onClose, fold
 
     const dispatch = useDispatch<AppDispatch>();
 
-    const { isCreateFailed, isCreateSuccess, message } = useAppSelector(state => state.folderReducer);
+    const { isUpdateFailed, isUpdateSuccess, message } = useAppSelector(state => state.folderReducer);
 
     const handleClose = (e: any) => {
         if (e.target.id === 'wrapper') onClose(); 
@@ -39,11 +39,9 @@ const EditFolder: React.FC<ModalEditDocumentProps> = ({ isVisible, onClose, fold
     }> = async (data) => {
         const formData = {
             name: data.folderName,
-            parentId: -1
+            folderId
         }
-        if (folderId !== undefined) {
-            formData.parentId = folderId
-        } 
+        
         dispatch(reset());
         dispatch(updateFolder(formData));
         dispatch(reset());
@@ -51,12 +49,12 @@ const EditFolder: React.FC<ModalEditDocumentProps> = ({ isVisible, onClose, fold
     }
 
     useEffect(() => {
-        if (isCreateSuccess) {
+        if (isUpdateSuccess) {
             
         }
-        if (isCreateFailed) console.log(message)
+        if (isUpdateFailed) console.log(message)
         dispatch(reset());
-    }, [dispatch, isCreateSuccess, isCreateFailed]);
+    }, [dispatch, isUpdateSuccess, isUpdateFailed]);
 
     return (
         <div 
@@ -71,7 +69,7 @@ const EditFolder: React.FC<ModalEditDocumentProps> = ({ isVisible, onClose, fold
                     <form onSubmit={handleSubmit(handleUpdateFolderSubmit)}>
                         <div className="mb-4">
                             <label htmlFor="folderName" className="self-start">
-                                <p className="text-black text-2xl">Thư mục mới</p>
+                                <p className="text-black text-2xl">Chỉnh sửa thư mục</p>
                             </label>
                         </div>
                         <div className="flex justify-center">

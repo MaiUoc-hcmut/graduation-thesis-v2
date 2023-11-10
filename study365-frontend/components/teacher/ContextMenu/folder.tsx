@@ -1,31 +1,38 @@
-import React from "react";
+'use client'
+import React, { useEffect } from "react";
 import { Menu } from "antd";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
+import { AppDispatch, useAppSelector } from "@/redux/store";
 import ModeEditOutlinedIcon from '@mui/icons-material/ModeEditOutlined';
 import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded';
 import ContentCutOutlinedIcon from '@mui/icons-material/ContentCutOutlined';
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
-import { setCutOrCopyState } from "@/redux/features/folderSlice";
+import { setCutOrCopyState, reset, setSelectedFolder } from "@/redux/features/folderSlice";
 
 interface Props {
     setShowEditModal: () => void;
     setShowDeleteModal: () => void;
-    setSelectedFolder: () => void
+    selectedFolder: () => void
 }
 //className="bg-white text-black border border-blue-100 rounded w-50"
-const ContextMenuFolder: React.FC<Props> = ({ setShowEditModal, setShowDeleteModal, setSelectedFolder}) => {
+const ContextMenuFolder: React.FC<Props> = ({ setShowEditModal, setShowDeleteModal, selectedFolder}) => {
+
+    const { isUpdateSuccess, isUpdateFailed } = useAppSelector(state => state.folderReducer);
 
     const dispatch = useDispatch<AppDispatch>();
 
     const setCut = () => {
-        setSelectedFolder;
+        selectedFolder();
+        dispatch(reset());
         dispatch(setCutOrCopyState("cut"))
+        dispatch(reset());
     }
 
     const setCopy = () => {
-        setSelectedFolder;
+        selectedFolder();
+        dispatch(reset());
         dispatch(setCutOrCopyState("copy"))
+        dispatch(reset());
     }
 
     return (

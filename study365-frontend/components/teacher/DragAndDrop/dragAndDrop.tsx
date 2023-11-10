@@ -2,17 +2,6 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Image from 'next/image';
-import axios from 'axios';
-
-interface Document {
-    id: number;
-    title: string;
-    lastUpdated: Date;
-    class: number;
-    subject: string;
-    level: string;
-    url: string;
-}
 
 type Props = {
     setFileDocument: React.Dispatch<React.SetStateAction<Array<File>>>;
@@ -21,22 +10,25 @@ type Props = {
 
 const Dropzone: React.FC<Props> = ({ setFileDocument, existedFile = false }) => {
     const [isDrop, setIsDrop] = useState(existedFile);
-    const [fileDrop, setFileDrop] = useState<File | null>(null);
+    const [fileDrop, setFileDrop] = useState<Array<File>>([]);
     const onDrop = useCallback((acceptedFiles: Array<File>) => {
         setIsDrop(true);
         setFileDocument(acceptedFiles);
-        setFileDrop(acceptedFiles[0])
+        setFileDrop(acceptedFiles);
         console.log(acceptedFiles);
     }, [])
     const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
 
 
-    const handleRemoveFile = (e: React.MouseEvent) => {
-        e.preventDefault();
-        setIsDrop(false);
+    const handleRemoveFile = (e: React.MouseEvent, index: number) => {
+        e.stopPropagation();
+        setFileDrop(fileDrop.filter((_, i) => i !== index));
+        setFileDocument(fileDrop.filter((_, i) => i !== index));
+        if (fileDrop.length === 0) {
+            setIsDrop(false);
+        }
     }
 
-    const fileDropName = fileDrop?.name ? (fileDrop.name.length > 8 ? `${fileDrop.name.substring(0, 8)}...` : fileDrop.name) : null;
     const classCenter = isDrop ? "" : "justify-center";
     
     return (
@@ -51,42 +43,51 @@ const Dropzone: React.FC<Props> = ({ setFileDocument, existedFile = false }) => 
                 }
                 {...getRootProps()}
             >
-                <div className="text-center ml-2.5">
+                <div className="text-center ml-2.5 flex flex-wrap">
                     <input {...getInputProps()} />
                     {isDrop ? (
-                        <div 
-                            style={{ position: 'relative' }} 
-                            title={fileDrop?.name}
-                        >
-                            <Image 
-                                src='/pdf_preview.png' 
-                                alt="Preview"
-                                width={100}
-                                height={150}
-                            />
-                            <p className='text-black'>{fileDropName}</p>
-                            <div
-                                onClick={handleRemoveFile}
-                                style={{
-                                    position: 'absolute',
-                                    top: '-5px',
-                                    right: '5px',
-                                    cursor: 'pointer',
-                                    background: 'rgba(255,255,255,0.5)',
-                                    borderRadius: '50%',
-                                }}
+                        fileDrop.map((file, index) => (
+                            
+                            <div 
+                                style={{ position: 'relative' }}
+                                title={file.name}
+                                key={index}
                             >
-                                <span
+                                <Image 
+                                    src='/pdf_preview.png' 
+                                    alt="Preview"
+                                    width={100}
+                                    height={150}
+                                    className='hover:opacity-50' 
+                                />
+                                <p className='text-black'>
+                                    {
+                                        file.name.length > 8 ? `${file.name.substring(0, 8)}...` : file.name
+                                    }
+                                </p>
+                                <div
+                                    onClick={(e) => handleRemoveFile(e, index)}
                                     style={{
-                                        fontSize: '14px',
-                                        lineHeight: '14px',
-                                        fontWeight: 'bold',
+                                        position: 'absolute',
+                                        top: '-5px',
+                                        right: '5px',
+                                        cursor: 'pointer',
+                                        background: 'rgba(255,255,255,0.5)',
+                                        borderRadius: '50%',
                                     }}
                                 >
-                                    X
-                                </span>
+                                    <span
+                                        style={{
+                                            fontSize: '14px',
+                                            lineHeight: '14px',
+                                            fontWeight: 'bold',
+                                        }}
+                                    >
+                                        X
+                                    </span>
+                                </div>
                             </div>
-                        </div>
+                        ))
                     ) : (
                         isDragActive ? (
                             <p>Thả tệp ở đây ...</p>

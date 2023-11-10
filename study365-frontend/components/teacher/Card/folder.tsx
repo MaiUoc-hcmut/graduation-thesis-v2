@@ -35,7 +35,7 @@ const FolderCard: React.FC<Props> = ({ folderName, folderId }) => {
       router.push(`/teacher/document/${folderId}`);
     }
 
-    const cutFolder = () => {
+    const selectedFolder = () => {
         dispatch(setSelectedFolder(folderId));
     }
 
@@ -46,7 +46,7 @@ const FolderCard: React.FC<Props> = ({ folderName, folderId }) => {
                     <ContextMenuFolder 
                         setShowEditModal={() => setShowEditModal(true)} 
                         setShowDeleteModal={() => setShowDeleteModal(true)}
-                        setSelectedFolder={cutFolder}
+                        selectedFolder={selectedFolder}
                     />
                 }
                 trigger={["contextMenu"]}
@@ -55,6 +55,7 @@ const FolderCard: React.FC<Props> = ({ folderName, folderId }) => {
                     className="block p-4 max-w-lg mx-auto rounded-xl 
                     shadow-md flex justify-center items-center hover:bg-blue-100"
                     onDoubleClick={handleDClick}
+                    onContextMenu={(e) => e.stopPropagation()}
                     title={folderName}
                 >
                     <p className="text-black" style={{ cursor: 'default' }}>{name}</p>

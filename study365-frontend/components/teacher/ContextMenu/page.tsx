@@ -1,8 +1,8 @@
 import React from "react";
 import { Menu } from "antd";
 import { useParams } from "next/navigation";
-import ModeEditOutlinedIcon from '@mui/icons-material/ModeEditOutlined';
-import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded';
+import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
+import DriveFolderUploadOutlinedIcon from '@mui/icons-material/DriveFolderUploadOutlined';
 import ContentPasteGoOutlinedIcon from '@mui/icons-material/ContentPasteGoOutlined';
 import { useAppSelector, AppDispatch } from "@/redux/store";
 import { useDispatch } from "react-redux";
@@ -26,7 +26,7 @@ const ContextMenuPage: React.FC<Props> = ({ setShowCreateModal, setShowCreateFol
     const pasteFolder = async () => {
         if (cutOrCopy === "cut") {
             dispatch(reset());
-            dispatch(updateFolder({ parentId, folderId: selectedFolderId }));
+            dispatch(updateFolder({folderId: selectedFolderId, parentId }));
             dispatch(reset());
         }
         if (cutOrCopy === "copy") {
@@ -47,13 +47,13 @@ const ContextMenuPage: React.FC<Props> = ({ setShowCreateModal, setShowCreateFol
                 {
                     label: <p className="text-md">Thêm tài liệu</p>,
                     key: "editfolder",
-                    icon: <ModeEditOutlinedIcon style={{ fontSize: "16px" }} />,
+                    icon: <UploadFileOutlinedIcon style={{ fontSize: "16px" }} />,
                     onClick: setShowCreateModal
                 },
                 {
                     label: <p className="text-md">Thêm thư mục</p>,
                     key: "deletefolder",
-                    icon: <DeleteForeverRoundedIcon style={{ fontSize: "16px" }} />,
+                    icon: <DriveFolderUploadOutlinedIcon style={{ fontSize: "16px" }} />,
                     onClick: setShowCreateFolder
                 },
             ]}

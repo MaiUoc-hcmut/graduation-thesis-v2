@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Fragment } from "react";
 import { useAppSelector } from '@/redux/store';
 import { redirect } from "next/navigation";
 import { Dropdown } from 'antd';
@@ -24,31 +24,36 @@ const Document = () => {
 
     return (
         <DocumentLayout>
-            <Dropdown
-                overlay={
-                    <ContextMenuPage 
-                        setShowCreateModal = {() => setShowCreateModal(true)}
-                        setShowCreateFolder = {() => setShowCreateFolder(true)}
-                    />
-                }
-            >
-                <div className="gap-4 p-5 mt-10">
-                    <FolderList currentFolderId={-1} />
-                </div>
-                <div className="gap-4 p-5 mt-10">
-                    <DocumentList currentFolderId={-1} />
-                </div>
-            </Dropdown>
-            <CreateDocumentModal 
-                isVisible={showCreateModal} 
-                parentId={-1}
-                onClose={() => setShowCreateModal(false)} 
-            />
-            <NewFolder 
-                isVisible={showCreateFolder}
-                onClose={() => setShowCreateFolder(false)}
-                folderId={-1}
-            />
+            <Fragment>
+                <Dropdown
+                    overlay={
+                        <ContextMenuPage 
+                            setShowCreateModal = {() => setShowCreateModal(true)}
+                            setShowCreateFolder = {() => setShowCreateFolder(true)}
+                        />
+                    }
+                    trigger={["contextMenu"]}
+                >
+                    <div>
+                        <div className="gap-4 p-5 mt-10">
+                            <FolderList currentFolderId={-1} />
+                        </div>
+                        <div className="gap-4 p-5 mt-10">
+                            <DocumentList currentFolderId={-1} />
+                        </div>
+                    </div>
+                </Dropdown>
+                <CreateDocumentModal 
+                    isVisible={showCreateModal} 
+                    parentId={-1}
+                    onClose={() => setShowCreateModal(false)} 
+                />
+                <NewFolder 
+                    isVisible={showCreateFolder}
+                    onClose={() => setShowCreateFolder(false)}
+                    folderId={-1}
+                />
+            </Fragment>
         </DocumentLayout>
     )
 }

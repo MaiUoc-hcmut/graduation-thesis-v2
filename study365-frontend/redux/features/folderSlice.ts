@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axiosConfig from '../axios.config';
 
 interface DataFolder {
-    parentId: number,
+    parentId?: number,
     folderId?: number,
     name?: string,
 }
@@ -28,7 +28,7 @@ export const getFoldersByParent = createAsyncThunk('/folder/getSubFolder/:parent
 export const createFolder = createAsyncThunk('/folder/create/:parentId?', async (data: DataFolder, thunkAPI) => {
     try {
         let endpointBase = '/folder/create';
-        if (data.parentId > 0) {
+        if (data.parentId && data.parentId > 0) {
             endpointBase += `/${data.parentId}`;
         }
 
@@ -45,13 +45,13 @@ export const createFolder = createAsyncThunk('/folder/create/:parentId?', async 
 export const copyFolder = createAsyncThunk('/folder/copy/:parentId?', async (data: DataFolder, thunkAPI) => {
     try {
         let endpointBase = '/folder/copy';
-        if (data.parentId > 0) {
+        if (data.parentId && data.parentId > 0) {
             endpointBase += `/${data.parentId}`;
         }
 
         const response = await axiosConfig.post(endpointBase, { folderId: data.folderId })
 
-        if (response.status !== 201) return thunkAPI.rejectWithValue(response.data.message);
+        if (response.status !== 200) return thunkAPI.rejectWithValue(response.data.message);
 
         return response.data;
     } catch (error) {
@@ -62,14 +62,18 @@ export const copyFolder = createAsyncThunk('/folder/copy/:parentId?', async (dat
 export const updateFolder = createAsyncThunk('/folder/update/:folderId', async (data: DataFolder, thunkAPI) => {
     try {
         const dataRequest: {
-            parentId: number,
+        parent_folder_id?: number,
             name?: string,
         } = {
-            parentId: data.parentId
+            
         }
         if (data.name !== undefined) {
             dataRequest.name = data.name;
         }
+        if (data.parentId !== undefined) {
+            dataRequest.parent_folder_id = data.parentId;
+        }
+        console.log(data.folderId, data.parentId);
         const response = await axiosConfig.put(`/folder/update/${data.folderId}`, dataRequest);
 
         if (response.status !== 200) return thunkAPI.rejectWithValue(response.data.message);
@@ -236,6 +240,7 @@ export const folder = createSlice({
                 state.isCreateSuccess = true;
                 state.isCreateFailed = false;
                 state.selectedFolderId = -1;
+                state.cutOrCopy = "";
             })
             .addCase(updateFolder.pending, (state) => {
                 console.log('Pending');
@@ -264,6 +269,10 @@ export const folder = createSlice({
                     fol => fol.id === action.payload.id
                 )
                 state.folders[index] = action.payload;
+                if (state.cutOrCopy === "cut") {
+                    state.selectedFolderId = -1;
+                    state.cutOrCopy = "";
+                }
             })
             .addCase(deleteFolder.pending, (state) => {
                 console.log('Pending');

@@ -91,11 +91,13 @@ class FolderController {
     }
 
     recCopy = async (folderId: number, parentId: number) => {
-        const folder = Folder.findByPk(folderId);
+        const folder = await Folder.findByPk(folderId);
         if (!folder) return -1;
+        let realParentId = null;
+        if (parentId > 0) realParentId = parentId;
         const newFolder = await Folder.create({
             name: folder.name,
-            parent_folder_id: parentId,
+            parent_folder_id: realParentId,
             id_teacher: folder.id_teacher
         })
 
@@ -125,6 +127,7 @@ class FolderController {
     updateFolder = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const folderId = req.params.folderId;
+            console.log(folderId);
             const id_teacher = req.teacher.data.id;
             const body = req.body;
 
@@ -134,7 +137,11 @@ class FolderController {
             if (id_teacher != folder.id_teacher) 
                 return res.status(401).json({ message: "You do not have permission to do this action!" });
 
-            folder.update(body);
+            if (body.parent_folder_id && body.parent_folder_id === -1) {
+                body.parent_folder_id = null;
+            }
+
+            await folder.update(body);
 
             res.status(200).json(folder);
         } catch (error: any) {
