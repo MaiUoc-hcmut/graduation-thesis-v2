@@ -30,11 +30,11 @@ passport.use(
 
 declare global {
     namespace Express {
-      interface Request {
-        teacher?: any;
-      }
+        interface Request {
+            teacher?: any;
+        }
     }
-  }
+}
 
 // middleware verify access token
 exports.protectedAPI = (req: Request, res: Response, next: NextFunction) => {
