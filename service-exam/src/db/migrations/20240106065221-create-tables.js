@@ -6,22 +6,30 @@ module.exports = {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
       },
       name: {
         allowNull: false,
         type: Sequelize.STRING(20),
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
       },
     });
     await queryInterface.createTable('category', {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
       },
       id_par_category: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Par_category',
           key: 'id',
@@ -33,20 +41,28 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING(30),
       },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
     });
     await queryInterface.createTable('exam', {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
       },
       id_teacher: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
       },
       id_category: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Category',
           key: 'id',
@@ -56,7 +72,7 @@ module.exports = {
       },
       id_course: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
       },
       title: {
         allowNull: false,
@@ -78,16 +94,24 @@ module.exports = {
       status: {
         type: Sequelize.BOOLEAN,
       },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
     });
     await queryInterface.createTable('question', {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
       },
       id_teacher: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
       },
       content_text: {
         allowNull: false,
@@ -99,11 +123,19 @@ module.exports = {
       total_report: {
         type: Sequelize.INTEGER,
       },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
     });
     await queryInterface.createTable('exam-question', {
       id_exam: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Exam',
           key: 'id',
@@ -113,19 +145,27 @@ module.exports = {
       },
       id_question: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Question',
           key: 'id',
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
       },
     });
     await queryInterface.createTable('save_question', {
       id_exam: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Exam',
           key: 'id',
@@ -135,28 +175,36 @@ module.exports = {
       },
       id_question: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Question',
           key: 'id',
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
       },
     });
     await queryInterface.createTable('assignment', {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
       },
       id_student: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
       },
       id_exam: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Exam',
           key: 'id',
@@ -176,20 +224,28 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
       },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
     });
     await queryInterface.createTable('detail_question', {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
       },
       id_student: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
       },
       id_assignment: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Assignment',
           key: 'id',
@@ -199,7 +255,7 @@ module.exports = {
       },
       id_exam: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Exam',
           key: 'id',
@@ -209,7 +265,7 @@ module.exports = {
       },
       id_question: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Question',
           key: 'id',
@@ -217,16 +273,24 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
     });
     await queryInterface.createTable('answer', {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
       },
       id_question: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Question',
           key: 'id',
@@ -245,11 +309,19 @@ module.exports = {
         allowNull: false,
         type: Sequelize.BOOLEAN,
       },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
     });
     await queryInterface.createTable('select_answer', {
       id_detail_question: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Detail_question',
           key: 'id',
@@ -259,7 +331,7 @@ module.exports = {
       },
       id_selected_answer: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Answer',
           key: 'id',
@@ -267,16 +339,24 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
     });
 
     await queryInterface.createTable('q&a', {
       id_student: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
       },
       id_question: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Question',
           key: 'id',
@@ -295,31 +375,47 @@ module.exports = {
         allowNull: false,
         type: Sequelize.BOOLEAN,
       },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
     });
     await queryInterface.createTable('error', {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
       },
       name: {
         allowNull: false,
         type: Sequelize.STRING(40),
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
       },
     });
     await queryInterface.createTable('report_error', {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
       },
       id_student: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
       },
       id_question: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Question',
           key: 'id',
@@ -331,11 +427,19 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING(90),
       },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
     });
     await queryInterface.createTable('report_error-error', {
       id_error: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Error',
           key: 'id',
@@ -345,7 +449,7 @@ module.exports = {
       },
       id_report_error: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Report_error',
           key: 'id',
@@ -353,11 +457,19 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
     });
     await queryInterface.createTable('category-exam', {
       id_exam: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Exam',
           key: 'id',
@@ -371,7 +483,7 @@ module.exports = {
       },
       id_category: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Category',
           key: 'id',
@@ -379,11 +491,19 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
     });
     await queryInterface.createTable('category-question', {
       id_question: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Question',
           key: 'id',
@@ -397,13 +517,21 @@ module.exports = {
       },
       id_category: {
         allowNull: false,
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING(36),
         references: {
           model: 'Category',
           key: 'id',
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
       },
     });
   },

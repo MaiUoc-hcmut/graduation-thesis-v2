@@ -1,6 +1,6 @@
 
-const { sequelize } = require('../../config/db');
-import { Model, DataTypes, CreationOptional } from 'sequelize';
+const { DataTypes } = require('../../config/db');
+import { Model, DataTypes, CreationOptional } from 'DataTypes';
 
 class Exam extends Model {
     declare createdAt: CreationOptional<Date>;
@@ -9,48 +9,41 @@ class Exam extends Model {
 Exam.init(
     {
         id: {
-            type: DataTypes.INTEGER.UNSIGNED,
-            autoIncrement: true,
+            allowNull: false,
             primaryKey: true,
+            type: DataTypes.STRING(12),
         },
-        name: {
-            type: DataTypes.STRING(50),
+        id_teacher: {
             allowNull: false,
+            type: DataTypes.STRING(12),
         },
-        description: {
-            type: DataTypes.STRING,
-        },
-        price: {
-            type: DataTypes.INTEGER,
+        id_category: {
             allowNull: false,
+            type: DataTypes.STRING(12),
         },
-        last_update_time: DataTypes.TIME,
-        start_time: {
-            type: DataTypes.DATE,
+        id_course: {
             allowNull: false,
+            type: DataTypes.STRING(12),
         },
-        end_time: {
-            type: DataTypes.DATE,
+        title: {
             allowNull: false,
+            type: DataTypes.STRING(30),
         },
-        object: {
-            type: DataTypes.STRING,
+        period: {
             allowNull: false,
+            type: DataTypes.TIME,
         },
-        goal: {
-            type: DataTypes.STRING,
-            allowNull: false,
+        quantity_question: {
+            type: DataTypes.SMALLINT,
         },
-        method: {
-            type: DataTypes.STRING,
-            allowNull: false,
+        quantity_assignment: {
+            type: DataTypes.SMALLINT,
         },
-        knowledge: DataTypes.STRING,
-        thumbnail: DataTypes.STRING,
+        quantity_download: {
+            type: DataTypes.SMALLINT,
+        },
         status: {
             type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: true,
         },
         createdAt: {
             type: DataTypes.DATE,
@@ -59,11 +52,11 @@ Exam.init(
         updatedAt: {
             type: DataTypes.DATE,
             allowNull: false,
-        },
+        }
     },
     {
         tableName: 'exam',
-        sequelize,
+        DataTypes,
     },
 );
 // Course.hasMany(Chapter, { foreignKey: "id_course", as: "chapters", onDelete: "cascade" })

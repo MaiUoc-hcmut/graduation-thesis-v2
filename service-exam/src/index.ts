@@ -1,6 +1,6 @@
 const express = require('express');
 const db = require('./config/db')
-// const route1 = require('./routes')
+const route = require('./routes')
 const bodyParser = require('body-parser')
 const cors = require('cors');
 require('dotenv').config()
@@ -16,7 +16,7 @@ app.use(
         extended: true,
     }),
 );
-// route1(app)
+route(app)
 
 
 
