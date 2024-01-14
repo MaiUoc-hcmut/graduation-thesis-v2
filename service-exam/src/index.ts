@@ -1,6 +1,6 @@
 const express = require('express');
 const db = require('./config/db')
-const route = require('./routes')
+const route1 = require('./routes')
 const bodyParser = require('body-parser')
 const cors = require('cors');
 require('dotenv').config()
@@ -16,10 +16,10 @@ app.use(
         extended: true,
     }),
 );
-route(app)
+route1(app)
 
 
 
-app.listen(3001, () => {
-    console.log('Listenning on port 3001');
+app.listen(4002, () => {
+    console.log('Listenning on port 4002');
 });

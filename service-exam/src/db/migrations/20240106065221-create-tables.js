@@ -1,4 +1,7 @@
 'use strict';
+
+const { NOW } = require('sequelize');
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -60,16 +63,6 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING(36),
       },
-      id_category: {
-        allowNull: false,
-        type: Sequelize.STRING(36),
-        references: {
-          model: 'Category',
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
-      },
       id_course: {
         allowNull: false,
         type: Sequelize.STRING(36),
@@ -84,6 +77,7 @@ module.exports = {
       },
       quantity_question: {
         type: Sequelize.SMALLINT,
+        allowNull: false,
       },
       quantity_assignment: {
         type: Sequelize.SMALLINT,
@@ -92,6 +86,7 @@ module.exports = {
         type: Sequelize.SMALLINT,
       },
       status: {
+        defaultValue: true,
         type: Sequelize.BOOLEAN,
       },
       createdAt: {
@@ -233,55 +228,7 @@ module.exports = {
         allowNull: false,
       },
     });
-    await queryInterface.createTable('detail_question', {
-      id: {
-        allowNull: false,
-        primaryKey: true,
-        type: Sequelize.STRING(36),
-      },
-      id_student: {
-        allowNull: false,
-        type: Sequelize.STRING(36),
-      },
-      id_assignment: {
-        allowNull: false,
-        type: Sequelize.STRING(36),
-        references: {
-          model: 'Assignment',
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
-      },
-      id_exam: {
-        allowNull: false,
-        type: Sequelize.STRING(36),
-        references: {
-          model: 'Exam',
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
-      },
-      id_question: {
-        allowNull: false,
-        type: Sequelize.STRING(36),
-        references: {
-          model: 'Question',
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
-      },
-      createdAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-    });
+
     await queryInterface.createTable('answer', {
       id: {
         allowNull: false,
@@ -318,12 +265,23 @@ module.exports = {
         allowNull: false,
       },
     });
-    await queryInterface.createTable('select_answer', {
-      id_detail_question: {
+
+    await queryInterface.createTable('detail_question', {
+      id_assignment: {
         allowNull: false,
         type: Sequelize.STRING(36),
         references: {
-          model: 'Detail_question',
+          model: 'Assignment',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      },
+      id_question: {
+        allowNull: false,
+        type: Sequelize.STRING(36),
+        references: {
+          model: 'Question',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -370,10 +328,6 @@ module.exports = {
       },
       content_image: {
         type: Sequelize.TEXT,
-      },
-      is_correct: {
-        allowNull: false,
-        type: Sequelize.BOOLEAN,
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -423,20 +377,6 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       },
-      content: {
-        allowNull: false,
-        type: Sequelize.STRING(90),
-      },
-      createdAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-    });
-    await queryInterface.createTable('report_error-error', {
       id_error: {
         allowNull: false,
         type: Sequelize.STRING(36),
@@ -447,15 +387,9 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       },
-      id_report_error: {
+      content: {
         allowNull: false,
-        type: Sequelize.STRING(36),
-        references: {
-          model: 'Report_error',
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
+        type: Sequelize.STRING(90),
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -476,10 +410,6 @@ module.exports = {
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
-      },
-      name: {
-        allowNull: false,
-        type: Sequelize.STRING(30),
       },
       id_category: {
         allowNull: false,
@@ -511,10 +441,6 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       },
-      name: {
-        allowNull: false,
-        type: Sequelize.STRING(30),
-      },
       id_category: {
         allowNull: false,
         type: Sequelize.STRING(36),
@@ -537,13 +463,11 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('select_answer');
     await queryInterface.dropTable('detail_question');
     await queryInterface.dropTable('exam-question');
     await queryInterface.dropTable('save_question');
     await queryInterface.dropTable('answer');
     await queryInterface.dropTable('q&a');
-    await queryInterface.dropTable('report_error-error');
     await queryInterface.dropTable('report_error');
     await queryInterface.dropTable('error');
     await queryInterface.dropTable('category-exam');

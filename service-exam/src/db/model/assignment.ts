@@ -1,37 +1,47 @@
 const { sequelize } = require('../../config/db');
 import { Model, DataTypes, CreationOptional } from 'sequelize';
 
-class Question extends Model {
+class Assignment extends Model {
     declare createdAt: CreationOptional<Date>;
     declare updatedAt: CreationOptional<Date>;
 }
 
-Question.init({
+Assignment.init({
     id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
     },
-    id_teacher: {
+    id_exam: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: 'exam',
+            key: 'id'
+        }
+    },
+    id_student: {
         type: DataTypes.UUID,
         allowNull: false,
     },
-    content_text: {
-        type: DataTypes.TEXT,
+    score: {
+        type: DataTypes.FLOAT,
         allowNull: false,
     },
-    content_image: {
-        type: DataTypes.TEXT,
-        allowNull: true,
+    time_start: {
+        type: DataTypes.DATE,
+        allowNull: false,
     },
-    total_report: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0,
+    time_end: {
+        type: DataTypes.DATE,
         allowNull: false,
     },
 }, {
     sequelize,
-    tableName: 'question',
+    tableName: 'assignment',
+    timestamps: false,
 });
 
-module.exports = Question;
+
+
+module.exports = Assignment;

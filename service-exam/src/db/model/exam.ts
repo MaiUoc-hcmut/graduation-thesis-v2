@@ -1,73 +1,56 @@
-
-const { DataTypes } = require('../../config/db');
-import { Model, DataTypes, CreationOptional } from 'DataTypes';
+const { sequelize } = require('../../config/db');
+import { Model, DataTypes, CreationOptional } from 'sequelize';
+const Question = require('./question');
 
 class Exam extends Model {
     declare createdAt: CreationOptional<Date>;
     declare updatedAt: CreationOptional<Date>;
 }
-Exam.init(
-    {
-        id: {
-            allowNull: false,
-            primaryKey: true,
-            type: DataTypes.STRING(12),
-        },
-        id_teacher: {
-            allowNull: false,
-            type: DataTypes.STRING(12),
-        },
-        id_category: {
-            allowNull: false,
-            type: DataTypes.STRING(12),
-        },
-        id_course: {
-            allowNull: false,
-            type: DataTypes.STRING(12),
-        },
-        title: {
-            allowNull: false,
-            type: DataTypes.STRING(30),
-        },
-        period: {
-            allowNull: false,
-            type: DataTypes.TIME,
-        },
-        quantity_question: {
-            type: DataTypes.SMALLINT,
-        },
-        quantity_assignment: {
-            type: DataTypes.SMALLINT,
-        },
-        quantity_download: {
-            type: DataTypes.SMALLINT,
-        },
-        status: {
-            type: DataTypes.BOOLEAN,
-        },
-        createdAt: {
-            type: DataTypes.DATE,
-            allowNull: false,
-        },
-        updatedAt: {
-            type: DataTypes.DATE,
-            allowNull: false,
-        }
-    },
-    {
-        tableName: 'exam',
-        DataTypes,
-    },
-);
-// Course.hasMany(Chapter, { foreignKey: "id_course", as: "chapters", onDelete: "cascade" })
-// Chapter.belongsTo(Course, {
-//   foreignKey: "id_course"
-// });
 
+Exam.init({
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+    },
+    id_teacher: {
+        type: DataTypes.UUID,
+        allowNull: false,
+    },
+    id_course: {
+        type: DataTypes.UUID,
+    },
+    title: {
+        type: DataTypes.STRING(30),
+        allowNull: false,
+    },
+    period: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+    },
+    quantity_question: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    status: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+    },
+    quantity_assignment: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+    },
+}, {
+    sequelize,
+    tableName: 'exam',
+});
 
-// Chapter.hasMany(Lecture, { foreignKey: "id_chapter", as: "lectures", onDelete: "cascade" })
-// Lecture.belongsTo(Chapter, {
-//   foreignKey: "id_chapter"
-// });
+Exam.belongsToMany(Question, { through: 'exam_question' });
+Question.belongsToMany(Exam, { through: 'exam_question' });
+
+Exam.sync();
+Question.sync()
 
 module.exports = Exam
