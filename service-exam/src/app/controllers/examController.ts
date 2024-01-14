@@ -1,13 +1,18 @@
 const Exam = require('../../db/model/exam');
+const Category_Exam = require('../../db/model/category-exam');
 const Question = require('../../db/model/question');
 const Answer = require('../../db/model/answer');
+const { Op } = require("sequelize");
 
+import { log } from "console";
 import { Request, Response, NextFunction } from "express";
+import { STRING } from "sequelize";
 
 declare global {
     namespace Express {
         interface Request {
             teacher?: any;
+            student?: any;
         }
     }
 }
@@ -58,6 +63,65 @@ class ExamController {
             res.status(500).json({ error: error.message });
         }
     }
+
+    // Get all exam that created by teacher
+    // [GET] /api/v1/exam/teacher/:teacherId
+    studentGetExam = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            // const grade = req.query.grade ? req.query.grade : '';
+            // const level = req.query.level ? req.query.level : '';
+            // const subject = req.query.subject ? req.query.subject : '';
+
+            const grade = req.body.data.grade ? req.body.data.grade : '';
+            const level = req.body.data.level ? req.body.data.level : '';
+            const subject = req.body.data.subject ? req.body.data.subject : '';
+
+
+            const examIdByGradeId = await Category_Exam.findAll({
+                attributes: ['id_exam'],
+                where: {
+                    [Op.or]: [
+                        { id_category: grade },
+                        { id_category: level },
+                        { id_category: subject }
+                    ]
+                }
+            })
+
+            let examListId = examIdByGradeId.map((exam: any) => exam.id_exam)
+
+            let exam
+            if (examIdByGradeId) {
+                exam = await Exam.findAll(
+                    {
+                        attributes: [
+                            'id', 'id_course', 'title', 'period', 'quantity_question'
+                        ],
+                        where: {
+                            id: examListId
+                        }
+                    }
+                );
+            }
+            else {
+                exam = await Exam.findAll(
+                    {
+                        attributes: [
+                            'id', 'id_course', 'title', 'period', 'quantity_question'
+                        ],
+                    }
+                );
+            }
+            if (!exam) return res.status(404).json({ message: "Exam not found!" });
+
+            res.status(200).json(exam);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+
 
     // Create an exam
     // [POST] /api/v1/exam
@@ -111,6 +175,19 @@ class ExamController {
         }
     }
 
+    studentSubmitExam = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const id_student = req.student.data.id
+            const data = req.body.data
+
+            res.status(201).json();
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+
     // Delete an exam
     // [DELETE] /api/v1/exam/:examId
     deleteExam = async (req: Request, res: Response, _next: NextFunction) => {
@@ -119,12 +196,12 @@ class ExamController {
 
             const exam = Exam.findByPk(examId);
 
-            if (!exam) 
-                return res.status(404).json({ message: "Document does not exist!"});
+            if (!exam)
+                return res.status(404).json({ message: "Document does not exist!" });
 
             const teacherId = req.teacher.data.id;
 
-            if (exam.id_teacher !== teacherId) 
+            if (exam.id_teacher !== teacherId)
                 return res.status(401).json({ message: "You do not have permission to do this action!" });
 
             await exam.destroy();
@@ -140,3 +217,4 @@ class ExamController {
     }
 }
 
+module.exports = new ExamController()

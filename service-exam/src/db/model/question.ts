@@ -31,7 +31,7 @@ Question.init({
     },
 }, {
     sequelize,
-    tableName: 'question', 
+    tableName: 'question',
 });
 
 module.exports = Question;

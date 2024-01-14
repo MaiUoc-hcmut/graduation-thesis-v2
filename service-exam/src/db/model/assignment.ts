@@ -42,4 +42,6 @@ Assignment.init({
     timestamps: false,
 });
 
+
+
 module.exports = Assignment;
