@@ -27,10 +27,11 @@ class ChapterController {
 
     // [POST] /chapters/create
     create(req: Request, res: Response, next: NextFunction) {
-        const chapter = Chapter.build(req.body.data);
+        const data = req.body.data
+        const chapter = Chapter.build(data);
         chapter
             .save()
-            .then((chapter: any) => {
+            .then(async (chapter: any) => {
                 res.send(chapter)
             })
             .catch(next);

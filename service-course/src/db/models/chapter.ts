@@ -22,9 +22,6 @@ Chapter.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        description: {
-            type: DataTypes.STRING,
-        },
         order: DataTypes.INTEGER.UNSIGNED,
         status: {
             type: DataTypes.BOOLEAN,

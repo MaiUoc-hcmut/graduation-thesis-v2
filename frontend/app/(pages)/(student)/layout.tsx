@@ -17,7 +17,7 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body className="layout-sticky-subnav layout-default">
+      <body className="">
         <HeaderStudent />
 
         {children}

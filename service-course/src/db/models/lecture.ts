@@ -28,8 +28,8 @@ Lecture.init(
         description: {
             type: DataTypes.STRING,
         },
-        time: {
-            type: DataTypes.TIME,
+        duration: {
+            type: DataTypes.BIGINT,
         },
         order: DataTypes.INTEGER.UNSIGNED,
         status: {

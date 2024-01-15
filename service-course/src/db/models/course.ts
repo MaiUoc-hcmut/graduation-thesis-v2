@@ -16,6 +16,10 @@ Course.init(
       autoIncrement: true,
       primaryKey: true,
     },
+    id_teacher: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: false,
+    },
     name: {
       type: DataTypes.STRING(50),
       allowNull: false,
@@ -36,7 +40,15 @@ Course.init(
       type: DataTypes.DATE,
       allowNull: false,
     },
-    object: {
+    subject: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    grade: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    level: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -44,12 +56,16 @@ Course.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    object: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     method: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    knowledge: DataTypes.STRING,
     thumbnail: DataTypes.STRING,
+
     status: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
@@ -69,13 +85,13 @@ Course.init(
     sequelize,
   },
 );
-Course.hasMany(Chapter, { foreignKey: "id_course", as: "chapters", onDelete: "cascade" })
+Course.hasMany(Chapter, { foreignKey: "id_course", as: "chapters" })
 Chapter.belongsTo(Course, {
-  foreignKey: "id_course"
+  foreignKey: "id_course",
 });
 
 
-Chapter.hasMany(Lecture, { foreignKey: "id_chapter", as: "lectures", onDelete: "cascade" })
+Chapter.hasMany(Lecture, { foreignKey: "id_chapter", as: "lectures" })
 Lecture.belongsTo(Chapter, {
   foreignKey: "id_chapter"
 });
