@@ -107,7 +107,7 @@ export default function Sidebar() {
                                             href="/dashboard/course/new"
                                             className="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                                         >
-                                            <FontAwesomeIcon icon={faCircle} className='text-[8px] mt-[2px]' />
+                                            <FontAwesomeIcon icon={faCircle} className='text-[6px] mt-[2px]' />
                                             <div className='ml-2'>
                                                 Tạo mới
                                             </div>
@@ -119,7 +119,7 @@ export default function Sidebar() {
                                             href="/dashboard/course"
                                             className="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                                         >
-                                            <FontAwesomeIcon icon={faCircle} className='text-[8px] mt-[2px]' />
+                                            <FontAwesomeIcon icon={faCircle} className='text-[6px] mt-[2px]' />
                                             <div className='ml-2'>
                                                 Khóa học của tôi
                                             </div>
