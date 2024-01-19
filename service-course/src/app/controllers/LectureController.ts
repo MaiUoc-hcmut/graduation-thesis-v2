@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from "express";
 const { getVideoDurationInSeconds } = require('get-video-duration')
 
 
-const fileUpload = require('../../config/firebase/fileUpload.js');
+const fileUpload = require('../../config/firebase/fileUpload');
 const { firebaseConfig } = require('../../config/firebase/firebase');
 const {
     ref,

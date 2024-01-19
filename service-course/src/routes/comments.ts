@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const commentController = require("../app/controllers/CommentController");
 
-const fileUpload = require('../config/firebase/fileUpload.js');
+const fileUpload = require('../config/firebase/fileUpload');
 
 router.put("/:id", commentController.update);
 router.delete("/:id", commentController.delete);

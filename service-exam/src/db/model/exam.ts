@@ -3,8 +3,8 @@ import { Model, DataTypes, CreationOptional } from 'sequelize';
 const Question = require('./question');
 
 class Exam extends Model {
-    declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
+    // declare createdAt: CreationOptional<Date>;
+    // declare updatedAt: CreationOptional<Date>;
 }
 
 Exam.init({
@@ -47,10 +47,10 @@ Exam.init({
     tableName: 'exam',
 });
 
-Exam.belongsToMany(Question, { through: 'exam_question' });
-Question.belongsToMany(Exam, { through: 'exam_question' });
+module.exports = Exam;
+
+Exam.belongsToMany(Question, { through: 'exam-question' });
+Question.belongsToMany(Exam, { through: 'exam-question' });
 
 Exam.sync();
 Question.sync()
-
-module.exports = Exam

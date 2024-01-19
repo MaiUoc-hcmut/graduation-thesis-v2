@@ -1,18 +1,16 @@
 'use strict';
 /** @type {import('sequelize-cli').Migration} */
+const { DataTypes } = require('sequelize');
 module.exports = {
   async up(queryInterface, Sequelize) {
-<<<<<<< HEAD
     await queryInterface.createTable('course', {
       id: {
-        type: Sequelize.INTEGER.UNSIGNED,
-        allowNull: false,
-        unique: true,
-        autoIncrement: true,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
       id_teacher: {
-        type: Sequelize.INTEGER.UNSIGNED,
+        type: DataTypes.UUID,
         allowNull: false,
       },
       name: {
@@ -26,17 +24,12 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      last_update_time: Sequelize.DATE,
       start_time: {
         type: Sequelize.DATE,
         allowNull: false,
       },
       end_time: {
         type: Sequelize.DATE,
-        allowNull: false,
-      },
-      subject: {
-        type: Sequelize.STRING,
         allowNull: false,
       },
       object: {
@@ -47,15 +40,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      method: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      grade: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      level: {
+      requirement: {
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -76,14 +61,12 @@ module.exports = {
     });
     await queryInterface.createTable('chapter', {
       id: {
-        type: Sequelize.INTEGER.UNSIGNED,
-        allowNull: false,
-        unique: true,
-        autoIncrement: true,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
       id_course: {
-        type: Sequelize.INTEGER.UNSIGNED,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
           model: 'Course',
@@ -123,14 +106,12 @@ module.exports = {
     });
     await queryInterface.createTable('lecture', {
       id: {
-        type: Sequelize.INTEGER.UNSIGNED,
-        allowNull: false,
-        unique: true,
-        autoIncrement: true,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
       id_chapter: {
-        type: Sequelize.INTEGER.UNSIGNED,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
           model: 'Chapter',
@@ -169,21 +150,45 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
       },
-=======
-    await queryInterface.createTable('documents', {
+    });
+    await queryInterface.createTable('folder', {
       id: {
-        allowNull: false,
-        autoIncrement: true,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
-        type: Sequelize.INTEGER.UNSIGNED
+      },
+      id_teacher: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+      parent_folder_id: {
+        type: DataTypes.UUID,
+      },
+      name: {
+        type: Sequelize.STRING(100)
+      },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE
+      }
+    });
+    await queryInterface.createTable('document', {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
       },
       id_teacher: {
         allowNull: false,
-        type: Sequelize.INTEGER.UNSIGNED
+        type: DataTypes.UUID
       },
       parent_folder_id: {
         allowNull: true,
-        type: Sequelize.INTEGER.UNSIGNED
+        type: DataTypes.UUID
       },
       name: {
         type: Sequelize.STRING(100)
@@ -205,45 +210,90 @@ module.exports = {
       },
       updatedAt: {
         type: Sequelize.DATE,
-      }
+      },
     });
-    await queryInterface.createTable('folders', {
+    await queryInterface.createTable('comment', {
       id: {
+        type: DataTypes.UUID,
         allowNull: false,
-        autoIncrement: true,
+        unique: true,
         primaryKey: true,
-        type: Sequelize.INTEGER.UNSIGNED
       },
-      parent_folder_id: {
-        type: Sequelize.INTEGER.UNSIGNED,
+      id_parent: {
+        type: DataTypes.UUID,
+        references: {
+          model: 'Comment',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
       },
-      name: {
-        type: Sequelize.STRING(100)
+      id_lecture: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: 'Lecture',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      },
+      id_user: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+      content: {
+        type: Sequelize.STRING(1000),
+      },
+      image: {
+        type: Sequelize.STRING,
+      },
+      status: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
       },
       createdAt: {
+        type: Sequelize.DATE,
         allowNull: false,
-        type: Sequelize.DATE
       },
       updatedAt: {
+        type: Sequelize.DATE,
         allowNull: false,
-        type: Sequelize.DATE
-      }
->>>>>>> 580929be76bd954e7215edc4075205d5a111910a
+      },
+    });
+    await queryInterface.addConstraint('folder', {
+      fields: ['parent_folder_id'],
+      type: 'foreign key',
+      name: 'folders_parent_folder_id_fkey',
+      references: {
+        table: 'folder',
+        field: 'id'
+      },
+      onDelete: 'cascade',
+      onUpdate: 'cascade'
+    });
+    await queryInterface.addConstraint('document', {
+      fields: ['parent_folder_id'],
+      type: 'foreign key',
+      name: 'documents_parent_folder_id_fkey',
+      references: {
+        table: 'folder',
+        field: 'id'
+      },
+      onDelete: 'cascade',
+      onUpdate: 'cascade'
     });
   },
 
   async down(queryInterface, Sequelize) {
-<<<<<<< HEAD
+    await queryInterface.removeConstraint('folders', 'folders_parent_folder_id_fkey');
+    await queryInterface.removeConstraint('documents', 'documents_parent_folder_id_fkey');
+    await queryInterface.dropTable('comment')
     await queryInterface.dropTable('lecture');
     await queryInterface.dropTable('chapter');
     await queryInterface.dropTable('course');
-    // await queryInterface.dropTable('documents');
-    // await queryInterface.dropTable('categories');
-    // await queryInterface.dropTable('documentlecture');
-    // await queryInterface.dropTable('documentcategory');
-=======
-    await queryInterface.dropTable('documents');
-    await queryInterface.dropTable('folders');
->>>>>>> 580929be76bd954e7215edc4075205d5a111910a
+    await queryInterface.dropTable('document');
+    await queryInterface.dropTable('folder');
   },
 };

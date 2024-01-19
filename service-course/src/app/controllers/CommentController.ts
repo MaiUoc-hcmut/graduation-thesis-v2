@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 const Comment = require('../../db/models/comment');
 
-const fileUpload = require('../../config/firebase/fileUpload.js');
+const fileUpload = require('../../config/firebase/fileUpload');
 const { firebaseConfig } = require('../../config/firebase/firebase');
 const {
     ref,

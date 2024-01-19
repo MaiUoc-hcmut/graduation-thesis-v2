@@ -10,12 +10,12 @@ class Chapter extends Model {
 Chapter.init(
     {
         id: {
-            type: DataTypes.INTEGER.UNSIGNED,
-            autoIncrement: true,
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
             primaryKey: true,
         },
         id_course: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             allowNull: false,
         },
         name: {
