@@ -10,15 +10,15 @@ class Lecture extends Model {
 Lecture.init(
     {
         id: {
-            type: DataTypes.INTEGER.UNSIGNED,
-            autoIncrement: true,
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
             primaryKey: true,
         },
         id_chapter: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             allowNull: false,
         },
-        id_video: {
+        video: {
             type: DataTypes.STRING,
         },
         name: {

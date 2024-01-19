@@ -1,6 +1,6 @@
 
 const { sequelize } = require('../../config/db');
-import { Model, DataTypes, CreationOptional } from 'sequelize';
+import { Model, DataTypes, CreationOptional, UUID, UUIDV4 } from 'sequelize';
 const Chapter = require('./chapter')
 const Lecture = require('./lecture')
 
@@ -12,12 +12,12 @@ class Course extends Model {
 Course.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      autoIncrement: true,
+      type: DataTypes.UUID,
+      defaultValue: UUIDV4,
       primaryKey: true,
     },
     id_teacher: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.UUID,
       allowNull: false,
     },
     name: {
@@ -31,27 +31,6 @@ Course.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    last_update_time: DataTypes.TIME,
-    start_time: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    end_time: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    subject: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    grade: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    level: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     goal: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -60,12 +39,12 @@ Course.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    method: {
+    requirement: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     thumbnail: DataTypes.STRING,
-
+    cover_image: DataTypes.STRING,
     status: {
       type: DataTypes.BOOLEAN,
       allowNull: false,

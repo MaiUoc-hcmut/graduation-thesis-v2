@@ -20,7 +20,7 @@ class ChapterController {
 
     // [GET] /chapters/:id/all
     getChapterFull(req: Request, res: Response, next: NextFunction) {
-        Chapter.findAll({ where: { id_course: req.query.id_course }, include: ["lectures"] }).then((chapter: any) =>
+        Chapter.findAll({ where: { id_course: req.params.id_course }, include: ["lectures"] }).then((chapter: any) =>
             res.send(chapter))
             .catch(next);
     }

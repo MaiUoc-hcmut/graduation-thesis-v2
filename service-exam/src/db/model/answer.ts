@@ -33,13 +33,14 @@ Answer.init({
     }
 }, {
     sequelize,
-    tableName: 'exam',
+    tableName: 'answer',
+    timestamps: false
 });
 
 module.exports = Answer;
 
-Answer.belongsToMany(DetailQuestion, { through: 'selected_answer' });
-DetailQuestion.belongsToMany(Answer, { through: 'selected_answer' });
+Answer.belongsToMany(DetailQuestion, { through: 'select_answer' });
+DetailQuestion.belongsToMany(Answer, { through: 'select_answer' });
 
 Answer.sync();
 DetailQuestion.sync();

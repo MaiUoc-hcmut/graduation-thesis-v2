@@ -128,8 +128,8 @@ class ExamController {
     createExam = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const { title, period, status, questions, id_course } = req.body;
-            const quantity_question = questions.length;
-            const id_teacher = req.teacher.data.id;
+            const quantity_question = 1;
+            const id_teacher = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
 
             if (!title || !period)
                 res.status(400).json({ message: "Information missed" });
@@ -156,9 +156,9 @@ class ExamController {
                     content_image
                 });
                 newQuestions.push(newQuestion);
-
                 for (const answer of answers) {
                     await Answer.create({
+                        id_question: newQuestion.id,
                         content_text: answer.content_text,
                         content_image: answer.content_image,
                         is_correct: answer.is_correct
@@ -217,4 +217,5 @@ class ExamController {
     }
 }
 
-module.exports = new ExamController()
+
+module.exports = new ExamController();
