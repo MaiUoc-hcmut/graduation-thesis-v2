@@ -67,40 +67,19 @@ const INITIAL_DATA: CourseData = {
 
 export default function CreateCourseStep() {
     const [data, setData] = useState(INITIAL_DATA)
-    const [err, setErr] = useState({})
-    const [chapters, setChapters] = useState()
-    const [changeData, setChangeData] = useState(false)
+    const [currentStepIndex, setCurrentStepIndex] = useState(0)
 
 
-    const {
-        register,
-        control,
-        setValue,
-        handleSubmit,
-        getValues,
-        clearErrors,
-        setError,
-        formState: { errors },
-    } = useForm<CourseData>(
-        {
-            defaultValues: INITIAL_DATA
-        }
-    )
 
-    const { fields, append } = useFieldArray({
-        control,
-        name: "chapters",
-    });
-
-    useEffect(() => {
-        setErr(errors)
-    }, [errors]);
     const router = useRouter()
-    const { steps, currentStepIndex, step, isFirstStep, isLastStep, back, next, goTo } =
+    const { steps, step, isFirstStep, isLastStep, back, next, goTo } =
         useMultistepForm([
-            // <BasicInfomationForm key={'step1'} register={register} errors={errors} setValue={setValue} setError={setError} />,
-            <ContentForm key={'step2'} register={register} errors={err} setValue={setValue} getValues={getValues} chapters={chapters} control={control} changeData={changeData} fields={fields} append={append} />,
-        ])
+            // <BasicInfomationForm key={'step1'} data={data} setData={setData} setCurrentStepIndex={setCurrentStepIndex} />,
+            <ContentForm key={'step2'} data={data} setData={setData} />,
+        ], currentStepIndex, setCurrentStepIndex)
+
+    console.log(data);
+
 
     return (
         < div className="" >
@@ -142,40 +121,34 @@ export default function CreateCourseStep() {
                     </div>
                 </div>
             </form >
-            <div className="flex flex-row">
-                <form onSubmit={handleSubmit(async (data: any) => {
-                    if (!(Object.entries(errors).length === 0)) return
-                    setChangeData(!changeData)
-                    console.log(getValues().chapters.length, errors, 111);
 
-                    append({
-                        id: `${getValues().chapters.length}`,
-                        name: "",
-                        description: "",
-                        order: 0,
-                        status: false,
-                        lecutes: []
-                    })
-                    if (!isLastStep) return next()
+            <div className="flex flex-col ">
+                {step}
+                <form className={`${isLastStep ? '' : 'hidden'} mt-5 w-full`} onSubmit={(e: any) => {
+                    e.preventDefault()
+                    console.log('submit');
+
+                    // if (!isLastStep) return next()
                     // data = { ...data, thumbnail: data.thumbnail[0], cover: data.cover[0] }
                     // console.log(data, 111)\
                     // setData({ ...data, id_teacher: user.id })
                     // await courseApi.create(data)
                     // router.push("/teacher/course")
-                })} encType='multipart/form-data' className="mt-5 w-full">
-                    {step}
-                    <div className="flex flex-row justify-between my-10 pt-10">
+                }} encType='multipart/form-data'>
+
+                    <div className="flex flex-row justify-between">
                         {!isFirstStep && (
                             <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" type="button" onClick={back}>
                                 Trang trước
                             </button>
                         )}
                         {
-                            isLastStep ? <button type="submit" className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Hoàn thành</button> : <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" type="submit">Tiếp theo</button>
+                            isLastStep ? <button type="submit" className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Hoàn thành</button> : null
+
                         }
                     </div>
                 </form>
-            </div>
+            </div >
         </ div >
     )
 

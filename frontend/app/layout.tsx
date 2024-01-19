@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-sync-scripts */
 import type { Metadata } from 'next'
 import './globals.css'
-import FlowbiteClient from './_components/FlowbiteClient'
+import FlowbiteClient from './_components/Flowbite/FlowbiteClient'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
 import { fas } from '@fortawesome/free-solid-svg-icons'
