@@ -16,7 +16,7 @@ router.delete("/:id", courseController.delete);
 router.post("/", Authorize.protectedAPI, fileUpload.uploadCourseFiles, courseController.uploadThumbnailAndCover, courseController.createCourse);
 router.get("/:id", courseController.getCourseById);
 router.get("/", courseController.getAllCourse);
-// router.post("/test", fileUpload.uploadCourseFiles, courseController.test);
+router.post("/test", fileUpload.uploadCourseFiles, courseController.test);
 
 
 
