@@ -37,6 +37,7 @@ declare global {
             teacher?: any;
             lectureURL: ResponseVideoFile[];
         }
+
     }
 
     type ResponseVideoFile = {
@@ -45,6 +46,14 @@ declare global {
         chapterIdx: number,
         lectureIdx: number,
         duration: number,
+    }
+
+    interface RequestForCourse extends Request {
+        URL: ImageURL;
+        teacher?: any;
+        lectureURL: ResponseVideoFile[];
+        file: Express.Multer.File;
+        files: Express.Multer.File[];
     }
 }
 
@@ -63,15 +72,8 @@ class CourseController {
         }
     }
 
-    // [GET] /courses/all
-    getAllCourseFull(req: Request, res: Response, next: NextFunction) {
-        Course.findByPk(req.params.id, { include: ['chapters'] })
-            .then((course: any) => res.send(course))
-            .catch(next);
-    }
-
     // Get course by Id
-    // [GET] /courses/:id
+    // [GET] /courses/:courseId
     getCourseById = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id = req.params.id;
@@ -80,6 +82,65 @@ class CourseController {
             if (!course) return res.status(404).json({ message: "Course not found!" });
 
             res.status(200).json(course);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    // [GET] /course/full/:courseId
+    getAllDetailCourse = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const course = await Course.findOne({
+                where: { id: req.params.courseId },
+                include: [
+                    {
+                        model: Chapter,
+                        as: 'chapters',
+                        include: [
+                            {
+                                model: Lecture,
+                                as: 'lectures'
+                            }
+                        ]
+                    },
+                    {
+                        model: Category,
+                        attributes: ['name'],
+                        through: {
+                            attributes: []
+                        }
+                    }
+                ]
+            });
+
+            if (!course) return res.status(404).json({ message: "Course does not exist" });
+
+            res.status(200).json(course);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    getCourseFilterByCategory = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const { categories } = req.body;
+
+            const course = await Course.findAll({
+                include: [
+                    {
+                        model: Category,
+                        where: {
+                            id: categories
+                        },
+                        attributes: ['name'],
+                        through: {
+                            attributes: []
+                        }
+                    }
+                ]
+            })
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
@@ -106,9 +167,13 @@ class CourseController {
     // [POST] /courses
     createCourse = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const id_teacher = req.teacher.data.id;
-            const { chapters, categories, ...courseBody } = req.body;
-
+            const id_teacher = "123e4567-e89b-12d3-a456-426614174000"  // req.teacher.data.id;
+            
+            let { chapters, categories, ...courseBody } = req.body;
+            
+            chapters = JSON.parse(chapters);
+            categories = JSON.parse(categories);
+            
             // Thumbnail and cover image url after upload
             const { thumbnail, cover } = req.URL as { thumbnail: string, cover: string };
 
@@ -169,39 +234,39 @@ class CourseController {
         }
     }
 
-    uploadThumbnailAndCover = async (req: Request, res: Response, next: NextFunction) => {
+    uploadThumbnailAndCover = async (req: RequestForCourse, res: Response, next: NextFunction) => {
         try {
-            const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+            const files = req.files // as { [fieldname: string]: Express.Multer.File[] };
             
             const dateTime = fileUpload.giveCurrentDateTime();
 
             const thumbnailRef = ref(
                 storage,
-                `thumbnails course/${files.thumbnail[0].originalname + '       ' + dateTime}`
+                `thumbnails course/${files[0].originalname + '       ' + dateTime}`
             );
             const coverRef = ref(
                 storage,
-                `cover image course/${files.cover[0].originalname + '       ' + dateTime}`
+                `cover image course/${files[1].originalname + '       ' + dateTime}`
             );
 
             // Create file metadata including the content type
             const metadataThumbnail = {
-                contentType: files.thumbnail[0].mimetype,
+                contentType: files[0].mimetype,
             };
             const metadataCover = {
-                contentType: files.cover[0].mimetype,
+                contentType: files[1].mimetype,
             };
 
             // Upload the file in the bucket storage
             const thumbnailSnapshot = await uploadBytesResumable(
                 thumbnailRef,
-                files.thumbnail[0].buffer,
+                files[0].buffer,
                 metadataThumbnail
             );
 
             const coverSnapshot = await uploadBytesResumable(
                 coverRef,
-                files.cover[0].buffer,
+                files[1].buffer,
                 metadataCover
             );
 
@@ -223,13 +288,13 @@ class CourseController {
         }
     }
 
-    uploadLectureVideo = async (req: Request, res: Response, next: NextFunction) => {
+    uploadLectureVideo = async (req: RequestForCourse, res: Response, next: NextFunction) => {
         try {
-            const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+            const files = req.files // as { [fieldname: string]: Express.Multer.File[] };
 
             const urls: ResponseVideoFile[] = [];
 
-            const uploadPromises = files.video.map(async (video) => {
+            const uploadPromises = files.slice(2).map(async (video) => {
                 const dateTime = fileUpload.giveCurrentDateTime();
 
                 // originalname of video is separate to 3 part

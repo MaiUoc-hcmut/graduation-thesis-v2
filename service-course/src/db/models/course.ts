@@ -76,7 +76,15 @@ Lecture.belongsTo(Chapter, {
   foreignKey: "id_chapter"
 });
 
-Course.belongsToMany(Category, { through: 'category-course' });
-Category.belongsToMany(Course, { through: 'categoty-course' });
+Course.belongsToMany(Category, { 
+  through: 'category-course',
+  foreignKey: 'id_course',
+  otherKey: 'id_category'
+});
+Category.belongsToMany(Course, { 
+  through: 'categoty-course',
+  foreignKey: 'category',
+  otherKey: 'id_course'
+});
 
 module.exports = Course

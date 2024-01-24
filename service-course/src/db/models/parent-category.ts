@@ -17,7 +17,7 @@ ParentCategory.init(
             allowNull: false
         }
     }, {
-        tableName: 'category',
+        tableName: 'par_category',
         freezeTableName: true,
         sequelize
     }
