@@ -7,7 +7,7 @@ class FileUpload {
                             { name: "cover", maxCount: 1 },
                             { name: "video", maxCount: 300 }
                         ]);
-    uploadVideo = multer({ storage: multer.memoryStorage() }).single('id_video');
+    uploadVideo = multer({ storage: multer.memoryStorage() }).single('video');
 
     uploadImageComment = multer({ storage: multer.memoryStorage() }).single('image');
     

@@ -1,11 +1,15 @@
 const Lecture = require('../../db/models/lecture')
 const Chapter = require('../../db/models/chapter')
 import { Request, Response, NextFunction } from "express";
-const { getVideoDurationInSeconds } = require('get-video-duration')
+const { getVideoDurationInSeconds } = require('get-video-duration');
 
+const progress = require('progress-stream');
+
+const io = require('../../index');
+const clientsConnected = require('../../socket');
 
 const fileUpload = require('../../config/firebase/fileUpload');
-const { firebaseConfig } = require('../../config/firebase/firebase');
+const { firebaseConfig, storage } = require('../../config/firebase/firebase');
 const {
     ref,
     getDownloadURL,
@@ -15,89 +19,196 @@ const {
 const { initializeApp } = require('firebase/app');
 
 initializeApp(firebaseConfig);
-const storage = getStorage();
+// const storage = getStorage();
 
 class LectureController {
-    // [GET] courses/lectures/:id
-    getLecture(req: Request, res: Response, next: NextFunction) {
-        const id = req.params.id
-        Lecture.findByPk(id).then((lecture: any) =>
-            res.send(lecture))
-            .catch(next);
-    }
 
     // [GET] /lectures
-    getAllLecture(req: Request, res: Response, next: NextFunction) {
-        Chapter.findByPk(req.body.data.id_chapter, { include: ["lectures"] }).then((chapter: any) =>
-            res.send(chapter.lectures))
-            .catch(next);
+    getAllLectures = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const lectures = await Lecture.findAll();
+
+            res.status(200).json(lectures);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
     }
 
-    // [POST] /lectures/create
-    async create(req: Request, res: Response, next: NextFunction) {
-        let data = req.body;
-        const file = req.file
+    // [GET] /lectures/:lectureId
+    getLectureById = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const id = req.params.lectureId;
 
-        const dateTime = fileUpload.giveCurrentDateTime();
+            const lecture = await Lecture.findByPk(id);
 
-        const storageRef = ref(
-            storage,
-            `video-courses/${file?.originalname + '       ' + dateTime}`
-        );
+            res.status(200).json(lecture);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
 
-        // Create file metadata including the content type
-        const metadata = {
-            contentType: file?.mimetype,
-        };
+    // [GET] /lectures/chapter/:chapterId
+    getLectureBelongToChapter = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const chapterId = req.params.chapterId;
 
-        // Upload the file in the bucket storage
-        const snapshot = await uploadBytesResumable(
-            storageRef,
-            file?.buffer,
-            metadata
-        );
+            const lectures = await Lecture.findAll({
+                where: { id_chapter: chapterId }
+            });
 
-        // Grab the public url
-        const downloadURL = await getDownloadURL(snapshot.ref);
-        getVideoDurationInSeconds(
-            downloadURL
-        ).then((duration: any) => {
-            duration = Math.floor(duration)
-            data = { ...data, id_video: downloadURL, duration: duration };
-            const lecture = Lecture.build(data);
+            res.status(200).json(lectures);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
 
-            lecture
-                .save()
-                .then((lecture: any) => {
-                    res.send(lecture)
+    // [POST] /lectures
+    createLecture = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const body = req.body;
+
+            const lectureURL = req.lectureURL[0];
+
+            const newLecture = await Lecture.create({
+                video: lectureURL.url,
+                duration: lectureURL.duration,
+                ...body
+            });
+
+            res.status(201).json(newLecture);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    uploadLectureVideo = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+            const urls: ResponseVideoFile[] = [];
+
+            const uploadPromises = files.video.map(async (video) => {
+                const dateTime = fileUpload.giveCurrentDateTime();
+
+                // originalname of video is separate to 3 part
+                // each part separate by a hyphen
+                // first part is index of chapter in course, second part is index of lecture in chapter
+                const firstHyphen = video.originalname.indexOf('-');
+                const chapterIdx = video.originalname.substring(0, firstHyphen);
+
+                const secondHyphen = video.originalname.indexOf('-', firstHyphen + 1);
+                const lectureIdx = video.originalname.substring(firstHyphen + 1, secondHyphen);
+
+                const originalFileName = video.originalname.substring(secondHyphen + 1);
+
+                const storageRef = ref(
+                    storage, 
+                    `video course/${originalFileName + "       " + dateTime}`
+                );
+
+                const metadata = {
+                    contentType: video.mimetype,
+                };
+
+                const snapshot = await uploadBytesResumable(storageRef, video.buffer, metadata);
+                const url = await getDownloadURL(snapshot.ref);
+                const duration = await Math.floor(getVideoDurationInSeconds(url));
+
+                urls.push({
+                    name: originalFileName,
+                    url,
+                    chapterIdx: parseInt(chapterIdx),
+                    lectureIdx: parseInt(lectureIdx),
+                    duration
+                });
+                io.to(clientsConnected[req.teacher.data.id]).emit("file uploaded", {
+                    fileName: originalFileName,
+                    url
                 })
-                .catch(next);
+            });
+            
+            await Promise.all(uploadPromises);
 
-        })
-
+            req.lectureURL = urls;
+            next();
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
     }
 
-    // [PUT] /lectures/:id
-    update(req: Request, res: Response, next: NextFunction) {
-        Lecture.update(req.body.data, {
-            where: {
-                id: req.params.id
-            }
-        })
-            .then((lecture: any) =>
-                res.send(lecture))
-            .catch(next);
+    // [PUT] /lectures/:lectureId
+    updateLecture = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const body = req.body;
+
+            const lecture = await Lecture.update(body, {
+                where: { id: req.params.lectureId }
+            });
+
+            res.status(200).json(lecture);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
     }
 
-    // [DELETE] /lectures/:id
-    delete(req: Request, res: Response, next: NextFunction) {
-        Lecture.destroy({
-            where: {
-                id: req.params.id
-            }
-        })
-            .then(res.send({}))
-            .catch((err: Error) => { throw err });
+    // [DELETE] /lectures/:lectureId
+    deleteLecture = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            await Lecture.destroy({
+                where: { id: req.params.lectureId }
+            });
+
+            res.status(200).json({
+                id: req.params.lectureId,
+                message: "Lecture has been deleted"
+            })
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    test = async (req: Request, res: Response) => {
+        try {
+            const file: any = req.file;
+            const progressStream = progress({
+                length: file.size,
+                time: 100 /* ms */
+            });
+
+            progressStream.on('progress', (progress: any) => {
+                console.log(`Upload progress: ${progress.percentage}%`);
+            });
+
+            const bucket = storage.bucket('video course');
+            const blob = bucket.file(file.originalname);
+            const blobStream = blob.createWriteStream();
+
+            blobStream.on('error', (err: any) => {
+                console.error(err);
+                res.status(500).end();
+            });
+
+            blobStream.on('finish', () => {
+                console.log('Upload completed');
+                res.status(200).end();
+            });
+
+            progressStream.pipe(blobStream);
+
+            res.status(200).json({
+                message: "Success"
+            })
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
     }
 
 }

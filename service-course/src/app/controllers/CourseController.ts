@@ -1,10 +1,14 @@
 const Course = require('../../db/models/course');
 const Chapter = require('../../db/models/chapter');
 const Lecture = require('../../db/models/lecture');
+const Category = require('../../db/models/category');
+
 import { Request, Response, NextFunction } from 'express';
-const { getVideoDurationInSeconds } = require('get-video-duration')
+
+const { getVideoDurationInSeconds } = require('get-video-duration');
 
 const io = require('../../index');
+const clientsConnected = require('../../socket');
 
 const fileUpload = require('../../config/firebase/fileUpload');
 const { firebaseConfig } = require('../../config/firebase/firebase');
@@ -50,7 +54,7 @@ class CourseController {
     // [GET] /courses
     getAllCourse = async (_req: Request, res: Response, _next: NextFunction) => {
         try {
-            const courses = Course.findAll();
+            const courses = await Course.findAll();
 
             res.status(200).json(courses)
         } catch (error: any) {
@@ -103,7 +107,7 @@ class CourseController {
     createCourse = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_teacher = req.teacher.data.id;
-            const { chapters, ...courseBody } = req.body;
+            const { chapters, categories, ...courseBody } = req.body;
 
             // Thumbnail and cover image url after upload
             const { thumbnail, cover } = req.URL as { thumbnail: string, cover: string };
@@ -118,11 +122,19 @@ class CourseController {
                 id_teacher
             });
 
+            const categoriesInstances = [];
+
+            for (let i = 0; i < categories.length; i++) {
+                const category = await Category.findByPk(categories[i]);
+                categoriesInstances.push(category);
+            }
+
+            newCourse.addCategories(categoriesInstances);
+
             const newChapters = [];
             for (let i = 0; i < chapters.length; i++) {
                 const newChapter = await Chapter.create({
                     name: chapters[i].name,
-                    description: chapters[i].description,
                     id_course: newCourse.id,
                     status: chapters[i].status,
                     order: i + 1
@@ -251,6 +263,10 @@ class CourseController {
                     lectureIdx: parseInt(lectureIdx),
                     duration
                 });
+                io.to(clientsConnected[req.teacher.data.id]).emit("file uploaded", {
+                    fileName: originalFileName,
+                    url
+                });
             });
             
             await Promise.all(uploadPromises);
@@ -273,80 +289,88 @@ class CourseController {
     }
 
     // [DELETE] /courses/:id
-    delete(req: Request, res: Response, next: NextFunction) {
-        Course.destroy({
-            where: { id: req.params.id }
-        })
-            .then(res.send({}))
-            .catch(next);
-    }
-
-    test = async (req: Request, res: Response, next: NextFunction) => {
+    deleteCourse = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-    
-            const urls: ResponseVideoFile[] = [];
-    
-            const uploadPromises = files.video.map(async (video) => {
-                const dateTime = fileUpload.giveCurrentDateTime();
-    
-                const firstHyphen = video.originalname.indexOf('-');
-                const chapterIdx = video.originalname.substring(0, firstHyphen);
-    
-                const secondHyphen = video.originalname.indexOf('-', firstHyphen + 1);
-                const lectureIdx = video.originalname.substring(firstHyphen + 1, secondHyphen);
-    
-                const originalFileName = video.originalname.substring(secondHyphen + 1);
-    
-                const storageRef = ref(
-                    storage, 
-                    `video course/${originalFileName + "       " + dateTime}`
-                );
-    
-                const metadata = {
-                    contentType: video.mimetype,
-                };
-    
-                // Tạo một tác vụ tải lên
-                const uploadTask = storageRef.put(video.buffer, metadata);
-    
-                // Theo dõi tiến trình tải lên
-                uploadTask.on('state_changed', 
-                    (snapshot: any) => {
-                        var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        console.log('Upload is ' + progress + '% done');
-                        // Gửi sự kiện 'upload-progress' cùng với tiến trình tải lên
-                        io.emit('upload-progress', { fileName: originalFileName, progress });
-                    }, 
-                    (error: any) => {
-                        console.log(error);
-                    }, 
-                    async () => {
-                        const url = await uploadTask.snapshot.ref.getDownloadURL();
-                        const duration = await Math.floor(getVideoDurationInSeconds(url));
-    
-                        urls.push({
-                            name: originalFileName,
-                            url,
-                            chapterIdx: parseInt(chapterIdx),
-                            lectureIdx: parseInt(lectureIdx),
-                            duration
-                        });
-                        // Gửi sự kiện 'upload-complete' cùng với thông tin video
-                        io.emit('upload-complete', { fileName: originalFileName, url });
-                    }
-                );
+            await Course.destroy({
+                where: { id: req.params.courseId }
             });
-            
-            await Promise.all(uploadPromises);
-    
-            req.lectureURL = urls;
-            next();
+
+            res.status(200).json({
+                id: req.params.courseId,
+                message: "Course has been deleted"
+            });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
         }
     }
+
+    // test = async (req: Request, res: Response, next: NextFunction) => {
+    //     try {
+    //         const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    
+    //         const urls: ResponseVideoFile[] = [];
+    
+    //         const uploadPromises = files.video.map(async (video) => {
+    //             const dateTime = fileUpload.giveCurrentDateTime();
+    
+    //             const firstHyphen = video.originalname.indexOf('-');
+    //             const chapterIdx = video.originalname.substring(0, firstHyphen);
+    
+    //             const secondHyphen = video.originalname.indexOf('-', firstHyphen + 1);
+    //             const lectureIdx = video.originalname.substring(firstHyphen + 1, secondHyphen);
+    
+    //             const originalFileName = video.originalname.substring(secondHyphen + 1);
+    
+    //             const storageRef = ref(
+    //                 storage, 
+    //                 `video course/${originalFileName + "       " + dateTime}`
+    //             );
+    
+    //             const metadata = {
+    //                 contentType: video.mimetype,
+    //             };
+    
+    //             // Tạo một tác vụ tải lên
+    //             const uploadTask = storageRef.put(video.buffer, metadata);
+    
+    //             // Theo dõi tiến trình tải lên
+    //             uploadTask.on('state_changed', 
+    //                 (snapshot: any) => {
+    //                     var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+    //                     console.log('Upload is ' + progress + '% done');
+    //                     // Gửi sự kiện 'upload-progress' cùng với tiến trình tải lên
+    //                     io.emit('upload-progress', { fileName: originalFileName, progress });
+    //                 }, 
+    //                 (error: any) => {
+    //                     console.log(error);
+    //                 }, 
+    //                 async () => {
+    //                     const url = await uploadTask.snapshot.ref.getDownloadURL();
+    //                     const duration = await Math.floor(getVideoDurationInSeconds(url));
+    
+    //                     urls.push({
+    //                         name: originalFileName,
+    //                         url,
+    //                         chapterIdx: parseInt(chapterIdx),
+    //                         lectureIdx: parseInt(lectureIdx),
+    //                         duration
+    //                     });
+    //                     // Gửi sự kiện 'upload-complete' cùng với thông tin video
+    //                     io.emit('upload-complete', { fileName: originalFileName, url });
+    //                 }
+    //             );
+    //         });
+            
+    //         await Promise.all(uploadPromises);
+    
+    //         req.lectureURL = urls;
+    //         next();
+    //     } catch (error: any) {
+    //         console.log(error.message);
+    //         res.status(500).json({ error: error.message });
+    //     }
+    // }
 
 }
 

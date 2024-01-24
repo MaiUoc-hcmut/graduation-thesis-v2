@@ -12,11 +12,12 @@ router.use("/chapters", chaptersRouter)
 //route course
 router.get("/:id/all", courseController.getAllCourseFull);
 router.put("/:id", courseController.update);
-router.delete("/:id", courseController.delete);
+router.delete("/:courseId", courseController.deleteCourse);
 router.post("/", Authorize.protectedAPI, fileUpload.uploadCourseFiles, courseController.uploadThumbnailAndCover, courseController.createCourse);
 router.get("/:id", courseController.getCourseById);
 router.get("/", courseController.getAllCourse);
-router.post("/test", fileUpload.uploadCourseFiles, courseController.test);
+router.get('/teacher/:teacherId', Authorize.AuthGetCourseCreatedByTeacher, courseController.getCourseCreatedByTeacher);
+// router.post("/test", fileUpload.uploadCourseFiles, courseController.test);
 
 
 

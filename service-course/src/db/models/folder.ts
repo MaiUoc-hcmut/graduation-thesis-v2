@@ -29,7 +29,7 @@ Folder.init(
         },
     },
     {
-        tableName: 'folders',
+        tableName: 'folder',
         freezeTableName: true,
         sequelize
     }
