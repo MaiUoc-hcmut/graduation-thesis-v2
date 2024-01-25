@@ -32,7 +32,9 @@ export default function CourseDashboard() {
                                 </h3>
                             </Link>
                             <button>
-                                <PencilSquareIcon className="w-6 h-6 text-gray-500" />
+                                <Link href='course/edit/1'>
+                                    <PencilSquareIcon className="w-6 h-6 text-gray-500" />
+                                </Link>
                             </button>
                         </div>
                         <div className="flex items-center mt-4">

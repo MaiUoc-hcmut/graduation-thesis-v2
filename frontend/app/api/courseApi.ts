@@ -34,6 +34,7 @@ const courseApi = {
             }
         });
     },
+
     delete: (id: number) => {
         const url = `/courses/${id}`;
         return axiosClient.delete(url);

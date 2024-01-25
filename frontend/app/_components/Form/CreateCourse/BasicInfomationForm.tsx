@@ -8,13 +8,11 @@ type BasicInfomationData = {
     subject: string
     grade: string
     level: string
-    target: string
+    description: string
     goal: string
     object: string
     requirement: string
     price: string
-    start_time: Date
-    end_time: Date
     thumbnail: File
     cover: File
 }
@@ -33,6 +31,7 @@ export function BasicInfomationForm({
         getValues,
         formState: { errors },
     } = useForm<BasicInfomationData>()
+    console.log(errors);
 
     return (
         <FormWrapper title="">
@@ -40,21 +39,20 @@ export function BasicInfomationForm({
                 encType='multipart/form-data'
                 onSubmit={handleSubmit(async (data1: any) => {
                     if (!(Object.entries(errors).length === 0)) return
+
                     setData({
                         ...data,
                         name: data1.name,
                         subject: data1.subject,
                         grade: data1.grade,
                         level: data1.level,
-                        target: data1.target,
+                        description: data1.description,
                         goal: data1.goal,
                         object: data1.object,
                         requirement: data1.requirement,
                         price: data1.price,
-                        start_time: data1.start_time,
-                        end_time: data1.end_time,
-                        thumbnail: data1.thumbnail,
-                        cover: data1.cover
+                        thumbnail: data1.thumbnail[0],
+                        cover: data1.cover[0]
                     })
                     console.log(data, data1);
                     setCurrentStepIndex(1)
@@ -75,6 +73,7 @@ export function BasicInfomationForm({
                         type="text"
                         id="name"
                         name="name"
+                        defaultValue={data.name}
                         className={`${!errors.name ? 'bg-white border border-gray-300 text-[#343434]' : 'bg-red-50 border border-red-500 text-red-900 placeholder-red-700'} text-sm focus:ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
                     />
                     <p className="mt-2 text-sm text-red-600 dark:text-red-500">
@@ -88,7 +87,7 @@ export function BasicInfomationForm({
                     >
                         Lớp học
                     </label>
-                    <select id="grade"  {...register("grade")} className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <select id="grade" defaultValue={data.grade}  {...register("grade")} className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                         <option value="10" defaultChecked>10</option>
                         <option value="11">11</option>
                         <option value="12">12</option>
@@ -144,56 +143,60 @@ export function BasicInfomationForm({
                         Nếu khóa học miễn phí hãy để trống.
                     </p>
                 </div>
-                {/* <div className="mb-5 w-1/3">
-                <label
-                    className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
-                    htmlFor="thumbnail"
-                >
-                    Ảnh đại diện
-                </label>
-                <input
-                    {...register("thumbnail", {
-                        required: "Ảnh đại diện không thể trống."
-                    })}
-                    accept=".png, .jpg, .jpeg"
-                    name="thumbnail"
-                    className={`${!errors.thumbnail ? 'bg-white border border-gray-300 text-[#343434]' : 'bg-red-50 border border-red-500 text-red-900 placeholder-red-700'}block w-full mb-2 text-xs rounded-lg cursor-pointe dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400`}
-                    id="thumbnail"
-                    type="file"
-                />
-                <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                    {errors.thumbnail?.message}
-                </p>
-            </div>
-            <div className="mb-5 w-1/3">
-                <label
-                    className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
-                    htmlFor="cover"
+                <div className="mb-5 w-1/3">
+                    <label
+                        className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
+                        htmlFor="thumbnail"
+                    >
+                        Ảnh đại diện
+                    </label>
+                    <input
+                        {...register("thumbnail", {
+                            required: "Ảnh đại diện không thể trống."
+                        })}
+                        accept=".png, .jpg, .jpeg"
+                        name="thumbnail"
+                        className={`${!errors.thumbnail ? 'bg-white border border-gray-300 text-[#343434]' : 'bg-red-50 border border-red-500 text-red-900 placeholder-red-700'}block w-full mb-2 text-xs rounded-lg cursor-pointe dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400`}
+                        id="thumbnail"
+                        type="file"
+                    />
+                    <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                        {errors.thumbnail?.message}
+                    </p>
+                </div>
+                <div className="mb-5 w-1/3">
+                    <label
+                        className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
+                        htmlFor="cover"
 
-                >
-                    Ảnh nền
-                </label>
-                <input
-                    name="cover"
-                    accept=".png, .jpg, .jpeg"
-                    {...register("cover", {
-                        required: "Ảnh nền không thể trống."
-                    })}
-                    className={`${!errors.cover ? 'bg-white border border-gray-300 text-[#343434]' : 'bg-red-50 border border-red-500 text-red-900 placeholder-red-700'}block w-full mb-2 text-xs rounded-lg cursor-pointe dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400`}
-                    id="cover"
-                    type="file"
-                />
-                <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                    {errors.cover?.message}
-                </p>
-            </div> */}
+                    >
+                        Ảnh nền
+                    </label>
+                    <input
+                        accept=".png, .jpg, .jpeg"
+                        {...register("cover", {
+                            required: "Ảnh nền không thể trống."
+                        })}
+                        className={`${!errors.cover ? 'bg-white border border-gray-300 text-[#343434]' : 'bg-red-50 border border-red-500 text-red-900 placeholder-red-700'}block w-full mb-2 text-xs rounded-lg cursor-pointe dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400`}
+                        id="cover"
+                        type="file"
+                    />
+                    <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                        {errors.cover?.message}
+                    </p>
+                </div>
                 <div className="mb-16">
                     <label
                         className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
                     >
                         Mô tả
                     </label>
-                    <ReactQuillEditor setValue={setValue} field={"description"} />
+                    <ReactQuillEditor
+                        setValue={setValue} field={"description"}
+                    />
+                    <p className="mt-12 text-sm text-red-600 dark:text-red-500">
+                        {errors.description?.message}
+                    </p>
                 </div>
                 <div className="mb-16">
                     <label
@@ -220,8 +223,22 @@ export function BasicInfomationForm({
                     <ReactQuillEditor setValue={setValue} field={"requirement"} />
                 </div>
 
-                <div className="flex justify-end mr-[-12px]">
+                {/* <div className="flex justify-end mr-[-12px]">
                     <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" type="submit">Tiếp theo</button>
+                </div> */}
+
+
+
+                <div className="flex flex-row justify-between mt-5 pt-4 border-t-[1px] border-[#ececec]">
+                    <div>
+                        <button className="bg-primary mr-5 border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover" type="button">
+                            Trang trước
+                        </button>
+                        <button className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover" type="submit">
+                            Tiếp theo
+                        </button>
+                    </div>
+                    <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover">Hoàn thành</button>
                 </div>
             </form>
 

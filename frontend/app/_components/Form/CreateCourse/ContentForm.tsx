@@ -7,12 +7,12 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useFieldArray, useForm } from "react-hook-form";
 import { DragDropContext, Draggable, Droppable, DroppableProps } from 'react-beautiful-dnd';
 import { StrictModeDroppable } from "../../React_Beautiful_Dnd/StrictModeDroppable";
+import Image from "next/image";
+
 
 type ChapterData = {
     id: string
     name: string
-    description: string
-    order: number
     status: boolean
     lectures: Array<LectureData>
 }
@@ -20,9 +20,7 @@ type ChapterData = {
 type LectureData = {
     name: string
     description: string
-    link_video: string
     status: Boolean
-    order: number
 }
 
 type ContentFormData = {
@@ -39,8 +37,10 @@ export function ContentForm({
     const {
         register,
         control,
+        watch,
         setValue,
         handleSubmit,
+        reset,
         getValues,
         formState: { errors },
     } = useForm<ContentFormData>(
@@ -52,9 +52,9 @@ export function ContentForm({
     )
     const [chaptersData, setChaptersData] = useState(data.chapters)
 
-    useEffect(() => {
-        setChaptersData(data.chapters)
-    }, [data]);
+    // useEffect(() => {
+    //     setChaptersData(data.chapters)
+    // }, [data]);
 
     const { fields, append, remove } = useFieldArray({
         control,
@@ -69,6 +69,7 @@ export function ContentForm({
         return result;
     };
 
+    // console.log(data.chapters, errors);
 
     return (
         <FormWrapper title="">
@@ -76,26 +77,27 @@ export function ContentForm({
 
             <form className="min-h-[250px]"
                 onSubmit={handleSubmit(async (data1: any, e: any) => {
-                    if (!(Object.entries(errors).length === 0)) return
+                    // if (!(Object.entries(errors).length === 0)) return
+                    console.log(data1, 11111);
+
+                    if (errors.chapters) return
                     setChaptersData(data1.chapters)
                     setModal({ ...modal, "add-section": false })
                     setData({ ...data, chapters: getValues().chapters })
                 })}
             >
-                <h2 className="text-[#171347] font-bold section-title text-lg">Nội dung</h2>
+                <h2 className="text-[#171347] font-bold section-title text-lg flex items-center after:content-[''] after:flex after:grow after:shrink after:basis-4 after:h-[2px] after:ml-[10px] after:bg-[#f1f1f1]">Nội dung (tùy chọn)</h2>
                 <div>
                     <button type="button" onClick={() => {
                         append({
-                            id: `${getValues().chapters.length}`,
+                            id: `chapter-${getValues().chapters.length}`,
                             name: "",
-                            description: "",
-                            order: 0,
-                            status: false,
+                            status: true,
                             lectures: []
                         })
                         setModal({ ...modal, "add-section": true })
 
-                    }} className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mt-3">
+                    }} className="mt-3 bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover">
 
                         <div className="flex justify-center items-center">
                             Thêm mục
@@ -104,19 +106,20 @@ export function ContentForm({
                     </button>
                 </div>
 
-                <div className={`${modal["add-section"] ? '' : 'hidden'} bg-white py-[30px] pl-[20px] pr-6 rounded-xl mb-5 mt-5`}>
+                <div className={`${modal["add-section"] ? '' : 'hidden'} bg-white py-4 pl-[20px] pr-6 rounded-xl mb-5 mt-5`}>
                     <div className="">
                         <div className="w-1/3">
-                            <label
-                                htmlFor="name"
-                                className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
-                            >
-                                Tiêu đề
-                            </label>
+
                             {fields.map((field: any, index: any) => (
 
                                 index == fields.length - 1 ?
                                     <div key={field.id}>
+                                        <label
+                                            htmlFor="name"
+                                            className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                        >
+                                            Tiêu đề
+                                        </label>
                                         <input
                                             className="bg-white border border-gray-300 text-[#343434] text-sm focus:ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5"
                                             type="text"
@@ -149,61 +152,87 @@ export function ContentForm({
 
                         </div>
 
-                        <div>
-                            <button
-
-                                type="submit"
-                                className="mt-4 text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                            >
-                                Lưu
-                            </button>
+                        <div className="mt-5">
                             <button
                                 onClick={() => {
                                     setModal({ ...modal, "add-section": false })
                                     remove(fields.length - 1)
                                 }}
-                                type="button" className="ml-5 py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-slate-50 rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Hủy</button>
+                                type="button" className="mr-5 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Hủy</button>
+                            <button
+
+                                type="submit"
+                                className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+                            >
+                                Lưu
+                            </button>
                         </div>
                     </div>
 
                 </div>
 
-                <div className="mt-5">
-                    <div className="">
-                        <DragDropContext onDragEnd={(result) => {
-                            if (!result.destination) return;
-                            const items: any = reorder(
-                                chaptersData,
-                                result.source.index,
-                                result.destination.index
-                            );
-                            setChaptersData(items)
-                        }}>
-                            <StrictModeDroppable droppableId="chapter">
-                                {(provided) => (
-                                    <ul  {...provided.droppableProps} ref={provided.innerRef}>
-                                        {
-                                            chaptersData.map((chapter: any, index: any) => {
-                                                return (
+                <div className="mt-8">
+                    {
+                        data.chapters.length == 0 ?
+                            <div>
+                                <div className="mt-12 flex flex-col items-center justify-center">
+                                    <div className="w-[175px] h-[175px] rounded-full" style={{
+                                        "backgroundImage": "linear-gradient(to bottom, #dbffe8, #43d477)"
+                                    }}>
+                                        <Image
+                                            src="/images/no-content-course.png"
+                                            width={300}
+                                            height={200}
+                                            alt="logo"
+                                            className="rounded-l-[10px] h-full w-full``"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex items-center flex-col text-center mt-7">
+                                    <h2 className="text-[#171347] font-bold">
+                                        Không có nội dung
+                                    </h2>
+                                    <p className="text-center mt-1 font-medium text-[#818894]">Hãy tạo nội dung cho khóa học</p>
+                                </div>
+                            </div>
+                            :
+                            <div className="">
+                                <DragDropContext onDragEnd={(result) => {
+                                    if (!result.destination) return;
+                                    const items: any = reorder(
+                                        chaptersData,
+                                        result.source.index,
+                                        result.destination.index
+                                    );
+                                    setChaptersData(items)
+                                }}>
+                                    <StrictModeDroppable droppableId="chapter">
+                                        {(provided) => (
+                                            <ul  {...provided.droppableProps} ref={provided.innerRef}>
+                                                {
+                                                    chaptersData.map((chapter: any, index: any) => {
+                                                        return (
 
-                                                    <Draggable key={chapter.id} index={index} draggableId={`${chapter.id}`}>
-                                                        {
-                                                            (provided) => (
-                                                                <ChapterCard chapter={chaptersData[index]} register={register} handleSubmit={handleSubmit} errors={errors} index={index} innerRef={provided.innerRef} provided={provided} data={data} setData={setData} remove={remove} />
-                                                            )
-                                                        }
-                                                    </Draggable>
-                                                )
-                                            })
+                                                            <Draggable key={chapter.id} index={index} draggableId={`${chapter.id}`}>
+                                                                {
+                                                                    (provided) => (
+                                                                        <ChapterCard chapter={chaptersData[index]} watch={watch} register={register} handleSubmit={handleSubmit} errors={errors} index={index} innerRef={provided.innerRef} provided={provided} data={data} setData={setData} remove={remove} control={control} reset={reset} />
+                                                                    )
+                                                                }
+                                                            </Draggable>
+                                                        )
+                                                    })
+                                                }
+                                                {provided.placeholder}
+                                            </ul>
+                                        )
                                         }
-                                        {provided.placeholder}
-                                    </ul>
-                                )
-                                }
-                            </StrictModeDroppable>
-                        </DragDropContext>
+                                    </StrictModeDroppable>
+                                </DragDropContext>
 
-                    </div>
+                            </div>
+                    }
+
                 </div>
             </form>
         </FormWrapper >

@@ -5,7 +5,7 @@ import queryString from 'query-string';
 // Please have a look at here `https://github.com/axios/axios#request- config` for the full list of configs
 const axiosClient = axios.create({
     // baseURL: process.env.NEXT_APP_API_URL,
-    baseURL: "http://localhost:3001/api/v1",
+    baseURL: "http://localhost:4001/api/v1",
     headers: {
         'content-type': 'application/json',
     },

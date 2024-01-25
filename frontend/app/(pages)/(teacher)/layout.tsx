@@ -14,7 +14,7 @@ export default function TeacherLayout({
       <HeaderTeacher />
       <div className='flex justify-end mt-[70px] '>
         <Sidebar />
-        <div className="px-4 py-7 w-[calc(100%-254px)] min-h-svh bg-slate-50 pb-10">
+        <div className="px-4 py-7 w-[calc(100%-254px)] min-h-svh bg-[#fbfbfd] pb-5">
           <Suspense fallback={<p>Loading data...</p>}>
             {children}
           </Suspense>
