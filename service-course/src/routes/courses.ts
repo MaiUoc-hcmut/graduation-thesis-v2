@@ -27,7 +27,7 @@ router.route('/full/:courseId')
 
 router.route('/teacher/:teacherId')
     .get(Authorize.AuthGetCourseCreatedByTeacher, courseController.getCourseCreatedByTeacher);
-// router.post("/test", fileUpload.uploadCourseFiles, courseController.test);
+router.post("/test", fileUpload.uploadCourseFiles, courseController.test);
 
 
 

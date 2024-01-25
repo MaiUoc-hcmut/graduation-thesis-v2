@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const commentController = require("../app/controllers/CommentController");
 
-const fileUpload = require('../config/firebase/fileUpload');
+// const fileUpload = require('../config/firebase/fileUpload');
 
 router.route('/')
     .get(commentController.getAllComment)
-    .post(fileUpload.uploadImageComment, commentController.uploadCommentImage, commentController.createComment);
+    .post(commentController.createComment);
 
 router.route('/:commentId')
     .get(commentController.getCommentById)

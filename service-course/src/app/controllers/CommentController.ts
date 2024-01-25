@@ -71,14 +71,13 @@ class CommentController {
 
             const id_user = "123e4567-e89b-12d3-a456-426614174000";
 
-            let image = "";
-            if (req.ImageUrl !== undefined) {
-                image = req.ImageUrl;
-            }
+            // let image = "";
+            // if (req.ImageUrl !== undefined) {
+            //     image = req.ImageUrl;
+            // }
 
             const newComment = await Comment.create({
                 id_user,
-                image,
                 ...data
             });
 

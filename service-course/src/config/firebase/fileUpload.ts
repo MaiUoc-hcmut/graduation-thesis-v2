@@ -1,10 +1,15 @@
 const multer = require('multer');
 
 class FileUpload {
-    uploadCourseFiles = multer({ storage: multer.memoryStorage() }).array('courseFiles');
+    uploadCourseFiles = multer({ storage: multer.memoryStorage() })
+                        .fields([
+                            { name: "thumbnail", maxCount: 1 },
+                            { name: "cover", maxCount: 1 },
+                            { name: "video", maxCount: 200 }
+                        ]);
     uploadVideo = multer({ storage: multer.memoryStorage() }).single('video');
 
-    uploadImageComment = multer({ storage: multer.memoryStorage() }).single('image');
+    uploadImage = multer({ storage: multer.memoryStorage() }).single('image');
     
     giveCurrentDateTime = () => {
         const today = new Date();

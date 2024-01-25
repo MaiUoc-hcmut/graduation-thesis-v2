@@ -102,10 +102,10 @@ class ReviewController {
     // [POST] /reviews
     createReview = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            let image = "";
-            if (req.ImageUrl !== undefined) {
-                image = req.ImageUrl;
-            }
+            // let image = "";
+            // if (req.ImageUrl !== undefined) {
+            //     image = req.ImageUrl;
+            // }
 
             const id_student = "123e4567-e89b-12d3-a456-426614174000";
             const body = req.body;
