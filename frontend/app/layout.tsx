@@ -8,6 +8,7 @@ import { fas } from '@fortawesome/free-solid-svg-icons'
 import { far } from '@fortawesome/free-regular-svg-icons'
 import { Suspense } from 'react'
 
+import { ReduxProvider } from '@/redux/provider';
 
 export const metadata: Metadata = {
   title: 'Study365',
@@ -27,7 +28,9 @@ export default function RootLayout({
       </head>
       <body className="">
         <Suspense fallback={<p>Loading data...</p>}>
-          {children}
+          <ReduxProvider>
+            {children}
+          </ReduxProvider>
         </Suspense>
         <FlowbiteClient />
       </body>

@@ -5,8 +5,8 @@ import Link from "next/link"
 import { FormEvent, useEffect, useState } from "react"
 import { useMultistepForm } from "@/app/hooks/useMultiStep"
 import { useRouter } from 'next/navigation'
-import { BasicInfomationForm } from "@/app/_components/Form/CreateCourse/BasicInfomationForm"
-import { ContentForm } from "@/app/_components/Form/CreateCourse/ContentForm"
+import { BasicInfomationForm } from "@/app/_components/Form/EditCourse/BasicInfomationForm"
+import { ContentForm } from "@/app/_components/Form/EditCourse/ContentForm"
 import { useForm } from "react-hook-form"
 import courseApi from "@/app/api/commentApi"
 import { useFieldArray } from "react-hook-form";
@@ -22,8 +22,8 @@ type CourseData = {
     description: string
     requirement: string
     price: string
-    thumbnail: File
-    cover: File
+    thumbnail: Array<File>
+    cover: Array<File>
     chapters: Array<ChapterData>
 }
 
@@ -35,6 +35,7 @@ type ChapterData = {
 }
 
 type LectureData = {
+    id: string
     name: string
     description: string
     status: Boolean
@@ -52,8 +53,8 @@ const INITIAL_DATA: CourseData = {
     object: "",
     price: "",
     description: "",
-    thumbnail: new File([], ""),
-    cover: new File([], ""),
+    thumbnail: [],
+    cover: [],
     chapters: [
         // {
         //     id: `a`,
@@ -70,16 +71,33 @@ const INITIAL_DATA: CourseData = {
 
 export default function EditCourse() {
     const [data, setData] = useState(INITIAL_DATA)
+    const [toggle, setToggle] = useState<any>({})
+    const [typeSubmit, setTypeSubmit] = useState("")
     const [currentStepIndex, setCurrentStepIndex] = useState(0)
 
+    const handleForm = useForm<CourseData>(
+        {
+            defaultValues: data
+        }
+    )
+
+    const {
+        register,
+        control,
+        watch,
+        setValue,
+        handleSubmit,
+        reset,
+        getValues,
+        formState: { errors },
+    } = handleForm
 
     const router = useRouter()
     const { steps, step, isFirstStep, isLastStep, back, next, goTo } =
         useMultistepForm([
-            // <BasicInfomationForm key={'step1'} data={data} setData={setData} setCurrentStepIndex={setCurrentStepIndex} />,
-            <ContentForm key={'step2'} data={data} setData={setData} />,
+            <BasicInfomationForm key={'step1'} handleForm={handleForm} />,
+            <ContentForm key={'step2'} data={data} setData={setData} handleForm={handleForm} toggle={toggle} setToggle={setToggle} typeSubmit={typeSubmit} setTypeSubmit={setTypeSubmit} />,
         ], currentStepIndex, setCurrentStepIndex)
-    console.log(data);
 
     return (
         < div className="" >
@@ -122,42 +140,50 @@ export default function EditCourse() {
                 </div>
             </form >
             <div className="flex flex-col ">
-                {step}
-                <form className={`${isLastStep ? '' : 'hidden'} mt-5 w-full`} onSubmit={(e: any) => {
-                    e.preventDefault()
-                    console.log('submit', data);
+                <form onSubmit={
+                    handleSubmit(async (dataForm: any) => {
+                        if (!(Object.entries(errors).length === 0)) return
+                        setToggle({ ...toggle, [`${typeSubmit}`]: false })
+                        setData(dataForm)
 
-                    const formData = new FormData();
-                    // formData.append('file', data.cover, "newfile");
-                    // console.log(formData.get("file"));
+                        console.log('submit', dataForm, errors);
 
-                    data.chapters.map((chapter, indexChapter) => {
-                        chapter.lectures.map((lecture, indexLecture) => {
-                            formData.append('video', lecture.link_video[0], `${indexChapter}-${indexLecture}-${lecture.link_video[0].name}`)
+                        const formData = new FormData();
+
+                        formData.append("data", JSON.stringify(dataForm))
+                        formData.append("thumbnail", dataForm.thumbnail[0])
+                        formData.append("cover", dataForm.cover[0])
+
+                        dataForm.chapters.map((chapter: ChapterData, indexChapter: number) => {
+                            chapter.lectures.map((lecture: LectureData, indexLecture: number) => {
+                                formData.append("video", lecture.link_video[0], `${indexChapter}-${indexLecture}-${lecture.link_video[0].name}`)
+                            })
                         })
+
+                        console.log(formData.getAll("video"));
+
+
+                        if (!isLastStep) return next()
+                        // setData({ ...data, id_teacher: user.id })
+                        // await courseApi.create(data)
+                        // router.push("/teacher/course")
                     })
+                }>
 
-                    console.log(formData.get("video"));
-
-
-                    // if (!isLastStep) return next()
-                    // data = { ...data, thumbnail: data.thumbnail[0], cover: data.cover[0] }
-                    // console.log(data, 111)\
-                    // setData({ ...data, id_teacher: user.id })
-                    // await courseApi.create(data)
-                    // router.push("/teacher/course")
-                }} encType='multipart/form-data'>
+                    <div className="mt-5">
+                        {step}
+                    </div>
 
                     <div className="flex flex-row justify-between mt-5 pt-4 border-t-[1px] border-[#ececec]">
-                        {!isFirstStep && (
-                            <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" type="button" onClick={back}>
+                        <div>
+                            <button disabled={isFirstStep ? true : false} className={`${isFirstStep ? 'opacity-60' : ''} bg-primary mr-5 border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover" type="button`} onClick={back}>
                                 Trang trước
                             </button>
-                        )}
-                        {
-                            isLastStep ? <button type="submit" className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Hoàn thành</button> : null
-
-                        }
+                            <button className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover" type="submit">
+                                Tiếp theo
+                            </button>
+                        </div>
+                        <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover">Hoàn thành</button>
                     </div>
                 </form>
             </div >
@@ -165,3 +191,6 @@ export default function EditCourse() {
     )
 
 }
+
+
+
