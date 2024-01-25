@@ -1,28 +1,29 @@
 const { sequelize } = require('../../config/db');
 import { Model, DataTypes } from 'sequelize';
 
-class Category extends Model {}
+const Category = require('./category');
 
-Category.init(
+class ParentCategory extends Model {}
+
+ParentCategory.init(
     {
         id: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
             primaryKey: true,
         },
-        id_par_category: {
-            type: DataTypes.UUID,
-            allowNull: false,
-        },
         name: {
             type: DataTypes.STRING(30),
             allowNull: false
         }
     }, {
-        tableName: 'category',
+        tableName: 'par_category',
         freezeTableName: true,
         sequelize
     }
-)
+);
 
-module.exports = Category;
+ParentCategory.hasMany(Category, { foreignKey: "id_par_category", as: "subcategories" });
+Category.belongsTo(ParentCategory, { foreignKey: "id_par_category" });
+
+module.exports = ParentCategory;

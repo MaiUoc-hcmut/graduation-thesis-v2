@@ -4,10 +4,17 @@ const commentController = require("../app/controllers/CommentController");
 
 const fileUpload = require('../config/firebase/fileUpload');
 
+router.route('/')
+    .get(commentController.getAllComment)
+    .post(fileUpload.uploadImageComment, commentController.uploadCommentImage, commentController.createComment);
+
+router.route('/:commentId')
+    .get(commentController.getCommentById)
+    .delete(commentController.deleteComment)
+
+router.route('/lecture/:lectureId')
+    .get(commentController.getCommentBelongToLecture);
+
 router.put("/:id", commentController.update);
-router.delete("/:id", commentController.delete);
-router.post("/", fileUpload.uploadImageComment, commentController.create);
-router.get("/:id", commentController.getComment);
-router.get("/", commentController.getAllComment);
 
 module.exports = router;

@@ -43,7 +43,7 @@ Document.init(
         }
     },
     {
-        tableName: 'documents',
+        tableName: 'document',
         freezeTableName: true,
         sequelize
     }

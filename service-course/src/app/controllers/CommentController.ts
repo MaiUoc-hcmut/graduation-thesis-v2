@@ -14,66 +14,115 @@ const { initializeApp } = require('firebase/app');
 initializeApp(firebaseConfig);
 const storage = getStorage();
 
+declare global {
+    namespace Express {
+        interface Request {
+            ImageUrl: string
+        }
+    
+    }
+}
+
 class CommentController {
-    // [GET] /comments/:id
-    getComment(req: Request, res: Response, next: NextFunction) {
-        const id = req.params.id;
-        Comment.findByPk(id)
-            .then((comment: any) => res.send(comment))
-            .catch(next);
-    }
-
     // [GET] /comments
-    getAllComment(req: Request, res: Response, next: NextFunction) {
-        const id_lecture = req.query.id_lecture
-        console.log(id_lecture);
+    getAllComment = async (_req: Request, res: Response, next: NextFunction) => {
+        try {
+            const comments = await Comment.findAll();
 
-        Comment.findAll({
-            where: {
-                id_lecture: id_lecture
-            }
-        })
-            .then((comment: any) => res.send(comment))
-            .catch(next);
+            res.status(200).json(comments);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
     }
 
+    // [GET] /comments/:commentId
+    getCommentById = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const comment = await Comment.findByPk(req.params.commentId);
+
+            if (!comment) return res.status(404).json({ message: "Comment does not exist" });
+
+            res.status(200).json(comment);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    // [GET] /comments/lecture/:lectureId
+    getCommentBelongToLecture = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const comments = Comment.findAll({
+                where: { id_lecture: req.params.lectureId }
+            });
+
+            res.status(200).json(comments);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
 
     // [POST] /comments/create
-    async create(req: Request, res: Response, next: NextFunction) {
-        let data = req.body;
-        const file = req.file
-        if (file) {
-            const dateTime = fileUpload.giveCurrentDateTime();
+    createComment = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const data = req.body;
 
-            const storageRef = ref(
-                storage,
-                `comments/${file?.originalname + '       ' + dateTime}`
-            );
+            const id_user = "123e4567-e89b-12d3-a456-426614174000";
 
-            // Create file metadata including the content type
-            const metadata = {
-                contentType: file?.mimetype,
-            };
+            let image = "";
+            if (req.ImageUrl !== undefined) {
+                image = req.ImageUrl;
+            }
 
-            // Upload the file in the bucket storage
-            const snapshot = await uploadBytesResumable(
-                storageRef,
-                file?.buffer,
-                metadata
-            );
+            const newComment = await Comment.create({
+                id_user,
+                image,
+                ...data
+            });
 
-            // Grab the public url
-            const downloadURL = await getDownloadURL(snapshot.ref);
-
-            data = { ...data, iamge: downloadURL };
-
+            res.status(201).json(newComment);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
         }
+    }
 
-        const comment = Comment.build(data);
-        comment
-            .save()
-            .then(() => res.send(comment))
-            .catch(next);
+    uploadCommentImage = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const file = req.file;
+
+            if (file) {
+                const dateTime = fileUpload.giveCurrentDateTime();
+    
+                const storageRef = ref(
+                    storage,
+                    `comments/${file?.originalname + '       ' + dateTime}`
+                );
+    
+                // Create file metadata including the content type
+                const metadata = {
+                    contentType: file?.mimetype,
+                };
+    
+                // Upload the file in the bucket storage
+                const snapshot = await uploadBytesResumable(
+                    storageRef,
+                    file?.buffer,
+                    metadata
+                );
+    
+                // Grab the public url
+                const downloadURL = await getDownloadURL(snapshot.ref);
+                req.ImageUrl = downloadURL;
+            }
+
+            next();
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
     }
 
     // [PUT] /comments/:id
@@ -87,15 +136,23 @@ class CommentController {
             .catch(next);
     }
 
-    // [DELETE] /comments/:id
-    delete(req: Request, res: Response, next: NextFunction) {
-        Comment.destroy({
-            where: {
-                id: req.params.id,
-            },
-        })
-            .then(res.send({}))
-            .catch(next);
+    // [DELETE] /comments/:commenId
+    deleteComment = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const comment = await Comment.findByPk(req.params.commentId);
+
+            if (!comment) return res.status(404).json({ message: "Comment does not exist" });
+
+            await comment.destroy();
+
+            res.status(200).json({
+                id: req.params.commentId,
+                message: "Comment has been deleted"
+            })
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
     }
 
 }

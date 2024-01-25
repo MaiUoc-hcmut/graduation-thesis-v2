@@ -10,12 +10,23 @@ const Authorize = require('../app/middleware/teacherAuth');
 router.use("/chapters", chaptersRouter)
 
 //route course
-router.get("/:id/all", courseController.getAllCourseFull);
-router.put("/:id", courseController.update);
-router.delete("/:id", courseController.delete);
-router.post("/", Authorize.protectedAPI, fileUpload.uploadCourseFiles, courseController.uploadThumbnailAndCover, courseController.createCourse);
-router.get("/:id", courseController.getCourseById);
-router.get("/", courseController.getAllCourse);
+router.route('/')
+    .get(courseController.getAllCourse)
+    .post(fileUpload.uploadCourseFiles, 
+        courseController.uploadThumbnailAndCover, 
+        courseController.uploadLectureVideo, 
+        courseController.createCourse)
+
+router.route('/:courseId')
+    .get(courseController.getCourseById)
+    .put(courseController.update)
+    .delete(courseController.deleteCourse);
+
+router.route('/full/:courseId')
+    .get(courseController.getAllDetailCourse);
+
+router.route('/teacher/:teacherId')
+    .get(Authorize.AuthGetCourseCreatedByTeacher, courseController.getCourseCreatedByTeacher);
 // router.post("/test", fileUpload.uploadCourseFiles, courseController.test);
 
 

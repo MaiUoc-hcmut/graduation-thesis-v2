@@ -1,8 +1,9 @@
 
 const { sequelize } = require('../../config/db');
 import { Model, DataTypes, CreationOptional, UUID, UUIDV4 } from 'sequelize';
-const Chapter = require('./chapter')
-const Lecture = require('./lecture')
+const Chapter = require('./chapter');
+const Lecture = require('./lecture');
+const Category = require('./category');
 
 class Course extends Model {
   declare createdAt: CreationOptional<Date>;
@@ -73,6 +74,17 @@ Chapter.belongsTo(Course, {
 Chapter.hasMany(Lecture, { foreignKey: "id_chapter", as: "lectures" })
 Lecture.belongsTo(Chapter, {
   foreignKey: "id_chapter"
+});
+
+Course.belongsToMany(Category, { 
+  through: 'category-course',
+  foreignKey: 'id_course',
+  otherKey: 'id_category'
+});
+Category.belongsToMany(Course, { 
+  through: 'categoty-course',
+  foreignKey: 'category',
+  otherKey: 'id_course'
 });
 
 module.exports = Course

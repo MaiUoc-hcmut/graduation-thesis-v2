@@ -5,6 +5,8 @@ const dotenv = require('dotenv').config();
 const axios = require('axios');
 const createError = require('http-errors');
 
+const Course = require('../../db/models/course');
+
 import { Request, Response, NextFunction } from "express";
 
 // to authorize user using jwt
@@ -47,3 +49,16 @@ exports.protectedAPI = (req: Request, res: Response, next: NextFunction) => {
         }
     })(req, res, next);
 };
+
+exports.AuthGetCourseCreatedByTeacher = async (req: Request, res: Response, next: NextFunction) => {
+    passport.authenticate('jwt', { session: false }, (err: any, teacher: any, info: any) => {
+        if (err || !teacher) {
+            return next(createError.Unauthorized(info?.message ? info.message : "User is not authorized"));
+        } 
+        if (req.params.teacherId !== teacher.data.id) {
+            return next(createError.Unauthorized(info?.message ? info.message: "You do not have permission to get the courses"))
+        }
+        req.teacher = teacher;
+        next();
+    })(req, res, next);
+}

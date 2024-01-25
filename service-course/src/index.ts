@@ -3,11 +3,14 @@ const db = require('./config/db')
 const route = require('./routes')
 const bodyParser = require('body-parser')
 const cors = require('cors');
+const http = require('http');
 require('dotenv').config()
 
 db.connect()
 
 const app = express();
+const server = http.createServer(app);
+const io = require('./socket')(server);
 
 app.use(cors());
 app.use(bodyParser.json())
@@ -24,9 +27,9 @@ route(app)
 //   console.log(error);
 // });
 
-
-
-
-app.listen(3001, () => {
+server.listen(3001, () => {
   console.log('Listenning on port 3001');
 });
+
+
+module.exports = io;
