@@ -116,6 +116,17 @@ class CourseController {
 
             if (!course) return res.status(404).json({ message: "Course does not exist" });
 
+            let totalCourseDuration = 0;
+            course.chapters.forEach((chapter: any) => {
+                let totalChapterDuration = 0;
+                chapter.lectures.forEach((lecture: any) => {
+                    totalChapterDuration += lecture.duration;
+                });
+                chapter.dataValues.totalDuration = totalChapterDuration;
+                totalCourseDuration += totalChapterDuration;
+            });
+            course.dataValues.totalDuration = totalCourseDuration;
+
             res.status(200).json(course);
         } catch (error: any) {
             console.log(error.message);
@@ -234,39 +245,39 @@ class CourseController {
         }
     }
 
-    uploadThumbnailAndCover = async (req: RequestForCourse, res: Response, next: NextFunction) => {
+    uploadThumbnailAndCover = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const files = req.files // as { [fieldname: string]: Express.Multer.File[] };
+            const files = req.files as { [fieldname: string]: Express.Multer.File[] };
             
             const dateTime = fileUpload.giveCurrentDateTime();
 
             const thumbnailRef = ref(
                 storage,
-                `thumbnails course/${files[0].originalname + '       ' + dateTime}`
+                `thumbnails course/${files.thumbnail[0].originalname + '       ' + dateTime}`
             );
             const coverRef = ref(
                 storage,
-                `cover image course/${files[1].originalname + '       ' + dateTime}`
+                `cover image course/${files.cover[0].originalname + '       ' + dateTime}`
             );
 
             // Create file metadata including the content type
             const metadataThumbnail = {
-                contentType: files[0].mimetype,
+                contentType: files.thumbnail[0].mimetype,
             };
             const metadataCover = {
-                contentType: files[1].mimetype,
+                contentType: files.cover[0].mimetype,
             };
 
             // Upload the file in the bucket storage
             const thumbnailSnapshot = await uploadBytesResumable(
                 thumbnailRef,
-                files[0].buffer,
+                files.thumbnail[0].buffer,
                 metadataThumbnail
             );
 
             const coverSnapshot = await uploadBytesResumable(
                 coverRef,
-                files[1].buffer,
+                files.cover[0].buffer,
                 metadataCover
             );
 
@@ -288,13 +299,13 @@ class CourseController {
         }
     }
 
-    uploadLectureVideo = async (req: RequestForCourse, res: Response, next: NextFunction) => {
+    uploadLectureVideo = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const files = req.files // as { [fieldname: string]: Express.Multer.File[] };
+            const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
             const urls: ResponseVideoFile[] = [];
 
-            const uploadPromises = files.slice(2).map(async (video) => {
+            const uploadPromises = files.video.map(async (video) => {
                 const dateTime = fileUpload.giveCurrentDateTime();
 
                 // originalname of video is separate to 3 part
@@ -319,19 +330,19 @@ class CourseController {
 
                 const snapshot = await uploadBytesResumable(storageRef, video.buffer, metadata);
                 const url = await getDownloadURL(snapshot.ref);
-                const duration = await Math.floor(getVideoDurationInSeconds(url));
+                const duration = await getVideoDurationInSeconds(url);
 
                 urls.push({
                     name: originalFileName,
                     url,
                     chapterIdx: parseInt(chapterIdx),
                     lectureIdx: parseInt(lectureIdx),
-                    duration
+                    duration: Math.floor(duration)
                 });
-                io.to(clientsConnected[req.teacher.data.id]).emit("file uploaded", {
-                    fileName: originalFileName,
-                    url
-                });
+                // io.to(clientsConnected[req.teacher.data.id]).emit("file uploaded", {
+                //     fileName: originalFileName,
+                //     url
+                // });
             });
             
             await Promise.all(uploadPromises);
@@ -370,72 +381,57 @@ class CourseController {
         }
     }
 
-    // test = async (req: Request, res: Response, next: NextFunction) => {
-    //     try {
-    //         const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    test = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     
-    //         const urls: ResponseVideoFile[] = [];
+            const urls: ResponseVideoFile[] = [];
     
-    //         const uploadPromises = files.video.map(async (video) => {
-    //             const dateTime = fileUpload.giveCurrentDateTime();
+            const uploadPromises = files.video.map(async (video) => {
+                const dateTime = fileUpload.giveCurrentDateTime();
     
-    //             const firstHyphen = video.originalname.indexOf('-');
-    //             const chapterIdx = video.originalname.substring(0, firstHyphen);
+                const firstHyphen = video.originalname.indexOf('-');
+                const chapterIdx = video.originalname.substring(0, firstHyphen);
     
-    //             const secondHyphen = video.originalname.indexOf('-', firstHyphen + 1);
-    //             const lectureIdx = video.originalname.substring(firstHyphen + 1, secondHyphen);
+                const secondHyphen = video.originalname.indexOf('-', firstHyphen + 1);
+                const lectureIdx = video.originalname.substring(firstHyphen + 1, secondHyphen);
     
-    //             const originalFileName = video.originalname.substring(secondHyphen + 1);
+                const originalFileName = video.originalname.substring(secondHyphen + 1);
     
-    //             const storageRef = ref(
-    //                 storage, 
-    //                 `video course/${originalFileName + "       " + dateTime}`
-    //             );
+                const storageRef = ref(
+                    storage, 
+                    `video course/${originalFileName + "       " + dateTime}`
+                );
     
-    //             const metadata = {
-    //                 contentType: video.mimetype,
-    //             };
+                const metadata = {
+                    contentType: video.mimetype,
+                };
     
-    //             // Tạo một tác vụ tải lên
-    //             const uploadTask = storageRef.put(video.buffer, metadata);
-    
-    //             // Theo dõi tiến trình tải lên
-    //             uploadTask.on('state_changed', 
-    //                 (snapshot: any) => {
-    //                     var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-    //                     console.log('Upload is ' + progress + '% done');
-    //                     // Gửi sự kiện 'upload-progress' cùng với tiến trình tải lên
-    //                     io.emit('upload-progress', { fileName: originalFileName, progress });
-    //                 }, 
-    //                 (error: any) => {
-    //                     console.log(error);
-    //                 }, 
-    //                 async () => {
-    //                     const url = await uploadTask.snapshot.ref.getDownloadURL();
-    //                     const duration = await Math.floor(getVideoDurationInSeconds(url));
-    
-    //                     urls.push({
-    //                         name: originalFileName,
-    //                         url,
-    //                         chapterIdx: parseInt(chapterIdx),
-    //                         lectureIdx: parseInt(lectureIdx),
-    //                         duration
-    //                     });
-    //                     // Gửi sự kiện 'upload-complete' cùng với thông tin video
-    //                     io.emit('upload-complete', { fileName: originalFileName, url });
-    //                 }
-    //             );
-    //         });
+                // Theo dõi tiến trình tải lên
+                const snapshot = await uploadBytesResumable(storageRef, video.buffer, metadata);
+                const url = await getDownloadURL(snapshot.ref);
+                let duration = await getVideoDurationInSeconds(url);
+                duration = Math.floor(duration);
+
+                console.log({url, duration})
+
+                urls.push({
+                    name: originalFileName,
+                    url,
+                    chapterIdx: parseInt(chapterIdx),
+                    lectureIdx: parseInt(lectureIdx),
+                    duration
+                });
+            });
             
-    //         await Promise.all(uploadPromises);
+            await Promise.all(uploadPromises);
     
-    //         req.lectureURL = urls;
-    //         next();
-    //     } catch (error: any) {
-    //         console.log(error.message);
-    //         res.status(500).json({ error: error.message });
-    //     }
-    // }
+            res.json(urls)
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
 
 }
 
