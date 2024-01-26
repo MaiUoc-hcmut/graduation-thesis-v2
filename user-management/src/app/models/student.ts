@@ -1,6 +1,6 @@
 
 const { sequelize } = require('../../config/db');
-import { Model, DataTypes } from 'sequelize';
+import { Model, DataTypes, UUIDV4 } from 'sequelize';
 
 class Student extends Model {
   declare id: number;
@@ -10,8 +10,8 @@ class Student extends Model {
 Student.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      autoIncrement: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
     email: {

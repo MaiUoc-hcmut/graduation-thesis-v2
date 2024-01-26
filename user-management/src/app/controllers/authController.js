@@ -63,6 +63,8 @@ class Auth {
                 degree: 'bachelor'
             })
 
+            console.log(newTeacher.id);
+
             const accessToken = SignToken.signAccessToken(newTeacher.id);
             const refreshToken = SignToken.signRefreshToken(newTeacher.id);
 
@@ -110,6 +112,7 @@ class Auth {
             });
         } catch (error) {
             console.log(error?.message);
+            res.status(500).json({ error })
         }
     }
 
