@@ -32,7 +32,7 @@ class CommentController {
             res.status(200).json(comments);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -46,7 +46,7 @@ class CommentController {
             res.status(200).json(comment);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -60,21 +60,16 @@ class CommentController {
             res.status(200).json(comments);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
     // [POST] /comments/create
     createComment = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const data = req.body;
+            const data = req.body.data;
 
-            const id_user = "123e4567-e89b-12d3-a456-426614174000";
-
-            // let image = "";
-            // if (req.ImageUrl !== undefined) {
-            //     image = req.ImageUrl;
-            // }
+            const id_user = req.teacher.data.id;
 
             const newComment = await Comment.create({
                 id_user,
@@ -84,7 +79,7 @@ class CommentController {
             res.status(201).json(newComment);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -120,7 +115,7 @@ class CommentController {
             next();
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -150,7 +145,7 @@ class CommentController {
             })
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 

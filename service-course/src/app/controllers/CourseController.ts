@@ -17,6 +17,7 @@ const {
     ref,
     getDownloadURL,
     uploadBytesResumable,
+    deleteObject,
     getStorage,
 } = require('firebase/storage');
 const { initializeApp } = require('firebase/app');
@@ -68,7 +69,7 @@ class CourseController {
             res.status(200).json(courses)
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -84,7 +85,7 @@ class CourseController {
             res.status(200).json(course);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -130,7 +131,7 @@ class CourseController {
             res.status(200).json(course);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -154,7 +155,7 @@ class CourseController {
             })
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -171,19 +172,22 @@ class CourseController {
             res.status(200).json(courses)
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
     // [POST] /courses
     createCourse = async (req: Request, res: Response, _next: NextFunction) => {
+        let newCourse;
+
         try {
-            const id_teacher = "123e4567-e89b-12d3-a456-426614174000"  // req.teacher.data.id;
+            const id_teacher = req.teacher.data.id;
+
+            let body = req.body.data;
+
+            body = JSON.parse(body);
             
-            let { chapters, categories, ...courseBody } = req.body;
-            
-            chapters = JSON.parse(chapters);
-            categories = JSON.parse(categories);
+            let { chapters, categories, ...courseBody } = body;
             
             // Thumbnail and cover image url after upload
             const { thumbnail, cover } = req.URL as { thumbnail: string, cover: string };
@@ -191,7 +195,7 @@ class CourseController {
             // Lecture video url and its chapter index in course, lecture index in chapter.
             const lectureURL = req.lectureURL;
 
-            const newCourse = await Course.create({
+            newCourse = await Course.create({
                 thumbnail,
                 cover_image: cover,
                 ...courseBody,
@@ -241,7 +245,21 @@ class CourseController {
             res.status(201).json(newCourse);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
+
+            const thumbnailRef = ref(req.URL.thumbnail);
+            const coverRef = ref(req.URL.cover);
+            await deleteObject(thumbnailRef);
+            await deleteObject(coverRef);
+            const deletePromises = req.lectureURL.map(async (lecture) => {
+                const videoRef = ref(lecture.url);
+                await deleteObject(videoRef);
+            });
+
+            await Promise.all(deletePromises);
+            if (newCourse) {
+                await newCourse.destroy();
+            }
         }
     }
 
@@ -250,6 +268,18 @@ class CourseController {
             const files = req.files as { [fieldname: string]: Express.Multer.File[] };
             
             const dateTime = fileUpload.giveCurrentDateTime();
+
+            if (!files.thumbnail[0].mimetype.startsWith('image/')) {
+                return res.status(400).json({
+                    message: "Invalid mimetype for thumbnail"
+                });
+            }
+
+            if (!files.cover[0].mimetype.startsWith('image/')) {
+                return res.status(400).json({
+                    message: "Invalid mimetype for cover image"
+                });
+            }
 
             const thumbnailRef = ref(
                 storage,
@@ -295,7 +325,7 @@ class CourseController {
             next();
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -304,6 +334,29 @@ class CourseController {
             const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
             const urls: ResponseVideoFile[] = [];
+
+            const mimetypeErrorResponse: {
+                message?: string,
+                file?: string
+            }[] = [];
+
+            files.video.map(video => {
+                if (!video.mimetype.startsWith('video/')) {
+                    mimetypeErrorResponse.push({
+                        message: "Invalid mimetype for video lecture",
+                        file: `${video.originalname}`
+                    });
+                }
+            })
+
+            if (mimetypeErrorResponse.length > 0) {
+                res.status(400).json(mimetypeErrorResponse);
+                const thumbnailRef = ref(req.URL.thumbnail);
+                const coverRef = ref(req.URL.cover);
+                await deleteObject(thumbnailRef);
+                await deleteObject(coverRef);
+                return 
+            }
 
             const uploadPromises = files.video.map(async (video) => {
                 const dateTime = fileUpload.giveCurrentDateTime();
@@ -351,7 +404,7 @@ class CourseController {
             next();
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -377,7 +430,7 @@ class CourseController {
             });
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -429,7 +482,7 @@ class CourseController {
             res.json(urls)
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 

@@ -12,7 +12,7 @@ class ParentCategoryController {
             res.status(200).json(par_categories);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -26,7 +26,7 @@ class ParentCategoryController {
             res.status(200).json(parentCategory);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -40,7 +40,7 @@ class ParentCategoryController {
             res.status(201).json(newParentCategory);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -64,7 +64,7 @@ class ParentCategoryController {
             res.status(200).json(parent);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -83,7 +83,7 @@ class ParentCategoryController {
             })
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 }

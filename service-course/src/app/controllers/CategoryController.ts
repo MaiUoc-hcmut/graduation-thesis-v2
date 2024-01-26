@@ -12,7 +12,7 @@ class CategoryController {
             res.status(200).json(categories);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -28,7 +28,7 @@ class CategoryController {
             res.status(200).json(category);          
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -44,7 +44,7 @@ class CategoryController {
             res.status(200).json(categories);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -75,7 +75,7 @@ class CategoryController {
             res.status(201).json({ success: newCategories, failed: failedCategory });
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -104,7 +104,7 @@ class CategoryController {
             res.status(200).json(category);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -125,7 +125,7 @@ class CategoryController {
             })
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 }
