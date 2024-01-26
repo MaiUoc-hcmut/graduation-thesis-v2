@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { ReactQuillEditor } from "../../Editor/ReactQuillEditor";
-
+import categoryApi from "@/app/api/category";
+import UploadFile from "@/app/_components/UploadFile"
 export function BasicInfomationForm({
     handleForm
 }: any) {
@@ -11,6 +12,15 @@ export function BasicInfomationForm({
         formState: { errors }
     } = handleForm
     console.log(errors);
+
+    useEffect(() => {
+        async function fetchCategory() {
+            const category = await categoryApi.getAll()
+            return category
+        }
+        console.log(fetchCategory(), 111);
+
+    }, []);
 
     return (
         <>
@@ -97,14 +107,15 @@ export function BasicInfomationForm({
                     Nếu khóa học miễn phí hãy để trống.
                 </p>
             </div>
-            <div className="mb-5 w-1/3">
+
+            <div className="mb-5 w-1/2">
                 <label
                     className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
                     htmlFor="thumbnail"
                 >
                     Ảnh đại diện
                 </label>
-                <input
+                {/* <input
                     {...register("thumbnail", {
                         required: "Ảnh đại diện không thể trống."
                     })}
@@ -116,7 +127,8 @@ export function BasicInfomationForm({
                 />
                 <p className="mt-2 text-sm text-red-600 dark:text-red-500">
                     {errors?.thumbnail?.message}
-                </p>
+                </p> */}
+                <UploadFile />
             </div>
             <div className="mb-5 w-1/3">
                 <label

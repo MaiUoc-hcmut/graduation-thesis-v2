@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation'
 import { BasicInfomationForm } from "@/app/_components/Form/EditCourse/BasicInfomationForm"
 import { ContentForm } from "@/app/_components/Form/EditCourse/ContentForm"
 import { useForm } from "react-hook-form"
-import courseApi from "@/app/api/commentApi"
+import courseApi from "@/app/api/courseApi"
 import { useFieldArray } from "react-hook-form";
 
 
@@ -146,26 +146,32 @@ export default function EditCourse() {
                         setToggle({ ...toggle, [`${typeSubmit}`]: false })
                         setData(dataForm)
 
+                        const { thumbnail, cover, ...data1 } = dataForm
+                        data1.categories = ["32cb347b-a46a-45b0-9fe8-21297380cdc1", "3c138a43-4fb5-4a86-8332-3d3b6e995082", "461ec0f3-d7ca-4bb9-9ac2-e4599b244b58"]
                         console.log('submit', dataForm, errors);
 
                         const formData = new FormData();
 
-                        formData.append("data", JSON.stringify(dataForm))
+                        formData.append("data", JSON.stringify(data1))
+                        // formData.append("data", JSON.stringify(dataForm))
                         formData.append("thumbnail", dataForm.thumbnail[0])
                         formData.append("cover", dataForm.cover[0])
 
                         dataForm.chapters.map((chapter: ChapterData, indexChapter: number) => {
                             chapter.lectures.map((lecture: LectureData, indexLecture: number) => {
-                                formData.append("video", lecture.link_video[0], `${indexChapter}-${indexLecture}-${lecture.link_video[0].name}`)
+                                formData.append("video", lecture.link_video[0], `${indexChapter + 1}-${indexLecture + 1}-${lecture.link_video[0].name}`)
                             })
                         })
 
-                        console.log(formData.getAll("video"));
+                        // console.log(formData.getAll("video"));
 
 
+                        console.log(typeSubmit);
                         if (!isLastStep) return next()
                         // setData({ ...data, id_teacher: user.id })
-                        // await courseApi.create(data)
+
+                        if (typeSubmit == "submit")
+                            await courseApi.create(formData)
                         // router.push("/teacher/course")
                     })
                 }>
@@ -183,7 +189,7 @@ export default function EditCourse() {
                                 Tiếp theo
                             </button>
                         </div>
-                        <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover">Hoàn thành</button>
+                        <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover" onClick={() => setTypeSubmit("submit")}>Hoàn thành</button>
                     </div>
                 </form>
             </div >

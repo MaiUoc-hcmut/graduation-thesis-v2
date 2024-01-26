@@ -234,26 +234,6 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
 
 
                 <div className={`${toggle[`add_lecture_${chapter.id}`] ? "" : "hidden"} mt-3 pt-4 border-t-[1px] border-[#ececec]`}>
-                    {/* <form className="" onSubmit={
-                        handleSubmit(async (data1: any) => {
-                            console.log(data1);
-                            if (!(Object.entries(errors).length === 0)) return
-                            setToggle({ ...toggle, [`add - lecture - ${ chapter.id }`]: false })
-
-                            // setData((data: any) => {
-                            //     data.chapters[index].name = data1.name
-                            //     data.chapters[index].status = data1.status
-
-                            //     return data
-                            // })
-
-                            notify()
-                        })
-
-                    }>
-
-
-                    </form> */}
                     {fieldsLecture.map((field: any, indexLecture: any) => (
 
                         indexLecture == fieldsLecture.length - 1 ?
@@ -308,6 +288,40 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                         type="file"
                                     />
                                 </div>
+                                <div className="flex mb-5">
+                                    <div className="flex items-center me-4">
+                                        <input
+                                            id="inline-radio"
+                                            type="radio"
+                                            defaultValue=""
+                                            name="inline-radio-group"
+                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                        />
+                                        <label
+                                            htmlFor="inline-radio"
+                                            className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                        >
+                                            Công khai
+                                        </label>
+                                    </div>
+                                    <div className="flex items-center me-4">
+                                        <input
+                                            id="inline-2-radio"
+                                            type="radio"
+                                            defaultValue=""
+                                            name="inline-radio-group"
+                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                        />
+                                        <label
+                                            htmlFor="inline-2-radio"
+                                            className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                        >
+                                            Riêng tư
+                                        </label>
+                                    </div>
+
+                                </div>
+
 
                                 <div className="mb-2">
                                     <button

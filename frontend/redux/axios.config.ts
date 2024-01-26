@@ -26,12 +26,12 @@ instance.interceptors.request.use(
             // Request to course service
             if (
                 config.url.indexOf('/document') >= 0 ||
-                config.url.indexOf('/course') >= 0 ||
-                config.url.indexOf('/chapter') >= 0 || 
+                config.url.indexOf('/courses') >= 0 ||
+                config.url.indexOf('/chapter') >= 0 ||
                 config.url.indexOf('/lecture') >= 0 ||
                 config.url.indexOf('/folder') >= 0
             ) {
-                config.baseURL = 'http://localhost:3001/api/v1';
+                config.baseURL = 'http://localhost:4001/api/v1';
             }
 
             if (

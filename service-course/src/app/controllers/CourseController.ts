@@ -179,12 +179,12 @@ class CourseController {
     createCourse = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_teacher = "123e4567-e89b-12d3-a456-426614174000"  // req.teacher.data.id;
-            
-            let { chapters, categories, ...courseBody } = req.body;
-            
-            chapters = JSON.parse(chapters);
-            categories = JSON.parse(categories);
-            
+
+            let data = req.body.data
+            data = JSON.parse(data)
+            let { chapters, categories, ...courseBody } = data;
+            console.log(req.URL, courseBody);
+
             // Thumbnail and cover image url after upload
             const { thumbnail, cover } = req.URL as { thumbnail: string, cover: string };
 
@@ -240,15 +240,15 @@ class CourseController {
 
             res.status(201).json(newCourse);
         } catch (error: any) {
-            console.log(error.message);
-            res.status(500).json({ error: error.message });
+            console.log(error);
+            res.status(500).json({ error });
         }
     }
 
     uploadThumbnailAndCover = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-            
+
             const dateTime = fileUpload.giveCurrentDateTime();
 
             const thumbnailRef = ref(
@@ -306,6 +306,7 @@ class CourseController {
             const urls: ResponseVideoFile[] = [];
 
             const uploadPromises = files.video.map(async (video) => {
+
                 const dateTime = fileUpload.giveCurrentDateTime();
 
                 // originalname of video is separate to 3 part
@@ -320,7 +321,7 @@ class CourseController {
                 const originalFileName = video.originalname.substring(secondHyphen + 1);
 
                 const storageRef = ref(
-                    storage, 
+                    storage,
                     `video course/${originalFileName + "       " + dateTime}`
                 );
 
@@ -344,7 +345,7 @@ class CourseController {
                 //     url
                 // });
             });
-            
+
             await Promise.all(uploadPromises);
 
             req.lectureURL = urls;
@@ -384,36 +385,36 @@ class CourseController {
     test = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-    
+
             const urls: ResponseVideoFile[] = [];
-    
+
             const uploadPromises = files.video.map(async (video) => {
                 const dateTime = fileUpload.giveCurrentDateTime();
-    
+
                 const firstHyphen = video.originalname.indexOf('-');
                 const chapterIdx = video.originalname.substring(0, firstHyphen);
-    
+
                 const secondHyphen = video.originalname.indexOf('-', firstHyphen + 1);
                 const lectureIdx = video.originalname.substring(firstHyphen + 1, secondHyphen);
-    
+
                 const originalFileName = video.originalname.substring(secondHyphen + 1);
-    
+
                 const storageRef = ref(
-                    storage, 
+                    storage,
                     `video course/${originalFileName + "       " + dateTime}`
                 );
-    
+
                 const metadata = {
                     contentType: video.mimetype,
                 };
-    
+
                 // Theo dõi tiến trình tải lên
                 const snapshot = await uploadBytesResumable(storageRef, video.buffer, metadata);
                 const url = await getDownloadURL(snapshot.ref);
                 let duration = await getVideoDurationInSeconds(url);
                 duration = Math.floor(duration);
 
-                console.log({url, duration})
+                console.log({ url, duration })
 
                 urls.push({
                     name: originalFileName,
@@ -423,9 +424,9 @@ class CourseController {
                     duration
                 });
             });
-            
+
             await Promise.all(uploadPromises);
-    
+
             res.json(urls)
         } catch (error: any) {
             console.log(error.message);

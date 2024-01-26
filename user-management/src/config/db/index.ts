@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const sequelize = new Sequelize('study365', 'root', '0974222365', {
+const sequelize = new Sequelize('service_manage_user', 'root', '', {
   host: 'localhost',
   dialect: 'mysql',
 });
