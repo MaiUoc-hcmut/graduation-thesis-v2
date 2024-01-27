@@ -12,7 +12,8 @@ router.use("/chapters", chaptersRouter)
 //route course
 router.route('/')
     .get(courseController.getAllCourse)
-    .post(fileUpload.uploadCourseFiles, 
+    .post(Authorize.protectedAPI,
+        fileUpload.uploadCourseFiles, 
         courseController.uploadThumbnailAndCover, 
         courseController.uploadLectureVideo, 
         courseController.createCourse)

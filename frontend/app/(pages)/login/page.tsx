@@ -112,7 +112,7 @@
 'use client'
 import Image from 'next/image';
 import React, { useEffect } from 'react';
-import { login, reset } from '@/redux/features/authSlice';
+import { loginTeacher, reset } from '@/redux/features/authSlice';
 import { useAppSelector, AppDispatch } from '@/redux/store';
 import { useDispatch } from 'react-redux';
 import { redirect } from 'next/navigation';
@@ -135,21 +135,21 @@ export default function Login() {
     })
 
     const handleLoginSubmit: SubmitHandler<{ email: string, password: string }> = async (data) => {
-        dispatch(login(data));
+        await dispatch(loginTeacher(data));
     };
 
     useEffect(() => {
         dispatch(reset());
         if (isSuccess) {
-            // toastSuccess("Login success");
+            toastSuccess("Login success");
             dispatch(reset());
-            redirect('/');
+            redirect('/teacher');
         }
         if (isFailed) {
+            toastError(message);
             dispatch(reset());
-            // toastError(message);
         }
-    }, [dispatch, redirect, isSuccess]);
+    }, [dispatch, isSuccess]);
 
     return (
         <div className="mt-10 flex min-h-full flex-1 flex-col justify-center px-6 py-6 lg:px-8">

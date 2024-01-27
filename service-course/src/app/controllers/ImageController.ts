@@ -50,7 +50,7 @@ class ImageController {
             res.status(200).json({ url: resUrl });
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 }

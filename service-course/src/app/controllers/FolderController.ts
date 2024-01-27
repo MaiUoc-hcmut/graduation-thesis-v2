@@ -11,7 +11,7 @@ class FolderController {
             res.status(200).json(folders);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -25,7 +25,7 @@ class FolderController {
             res.status(200).json(folder);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -44,7 +44,7 @@ class FolderController {
             res.status(200).json(folders);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -65,7 +65,7 @@ class FolderController {
             res.status(201).json(newFolder);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -86,7 +86,7 @@ class FolderController {
 
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -146,7 +146,7 @@ class FolderController {
             res.status(200).json(folder);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -171,7 +171,7 @@ class FolderController {
             });
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 }

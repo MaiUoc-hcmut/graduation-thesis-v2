@@ -59,7 +59,9 @@ export const login = createAsyncThunk('auth/login', async (user: LogInData, thun
 })
 
 export const loginTeacher = createAsyncThunk('auth-teacher/login', async (user: LogInData, thunkAPI) => {
+    console.log(user);
     try {
+
         const response = await axiosConfig.post('auth-teacher/login', user);
         if (response.data) {
             localStorage.setItem('accessToken', JSON.stringify(response.data.accessToken));

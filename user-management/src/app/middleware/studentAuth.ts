@@ -88,6 +88,9 @@ passportStudent.use(
 exports.loginAuth = (req: Request, res: Response, next: NextFunction) => {
     passportStudent.authenticate('student-local', { session: false, failureMessage: true }, (err: any, student: any, info: any) => {
         if (err || !student) {
+            console.log(err);
+            res.json({ err })
+
             return next(createError.BadRequest(info?.message ? info.message : "Login failed"));
         } else {
             delete student.password;

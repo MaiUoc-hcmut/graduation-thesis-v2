@@ -25,7 +25,7 @@ class ReviewController {
             res.status(200).json(reviews);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -39,7 +39,7 @@ class ReviewController {
             res.status(200).json(reviews);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -53,7 +53,7 @@ class ReviewController {
             res.status(200).json(reviews);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -67,7 +67,7 @@ class ReviewController {
             res.status(200).json(reviews);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -81,7 +81,7 @@ class ReviewController {
             res.status(200).json(review);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -95,20 +95,15 @@ class ReviewController {
             res.status(200).json(reviews);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
     // [POST] /reviews
     createReview = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            // let image = "";
-            // if (req.ImageUrl !== undefined) {
-            //     image = req.ImageUrl;
-            // }
-
-            const id_student = "123e4567-e89b-12d3-a456-426614174000";
-            const body = req.body;
+            const id_student = req.teacher.data.id;
+            const body = req.body.data;
 
             const newReview = await Review.create({
                 id_student,
@@ -118,7 +113,7 @@ class ReviewController {
             res.status(201).json(newReview);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -154,7 +149,7 @@ class ReviewController {
             next();
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -173,7 +168,7 @@ class ReviewController {
             })
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 }

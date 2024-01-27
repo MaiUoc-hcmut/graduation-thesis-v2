@@ -40,7 +40,7 @@ class DocumentController {
             res.status(200).json(documents);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -54,7 +54,7 @@ class DocumentController {
             res.status(200).json(document);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -73,7 +73,7 @@ class DocumentController {
             res.status(200).json(documents);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -93,7 +93,7 @@ class DocumentController {
             res.status(200).json(documents);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -107,7 +107,7 @@ class DocumentController {
             
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -117,7 +117,7 @@ class DocumentController {
             
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -127,7 +127,7 @@ class DocumentController {
             
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -142,7 +142,7 @@ class DocumentController {
             res.status(201).json(newDocument);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -174,7 +174,7 @@ class DocumentController {
 
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -197,7 +197,7 @@ class DocumentController {
             res.status(200).send(url);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -229,7 +229,7 @@ class DocumentController {
             res.status(200).send(urls);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -249,7 +249,7 @@ class DocumentController {
             res.status(200).json(updatedDocument);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -274,7 +274,7 @@ class DocumentController {
             });
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 
@@ -293,7 +293,7 @@ class DocumentController {
             res.status(200).json({ message: "All selected document have been deleted!" });
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error });
         }
     }
 }
