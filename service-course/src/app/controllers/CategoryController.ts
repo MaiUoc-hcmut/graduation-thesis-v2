@@ -1,4 +1,5 @@
 const Category = require('../../db/models/category');
+const ParentCategory = require('../../db/models/parent-category');
 
 import { Request, Response, NextFunction } from 'express';
 
@@ -7,16 +8,22 @@ class CategoryController {
     // [GET] /categories
     getAllCategory = async (_req: Request, res: Response, _next: NextFunction) => {
         try {
-            const categories = await Category.findAll();
+            const categories = await Category.findAll({
+                include: [{
+                    model: ParentCategory,
+                    as: 'parentcategory',
+                    attributes: ['name']
+                }]
+            });
 
             const groupedCategories = categories.reduce((result: any, category: any) => {
-                const key = category.id_par_category;
-                if (!result[key]) {
-                  result[key] = [];
-                }
-                result[key].push(category);
-                return result;
-              }, {});
+            const key = category.parentcategory.name;
+            if (!result[key]) {
+                result[key] = [];
+            }
+            result[key].push(category);
+            return result;
+            }, {});
 
             res.status(200).json(groupedCategories);
         } catch (error: any) {
