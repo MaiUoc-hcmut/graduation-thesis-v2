@@ -24,6 +24,6 @@ ParentCategory.init(
 );
 
 ParentCategory.hasMany(Category, { foreignKey: "id_par_category", as: "subcategories" });
-Category.belongsTo(ParentCategory, { foreignKey: "id_par_category" });
+Category.belongsTo(ParentCategory, { foreignKey: "id_par_category", as: "parentcategory" });
 
 module.exports = ParentCategory;
