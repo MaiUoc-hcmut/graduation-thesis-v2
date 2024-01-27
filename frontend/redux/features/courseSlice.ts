@@ -59,43 +59,11 @@ export const getDocumentBelongToFolder = createAsyncThunk('/document/folder/:par
     }
 })
 
-export const createCourse = createAsyncThunk('/courses', async (document: DocData, thunkAPI) => {
+export const createCourse = createAsyncThunk('/courses', async (data: any, thunkAPI) => {
     try {
-        // Upload file 
-        const formData = new FormData();
-
-        if (document.files.length > 0) {
-            document.files.forEach((file, index) => {
-                if (file) {
-                    formData.append(`document[${index}]`, file);
-                }
-            })
-        }
-        const responseUrls = await axiosConfig.post('/document/upload-multi-file', formData);
+        const responseUrls = await axiosConfig.post('/courses', data);
 
         if (responseUrls.status !== 200) return thunkAPI.rejectWithValue(responseUrls.data.message);
-
-        let parentId = -1;
-        if (document.parentId && document.parentId > 0) {
-            parentId = document.parentId;
-        }
-
-        // After receive the Url, create the document
-        const docData = responseUrls.data.map((response: ResponseUploadFile) => {
-            return {
-                name: response.name,
-                url: response.url,
-            }
-        })
-        const requestData = {
-            fileData: docData,
-            parentId
-        }
-        const response = await axiosConfig.post('/document', requestData);
-
-        if (response.status !== 201) return thunkAPI.rejectWithValue(response.data);
-
-        return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error);
     }
@@ -239,13 +207,6 @@ export const document = createSlice({
             .addCase(createCourse.pending, (state) => {
                 console.log('pending');
                 state.isLoading = true;
-            })
-            .addCase(createCourse.fulfilled, (state, action) => {
-                console.log("Fullfiled");
-                state.isCreateSuccess = true;
-                state.isInit = false;
-                state.isLoading = false;
-                state.document.concat(action.payload);
             })
             .addCase(createCourse.rejected, (state, action) => {
                 console.log("Rejected");

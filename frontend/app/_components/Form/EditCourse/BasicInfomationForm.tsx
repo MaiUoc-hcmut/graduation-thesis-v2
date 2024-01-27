@@ -115,7 +115,7 @@ export function BasicInfomationForm({
                 >
                     Ảnh đại diện
                 </label>
-                {/* <input
+                <input
                     {...register("thumbnail", {
                         required: "Ảnh đại diện không thể trống."
                     })}
@@ -127,8 +127,8 @@ export function BasicInfomationForm({
                 />
                 <p className="mt-2 text-sm text-red-600 dark:text-red-500">
                     {errors?.thumbnail?.message}
-                </p> */}
-                <UploadFile />
+                </p>
+                {/* <UploadFile /> */}
             </div>
             <div className="mb-5 w-1/3">
                 <label

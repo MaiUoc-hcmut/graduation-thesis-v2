@@ -9,7 +9,16 @@ class CategoryController {
         try {
             const categories = await Category.findAll();
 
-            res.status(200).json(categories);
+            const groupedCategories = categories.reduce((result: any, category: any) => {
+                const key = category.id_par_category;
+                if (!result[key]) {
+                  result[key] = [];
+                }
+                result[key].push(category);
+                return result;
+              }, {});
+
+            res.status(200).json(groupedCategories);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });

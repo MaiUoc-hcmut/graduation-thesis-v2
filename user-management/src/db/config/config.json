@@ -2,21 +2,21 @@
   "development": {
     "username": "root",
     "password": "",
-    "database": "service_manage_user",
+    "database": "user_management",
     "host": "localhost",
     "dialect": "mysql"
   },
   "test": {
     "username": "root",
     "password": "0974222365",
-    "database": "study365",
+    "database": "user_management",
     "host": "localhost",
     "dialect": "mysql"
   },
   "production": {
     "username": "root",
     "password": "0974222365",
-    "database": "study365",
+    "database": "user_management",
     "host": "localhost",
     "dialect": "mysql"
   }

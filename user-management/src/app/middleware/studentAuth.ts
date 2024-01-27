@@ -44,9 +44,9 @@ passportStudent.use(
 
 // middleware verify access token
 exports.protectedAPI = (req: Request, res: Response, next: NextFunction) => {
-    passportStudent.authenticate('student-jwt', { session: false }, (err: any, student: any, info: any) => {
+    passportStudent.authenticate('student-jwt', { session: false }, (err: any, student: any) => {
         if (err || !student) {
-            return next(createError.Unauthorized(info?.message ? info.message : "User is not authorized"));
+            return next(createError.Unauthorized(err?.message ? err : "User is not authorized"));
         } else {
             req.student = student;
             next();
@@ -86,12 +86,10 @@ passportStudent.use(
 
 
 exports.loginAuth = (req: Request, res: Response, next: NextFunction) => {
-    passportStudent.authenticate('student-local', { session: false, failureMessage: true }, (err: any, student: any, info: any) => {
+    passportStudent.authenticate('student-local', { session: false, failureMessage: true }, (err: any, student: any) => {
         if (err || !student) {
-            console.log(err);
-            res.json({ err })
-
-            return next(createError.BadRequest(info?.message ? info.message : "Login failed"));
+            if (err) console.log(err);
+            return next(createError.BadRequest(err?.message ? err : "Login failed"));
         } else {
             delete student.password;
             delete student.createdAt;

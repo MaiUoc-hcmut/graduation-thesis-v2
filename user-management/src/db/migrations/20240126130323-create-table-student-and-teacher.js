@@ -4,10 +4,8 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('student', {
       id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        unique: true,
-        autoIncrement: true,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
       email: {
@@ -47,10 +45,8 @@ module.exports = {
     });
     await queryInterface.createTable('teacher', {
       id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        unique: true,
-        autoIncrement: true,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
       email: {
@@ -102,10 +98,8 @@ module.exports = {
     });
     await queryInterface.createTable('admin', {
       id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        unique: true,
-        autoIncrement: true,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
       email: {

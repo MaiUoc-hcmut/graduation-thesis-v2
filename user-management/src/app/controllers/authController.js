@@ -76,7 +76,6 @@ class Auth {
         biostory: '',
         degree: 'bachelor',
       });
-
       const accessToken = SignToken.signAccessToken(newTeacher.id);
       const refreshToken = SignToken.signRefreshToken(newTeacher.id);
 

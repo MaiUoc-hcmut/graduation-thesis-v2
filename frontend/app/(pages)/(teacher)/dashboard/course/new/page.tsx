@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation'
 import { BasicInfomationForm } from "@/app/_components/Form/EditCourse/BasicInfomationForm"
 import { ContentForm } from "@/app/_components/Form/EditCourse/ContentForm"
 import { useForm } from "react-hook-form"
-import courseApi from "@/app/api/courseApi"
+import { createCourse } from "@/redux/features/courseSlice"
 import { useFieldArray } from "react-hook-form";
 
 
@@ -171,7 +171,7 @@ export default function EditCourse() {
                         // setData({ ...data, id_teacher: user.id })
 
                         if (typeSubmit == "submit")
-                            await courseApi.create(formData)
+                            await createCourse(formData)
                         // router.push("/teacher/course")
                     })
                 }>
