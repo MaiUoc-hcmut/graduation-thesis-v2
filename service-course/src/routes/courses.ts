@@ -20,7 +20,7 @@ router.route('/')
 
 router.route('/:courseId')
     .get(courseController.getCourseById)
-    .put(courseController.update)
+    .put(courseController.updateCourse)
     .delete(courseController.deleteCourse);
 
 router.route('/full/:courseId')
