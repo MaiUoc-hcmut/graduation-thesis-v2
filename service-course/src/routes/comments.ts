@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const commentController = require("../app/controllers/CommentController");
-const Authorize = require('../app/middleware/teacherAuth');
+const Authorize = require('../app/middleware/authorize');
 
 // const fileUpload = require('../config/firebase/fileUpload');
 

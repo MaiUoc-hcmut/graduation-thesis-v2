@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const DocumentController = require('../app/controllers/DocumentController');
-const Authorize = require('../app/middleware/teacherAuth');
+const Authorize = require('../app/middleware/authorize');
 const DocumentFile = require('../config/firebase/file');
 
 router.route('/')
@@ -14,10 +14,10 @@ router.route('/upload-multi-file')
     .post(Authorize.protectedAPI, DocumentFile.uploadMulti, DocumentController.uploadMultiFile);
 router.route('/:documentId')
     .get(DocumentController.getDocumentById)
-    .put(Authorize.protectedAPI, DocumentController.updateDocument)
-    .delete(Authorize.protectedAPI, DocumentController.deleteDocument);
+    .put(Authorize.authorizeTeacher, DocumentController.updateDocument)
+    .delete(Authorize.authorizeTeacher, DocumentController.deleteDocument);
 router.route('/teacher/:teacherId')
-    .get(Authorize.protectedAPI, DocumentController.getDocumentCreatedByTeacher);
+    .get(Authorize.authorizeTeacher, DocumentController.getDocumentCreatedByTeacher);
 router.route('/course/:courseId')
     .get(DocumentController.getDocumentBelongToCourse);
 router.route('/chapter/:chapterId')
