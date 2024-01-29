@@ -442,7 +442,13 @@ class CourseController {
             }
 
             if (categories !== undefined) {
-                
+                const categoriesList: any[] = [];
+                for (const category of categories) {
+                    const categoryRecord = await Category.findByPk(category);
+                    if (!categoryRecord) throw new Error("Category does not exist");
+                    categoriesList.push(categoryRecord);
+                }
+                await course.setCategories(categoriesList, { transaction: t });
             }
 
             if (chapters !== undefined) {
