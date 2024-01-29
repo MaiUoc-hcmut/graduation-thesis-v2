@@ -2,24 +2,39 @@ import { useEffect, useState } from "react"
 import { ReactQuillEditor } from "../../Editor/ReactQuillEditor";
 import categoryApi from "@/app/api/category";
 import UploadFile from "@/app/_components/UploadFile"
+
+type Category = {
+    Class: [category]
+    Subject: [category]
+    Level: [category]
+}
+
+type category = {
+    id: string
+    name: string
+}
+
+const initCategory: Category = {
+    Class: [{ id: "", name: "" }],
+    Subject: [{ id: "", name: "" }],
+    Level: [{ id: "", name: "" }]
+}
+
+
 export function BasicInfomationForm({
     handleForm
 }: any) {
-
+    const [category, setCategory] = useState<Category>(initCategory)
     const {
         register,
         setValue,
         formState: { errors }
     } = handleForm
-    console.log(errors);
-
     useEffect(() => {
         async function fetchCategory() {
-            const category = await categoryApi.getAll()
-            return category
+            await categoryApi.getAll().then((data: any) => setCategory(data))
         }
-        console.log(fetchCategory(), 111);
-
+        fetchCategory()
     }, []);
 
     return (
@@ -38,7 +53,7 @@ export function BasicInfomationForm({
                     type="text"
                     id="name"
                     name="name"
-                    className={`${!errors?.name ? 'bg-white border border-gray-300 text-[#343434]' : 'bg-red-50 border border-red-500 text-red-900 placeholder-red-700'} text-sm focus:ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
+                    className={`bg-white border border-gray-300 text-[#343434] text-sm focus:ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
                 />
                 <p className="mt-2 text-sm text-red-600 dark:text-red-500">
                     {errors?.name?.message}
@@ -51,11 +66,20 @@ export function BasicInfomationForm({
                 >
                     Lớp học
                 </label>
-                <select id="grade" {...register("grade")} className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                    <option value="10" defaultChecked>10</option>
-                    <option value="11">11</option>
-                    <option value="12">12</option>
+                <select id="grade" {...register("grade", {
+                    required: "Lớp không thể trống"
+                })} className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option value="" defaultChecked>Chọn lớp học</option>
+
+                    {category.Class?.map((cl, index) => {
+                        return (
+                            <option key={index} value={`${cl.id}`} >{cl.name}</option>
+                        )
+                    })}
                 </select>
+                <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                    {errors?.grade?.message}
+                </p>
             </div>
             <div className="mb-5 w-1/3">
                 <label
@@ -64,10 +88,20 @@ export function BasicInfomationForm({
                 >
                     Môn học
                 </label>
-                <select  {...register("subject")} id="subject" className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                    <option value="toán" defaultChecked>Toán</option>
-                    <option value="lý">Lý</option>
+                <select {...register("subject", {
+                    required: "Môn không thể trống"
+                })} id="subject" className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option value="" defaultChecked>Chọn môn học</option>
+
+                    {category.Subject?.map((subject, index) => {
+                        return (
+                            <option key={index} value={`${subject.id}`} >{subject.name}</option>
+                        )
+                    })}
                 </select>
+                <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                    {errors?.subject?.message}
+                </p>
             </div>
             <div className="mb-5 w-1/3">
                 <label
@@ -76,10 +110,21 @@ export function BasicInfomationForm({
                 >
                     Mức độ
                 </label>
-                <select  {...register("level")} id="level" className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                    <option value="cơ bản" defaultChecked>Cơ bản</option>
-                    <option value="nâng cao">Nâng cao</option>
+                <select  {...register("level", {
+                    required: "Mức độ không thể trống"
+                })}
+                    id="level" className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option value="" defaultChecked>Chọn mức độ</option>
+
+                    {category.Level?.map((level, index) => {
+                        return (
+                            <option key={index} value={`${level.id}`} >{level.name}</option>
+                        )
+                    })}
                 </select>
+                <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                    {errors?.level?.message}
+                </p>
             </div>
             <div className="mb-5 w-1/3">
                 <label
@@ -108,7 +153,7 @@ export function BasicInfomationForm({
                 </p>
             </div>
 
-            <div className="mb-5 w-1/2">
+            <div className="mb-5 w-1/3">
                 <label
                     className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
                     htmlFor="thumbnail"
@@ -119,9 +164,10 @@ export function BasicInfomationForm({
                     {...register("thumbnail", {
                         required: "Ảnh đại diện không thể trống."
                     })}
+                    defaultValue={""}
                     accept=".png, .jpg, .jpeg"
                     name="thumbnail"
-                    className={`${!errors?.thumbnail ? 'bg-white border border-gray-300 text-[#343434]' : 'bg-red-50 border border-red-500 text-red-900 placeholder-red-700'}block w-full mb-2 text-xs rounded-lg cursor-pointe dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400`}
+                    className={`bg-white border border-gray-300 text-[#343434] block w-full mb-2 text-xs rounded-lg cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400`}
                     id="thumbnail"
                     type="file"
                 />
@@ -143,7 +189,7 @@ export function BasicInfomationForm({
                     {...register("cover", {
                         required: "Ảnh nền không thể trống."
                     })}
-                    className={`${!errors?.cover ? 'bg-white border border-gray-300 text-[#343434]' : 'bg-red-50 border border-red-500 text-red-900 placeholder-red-700'}block w-full mb-2 text-xs rounded-lg cursor-pointe dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400`}
+                    className={`bg-white border border-gray-300 text-[#343434] block w-full mb-2 text-xs rounded-lg cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400`}
                     id="cover"
                     type="file"
                 />
@@ -151,7 +197,7 @@ export function BasicInfomationForm({
                     {errors?.cover?.message}
                 </p>
             </div>
-            <div className="mb-16">
+            {/* <div className="mb-16">
                 <label
                     className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
                 >
@@ -187,7 +233,7 @@ export function BasicInfomationForm({
                     Yêu cầu
                 </label>
                 <ReactQuillEditor setValue={setValue} field={"requirement"} />
-            </div>
+            </div> */}
         </>
     )
 }

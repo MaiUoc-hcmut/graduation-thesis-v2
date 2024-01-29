@@ -32,15 +32,16 @@ passport.use(
 
 declare global {
     namespace Express {
-      interface Request {
-        teacher?: any;
-      }
+        interface Request {
+            teacher?: any;
+        }
     }
-  }
+}
 
 // middleware verify access token
 exports.protectedAPI = (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('jwt', { session: false }, (err: any, teacher: any, info: any) => {
+
         if (err || !teacher) {
             return next(createError.Unauthorized(info?.message ? info.message : "User is not authorized"));
         } else {
@@ -54,9 +55,9 @@ exports.AuthGetCourseCreatedByTeacher = async (req: Request, res: Response, next
     passport.authenticate('jwt', { session: false }, (err: any, teacher: any, info: any) => {
         if (err || !teacher) {
             return next(createError.Unauthorized(info?.message ? info.message : "User is not authorized"));
-        } 
+        }
         if (req.params.teacherId !== teacher.data.id) {
-            return next(createError.Unauthorized(info?.message ? info.message: "You do not have permission to get the courses"))
+            return next(createError.Unauthorized(info?.message ? info.message : "You do not have permission to get the courses"))
         }
         req.teacher = teacher;
         next();

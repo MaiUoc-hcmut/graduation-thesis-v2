@@ -8,9 +8,10 @@ import { useRouter } from 'next/navigation'
 import { BasicInfomationForm } from "@/app/_components/Form/EditCourse/BasicInfomationForm"
 import { ContentForm } from "@/app/_components/Form/EditCourse/ContentForm"
 import { useForm } from "react-hook-form"
+// import courseApi from "@/app/api/courseApi"
 import { createCourse } from "@/redux/features/courseSlice"
-import { useFieldArray } from "react-hook-form";
-
+import { useDispatch } from "react-redux";
+import { AppDispatch, useAppSelector } from "@/redux/store";
 
 type CourseData = {
     name: string
@@ -69,11 +70,15 @@ const INITIAL_DATA: CourseData = {
     ]
 }
 
-export default function EditCourse() {
+export default function CreateCourse() {
     const [data, setData] = useState(INITIAL_DATA)
     const [toggle, setToggle] = useState<any>({})
     const [typeSubmit, setTypeSubmit] = useState("")
     const [currentStepIndex, setCurrentStepIndex] = useState(0)
+
+    const dispatch = useDispatch<AppDispatch>();
+
+    const { isCreateSuccess, isCreateFailed, message } = useAppSelector(state => state.documentReducer);
 
     const handleForm = useForm<CourseData>(
         {
@@ -147,31 +152,37 @@ export default function EditCourse() {
                         setData(dataForm)
 
                         const { thumbnail, cover, ...data1 } = dataForm
-                        data1.categories = ["32cb347b-a46a-45b0-9fe8-21297380cdc1", "3c138a43-4fb5-4a86-8332-3d3b6e995082", "461ec0f3-d7ca-4bb9-9ac2-e4599b244b58"]
-                        console.log('submit', dataForm, errors);
+                        data1.categories = []
+
+                        data1.categories.push(dataForm.grade)
+                        data1.categories.push(dataForm.subject)
+                        data1.categories.push(dataForm.level)
+
+
+                        console.log('submit', dataForm, errors, typeSubmit == "submit");
 
                         const formData = new FormData();
 
                         formData.append("data", JSON.stringify(data1))
-                        // formData.append("data", JSON.stringify(dataForm))
                         formData.append("thumbnail", dataForm.thumbnail[0])
                         formData.append("cover", dataForm.cover[0])
 
+                        console.log(formData.get("thumbnail"));
+
+
                         dataForm.chapters.map((chapter: ChapterData, indexChapter: number) => {
                             chapter.lectures.map((lecture: LectureData, indexLecture: number) => {
-                                formData.append("video", lecture.link_video[0], `${indexChapter + 1}-${indexLecture + 1}-${lecture.link_video[0].name}`)
+                                formData.append("video", lecture.link_video[0], `${indexChapter + 1}-${indexLecture + 1}-${lecture.link_video[0]?.name}`)
                             })
                         })
 
-                        // console.log(formData.getAll("video"));
-
-
-                        console.log(typeSubmit);
                         if (!isLastStep) return next()
-                        // setData({ ...data, id_teacher: user.id })
 
-                        if (typeSubmit == "submit")
-                            await createCourse(formData)
+
+                        if (typeSubmit === "submit") {
+                            // courseApi.create(formData)
+                            dispatch(createCourse(formData))
+                        }
                         // router.push("/teacher/course")
                     })
                 }>

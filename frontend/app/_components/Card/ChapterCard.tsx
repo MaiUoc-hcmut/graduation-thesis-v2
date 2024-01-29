@@ -101,8 +101,6 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
 
                                 return data
                             })
-                            console.log(data1, data);
-
                             notify()
                         })}>
 
@@ -121,18 +119,23 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                     {errors?.name?.message}
                                 </div>
                             </div>
-                            <div className="mt-2">
+
+                            <div className="mt-2 flex w-full items-center">
+                                <div
+                                    className="block mr-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                >
+                                    Trạng thái
+                                </div>
                                 <label className="relative inline-flex items-center me-5 cursor-pointer">
                                     <input
                                         type="checkbox"
                                         className="sr-only peer"
+                                        defaultChecked={chapter.status[0] == "on"}
                                         {...register(`chapters.${index}.status`)}
                                     />
                                     <div className="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600" />
-                                    <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
-                                        Kích hoạt
-                                    </span>
                                 </label>
+
                             </div>
                             <div className="mt-6 flex justify-end">
                                 <button
@@ -288,40 +291,23 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                         type="file"
                                     />
                                 </div>
-                                <div className="flex mb-5">
-                                    <div className="flex items-center me-4">
-                                        <input
-                                            id="inline-radio"
-                                            type="radio"
-                                            defaultValue=""
-                                            name="inline-radio-group"
-                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                        />
-                                        <label
-                                            htmlFor="inline-radio"
-                                            className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                                        >
-                                            Công khai
-                                        </label>
+                                <div className="mb-5 flex w-full items-center">
+                                    <div
+                                        className="block mr-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                    >
+                                        Trạng thái
                                     </div>
-                                    <div className="flex items-center me-4">
+                                    <label className="relative inline-flex items-center me-5 cursor-pointer">
                                         <input
-                                            id="inline-2-radio"
-                                            type="radio"
-                                            defaultValue=""
-                                            name="inline-radio-group"
-                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                            type="checkbox"
+                                            className="sr-only peer"
+                                            defaultChecked
+                                            {...register(`chapters.${index}.lectures.${indexLecture}.status`)}
                                         />
-                                        <label
-                                            htmlFor="inline-2-radio"
-                                            className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                                        >
-                                            Riêng tư
-                                        </label>
-                                    </div>
+                                        <div className="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600" />
+                                    </label>
 
                                 </div>
-
 
                                 <div className="mb-2">
                                     <button

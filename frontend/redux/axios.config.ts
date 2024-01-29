@@ -1,10 +1,8 @@
 import axios, { AxiosResponse } from 'axios';
-import jwtDecode from 'jwt-decode';
-import dotenv from 'dotenv';
+import { jwtDecode } from 'jwt-decode';
 
 const instance = axios.create({
     baseURL: 'http://localhost:4000/api/v1',
-    timeout: 4000,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -32,17 +30,18 @@ instance.interceptors.request.use(
                 config.url.indexOf('/folder') >= 0
             ) {
                 config.baseURL = 'http://localhost:4001/api/v1';
+                config.headers['Content-Type'] = 'multipart/form-data';
             }
 
-            if (
-                config.url.indexOf('/upload-file') >= 0 ||
-                config.url.indexOf('/upload-avatar') >= 0 ||
-                config.url.indexOf('/upload-image') >= 0
-            ) {
-                config.headers['Content-Type'] = 'multipart/form-data';
-            } else {
-                config.headers['Content-Type'] = 'application/json';
-            }
+            // if (
+            //     config.url.indexOf('/upload-file') >= 0 ||
+            //     config.url.indexOf('/upload-avatar') >= 0 ||
+            //     config.url.indexOf('/upload-image') >= 0
+            // ) {
+            //     config.headers['Content-Type'] = 'multipart/form-data';
+            // } else {
+            //     config.headers['Content-Type'] = 'application/json';
+            // }
         }
 
         let accessToken = localStorage.getItem('accessToken');
@@ -57,30 +56,30 @@ instance.interceptors.request.use(
         }
 
         // If the access token has expire, send request to refresh the access token
-        if (expire < new Date().getTime() / 1000) {
-            const refreshToken = localStorage.getItem('refreshToken');
-            if (refreshToken) {
-                const parsedRefreshToken = JSON.parse(refreshToken);
-                let decodedRefToken = jwtDecode(parsedRefreshToken) as { [key: string]: any }
-                let refExpire = decodedRefToken.exp;
+        // if (expire < new Date().getTime() / 1000) {
+        //     const refreshToken = localStorage.getItem('refreshToken');
+        //     if (refreshToken) {
+        //         const parsedRefreshToken = JSON.parse(refreshToken);
+        //         let decodedRefToken = jwtDecode(parsedRefreshToken) as { [key: string]: any }
+        //         let refExpire = decodedRefToken.exp;
 
-                // If the refresh token has expire, redirect user to login page
-                if (refExpire < new Date().getTime() / 1000) {
-                    window.location.href = '/login';
-                }
-                instance
-                    .post('auth/refresh-token', { parsedRefreshToken })
-                    .then(response => {
-                        if (response.data.accessToken) localStorage.setItem('accessToken', JSON.stringify(response.data.accessToken));
-                        if (response.data.refreshToken) localStorage.setItem('accessToken', JSON.stringify(response.data.refreshToken));
-                        let parsedAccessToken = JSON.parse(response.data.accessToken);
-                        config.headers.Authorization = `Bearer ${parsedAccessToken}`;
-                    })
-                    .catch(error => {
-                        return Promise.reject(error);
-                    });
-            }
-        }
+        //         // If the refresh token has expire, redirect user to login page
+        //         if (refExpire < new Date().getTime() / 1000) {
+        //             window.location.href = '/login';
+        //         }
+        //         instance
+        //             .post('auth/refresh-token', { parsedRefreshToken })
+        //             .then(response => {
+        //                 if (response.data.accessToken) localStorage.setItem('accessToken', JSON.stringify(response.data.accessToken));
+        //                 if (response.data.refreshToken) localStorage.setItem('accessToken', JSON.stringify(response.data.refreshToken));
+        //                 let parsedAccessToken = JSON.parse(response.data.accessToken);
+        //                 config.headers.Authorization = `Bearer ${parsedAccessToken}`;
+        //             })
+        //             .catch(error => {
+        //                 return Promise.reject(error);
+        //             });
+        //     }
+        // }
 
         return config;
     },

@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axiosConfig, { setAuthToken } from '../axios.config';
 
+
+
 interface DocData {
     categories: Categories,
     parentId?: number,
@@ -60,6 +62,9 @@ export const getDocumentBelongToFolder = createAsyncThunk('/document/folder/:par
 })
 
 export const createCourse = createAsyncThunk('/courses', async (data: any, thunkAPI) => {
+    // const accessToken = localStorage.getItem('accessToken');
+    // if (accessToken)
+    //     setAuthToken(accessToken)
     try {
         const responseUrls = await axiosConfig.post('/courses', data);
 

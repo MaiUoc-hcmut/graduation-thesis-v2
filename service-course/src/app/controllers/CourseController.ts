@@ -230,6 +230,8 @@ class CourseController {
                         lectureVideoURL = obj.url;
                         lectureVideoDuration = obj.duration;
                     }
+
+
                     const newLecture = await Lecture.create({
                         id_chapter: newChapter.id,
                         video: lectureVideoURL,
@@ -239,6 +241,9 @@ class CourseController {
                         status: chapters[i].lectures[j].status,
                         duration: lectureVideoDuration
                     });
+
+
+
                 }
             }
 
