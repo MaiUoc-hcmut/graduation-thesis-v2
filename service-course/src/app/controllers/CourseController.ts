@@ -256,12 +256,14 @@ class CourseController {
             const coverRef = ref(req.URL.cover);
             await deleteObject(thumbnailRef);
             await deleteObject(coverRef);
-            const deletePromises = req.lectureURL.map(async (lecture) => {
-                const videoRef = ref(lecture.url);
-                await deleteObject(videoRef);
-            });
+            if (req.lectureURL !== undefined && req.lectureURL.length > 0) {
+                const deletePromises = req.lectureURL.map(async (lecture) => {
+                    const videoRef = ref(lecture.url);
+                    await deleteObject(videoRef);
+                });
+                await Promise.all(deletePromises);
+            }
 
-            await Promise.all(deletePromises);
             if (newCourse) {
                 await newCourse.destroy();
             }
@@ -345,6 +347,10 @@ class CourseController {
                 file?: string
             }[] = [];
 
+            if (files.video === undefined || files.video.length === 0) {
+                next();
+            }
+
             files.video.map(video => {
                 if (!video.mimetype.startsWith('video/')) {
                     mimetypeErrorResponse.push({
@@ -414,13 +420,74 @@ class CourseController {
         }
     }
 
-    // [PUT] /courses/:id
-    update(req: Request, res: Response, next: NextFunction) {
-        Course.update(req.body.data, {
-            where: { id: req.params.id },
-        })
-            .then((course: any) => res.send(course))
-            .catch(next);
+    // [PUT] /courses/:courseId
+    updateCourse = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            let body = req.body.data;
+
+            body = JSON.parse(body);
+            
+            let { chapters, categories, ...courseBody } = body;
+
+            const courseId = req.params.courseId;
+
+            const course = await Course.findByPk(courseId);
+
+            if (courseBody !== undefined) {
+                await course.update({ ...courseBody });
+            }
+
+            if (categories !== undefined) {
+                
+            }
+
+            if (chapters !== undefined) {
+                for (const chapter of chapters) {
+                    const { lectures, ...chapterBody } = chapter;
+                    const chapterToUpdate = await Chapter.findByPk(chapterBody.id);
+
+                    if (!chapterToUpdate) throw new Error("Chapter does not exist");
+
+                    chapterToUpdate.update(chapterBody);
+
+                    if (lectures !== undefined) {
+                        for (const lecture of lectures) {
+                            const lectureToUpdate = await Lecture.findByPk(lecture.id);
+
+                            if (!lectureToUpdate) throw new Error("Lecture does not exist");
+
+                            lectureToUpdate.update(lecture);
+
+                            const obj = req.lectureURL.find(o => o.chapterIdx === chapter.order && o.lectureIdx === lecture.order);
+
+                            lectureToUpdate.update({
+                                video: obj?.url,
+                                duration: obj?.duration
+                            })
+                        }
+                    }
+                }
+            }
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error });
+
+            if (req.lectureURL !== undefined && req.lectureURL.length > 0) {
+                const deletePromises = req.lectureURL.map(async (lecture) => {
+                    const videoRef = ref(lecture.url);
+                    await deleteObject(videoRef);
+                });
+                await Promise.all(deletePromises);
+            }
+
+            if (req.URL !== undefined) {
+                const thumbnailRef = ref(req.URL.thumbnail);
+                const coverRef = ref(req.URL.cover);
+
+                await deleteObject(thumbnailRef);
+                await deleteObject(coverRef);
+            }
+        }
     }
 
     // [DELETE] /courses/:id
@@ -440,7 +507,7 @@ class CourseController {
         }
     }
 
-    test = async (req: Request, res: Response, next: NextFunction) => {
+    test = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
