@@ -5,6 +5,8 @@ const Category = require('../../db/models/category');
 
 import { Request, Response, NextFunction } from 'express';
 
+const { sequelize } = require('../../config/db/index');
+
 const { getVideoDurationInSeconds } = require('get-video-duration');
 
 const io = require('../../index');
@@ -182,6 +184,13 @@ class CourseController {
 
         try {
             const id_teacher = req.teacher.data.id;
+
+            // let body = req.body;
+
+            // let { chapters, categories, ...courseBody } = body;
+
+            // chapters = JSON.parse(chapters);
+            // categories = JSON.parse(categories);
 
             let body = req.body.data;
 
@@ -415,11 +424,12 @@ class CourseController {
     }
 
     // [PUT] /courses/:courseId
-    updateCourse = async (req: Request, res: Response, next: NextFunction) => {
+    updateCourse = async (req: Request, res: Response, _next: NextFunction) => {
+        const t = await sequelize.transaction();
         try {
-            let body = req.body.data;
+            let body = req.body;
 
-            body = JSON.parse(body);
+            // body = JSON.parse(body);
             
             let { chapters, categories, ...courseBody } = body;
 
@@ -428,7 +438,7 @@ class CourseController {
             const course = await Course.findByPk(courseId);
 
             if (courseBody !== undefined) {
-                await course.update({ ...courseBody });
+                await course.update({ ...courseBody }, { transaction: t });
             }
 
             if (categories !== undefined) {
@@ -442,7 +452,7 @@ class CourseController {
 
                     if (!chapterToUpdate) throw new Error("Chapter does not exist");
 
-                    chapterToUpdate.update(chapterBody);
+                    await chapterToUpdate.update(chapterBody, { transaction: t });
 
                     if (lectures !== undefined) {
                         for (const lecture of lectures) {
@@ -450,21 +460,27 @@ class CourseController {
 
                             if (!lectureToUpdate) throw new Error("Lecture does not exist");
 
-                            lectureToUpdate.update(lecture);
+                            await lectureToUpdate.update(lecture, { transaction: t });
 
-                            const obj = req.lectureURL.find(o => o.chapterIdx === chapter.order && o.lectureIdx === lecture.order);
+                            if (req.lectureURL !== undefined) {
+                                const obj = req.lectureURL.find(o => o.chapterIdx === chapter.order && o.lectureIdx === lecture.order);
 
-                            lectureToUpdate.update({
-                                video: obj?.url,
-                                duration: obj?.duration
-                            })
+                                await lectureToUpdate.update({
+                                    video: obj?.url,
+                                    duration: obj?.duration
+                                }, { transaction: t })
+                            }
                         }
                     }
                 }
             }
+
+            t.commit();
+            res.status(200).json(course);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
+            t.rollback();
 
             if (req.lectureURL !== undefined && req.lectureURL.length > 0) {
                 const deletePromises = req.lectureURL.map(async (lecture) => {
