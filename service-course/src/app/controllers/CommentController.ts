@@ -65,6 +65,20 @@ class CommentController {
         }
     }
 
+    // [GET] /comments/student/:studentId
+    getCommentCreatedByStudent = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const comments = await Comment.findAll({
+                where: {  }
+            });
+
+            res.status(200).json(comments);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error });
+        }
+    }
+
     // [POST] /comments/create
     createComment = async (req: Request, res: Response, _next: NextFunction) => {
         try {

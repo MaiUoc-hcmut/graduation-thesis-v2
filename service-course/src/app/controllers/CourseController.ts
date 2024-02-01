@@ -91,7 +91,7 @@ class CourseController {
         }
     }
 
-    // [GET] /course/full/:courseId
+    // [GET] /courses/full/:courseId
     getAllDetailCourse = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const course = await Course.findOne({
@@ -137,6 +137,7 @@ class CourseController {
         }
     }
 
+    // [GET] /courses/filter
     getCourseFilterByCategory = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const { categories } = req.body;
@@ -154,7 +155,9 @@ class CourseController {
                         }
                     }
                 ]
-            })
+            });
+
+            res.status(200).json(course);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
@@ -162,12 +165,12 @@ class CourseController {
     }
 
     // Get all courses that created by a teacher
-    // [GET] /course/teacher/:teacherId
+    // [GET] /courses/teacher/:teacherId
     getCourseCreatedByTeacher = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_teacher = req.params.teacherId;
 
-            const courses = Course.findAll({
+            const courses = await Course.findAll({
                 where: { id_teacher }
             });
 

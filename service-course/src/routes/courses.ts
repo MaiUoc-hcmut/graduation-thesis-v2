@@ -18,6 +18,10 @@ router.route('/')
         courseController.uploadLectureVideo, 
         courseController.createCourse)
 
+
+router.route('/filter')
+    .get(courseController.getCourseFilterByCategory);
+
 router.route('/:courseId')
     .get(courseController.getCourseById)
     .put(Authorize.authorizeTeacher, courseController.updateCourse)
