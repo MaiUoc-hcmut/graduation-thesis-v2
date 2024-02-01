@@ -23,3 +23,35 @@ passport.use(
         }
     })
 );
+
+
+passport.use(
+    'user-jwt',
+    new JWTStrategy(jwtConfig, async (payload: any, done: any) => {
+        try {
+            const id = payload.id;
+            console.log(id);
+            done(null, id);
+        } catch (err) {
+            done(err, false);
+        }
+    })
+);
+
+
+passport.use(
+    'student-jwt',
+    new JWTStrategy(jwtConfig, async (payload: any, done: any) => {
+        try {
+            const studentId = payload.id;
+            const student = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${studentId}`);
+            if (!student) {
+                done(new Error('User not found!'), false);
+            }
+            // success case
+            return done(null, student);
+        } catch (err) {
+            done(err, false);
+        }
+    })
+);

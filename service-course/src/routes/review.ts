@@ -5,7 +5,7 @@ const Authorize = require('../app/middleware/authorize');
 
 router.route('/')
     .get(reviewController.getAllReviews)
-    .post(reviewController.createReview);
+    .post(Authorize.verifyStudent, reviewController.createReview);
 
 router.route('/:reviewId')
     .get(reviewController.getReviewById)

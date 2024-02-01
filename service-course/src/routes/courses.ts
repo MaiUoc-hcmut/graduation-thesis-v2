@@ -5,7 +5,7 @@ const chaptersRouter = require("./chapters");
 
 const fileUpload = require('../config/firebase/fileUpload');
 
-const Authorize = require('../app/middleware/authrorize');
+const Authorize = require('../app/middleware/authorize');
 ///route chapter
 router.use("/chapters", chaptersRouter)
 
