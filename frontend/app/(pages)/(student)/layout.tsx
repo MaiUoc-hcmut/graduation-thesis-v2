@@ -13,11 +13,11 @@ export default function StudentLayout({
 
   return (
     <section className="">
-      <HeaderStudent />
+      {/* <HeaderStudent /> */}
       <Suspense fallback={<p>Loading data...</p>}>
         {children}
       </Suspense>
-      <Footer />
+      {/* <Footer /> */}
     </section>
   )
 }

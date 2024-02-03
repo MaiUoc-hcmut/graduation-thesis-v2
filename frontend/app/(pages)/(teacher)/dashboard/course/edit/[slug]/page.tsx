@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation'
 import { BasicInfomationForm } from "@/app/_components/Form/EditCourse/BasicInfomationForm"
 import { ContentForm } from "@/app/_components/Form/EditCourse/ContentForm"
 import { useForm } from "react-hook-form"
-import courseApi from "@/app/api/commentApi"
+import courseApi from "@/app/api/courseApi"
 import { useFieldArray } from "react-hook-form";
 
 
@@ -69,7 +69,7 @@ const INITIAL_DATA: CourseData = {
     ]
 }
 
-export default function EditCourse() {
+export default function EditCourse({ params }: { params: { slug: string } }) {
     const [data, setData] = useState(INITIAL_DATA)
     const [toggle, setToggle] = useState<any>({})
     const [typeSubmit, setTypeSubmit] = useState("")
@@ -91,6 +91,14 @@ export default function EditCourse() {
         getValues,
         formState: { errors },
     } = handleForm
+
+    useEffect(() => {
+        async function fetchCategory() {
+            await courseApi.get(params.slug).then((data: any) => setData(data.data))
+        }
+        fetchCategory()
+    }, [params.slug]);
+
 
     const router = useRouter()
     const { steps, step, isFirstStep, isLastStep, back, next, goTo } =

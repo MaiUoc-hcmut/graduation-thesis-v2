@@ -356,7 +356,7 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
 
                                                             <LectureCard
                                                                 chapter={chapter} lecture={lecture} index={index} indexLecture={indexLecture} innerRef={provided.innerRef} provided={provided} data={data} setData={setData} remove={remove}
-                                                                register={register} errors={errors} watch={watch} removeLecture={removeLecture} reset={reset}
+                                                                register={register} errors={errors} watch={watch} removeLecture={removeLecture} reset={reset} fieldsLecture={fieldsLecture}
                                                             />
                                                         )
                                                     }

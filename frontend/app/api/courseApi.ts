@@ -1,20 +1,20 @@
 import axiosConfig from "@/redux/axios.config"
 
 const courseApi = {
-    // getAllByTeacher: (params: Object) => {
-    //     const url = '/courses';
-    //     return axiosClient.get(url, { params });
-    // },
+    getAllByTeacher: (id_teacher: string) => {
+        const url = `/courses/teacher/${id_teacher}`;
+        return axiosConfig.get(url);
+    },
 
     // getAll: (params: Object) => {
     //     const url = '/courses';
     //     return axiosClient.get(url, { params });
     // },
 
-    // get: (id: string) => {
-    //     const url = `/courses/${id}`;
-    //     return axiosClient.get(url);
-    // },
+    get: (id: string) => {
+        const url = `/courses/full/${id}`;
+        return axiosConfig.get(url);
+    },
 
     // getFull: (id: string) => {
     //     const url = `/courses/${id}/all`;

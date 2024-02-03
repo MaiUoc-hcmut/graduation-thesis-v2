@@ -3,8 +3,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Bars3Icon } from '@heroicons/react/24/solid'
 import { ChevronDownIcon, ChevronUpIcon, Squares2X2Icon, FilmIcon } from '@heroicons/react/24/outline';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ReactPlayer from 'react-player'
+import courseApi from "@/app/api/courseApi"
+
+
 const chapters = [
     {
         id: "0",
@@ -39,10 +42,32 @@ const comments = [
         createdAt: `${new Date()}`
     }
 ]
-export default function LearningPage() {
+export default function LearningPage({ params }: { params: { slug: string } }) {
+    const [course, setCourse] = useState()
     const initToggle: any = {}
     const [toggle, setToggle] = useState(initToggle)
     const [tab, setTab] = useState(0)
+
+    useEffect(() => {
+        async function fetchCourse() {
+            await courseApi.get(params.slug).then((data: any) => {
+                setCourse(data.data)
+            }
+            )
+        }
+        fetchCourse()
+    }, []);
+
+    console.log(course);
+
+    let link
+    if (course) {
+        link = course?.chapters[0]?.lectures[0]?.video
+        console.log(link);
+    }
+
+
+
     function formatTime(time: string): string {
         const res = new Date(time)
         return res.toLocaleString('vi-VN')
@@ -99,10 +124,10 @@ export default function LearningPage() {
             </div>
             <div className='flex relative h-[calc(100vh-85px)] w-[calc(100%-373px)]  mt-24'>
                 <div className='flex-1'>
-                    <div className='flex bg-black p-4 bg-white h-full'>
+                    <div className='flex bg-black p-4 h-full'>
                         <div className='w-full rounded-xl'>
                             <div className='flex flex-col h-full'>
-                                <ReactPlayer width='100%' height='100%' controls={true} url='https://www.youtube.com/watch?v=xAVLqHfdMvQ' />
+                                <ReactPlayer width='100%' height='100%' controls={true} url={link} />
                             </div>
                         </div>
                     </div>
@@ -145,7 +170,7 @@ export default function LearningPage() {
                                         </div>
                                         <div className='flex-1 mr-4'>
                                             <form onSubmit={async (e: Event) => {
-                                                e.preventDefault()
+                                                // e.preventDefault()
 
                                                 // await commentApi.create(formData)
                                                 // setChangeData(!changeData)
@@ -236,7 +261,7 @@ export default function LearningPage() {
                         </div>
                     </div>
                 </div>
-                <div className='w-[373px] min-w-[373px] mt-24 h-full fixed right-0 top-0 border-l-[1px] shadow-sm border-[#f1f1f1]'>
+                {/* <div className='w-[373px] min-w-[373px] mt-24 h-full fixed right-0 top-0 border-l-[1px] shadow-sm border-[#f1f1f1]'>
                     <div className='text-left text-lg font-bold mx-4 py-2 mt-2 border-b-[1px] border-[#f1f1f1]'>
                         Nội dung
                     </div>
@@ -310,7 +335,7 @@ export default function LearningPage() {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> */}
             </div>
 
         </div >

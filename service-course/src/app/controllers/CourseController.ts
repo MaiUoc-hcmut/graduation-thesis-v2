@@ -165,7 +165,7 @@ class CourseController {
         try {
             const id_teacher = req.params.teacherId;
 
-            const courses = Course.findAll({
+            const courses = await Course.findAll({
                 where: { id_teacher }
             });
 
@@ -426,7 +426,7 @@ class CourseController {
             let body = req.body.data;
 
             body = JSON.parse(body);
-            
+
             let { chapters, categories, ...courseBody } = body;
 
             const courseId = req.params.courseId;
@@ -438,7 +438,7 @@ class CourseController {
             }
 
             if (categories !== undefined) {
-                
+
             }
 
             if (chapters !== undefined) {

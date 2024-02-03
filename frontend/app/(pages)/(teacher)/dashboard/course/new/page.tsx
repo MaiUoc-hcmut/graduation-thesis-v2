@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation'
 import { BasicInfomationForm } from "@/app/_components/Form/EditCourse/BasicInfomationForm"
 import { ContentForm } from "@/app/_components/Form/EditCourse/ContentForm"
 import { useForm } from "react-hook-form"
-// import courseApi from "@/app/api/courseApi"
+import courseApi from "@/app/api/courseApi"
 import { createCourse } from "@/redux/features/courseSlice"
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@/redux/store";
@@ -76,9 +76,10 @@ export default function CreateCourse() {
     const [typeSubmit, setTypeSubmit] = useState("")
     const [currentStepIndex, setCurrentStepIndex] = useState(0)
 
+
+
     const dispatch = useDispatch<AppDispatch>();
 
-    const { isCreateSuccess, isCreateFailed, message } = useAppSelector(state => state.documentReducer);
 
     const handleForm = useForm<CourseData>(
         {
@@ -159,29 +160,29 @@ export default function CreateCourse() {
                         data1.categories.push(dataForm.level)
 
 
-                        console.log('submit', dataForm, errors, typeSubmit == "submit");
-
-                        const formData = new FormData();
-
-                        formData.append("data", JSON.stringify(data1))
-                        formData.append("thumbnail", dataForm.thumbnail[0])
-                        formData.append("cover", dataForm.cover[0])
-
-                        console.log(formData.get("thumbnail"));
+                        console.log('submit', dataForm, data);
 
 
-                        dataForm.chapters.map((chapter: ChapterData, indexChapter: number) => {
-                            chapter.lectures.map((lecture: LectureData, indexLecture: number) => {
-                                formData.append("video", lecture.link_video[0], `${indexChapter + 1}-${indexLecture + 1}-${lecture.link_video[0]?.name}`)
-                            })
-                        })
 
                         if (!isLastStep) return next()
 
 
                         if (typeSubmit === "submit") {
+                            const formData = new FormData();
+
+                            formData.append("data", JSON.stringify(data1))
+                            formData.append("thumbnail", dataForm.thumbnail[0])
+                            formData.append("cover", dataForm.cover[0])
+
+                            // dataForm.chapters.map((chapter: ChapterData, indexChapter: number) => {
+                            //     chapter.lectures.map((lecture: LectureData, indexLecture: number) => {
+                            //         if (lecture.link_video.length != 0) {
+                            //             formData.append("video", lecture.link_video[0], `${indexChapter + 1}-${indexLecture + 1}-${lecture.link_video[0]?.name}`)
+                            //         }
+                            //     })
+                            // })
                             // courseApi.create(formData)
-                            dispatch(createCourse(formData))
+                            // dispatch(createCourse(formData))
                         }
                         // router.push("/teacher/course")
                     })
