@@ -36,7 +36,18 @@ class ReviewController {
                 where: { id_teacher: req.params.teacherId }
             });
 
-            res.status(200).json(reviews);
+            let totalRating = 0;
+
+            for (const review of reviews) {
+                totalRating += review.rating;
+            }
+
+            let response = {
+                reviews,
+                averageRating: totalRating / reviews.length
+            }
+
+            res.status(200).json(response);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
@@ -50,7 +61,18 @@ class ReviewController {
                 where: { id_course: req.params.courseId }
             });
 
-            res.status(200).json(reviews);
+            let totalRating = 0;
+
+            for (const review of reviews) {
+                totalRating += review.rating;
+            }
+
+            let response = {
+                reviews,
+                averageRating: totalRating / reviews.length
+            }
+
+            res.status(200).json(response);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
@@ -64,7 +86,18 @@ class ReviewController {
                 where: { id_exam: req.params.examId }
             });
 
-            res.status(200).json(reviews);
+            let totalRating = 0;
+
+            for (const review of reviews) {
+                totalRating += review.rating;
+            }
+
+            let response = {
+                reviews,
+                averageRating: totalRating / reviews.length
+            }
+
+            res.status(200).json(response);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
@@ -92,7 +125,18 @@ class ReviewController {
                 where: { id_student: req.params.studentId }
             });
 
-            res.status(200).json(reviews);
+            let totalRating = 0;
+
+            for (const review of reviews) {
+                totalRating += review.rating;
+            }
+
+            let response = {
+                reviews,
+                averageRating: totalRating / reviews.length
+            }
+
+            res.status(200).json(response);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });

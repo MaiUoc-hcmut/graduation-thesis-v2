@@ -140,16 +140,16 @@ class CourseController {
     // [GET] /courses/filter
     getCourseFilterByCategory = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const { categories } = req.body;
+            const categories = Object.values(req.query);
 
-            const course = await Course.findAll({
+            const courses = await Course.findAll({
                 include: [
                     {
                         model: Category,
                         where: {
                             id: categories
                         },
-                        attributes: ['name'],
+                        attributes: ['name', 'id'],
                         through: {
                             attributes: []
                         }
@@ -157,7 +157,12 @@ class CourseController {
                 ]
             });
 
-            res.status(200).json(course);
+            const filteredCourses = courses.filter((course: any) => {
+                const courseCategoryIds = course.Categories.map((category: any) => category.id);
+                return categories.every(categoryId => courseCategoryIds.includes(categoryId));
+            });
+
+            res.status(200).json(filteredCourses);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
