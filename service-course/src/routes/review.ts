@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const reviewController = require("../app/controllers/ReviewController");
-const Authorize = require('../app/middleware/teacherAuth');
+const Authorize = require('../app/middleware/authorize');
 
 router.route('/')
-    .get(Authorize.protectedAPI, reviewController.getAllReviews)
-    .post(reviewController.createReview);
+    .get(reviewController.getAllReviews)
+    .post(Authorize.verifyStudent, reviewController.createReview);
 
 router.route('/:reviewId')
     .get(reviewController.getReviewById)

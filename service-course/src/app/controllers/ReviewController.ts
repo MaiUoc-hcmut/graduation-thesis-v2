@@ -102,7 +102,7 @@ class ReviewController {
     // [POST] /reviews
     createReview = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const id_student = req.teacher.data.id;
+            const id_student = req.student.data.id;
             const body = req.body.data;
 
             const newReview = await Review.create({

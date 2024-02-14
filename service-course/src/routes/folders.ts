@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const FolderController = require('../app/controllers/FolderController');
-const Authorize = require('../app/middleware/teacherAuth');
+const Authorize = require('../app/middleware/authorize');
 
 // router.route('/')
 //     .get(FolderController.getAllFolders);
@@ -20,14 +20,14 @@ router.route('/create/:parentId')
     .post(Authorize.protectedAPI, FolderController.createFolder);
 
 router.route('/copy')
-    .post(Authorize.protectedAPI, FolderController.copyFolder);
+    .post(Authorize.authorizeTeacher, FolderController.copyFolder);
 router.route('/copy/:parentId')
-    .post(Authorize.protectedAPI, FolderController.copyFolder);
+    .post(Authorize.authorizeTeacher, FolderController.copyFolder);
 
 router.route('/update/:folderId')
-    .put(Authorize.protectedAPI, FolderController.updateFolder);
+    .put(Authorize.authorizeTeacher, FolderController.updateFolder);
 
 router.route('/delete/:folderId')
-    .delete(Authorize.protectedAPI, FolderController.deleteFolder);
+    .delete(Authorize.authorizeTeacher, FolderController.deleteFolder);
     
 module.exports = router;

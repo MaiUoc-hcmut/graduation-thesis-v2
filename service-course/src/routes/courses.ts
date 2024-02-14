@@ -5,7 +5,7 @@ const chaptersRouter = require("./chapters");
 
 const fileUpload = require('../config/firebase/fileUpload');
 
-const Authorize = require('../app/middleware/teacherAuth');
+const Authorize = require('../app/middleware/authorize');
 ///route chapter
 router.use("/chapters", chaptersRouter)
 
@@ -18,16 +18,20 @@ router.route('/')
         courseController.uploadLectureVideo, 
         courseController.createCourse)
 
+
+router.route('/filter')
+    .get(courseController.getCourseFilterByCategory);
+
 router.route('/:courseId')
     .get(courseController.getCourseById)
-    .put(courseController.updateCourse)
-    .delete(courseController.deleteCourse);
+    .put(Authorize.authorizeTeacher, courseController.updateCourse)
+    .delete(Authorize.authorizeTeacher, courseController.deleteCourse);
 
 router.route('/full/:courseId')
     .get(courseController.getAllDetailCourse);
 
 router.route('/teacher/:teacherId')
-    .get(Authorize.AuthGetCourseCreatedByTeacher, courseController.getCourseCreatedByTeacher);
+    .get(Authorize.authorizeTeacher, courseController.getCourseCreatedByTeacher);
 router.post("/test", fileUpload.uploadCourseFiles, courseController.test);
 
 

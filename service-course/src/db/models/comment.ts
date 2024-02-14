@@ -14,6 +14,9 @@ Comment.init(
       defaultValue: UUIDV4,
       primaryKey: true,
     },
+    id_parent: {
+      type: DataTypes.UUID
+    },
     id_lecture: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -21,6 +24,10 @@ Comment.init(
     id_user: {
       type: DataTypes.UUID,
       allowNull: false,
+    },
+    role: {
+      type: DataTypes.STRING,
+      defaultValue: "student",
     },
     content: {
       type: DataTypes.STRING(1000),

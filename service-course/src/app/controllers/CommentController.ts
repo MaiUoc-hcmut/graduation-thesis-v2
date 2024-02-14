@@ -17,7 +17,8 @@ const storage = getStorage();
 declare global {
     namespace Express {
         interface Request {
-            ImageUrl: string
+            ImageUrl: string;
+            user?: USER
         }
     
     }
@@ -25,7 +26,7 @@ declare global {
 
 class CommentController {
     // [GET] /comments
-    getAllComment = async (_req: Request, res: Response, next: NextFunction) => {
+    getAllComment = async (_req: Request, res: Response, _next: NextFunction) => {
         try {
             const comments = await Comment.findAll();
 
@@ -37,7 +38,7 @@ class CommentController {
     }
 
     // [GET] /comments/:commentId
-    getCommentById = async (req: Request, res: Response, next: NextFunction) => {
+    getCommentById = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const comment = await Comment.findByPk(req.params.commentId);
 
@@ -53,7 +54,7 @@ class CommentController {
     // [GET] /comments/lecture/:lectureId
     getCommentBelongToLecture = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const comments = Comment.findAll({
+            const comments = await Comment.findAll({
                 where: { id_lecture: req.params.lectureId }
             });
 
@@ -64,18 +65,34 @@ class CommentController {
         }
     }
 
+    // [GET] /comments/student/:studentId
+    getCommentCreatedByStudent = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const comments = await Comment.findAll({
+                where: {  }
+            });
+
+            res.status(200).json(comments);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error });
+        }
+    }
+
     // [POST] /comments/create
-    createComment = async (req: Request, res: Response, next: NextFunction) => {
+    createComment = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const data = req.body.data;
 
-            const id_user = req.teacher.data.id;
+            const id_user = req.user?.user.data.id;
+            const role = req.user?.role;
 
             const newComment = await Comment.create({
                 id_user,
-                ...data
+                ...data,
+                role
             });
-
+            
             res.status(201).json(newComment);
         } catch (error: any) {
             console.log(error.message);
