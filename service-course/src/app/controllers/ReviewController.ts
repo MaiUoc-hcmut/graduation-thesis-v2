@@ -104,6 +104,7 @@ class ReviewController {
         try {
             const id_student = req.student.data.id;
             const body = req.body.data;
+            console.log(req.body);
 
             const newReview = await Review.create({
                 id_student,
@@ -123,24 +124,24 @@ class ReviewController {
 
             if (file) {
                 const dateTime = fileUpload.giveCurrentDateTime();
-    
+
                 const storageRef = ref(
                     storage,
                     `reviews/${file?.originalname + '       ' + dateTime}`
                 );
-    
+
                 // Create file metadata including the content type
                 const metadata = {
                     contentType: file?.mimetype,
                 };
-    
+
                 // Upload the file in the bucket storage
                 const snapshot = await uploadBytesResumable(
                     storageRef,
                     file?.buffer,
                     metadata
                 );
-    
+
                 // Grab the public url
                 const downloadURL = await getDownloadURL(snapshot.ref);
                 req.ImageUrl = downloadURL;

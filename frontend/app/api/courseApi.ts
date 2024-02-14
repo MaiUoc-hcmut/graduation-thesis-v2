@@ -36,6 +36,18 @@ const courseApi = {
     //     const url = `/courses/${id}`;
     //     return axiosClient.delete(url);
     // },
+
+    createReview: async (data: object) => {
+        const url = `/reviews`;
+
+        await axiosConfig.post(url, data);
+        return
+    },
+
+    getReview: (id: string) => {
+        const url = `/reviews/course/${id}`;
+        return axiosConfig.get(url);
+    },
 }
 
 export default courseApi;

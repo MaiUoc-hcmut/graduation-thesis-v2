@@ -25,12 +25,11 @@ instance.interceptors.request.use(
             if (
                 config.url.indexOf('/document') >= 0 ||
                 config.url.indexOf('/courses') >= 0 ||
-                config.url.indexOf('/chapter') >= 0 ||
-                config.url.indexOf('/lecture') >= 0 ||
+                config.url.indexOf('/reviews') >= 0 ||
                 config.url.indexOf('/folder') >= 0
             ) {
                 config.baseURL = 'http://localhost:4001/api/v1';
-                config.headers['Content-Type'] = 'multipart/form-data';
+                // config.headers['Content-Type'] = 'multipart/form-data';
             }
 
             // if (
@@ -87,6 +86,18 @@ instance.interceptors.request.use(
         return Promise.reject(error);
     }
 )
+
+// instance.interceptors.response.use((response) => {
+//     if (response && response.data) {
+//         return response.data;
+//     }
+
+//     return response;
+// }, (error) => {
+//     // Handle errors
+//     throw error;
+// });
+
 
 export const setAuthToken = async (token: string) => {
     if (token) {

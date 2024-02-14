@@ -2,50 +2,61 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon, CheckIcon } from '@heroicons/react/24/outline'
 import { ChevronDownIcon, ChevronUpIcon, StarIcon } from '@heroicons/react/20/solid'
-const chapters = [
-    {
-        id: 1
-    }
-]
-const reviews = [
-    {
-        id: 1,
-        text: "sadf",
-        rating: 4,
-        author: "ADfs"
-    },
-    {
-        id: 2,
-        text: "sadf",
-        rating: 4,
-        author: "ADfs"
-    },
-    {
-        id: 3,
-        text: "sadf",
-        rating: 4,
-        author: "ADfs"
-    },
-]
+import courseApi from '@/app/api/courseApi';
+import { useForm, SubmitHandler } from "react-hook-form"
+
+type Review = {
+    content: string
+    rating: number
+}
 
 
-export default function CourseDetail() {
+export default function CourseDetail({ params }: { params: { slug: string } }) {
     const [tab, setTab] = useState(1)
     const [toggle, setToggle] = useState<any>({})
 
+    const [reviews, setReviews] = useState([]);
+    const [changeData, setChangeData] = useState(false);
+    const [course, setCourse] = useState({});
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');
     const [hoverRating, setHoverRating] = useState(0);
 
+    function formatTime(time: string): string {
+        const res = new Date(time)
+        return res.toLocaleString('vi-VN')
+    }
+
+
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors },
+    } = useForm<Review>()
+
+    useEffect(() => {
+        async function fetchData() {
+            await courseApi.get(params.slug).then((data: any) => {
+                setCourse(data.data)
+            }
+            )
+            await courseApi.getReview(params.slug).then((data: any) => {
+                setReviews(data.data)
+            }
+            )
+        }
+        fetchData()
+    }, [changeData])
+    reviews.sort(function (a, b) { return Date.parse(b.createdAt) - Date.parse(a.createdAt) })
+    console.log(course, reviews);
+
+
     const handleHover = (hoverRating: any) => {
         setHoverRating(hoverRating);
-    };
-
-    const handleClick = () => {
-        // onSubmit({ rating, comment });
     };
 
     const renderStars = (rating: number) => {
@@ -60,19 +71,17 @@ export default function CourseDetail() {
         }
         return stars;
     };
-    console.log(rating, 123);
-
 
     return (
         <div className="">
             <div className="relative h-[530px] block overflow-hidden">
                 <Image
-                    src="/images/course-cover-1.jpg"
+                    src={`${course?.cover_image ? course?.cover_image : '/images/logo.png'}`}
                     fill={true}
                     className='w-full h-full absolute top-0 left-0 object-cover object-center'
                     alt="logo"
                 />
-                <div className='pt-10 h-full w-full'>
+                <div className='h-full w-full'>
                     <div className="relative z-0 after:content-['*'] after:absolute after:top-0 after:left-0 after:right-0 after:bottom-0 after:bg-black after:opacity-60 after:h-[530px]"></div>
                 </div>
             </div>
@@ -81,7 +90,7 @@ export default function CourseDetail() {
                     <div className='px-4 w-2/3 flex flex-col'>
                         <div className=''>
                             <h1 className='font-black text-3xl text-white h-22 ovet text-ellipsis overflow-hidden'>
-                                Toán 12
+                                {course?.name}
                             </h1>
                             <div className="flex items-center mt-10">
                                 <StarIcon className="w-5- h-5 text-[#ffc600] mr-[3px]" />
@@ -178,7 +187,7 @@ export default function CourseDetail() {
                                 </div>
                                 <div className={`${tab == 2 ? '' : 'hidden'}`}>
                                     <ul>
-                                        {chapters.map((chapter) => {
+                                        {course?.chapters?.map((chapter) => {
                                             return (
                                                 <li key={chapter.id} className='bg-white py-3 pl-[20px] pr-6 rounded-lg mb-5 list-none border-[1px] border-[#ececec]'>
                                                     <div className='flex items-center justify-between'>
@@ -189,11 +198,11 @@ export default function CourseDetail() {
                                                                 </span>
                                                                 <div>
                                                                     <span className="font-bold text-[rgb(23,19,71)] text-base">
-                                                                        Chương 1: Đạo hàm
+                                                                        {chapter.name}
                                                                     </span>
                                                                     <span className="font-normal text-[818894] text-xs flex">
-                                                                        3 chủ đề
-                                                                        | 0:00 giờ
+                                                                        {course?.chapters?.length} chủ đề
+                                                                        | {chapter.totalDuration} giờ
                                                                     </span>
                                                                 </div>
                                                             </div>
@@ -220,38 +229,28 @@ export default function CourseDetail() {
                                                         </div>
                                                     </div>
                                                     <ul className={`${toggle[`open_chapter_${chapter.id}`] ? '' : 'hidden'} mt-4 pt-8 border-t-[1px] border-[#ececec]`}>
-                                                        <li key={chapter.id} className='bg-white py-3 pl-[20px] pr-6 rounded-lg mb-5 list-none border-[1px] border-[#ececec]'>
-                                                            <div className='flex items-center justify-between'>
-                                                                <div className="flex justify-between items-center">
-                                                                    <div className="flex justify-center items-center">
-                                                                        <span className='mr-3 bg-[#ececec] w-10 h-10 rounded-full flex justify-center items-center'>
-                                                                            <FilmIcon className='w-4 h-4' />
-                                                                        </span>
-                                                                        <span className="font-bold text-[rgb(23,19,71)] text-base">
-                                                                            Bài giảng 1: Đạo hàm
-                                                                        </span>
+                                                        {
+                                                            chapter.lectures?.map((lecture) => {
+                                                                return (
+                                                                    <li key={lecture.id} className='bg-white py-3 pl-[20px] pr-6 rounded-lg mb-5 list-none border-[1px] border-[#ececec]'>
+                                                                        <div className='flex items-center justify-between'>
+                                                                            <div className="flex justify-between items-center">
+                                                                                <div className="flex justify-center items-center">
+                                                                                    <span className='mr-3 bg-[#ececec] w-10 h-10 rounded-full flex justify-center items-center'>
+                                                                                        <FilmIcon className='w-4 h-4' />
+                                                                                    </span>
+                                                                                    <span className="font-bold text-[rgb(23,19,71)] text-base">
+                                                                                        {lecture.name}
+                                                                                    </span>
 
-                                                                    </div>
-                                                                </div>
+                                                                                </div>
+                                                                            </div>
 
-                                                            </div>
-                                                        </li>
-                                                        <li key={chapter.id} className='bg-white py-3 pl-[20px] pr-6 rounded-lg mb-5 list-none border-[1px] border-[#ececec]'>
-                                                            <div className='flex items-center justify-between'>
-                                                                <div className="flex justify-between items-center">
-                                                                    <div className="flex justify-center items-center">
-                                                                        <span className='mr-3 bg-[#ececec] w-10 h-10 rounded-full flex justify-center items-center'>
-                                                                            <FilmIcon className='w-4 h-4' />
-                                                                        </span>
-                                                                        <span className="font-bold text-[rgb(23,19,71)] text-base">
-                                                                            Bài giảng 1: Đạo hàm
-                                                                        </span>
-
-                                                                    </div>
-                                                                </div>
-
-                                                            </div>
-                                                        </li>
+                                                                        </div>
+                                                                    </li>
+                                                                )
+                                                            })
+                                                        }
                                                     </ul>
                                                 </li>
                                             )
@@ -345,9 +344,24 @@ export default function CourseDetail() {
                                     </div>
                                     <div className='mt-10'>
                                         <div className="text-[#171347] font-bold flex items-center after:content-[''] after:flex after:grow after:shrink after:basis-4 after:h-[2px] after:ml-[10px] after:bg-[#f1f1f1]">
-                                            Đánh giá (5)
+                                            Đánh giá ({reviews.length})
                                         </div>
-                                        <div className="flex flex-col items-start mt-5">
+                                        <form onSubmit={handleSubmit(async (dataReview) => {
+                                            console.log(dataReview);
+
+                                            const formData = {
+                                                data: {
+                                                    ...dataReview,
+                                                    "id_course": "3680824d-f68a-4ea7-9430-b9150006a04a",
+                                                    rating
+                                                }
+                                            }
+                                            await courseApi.createReview(formData)
+                                            reset()
+                                            setRating(0)
+                                            setChangeData(!changeData)
+
+                                        })} className="flex flex-col items-start mt-5">
                                             <div className=''>
                                                 <div className='flex items-center mb-4'>
                                                     <div className=''>
@@ -380,51 +394,51 @@ export default function CourseDetail() {
                                             </div>
                                             <textarea
                                                 placeholder="Nhập đánh giá của bạn..."
-                                                value={comment}
-                                                onChange={(e) => setComment(e.target.value)}
+                                                {...register("content", { required: true })}
                                                 className="w-full p-2 border rounded focus:ring-0 focus:border-primary_border"
                                                 rows={4}
                                             ></textarea>
                                             <button
-                                                type="button"
-                                                onClick={handleClick}
+                                                type="submit"
+
                                                 className="mt-3 px-4 py-2 bg-primary text-white rounded hover:bg-primary_hover"
                                             >
                                                 Đánh giá
                                             </button>
-                                        </div>
+                                        </form>
                                         <div className='mt-12'>
-                                            {reviews.map((review) => (
-                                                <div key={review.id} className="bg-white px-4 py-4 mb-5 border rounded-lg shadow-md">
-                                                    <div className='flex items-center justify-between'>
-                                                        <div className='flex items-center mt-2'>
+                                            {
+                                                reviews.map((review) => (
+                                                    <div key={review.id} className="bg-white px-4 py-4 mb-5 border rounded-lg shadow-md">
+                                                        <div className='flex items-center justify-between'>
+                                                            <div className='flex items-center mt-2'>
+                                                                <div>
+                                                                    <Image
+                                                                        src="/images/avatar.png"
+                                                                        width={40}
+                                                                        height={40}
+                                                                        className='w-10 h-10 rounded-full'
+                                                                        alt="logo"
+                                                                    />
+                                                                </div>
+                                                                <div className='flex flex-col ml-2'>
+                                                                    <span className='font-medium text-secondary'>
+                                                                        Việt Lê
+                                                                    </span>
+                                                                    <div className="flex justify-center items-center">{renderStars(review.rating)}</div>
+                                                                </div>
+                                                            </div>
                                                             <div>
-                                                                <Image
-                                                                    src="/images/avatar.png"
-                                                                    width={40}
-                                                                    height={40}
-                                                                    className='w-10 h-10 rounded-full'
-                                                                    alt="logo"
-                                                                />
-                                                            </div>
-                                                            <div className='flex flex-col ml-2'>
-                                                                <span className='font-medium text-secondary'>
-                                                                    Việt Lê
+                                                                <span className='text-[#818894] text-sm'>
+                                                                    {formatTime(review.createdAt)}
                                                                 </span>
-                                                                <div className="flex justify-center items-center">{renderStars(review.rating)}</div>
                                                             </div>
                                                         </div>
-                                                        <div>
-                                                            <span className='text-[#818894] text-sm'>
-                                                                22 Jun 2022 | 01:26
-                                                            </span>
+                                                        <div className='text-[#818894] mt-4 font-normal'>
+                                                            {review.content}
                                                         </div>
                                                     </div>
-                                                    <div className='text-[#818894] mt-4 font-normal'>
-                                                        khóa học quá hay
-                                                    </div>
-                                                </div>
-                                            ))}
+                                                ))}
                                         </div>
                                     </div>
                                 </div>
@@ -435,7 +449,7 @@ export default function CourseDetail() {
                         <div className='rounded-2xl shadow-card_course pb-8'>
                             <div className='h-[200px] relative'>
                                 <Image
-                                    src="/images/cousre-thumnail-1.jpg"
+                                    src={`${course?.thumbnail ? course?.thumbnail : '/images/logo.png'}`}
                                     fill={true}
                                     className='w-full h-full overflow-hidden object-center object-cover rounded-tl-2xl rounded-tr-2xl'
                                     alt="logo"
@@ -443,7 +457,7 @@ export default function CourseDetail() {
                             </div>
                             <div className='px-5'>
                                 <div className='flex items-center justify-center mt-5'>
-                                    <span className='text-3xl text-primary font-bold'>Miễn phí</span>
+                                    <span className='text-3xl text-primary font-bold'>{course?.price}0.000 VNĐ</span>
                                 </div>
                                 <div className='mt-5 flex flex-col'>
                                     <Link href="" className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Mua khóa học</Link>
