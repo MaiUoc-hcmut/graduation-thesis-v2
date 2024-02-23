@@ -120,6 +120,7 @@ class CourseController {
             if (!course) return res.status(404).json({ message: "Course does not exist" });
 
             let totalCourseDuration = 0;
+            let totalLectures = 0;
             course.chapters.forEach((chapter: any) => {
                 let totalChapterDuration = 0;
                 chapter.lectures.forEach((lecture: any) => {
@@ -127,8 +128,10 @@ class CourseController {
                 });
                 chapter.dataValues.totalDuration = totalChapterDuration;
                 totalCourseDuration += totalChapterDuration;
+                totalLectures += chapter.lectures.length;
             });
             course.dataValues.totalDuration = totalCourseDuration;
+            course.dataValues.totalLectures = totalLectures;
 
             res.status(200).json(course);
         } catch (error: any) {

@@ -37,14 +37,26 @@ class ReviewController {
             });
 
             let totalRating = 0;
+            let starCount: { [key: number]: number } = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
 
             for (const review of reviews) {
                 totalRating += review.rating;
+                starCount[review.rating]++;
+            }
+
+            let starDetails: { [key: string]: { quantity: number, percentage: number } } = {};
+
+            for (let i = 1; i <= 5; i++) {
+                starDetails[`${i}star`] = {
+                    quantity: starCount[i],
+                    percentage: (starCount[i] / reviews.length) * 100
+                };
             }
 
             let response = {
                 reviews,
-                averageRating: totalRating / reviews.length
+                averageRating: totalRating / reviews.length,
+                starDetails
             }
 
             res.status(200).json(response);
@@ -62,14 +74,26 @@ class ReviewController {
             });
 
             let totalRating = 0;
+            let starCount: { [key: number]: number } = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
 
             for (const review of reviews) {
                 totalRating += review.rating;
+                starCount[review.rating]++;
+            }
+
+            let starDetails: { [key: string]: { quantity: number, percentage: number } } = {};
+
+            for (let i = 1; i <= 5; i++) {
+                starDetails[`${i}star`] = {
+                    quantity: starCount[i],
+                    percentage: (starCount[i] / reviews.length) * 100
+                };
             }
 
             let response = {
                 reviews,
-                averageRating: totalRating / reviews.length
+                averageRating: totalRating / reviews.length,
+                starDetails
             }
 
             res.status(200).json(response);
@@ -87,14 +111,26 @@ class ReviewController {
             });
 
             let totalRating = 0;
+            let starCount: { [key: number]: number } = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
 
             for (const review of reviews) {
                 totalRating += review.rating;
+                starCount[review.rating]++;
+            }
+
+            let starDetails: { [key: string]: { quantity: number, percentage: number } } = {};
+
+            for (let i = 1; i <= 5; i++) {
+                starDetails[`${i}star`] = {
+                    quantity: starCount[i],
+                    percentage: (starCount[i] / reviews.length) * 100
+                };
             }
 
             let response = {
                 reviews,
-                averageRating: totalRating / reviews.length
+                averageRating: totalRating / reviews.length,
+                starDetails
             }
 
             res.status(200).json(response);
