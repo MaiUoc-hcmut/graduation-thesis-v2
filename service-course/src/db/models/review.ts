@@ -1,6 +1,8 @@
 const { sequelize } = require('../../config/db');
 import { Model, DataTypes } from 'sequelize';
 
+const Course = require('./course');
+
 class Review extends Model {}
 
 Review.init(
@@ -38,4 +40,11 @@ Review.init(
     }
 );
 
+Review.belongsTo(Course, {
+    foreignKey: 'id_course'
+});
+
+Course.hasMany(Review, {
+    foreignKey: 'id_course'
+});
 module.exports = Review;
