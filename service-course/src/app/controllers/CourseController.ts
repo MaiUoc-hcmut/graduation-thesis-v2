@@ -2,6 +2,7 @@ const Course = require('../../db/models/course');
 const Chapter = require('../../db/models/chapter');
 const Lecture = require('../../db/models/lecture');
 const Category = require('../../db/models/category');
+const Review = require('../../db/models/review');
 
 import { Request, Response, NextFunction } from 'express';
 
@@ -66,7 +67,17 @@ class CourseController {
     // [GET] /courses
     getAllCourse = async (_req: Request, res: Response, _next: NextFunction) => {
         try {
-            const courses = await Course.findAll();
+            const courses = await Course.findAll({
+                include: [
+                    {
+                        model: Category,
+                        attributes: ['name'],
+                        through: {
+                            attributes: []
+                        }
+                    }
+                ]
+            });
 
             res.status(200).json(courses)
         } catch (error: any) {
@@ -120,6 +131,7 @@ class CourseController {
             if (!course) return res.status(404).json({ message: "Course does not exist" });
 
             let totalCourseDuration = 0;
+            let totalLectures = 0;
             course.chapters.forEach((chapter: any) => {
                 let totalChapterDuration = 0;
                 chapter.lectures.forEach((lecture: any) => {
@@ -127,8 +139,10 @@ class CourseController {
                 });
                 chapter.dataValues.totalDuration = totalChapterDuration;
                 totalCourseDuration += totalChapterDuration;
+                totalLectures += chapter.lectures.length;
             });
             course.dataValues.totalDuration = totalCourseDuration;
+            course.dataValues.totalLectures = totalLectures;
 
             res.status(200).json(course);
         } catch (error: any) {
@@ -176,7 +190,20 @@ class CourseController {
             const id_teacher = req.params.teacherId;
 
             const courses = await Course.findAll({
-                where: { id_teacher }
+                where: { id_teacher },
+                include: [
+                    {
+                        model: Category,
+                        attributes: ['name'],
+                        through: {
+                            attributes: []
+                        }
+                    },
+                    {
+                        model: Review,
+                        attributes: [[sequelize.fn('AVG', sequelize.col('rating')), 'averageRating']]
+                    }
+                ]
             });
 
             res.status(200).json(courses)

@@ -1,6 +1,8 @@
 const { sequelize } = require('../../config/db');
 import { Model, DataTypes } from 'sequelize';
 
+const Course = require('./course');
+
 class Review extends Model {}
 
 Review.init(
@@ -17,12 +19,12 @@ Review.init(
         id_teacher: DataTypes.UUID,
         id_course: DataTypes.UUID,
         id_exam: DataTypes.UUID,
-        content: {
-            type: DataTypes.STRING(1000),
-            allowNull: false
-        },
+        content: DataTypes.STRING(1000),
         image: DataTypes.STRING(255),
-        rating: DataTypes.FLOAT.UNSIGNED,
+        rating: {
+            type: DataTypes.FLOAT.UNSIGNED,
+            allowNull: false,
+        },
         createdAt: {
             type: DataTypes.DATE,
             allowNull: false,
@@ -38,4 +40,11 @@ Review.init(
     }
 );
 
+Review.belongsTo(Course, {
+    foreignKey: 'id_course'
+});
+
+Course.hasMany(Review, {
+    foreignKey: 'id_course'
+});
 module.exports = Review;
