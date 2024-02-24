@@ -2,13 +2,17 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import FlowbiteClient from './_components/Flowbite/FlowbiteClient'
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { fab } from '@fortawesome/free-brands-svg-icons'
-import { fas } from '@fortawesome/free-solid-svg-icons'
-import { far } from '@fortawesome/free-regular-svg-icons'
 import { Suspense } from 'react'
+// import { library } from '@fortawesome/fontawesome-svg-core'
+// import { fab } from '@fortawesome/free-brands-svg-icons'
+// import { fas } from '@fortawesome/free-solid-svg-icons'
+// import { far } from '@fortawesome/free-regular-svg-icons'
 
 import { ReduxProvider } from '@/redux/provider';
+
+
+import { registerLicense } from '@syncfusion/ej2-base';
+registerLicense('Ngo9BigBOggjHTQxAR8/V1NAaF1cXmhLYVF/WmFZfVpgdV9CaVZVQmYuP1ZhSXxXdkdhW39fdH1RQGVdUkI=');
 
 export const metadata: Metadata = {
   title: 'Study365',
@@ -39,4 +43,4 @@ export default function RootLayout({
   )
 }
 
-library.add(fab, fas, far)
+// library.add(fab, fas, far)

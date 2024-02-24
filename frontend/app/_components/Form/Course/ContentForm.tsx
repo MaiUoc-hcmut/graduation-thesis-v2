@@ -30,10 +30,10 @@ export function ContentForm({
         getValues,
         formState: { errors },
     } = handleForm
-    const [chaptersData, setChaptersData] = useState(data.chapters ? data.chapters : [])
+    const [chaptersData, setChaptersData] = useState(data?.chapters ? data.chapters : [])
 
     useEffect(() => {
-        setChaptersData(data.chapters ? data.chapters : [])
+        setChaptersData(data?.chapters ? data.chapters : [])
     }, [data]);
 
 
@@ -150,7 +150,7 @@ export function ContentForm({
 
             <div className="mt-8">
                 {
-                    data.chapters?.length == 0 ?
+                    data?.chapters?.length == 0 ?
                         <div>
                             <div className="mt-12 flex flex-col items-center justify-center">
                                 <div className="w-[175px] h-[175px] rounded-full" style={{

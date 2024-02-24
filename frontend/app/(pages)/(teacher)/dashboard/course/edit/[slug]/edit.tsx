@@ -4,17 +4,11 @@ import Image from "next/image"
 import Link from "next/link"
 import { FormEvent, useEffect, useState } from "react"
 import { useMultistepForm } from "@/app/hooks/useMultiStep"
-import { useRouter } from 'next/navigation'
 import { BasicInfomationForm } from "@/app/_components/Form/Course/BasicInfomationForm"
 import { ContentForm } from "@/app/_components/Form/Course/ContentForm"
 import { useForm } from "react-hook-form"
 import courseApi from "@/app/api/courseApi"
-import { createCourse } from "@/redux/features/courseSlice"
-import { useDispatch } from "react-redux";
-import { AppDispatch, useAppSelector } from "@/redux/store";
-import { DetailsView, FileManagerComponent, NavigationPane, Toolbar, Inject } from '@syncfusion/ej2-react-filemanager';
-import { registerLicense } from '@syncfusion/ej2-base';
-registerLicense('Ngo9BigBOggjHTQxAR8/V1NAaF1cXmhLYVF/WmFZfVpgdV9CaVZVQmYuP1ZhSXxXdkdhW39fdH1RQGVdUkI=');
+
 
 
 type CourseData = {
@@ -27,8 +21,8 @@ type CourseData = {
     description: string
     requirement: string
     price: string
-    thumbnail: Array<File>
-    cover: Array<File>
+    thumbnail: File
+    cover: File
     chapters: Array<ChapterData>
 }
 
@@ -48,63 +42,39 @@ type LectureData = {
 }
 
 
-const INITIAL_DATA: CourseData = {
-    name: "",
-    subject: "",
-    grade: "",
-    level: "",
-    goal: "",
-    requirement: "",
-    object: "",
-    price: "",
-    description: "",
-    thumbnail: [],
-    cover: [],
-    chapters: [
-        // {
-        //     id: `a`,
-        //     name: "",
-        //     status: true,
-        //     lectures: [{
-        //         name: "",
-        //         description: "",
-        //         status: true
-        //     }]
-        // }
-    ]
-}
-
-
-
-export default function CreateCourse() {
-    const [data, setData] = useState(INITIAL_DATA)
-    const [images, setImages] = useState()
+export default function Edit({ id, course }: any) {
+    const [data, setData] = useState()
     const [toggle, setToggle] = useState<any>({})
     const [typeSubmit, setTypeSubmit] = useState("")
     const [currentStepIndex, setCurrentStepIndex] = useState(0)
 
+    useEffect(() => {
+        async function fetchData() {
+            await courseApi.get(id).then((data: any) => setData(data.data))
+        }
+        fetchData()
+    }, []);
 
-    const dispatch = useDispatch<AppDispatch>();
-    console.log(images);
-
-
-    const handleForm = useForm<CourseData>(
+    const handleForm = useForm(
         {
-            defaultValues: data
+            defaultValues: course
         }
     )
 
     const {
+        getValues,
         handleSubmit,
         formState: { errors },
     } = handleForm
 
-    const router = useRouter()
     const { steps, step, isFirstStep, isLastStep, back, next, goTo } =
         useMultistepForm([
-            <BasicInfomationForm key={'step1'} handleForm={handleForm} images={images} setImages={setImages} />,
+            <BasicInfomationForm key={'step1'} handleForm={handleForm} />,
             <ContentForm key={'step2'} data={data} setData={setData} handleForm={handleForm} toggle={toggle} setToggle={setToggle} typeSubmit={typeSubmit} setTypeSubmit={setTypeSubmit} />,
         ], currentStepIndex, setCurrentStepIndex)
+
+    console.log(data, getValues());
+
 
     return (
         < div className="" >
@@ -145,12 +115,7 @@ export default function CreateCourse() {
                         </div>
                     </div>
                 </div>
-            </form>
-
-            {/* <FileManagerComponent id="file" view="LargeIcons" ={fileManagerSettinsettingsgs}>
-                <Inject services={[NavigationPane, DetailsView, Toolbar]} />
-            </FileManagerComponent> */}
-
+            </form >
             <div className="flex flex-col ">
                 <form onSubmit={
                     handleSubmit(async (dataForm: any) => {
@@ -158,38 +123,21 @@ export default function CreateCourse() {
                         setToggle({ ...toggle, [`${typeSubmit}`]: false })
                         setData(dataForm)
 
-                        const { thumbnail, cover, ...data1 } = dataForm
-                        data1.categories = []
+                        console.log('submit', dataForm, errors);
 
-                        data1.categories.push(dataForm.grade)
-                        data1.categories.push(dataForm.subject)
-                        data1.categories.push(dataForm.level)
+                        const formData = new FormData();
+                        // console.log(formData.get("file"));
 
-
-                        console.log('submit', dataForm, data, typeSubmit);
-
-
+                        dataForm.chapters.map((chapter: ChapterData, indexChapter: number) => {
+                            chapter.lectures.map((lecture: LectureData, indexLecture: number) => {
+                                // thumbnail, cover
+                                formData.append(`${indexChapter}-${indexLecture}-video`, lecture.link_video[0], `${indexChapter}-${indexLecture}-${lecture.link_video[0].name}`)
+                                console.log(formData.get(`${indexChapter}-${indexLecture}-video`), 111);
+                            })
+                        })
 
                         if (!isLastStep) return next()
 
-
-                        if (typeSubmit === "submit") {
-                            const formData = new FormData();
-
-                            formData.append("data", JSON.stringify(data1))
-                            formData.append("thumbnail", dataForm.thumbnail[0])
-                            formData.append("cover", dataForm.cover[0])
-
-                            dataForm.chapters.map((chapter: ChapterData, indexChapter: number) => {
-                                chapter.lectures.map((lecture: LectureData, indexLecture: number) => {
-                                    if (lecture.link_video.length != 0) {
-                                        formData.append("video", lecture.link_video[0], `${indexChapter + 1}-${indexLecture + 1}-${lecture.link_video[0]?.name}`)
-                                    }
-                                })
-                            })
-                            courseApi.create(formData)
-                            router.push("/dashboard/course")
-                        }
                     })
                 }>
 
@@ -206,7 +154,7 @@ export default function CreateCourse() {
                                 Tiếp theo
                             </button>
                         </div>
-                        <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover" onClick={() => setTypeSubmit("submit")}>Hoàn thành</button>
+                        <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover">Hoàn thành</button>
                     </div>
                 </form>
             </div >

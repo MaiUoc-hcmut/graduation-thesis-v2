@@ -135,7 +135,7 @@ export default function Login() {
     })
 
     const handleLoginSubmit: SubmitHandler<{ email: string, password: string }> = async (data) => {
-        await dispatch(login(data));
+        await dispatch(loginTeacher(data));
     };
 
     useEffect(() => {

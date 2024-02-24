@@ -7,12 +7,12 @@ import { ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon, CheckIcon } from
 import { ChevronDownIcon, ChevronUpIcon, StarIcon } from '@heroicons/react/20/solid'
 import courseApi from '@/app/api/courseApi';
 import { useForm, SubmitHandler } from "react-hook-form"
+import CourseList from '../page';
 
 type Review = {
     content: string
     rating: number
 }
-
 
 export default function CourseDetail({ params }: { params: { slug: string } }) {
     const [tab, setTab] = useState(1)
@@ -22,7 +22,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
     const [changeData, setChangeData] = useState(false);
     const [course, setCourse] = useState({});
     const [rating, setRating] = useState(0);
-    const [comment, setComment] = useState('');
+    const [avgReview, setAvgReview] = useState(0);
     const [hoverRating, setHoverRating] = useState(0);
 
     function formatTime(time: string): string {
@@ -30,6 +30,20 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
         return res.toLocaleString('vi-VN')
     }
 
+    function time_convert(time: number) {
+        const totalMinutes = Math.floor(time / 60);
+
+        const seconds = time % 60;
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+
+        const strHours = hours < 10 ? `0${hours}` : `${hours}`
+        const strMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`
+        const strSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`
+
+
+        return `${strHours}:${strMinutes}:${strSeconds}`;
+    }
 
     const {
         register,
@@ -45,14 +59,17 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
             }
             )
             await courseApi.getReview(params.slug).then((data: any) => {
-                setReviews(data.data)
+                setReviews(data.data.reviews)
+                if (data.data.averageRating) {
+                    setAvgReview(data.data.averageRating)
+                }
             }
             )
         }
         fetchData()
     }, [changeData])
-    reviews.sort(function (a, b) { return Date.parse(b.createdAt) - Date.parse(a.createdAt) })
-    console.log(course, reviews);
+    reviews?.sort(function (a, b) { return Date.parse(b.createdAt) - Date.parse(a.createdAt) })
+    console.log(course, reviews, avgReview);
 
 
     const handleHover = (hoverRating: any) => {
@@ -74,9 +91,9 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
 
     return (
         <div className="">
-            <div className="relative h-[530px] block overflow-hidden">
+            <div className="relative h-[530px] block overflow-hidden mt-20">
                 <Image
-                    src={`${course?.cover_image ? course?.cover_image : '/images/logo.png'}`}
+                    src={`${course?.cover_image ? course?.cover_image : '/'}`}
                     fill={true}
                     className='w-full h-full absolute top-0 left-0 object-cover object-center'
                     alt="logo"
@@ -93,13 +110,9 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                 {course?.name}
                             </h1>
                             <div className="flex items-center mt-10">
-                                <StarIcon className="w-5- h-5 text-[#ffc600] mr-[3px]" />
-                                <StarIcon className="w-5- h-5 text-[#ffc600] mr-[3px]" />
-                                <StarIcon className="w-5- h-5 text-[#ffc600] mr-[3px]" />
-                                <StarIcon className="w-5- h-5 text-[#ffc600] mr-[3px]" />
-                                <StarIcon className="w-5- h-5 text-[#ffc600] mr-[3px]" />
-                                <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-2 py-0.5 rounded">5.0</span>
-                                <span className='text-white'>(1 Đánh giá)</span>
+                                {renderStars(Math.floor(avgReview))}
+                                <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-2 py-0.5 rounded">{avgReview.toFixed(1)}</span>
+                                <span className='text-white'>({reviews.length} Đánh giá)</span>
                             </div>
                             <div className='mt-4 text-white text-sm font-medium'>
                                 <span className='mr-2'>Tạo bởi</span>
@@ -108,7 +121,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                         </div>
                         <div className='mt-9'>
                             <div className="bg-secondary rounded-lg border-b border-gray-200 dark:border-gray-700">
-                                <ul className="flex flex-wrap justify-between -mb-px text-sm font-semibold text-center text-gray-500 dark:text-gray-400">
+                                <ul className="flex flex-wrap justify-between px-2 text-sm font-semibold text-center text-gray-500 dark:text-gray-400">
                                     <li className="me-2">
                                         <button
                                             onClick={() => setTab(1)}
@@ -124,7 +137,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                             className={`text-white inline-flex items-center justify-center p-4 ${tab == 2 ? 'border-b-2 border-primary rounded-t-lg active' : 'border-b-4 border-transparent rounded-t-lg hover:text-gray-300'} group`}
                                             aria-current="page"
                                         >
-                                            Nội dung khóa học (10)
+                                            Nội dung khóa học ({course?.chapters?.length})
                                         </button>
                                     </li>
                                     <li className="me-2">
@@ -132,7 +145,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                             onClick={() => setTab(3)}
                                             className={`text-white inline-flex items-center justify-center p-4 ${tab == 3 ? 'border-b-2 border-primary rounded-t-lg active' : 'border-b-4 border-transparent rounded-t-lg hover:text-gray-300'} group`}
                                         >
-                                            Đánh giá (1)
+                                            Đánh giá ({reviews?.length})
                                         </button>
                                     </li>
 
@@ -144,20 +157,9 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                         <h3 className='text-secondary font-bold mb-4'>Bạn sẽ học được gì?</h3>
                                         <p className='flex items-start mt-2 text-[14px] text-[#818894]'>
                                             <CheckIcon className='w-[18px] h-[18px] mr-2' />
-                                            Kiến thức 1
+                                            {course.goal}
                                         </p>
-                                        <p className='flex items-start mt-2 text-[14px] text-[#818894]'>
-                                            <CheckIcon className='w-[18px] h-[18px] mr-2' />
-                                            Kiến thức 2
-                                        </p>
-                                        <p className='flex items-start mt-2 text-[14px] text-[#818894]'>
-                                            <CheckIcon className='w-[18px] h-[18px] mr-2' />
-                                            Kiến thức 3
-                                        </p>
-                                        <p className='flex items-start mt-2 text-[14px] text-[#818894]'>
-                                            <CheckIcon className='w-[18px] h-[18px] mr-2' />
-                                            Kiến thức 4
-                                        </p>
+
                                     </div>
                                     <div className='mt-5'>
                                         <h2 className="text-[#171347] font-bold flex items-center after:content-[''] after:flex after:grow after:shrink after:basis-4 after:h-[2px] after:ml-[10px] after:bg-[#f1f1f1]">
@@ -165,22 +167,14 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                         </h2>
                                         <div className='mt-5 text-[#818894]'>
                                             <p>
-                                                Khóa học `New Update Features`` có thể là một chương trình đào tạo trực tuyến nhằm giới thiệu và hướng dẫn về các tính năng mới và cập nhật trong một lĩnh vực cụ thể, có thể là lĩnh vực công nghệ, phần mềm, hay một ngành nghề khác.
+                                                {course.description}
                                             </p>
                                         </div>
                                         <div className='mt-5'>
                                             <h3 className='font-bold text-secondary'>Yêu cầu</h3>
                                             <p className='flex items-start mt-2 text-[14px] text-[#818894]'>
                                                 <CheckIcon className='w-[18px] h-[18px] mr-2' />
-                                                Yêu cầu 1
-                                            </p>
-                                            <p className='flex items-start mt-2 text-[14px] text-[#818894]'>
-                                                <CheckIcon className='w-[18px] h-[18px] mr-2' />
-                                                Yêu cầu 2
-                                            </p>
-                                            <p className='flex items-start mt-2 text-[14px] text-[#818894]'>
-                                                <CheckIcon className='w-[18px] h-[18px] mr-2' />
-                                                Yêu cầu 3
+                                                {course.requirement}
                                             </p>
                                         </div>
                                     </div>
@@ -202,7 +196,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                                     </span>
                                                                     <span className="font-normal text-[818894] text-xs flex">
                                                                         {course?.chapters?.length} chủ đề
-                                                                        | {chapter.totalDuration} giờ
+                                                                        | {time_convert(chapter.totalDuration)}
                                                                     </span>
                                                                 </div>
                                                             </div>
@@ -263,16 +257,12 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                     <div className='flex items-center text-center'>
                                         <div className='w-1/4 px-4'>
                                             <div className='font-bold text-4xl text-primary text-center'>
-                                                4.00
+                                                {avgReview.toFixed(1)}
                                             </div>
                                             <div className="flex items-center justify-center mt-2">
-                                                <StarIcon className="w-5- h-5 text-[#ffc600] mr-[3px]" />
-                                                <StarIcon className="w-5- h-5 text-[#ffc600] mr-[3px]" />
-                                                <StarIcon className="w-5- h-5 text-[#ffc600] mr-[3px]" />
-                                                <StarIcon className="w-5- h-5 text-[#ffc600] mr-[3px]" />
-                                                <StarIcon className="w-5- h-5 text-gray-300 mr-[3px]" />
+                                                {renderStars(Math.floor(avgReview))}
                                             </div>
-                                            <div className='mt-4 text-[#343434]'>2 đánh giá</div>
+                                            <div className='mt-4 text-[#343434]'>{reviews?.length} đánh giá</div>
                                         </div>
                                         <div className='flex-1'>
                                             <div className="flex items-center mt-4">
@@ -408,7 +398,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                         </form>
                                         <div className='mt-12'>
                                             {
-                                                reviews.map((review) => (
+                                                reviews?.map((review) => (
                                                     <div key={review.id} className="bg-white px-4 py-4 mb-5 border rounded-lg shadow-md">
                                                         <div className='flex items-center justify-between'>
                                                             <div className='flex items-center mt-2'>
@@ -449,7 +439,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                         <div className='rounded-2xl shadow-card_course pb-8'>
                             <div className='h-[200px] relative'>
                                 <Image
-                                    src={`${course?.thumbnail ? course?.thumbnail : '/images/logo.png'}`}
+                                    src={`${course?.thumbnail ? course?.thumbnail : '/'}`}
                                     fill={true}
                                     className='w-full h-full overflow-hidden object-center object-cover rounded-tl-2xl rounded-tr-2xl'
                                     alt="logo"

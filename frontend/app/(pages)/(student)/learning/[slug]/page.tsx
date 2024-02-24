@@ -6,77 +6,63 @@ import { ChevronDownIcon, ChevronUpIcon, Squares2X2Icon, FilmIcon } from '@heroi
 import { useEffect, useState } from 'react';
 import ReactPlayer from 'react-player'
 import courseApi from "@/app/api/courseApi"
+import { ReactQuillEditorComment } from '@/app/_components/Editor/ReactQuillEditorComment'
+import parse from 'html-react-parser';
 
-
-const chapters = [
-    {
-        id: "0",
-        name: "a"
-    },
-    {
-        id: "1",
-        name: "ds"
-    },
-    {
-        id: "0",
-        name: "a"
-    },
-    {
-        id: "1",
-        name: "ds"
-    },
-    {
-        id: "0",
-        name: "a"
-    },
-    {
-        id: "1",
-        name: "ds"
-    },
-]
-
-const comments = [
-    {
-        id: "0",
-        content: "sadf",
-        createdAt: `${new Date()}`
-    }
-]
 export default function LearningPage({ params }: { params: { slug: string } }) {
     const [course, setCourse] = useState()
     const initToggle: any = {}
     const [toggle, setToggle] = useState(initToggle)
     const [tab, setTab] = useState(0)
+    const [link, setLink] = useState(0)
+    const [content, setContent] = useState('')
+    const [lectureId, setLectureId] = useState('')
+    const [comments, setComments] = useState([])
+
 
     useEffect(() => {
-        async function fetchCourse() {
+        async function fetchData() {
             await courseApi.get(params.slug).then((data: any) => {
                 setCourse(data.data)
+                setLink(data.data.chapters[0]?.lectures[0]?.video)
+                setLectureId(data.data.chapters[0]?.lectures[0]?.id)
+            }
+            )
+            await courseApi.getCommentByLecture(lectureId).then((data: any) => {
+                setComments(data.data)
             }
             )
         }
-        fetchCourse()
+        fetchData()
     }, []);
 
-    console.log(course);
-
-    let link
-    if (course) {
-        link = course?.chapters[0]?.lectures[0]?.video
-        console.log(link);
-    }
-
-
+    console.log(course, lectureId, comments);
 
     function formatTime(time: string): string {
-        const res = new Date(time)
-        return res.toLocaleString('vi-VN')
+        const objectDate = new Date(time)
+        // const objectDate = res.toLocaleString('vi-VN')
+        let day = objectDate.getDate();
+
+        let month = objectDate.getMonth() + 1;
+
+        let year = objectDate.getFullYear();
+
+        return day + "/" + month + "/" + year
     }
 
-    function time_convert(num: number) {
-        const hours = Math.floor(num / 60);
-        const minutes = num % 60;
-        return `${hours}:${minutes}`;
+    function time_convert(time: number) {
+        const totalMinutes = Math.floor(time / 60);
+
+        const seconds = time % 60;
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+
+        const strHours = hours < 10 ? `0${hours}` : `${hours}`
+        const strMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`
+        const strSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`
+
+
+        return `${strHours}:${strMinutes}:${strSeconds}`;
     }
 
 
@@ -96,7 +82,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                     </div>
                     <div className='flex flex-col border-l-[1px] border-[#f1f1f1] ml-3 pl-3'>
                         <div>
-                            <span className='font-bold text-[#343434] text-lg'>Tiến trình</span>
+                            <span className='font-bold text-[#343434] text-lg'>{course?.name}</span>
                         </div>
                         <div className='flex items-center'>
                             <div className='w-[465px]'>
@@ -113,7 +99,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                         {/* <Link href="#" className='bg-white mr-2 text-[#343434] cursor-pointer px-4 py-1 border rounded border-[1px] border-[#e3e1e1]'>
                             Bình luận
                         </Link> */}
-                        <Link href="/course/1" className='bg-white mr-5 text-[#343434] cursor-pointer px-4 py-1 border rounded border-[1px] border-[#e3e1e1]'>
+                        <Link href={`/course/${params.slug}`} className='bg-white mr-5 text-[#343434] cursor-pointer px-4 py-1 border rounded border-[1px] border-[#e3e1e1]'>
                             Trang khóa học
                         </Link>
                         {/* <button type="button">
@@ -127,7 +113,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                     <div className='flex bg-black p-4 h-full'>
                         <div className='w-full rounded-xl'>
                             <div className='flex flex-col h-full'>
-                                <ReactPlayer width='100%' height='100%' controls={true} url={link} />
+                                <ReactPlayer width='100%' height='100%' controls={true} url={link ? link : '/'} />
                             </div>
                         </div>
                     </div>
@@ -169,12 +155,16 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                             />
                                         </div>
                                         <div className='flex-1 mr-4'>
-                                            <form onSubmit={async (e: Event) => {
-                                                // e.preventDefault()
-
-                                                // await commentApi.create(formData)
+                                            <form onSubmit={async (e: any) => {
+                                                e.preventDefault()
+                                                const formData = {
+                                                    data: {
+                                                        id_lecture: lectureId,
+                                                        content: content,
+                                                    }
+                                                }
+                                                await courseApi.createComment(formData)
                                                 // setChangeData(!changeData)
-                                                // setFormData({ id_lecture: params.slug, id_user: user.id })
                                             }}>
                                                 <div className={`${toggle[`edit-cmt`] ? 'hidden' : ''}`}>
                                                     <input onFocus={() => {
@@ -182,20 +172,11 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                     }} type="text" className="bg-gray-50 border-b border-b-[#ccc] mb-2 text-gray-900 text-sm rounded-lg block w-full p-2.5" placeholder="Bạn có thắc mắc gì trong bài học này?" />
                                                 </div>
                                                 <div className={`${toggle[`edit-cmt`] ? '' : 'hidden'}`}>
-                                                    {/* <CKEditor
-                                                editor={ClassicEditor}
-                                                data=""
-
-                                                onChange={(event, editor) => {
-                                                    const data = editor.getData().replace('<p>', '').replace('</p>', '');
-                                                    console.log(data);
-
-                                                    setFormData({ ...formData, content: data })
-                                                }} /> */}
+                                                    <ReactQuillEditorComment value={content} setValue={setContent} />
                                                 </div>
                                                 <div className='flex justify-end mt-4'>
                                                     <button type="button" className="py-2.5 px-5 mr-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" onClick={() => (setToggle({ ...toggle, [`edit-cmt`]: !toggle[`edit-cmt`] }))}>Hủy</button>
-                                                    <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Bình luân</button>
+                                                    <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Bình luận</button>
                                                 </div>
                                             </form>
 
@@ -228,7 +209,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                                         <p className='text-[#828282] text-sm'>{formatTime(cmt.createdAt)}</p>
                                                                     </div>
                                                                     <div>
-                                                                        <p className='mt-2 max-w-3xl min-w-75'>{cmt.content}</p>
+                                                                        <div className='mt-2 max-w-3xl min-w-75'>{parse(cmt.content)}</div>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -261,17 +242,19 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                         </div>
                     </div>
                 </div>
-                {/* <div className='w-[373px] min-w-[373px] mt-24 h-full fixed right-0 top-0 border-l-[1px] shadow-sm border-[#f1f1f1]'>
+                <div className='w-[373px] min-w-[373px] mt-24 h-full fixed right-0 top-0 border-l-[1px] shadow-sm border-[#f1f1f1]'>
                     <div className='text-left text-lg font-bold mx-4 py-2 mt-2 border-b-[1px] border-[#f1f1f1]'>
                         Nội dung
                     </div>
                     <div className='overflow-auto h-[400px] sidebar_learning'>
                         <div className=''>
                             <div className='p-4'>
+
                                 {
-                                    chapters.map((chapter) => {
+                                    course?.chapters?.map((chapter) => {
                                         return (
                                             <div key={chapter.id} className='mb-3'>
+
                                                 <div className='border-[1px] border-[#f1f1f1] px-2 py-2 rounded-lg'>
                                                     <div className={`flex justify-between items-center ${toggle[`open_chapter_${chapter.id}`] ? 'pb-3' : ''}`}>
                                                         <div className="flex justify-center items-center">
@@ -280,11 +263,11 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                             </span>
                                                             <div>
                                                                 <span className="font-bold text-[rgb(23,19,71)] text-lg">
-                                                                    Chương 1: {chapter.name}
+                                                                    {chapter.name}
                                                                 </span>
                                                                 <span className="font-normal text-[818894] text-xs flex">
-                                                                    3 chủ đề
-                                                                    | 9:20:30
+                                                                    {chapter.lectures?.length} chủ đề
+                                                                    | {time_convert(chapter.totalDuration)}
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -307,24 +290,25 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                     </div>
                                                     <div className={`${toggle[`open_chapter_${chapter.id}`] ? '' : 'hidden'} border-t-[1px] border-[#f1f1f1] pt-4`}>
                                                         <div>
-                                                            <Link href="#" className='bg-[#f1f1f1] p-3 cursor-pointer flex items-center'>
-                                                                <span className='mr-3 bg-[#ececec] w-10 h-10 rounded-full flex justify-center items-center'>
-                                                                    <FilmIcon className='w-4 h-4' />
-                                                                </span>
-                                                                <div className='flex flex-col'>
-                                                                    <span className='font-medium text-[#171347]'>Bài giảng 1</span>
-                                                                    <span className='text-[#818894] text-xs'>10:25</span>
-                                                                </div>
-                                                            </Link>
-                                                            <Link href="#" className='bg-[white] p-3 cursor-pointer flex items-center'>
-                                                                <span className='mr-3 bg-[#ececec] w-10 h-10 rounded-full flex justify-center items-center'>
-                                                                    <FilmIcon className='w-4 h-4' />
-                                                                </span>
-                                                                <div className='flex flex-col'>
-                                                                    <span className='font-medium text-[#171347]'>Bài giảng 1</span>
-                                                                    <span className='text-[#818894] text-xs'>10:25</span>
-                                                                </div>
-                                                            </Link>
+                                                            {
+                                                                chapter.lectures.map((lecture) => {
+                                                                    return (
+                                                                        <div onClick={() => {
+                                                                            setLink(lecture.video)
+                                                                            setLectureId(lecture.id)
+                                                                        }} key={lecture.id} className={`${lectureId == lecture.id ? 'bg-[#f1f1f1]' : 'bg-white'} px-2 py-1 cursor-pointer flex items-center`}>
+                                                                            <span className='mr-3 bg-[#ececec] w-10 h-10 rounded-full flex justify-center items-center'>
+                                                                                <FilmIcon className='w-4 h-4' />
+                                                                            </span>
+                                                                            <div className='flex flex-col'>
+                                                                                <span className='font-medium text-[#171347]'>{lecture.name}</span>
+                                                                                <span className='text-[#818894] text-xs'>{time_convert(lecture.duration)}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    )
+                                                                })
+                                                            }
+
                                                         </div>
                                                     </div>
                                                 </div>
@@ -335,7 +319,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                             </div>
                         </div>
                     </div>
-                </div> */}
+                </div>
             </div>
 
         </div >

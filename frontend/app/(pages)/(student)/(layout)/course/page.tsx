@@ -1,11 +1,14 @@
 "use client"
 
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Dialog, Disclosure, Menu, Transition } from '@headlessui/react'
 import { XMarkIcon, ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon } from '@heroicons/react/24/outline'
 import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, StarIcon } from '@heroicons/react/20/solid'
 import Link from 'next/link';
 import Image from 'next/image';
+import courseApi from '@/app/api/courseApi';
+import categoryApi from '@/app/api/category'
+import { useSearchParams } from 'next/navigation'
 
 const sortOptions = [
     { name: 'Phổ biến nhất', href: '#', current: true },
@@ -14,61 +17,106 @@ const sortOptions = [
     { name: 'Giá: Thấp đến cao', href: '#', current: false },
     { name: 'Giá: Cao đến thấp', href: '#', current: false },
 ]
-const filters = [
-    {
-        id: 'color',
-        name: 'Lớp',
-        options: [
-            { value: 'white', label: 'White', checked: false },
-            { value: 'beige', label: 'Beige', checked: false },
-            { value: 'blue', label: 'Blue', checked: true },
-            { value: 'brown', label: 'Brown', checked: false },
-            { value: 'green', label: 'Green', checked: false },
-            { value: 'purple', label: 'Purple', checked: false },
-        ],
-    },
-    {
-        id: 'category',
-        name: 'Môn',
-        options: [
-            { value: 'new-arrivals', label: 'New Arrivals', checked: false },
-            { value: 'sale', label: 'Sale', checked: false },
-            { value: 'travel', label: 'Travel', checked: true },
-            { value: 'organization', label: 'Organization', checked: false },
-            { value: 'accessories', label: 'Accessories', checked: false },
-        ],
-    },
-    {
-        id: 'size',
-        name: 'Mức độ',
-        options: [
-            { value: '2l', label: '2L', checked: false },
-            { value: '6l', label: '6L', checked: false },
-            { value: '12l', label: '12L', checked: false },
-            { value: '18l', label: '18L', checked: false },
-            { value: '20l', label: '20L', checked: false },
-            { value: '40l', label: '40L', checked: true },
-        ],
-    },
-]
+// const filters = [
+//     {
+//         id: 'color',
+//         name: 'Lớp',
+//         options: [
+//             { value: 'white', label: 'White', checked: false },
+//             { value: 'beige', label: 'Beige', checked: false },
+//             { value: 'blue', label: 'Blue', checked: true },
+//             { value: 'brown', label: 'Brown', checked: false },
+//             { value: 'green', label: 'Green', checked: false },
+//             { value: 'purple', label: 'Purple', checked: false },
+//         ],
+//     },
+//     {
+//         id: 'category',
+//         name: 'Môn',
+//         options: [
+//             { value: 'new-arrivals', label: 'New Arrivals', checked: false },
+//             { value: 'sale', label: 'Sale', checked: false },
+//             { value: 'travel', label: 'Travel', checked: true },
+//             { value: 'organization', label: 'Organization', checked: false },
+//             { value: 'accessories', label: 'Accessories', checked: false },
+//         ],
+//     },
+//     {
+//         id: 'size',
+//         name: 'Mức độ',
+//         options: [
+//             { value: '2l', label: '2L', checked: false },
+//             { value: '6l', label: '6L', checked: false },
+//             { value: '12l', label: '12L', checked: false },
+//             { value: '18l', label: '18L', checked: false },
+//             { value: '20l', label: '20L', checked: false },
+//             { value: '40l', label: '40L', checked: true },
+//         ],
+//     },
+// ]
 
-const courses = [
-    { id: 1 },
-    { id: 2 },
-    { id: 3 },
-    { id: 4 },
-    { id: 5 },
-    { id: 6 }
-]
 function classNames(...classes: any) {
     return classes.filter(Boolean).join(' ')
 }
 
 export default function CourseList() {
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
+    const [courses, setCourses] = useState([])
+    const [category, setCategory] = useState<[any]>([])
+    const searchParams = useSearchParams()
+    const subjectFilters = searchParams.getAll('subject')
+    const levelFilters = searchParams.getAll('level')
+    const classFilters = searchParams.getAll('class')
+
+    useEffect(() => {
+        async function fetchData() {
+            let filterString = ''
+            subjectFilters.map((s) => { filterString += `subject=${s}&` })
+            levelFilters.map((l) => { filterString += `subject=${l}&` })
+            classFilters.map((c) => { filterString += `subject=${c}&` })
+
+            if (subjectFilters.length != 0 || levelFilters.length != 0 || classFilters.length != 0) {
+                await courseApi.filter(filterString).then((data: any) => {
+                    setCourses(data.data)
+                }
+                )
+            }
+            else {
+                await courseApi.getAll().then((data: any) => {
+                    setCourses(data.data)
+                }
+                )
+            }
+            await categoryApi.getAll().then((data: any) => {
+                setCategory([
+                    {
+                        id: "subject",
+                        name: "Môn học",
+                        options: data.Subject
+                    },
+                    {
+                        id: "level",
+                        name: "Mức độ",
+                        options: data.Level
+                    },
+                    {
+                        id: "class",
+                        name: "Lớp",
+                        options: data.Class
+                    },
+
+                ])
+            })
+
+        }
+        fetchData()
+    }, [])
+
+    console.log(category);
+
 
     return (
-        <div className="bg-white">
+        <div className="bg-white container mx-auto px-12">
             <div>
                 {/* Mobile filter dialog */}
                 <Transition.Root show={mobileFiltersOpen} as={Fragment}>
@@ -112,7 +160,7 @@ export default function CourseList() {
                                     <form className="mt-4 border-t border-gray-200">
                                         <h3 className="sr-only">Categories</h3>
 
-                                        {filters.map((section) => (
+                                        {category.map((section) => (
                                             <Disclosure as="div" key={section.id} className="border-t border-gray-200 px-4 py-6">
                                                 {({ open }) => (
                                                     <>
@@ -135,7 +183,7 @@ export default function CourseList() {
                                                                         <input
                                                                             id={`filter-mobile-${section.id}-${optionIdx}`}
                                                                             name={`${section.id}[]`}
-                                                                            defaultValue={option.value}
+                                                                            defaultValue={option.name}
                                                                             type="checkbox"
                                                                             defaultChecked={option.checked}
                                                                             className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
@@ -145,7 +193,7 @@ export default function CourseList() {
                                                                             htmlFor={`filter-mobile-${section.id}-${optionIdx}`}
                                                                             className="ml-3 min-w-0 flex-1 text-gray-500"
                                                                         >
-                                                                            {option.label}
+                                                                            {option.name}
                                                                         </label>
                                                                     </div>
                                                                 ))}
@@ -230,11 +278,11 @@ export default function CourseList() {
                             Products
                         </h2>
 
-                        <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4">
-                            <form className="hidden lg:block">
+                        <div className="flex w-full">
+                            <form className="hidden lg:block w-1/4 mr-10">
                                 <h3 className="sr-only">Categories</h3>
 
-                                {filters.map((section) => (
+                                {category.map((section) => (
                                     <Disclosure as="div" key={section.id} className="border-b border-gray-200 py-6">
                                         {({ open }) => (
                                             <>
@@ -253,20 +301,19 @@ export default function CourseList() {
                                                 <Disclosure.Panel className="pt-6">
                                                     <div className="space-y-4">
                                                         {section.options.map((option, optionIdx) => (
-                                                            <div key={option.value} className="flex items-center">
+                                                            <div key={option.id} className="flex items-center">
                                                                 <input
                                                                     id={`filter-${section.id}-${optionIdx}`}
-                                                                    name={`${section.id}[]`}
-                                                                    defaultValue={option.value}
+                                                                    name={`${section.id}`}
+                                                                    defaultValue={option.id}
                                                                     type="checkbox"
-                                                                    defaultChecked={option.checked}
                                                                     className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                                                 />
                                                                 <label
                                                                     htmlFor={`filter-${section.id}-${optionIdx}`}
                                                                     className="ml-3 text-sm text-gray-600"
                                                                 >
-                                                                    {option.label}
+                                                                    {option.name}
                                                                 </label>
                                                             </div>
                                                         ))}
@@ -279,31 +326,29 @@ export default function CourseList() {
                                 <button className='px-5 h-11 w-full mt-5 bg-primary font-medium rounded-md border-primary text-white'>Lọc</button>
                             </form>
 
-                            <div className="lg:col-span-3">
-                                <div className='grid grid-cols-3 gap-6 gap-y-8 mt-2'>
+                            <div className="lg:col-span-3 flex-1">
+                                <div className='grid grid-cols-2 gap-x-8 gap-y-8 mt-2'>
                                     {
                                         courses.map((course) => {
                                             return (
                                                 <div key={course.id} className='bg-white shadow-card_course rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300'>
-                                                    <div className=''>
-                                                        <Link href="/" className=''>
+                                                    <div className='relative w-full h-60'>
+                                                        <Link href={`course/${course.id}`} className=''>
                                                             <Image
-                                                                src="/images/cousre-thumnail-1.jpg"
-                                                                width={350}
-                                                                height={250}
-                                                                className='w-full h-full rounded-tl-2xl rounded-tr-2xl'
+                                                                src={`${course.thumbnail}`}
+                                                                fill
+                                                                className='rounded-tl-2xl rounded-tr-2xl overflow-hidden object-cover object-center'
                                                                 alt="logo"
                                                             />
                                                         </Link>
                                                     </div>
                                                     <div className='px-3 py-4'>
                                                         <div className='flex items-center'>
-                                                            <div className='mr-2'>
+                                                            <div className='mr-2 w-10 h-10 max-h-10 max-w-10 rounded-full relative'>
                                                                 <Image
-                                                                    src="/images/avatar-teacher.png"
-                                                                    width={40}
-                                                                    height={40}
-                                                                    className='rounded-full'
+                                                                    src={`${course.thumbnail}`}
+                                                                    fill
+                                                                    className='rounded-full overflow-hidden object-cover object-center'
                                                                     alt="logo"
                                                                 />
                                                             </div>
@@ -311,6 +356,11 @@ export default function CourseList() {
                                                                 <Link href="" className='font-medium text-[#818894]'>Việt Lê</Link>
                                                             </div>
                                                         </div>
+                                                        <h3 className="overflow-hidden text-[#17134] mt-4 h-8 font-bold">
+                                                            {course.name}
+                                                        </h3>
+
+
                                                         <div className="flex items-center mt-4">
                                                             <StarIcon className="w-5- h-5 text-[#ffc600] mr-[3px]" />
                                                             <StarIcon className="w-5- h-5 text-[#ffc600] mr-[3px]" />
@@ -339,7 +389,7 @@ export default function CourseList() {
 
                                                         </div>
                                                         <div className='mt-6'>
-                                                            <span className='text-xl text-primary font-extrabold'>500.000 VNĐ</span>
+                                                            <span className='text-xl text-primary font-extrabold'>{course.price} VNĐ</span>
                                                         </div>
                                                     </div>
                                                 </div>

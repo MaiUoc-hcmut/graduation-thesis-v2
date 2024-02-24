@@ -71,7 +71,7 @@ export default function HeaderStudent() {
                                     <Link href="#" className='text-[#343434] px-[0.5rem] py-[1rem] hover:text-slate-500'>Trang chủ</Link>
                                 </li>
                                 <li>
-                                    <Link href="#" className='text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500'>Khóa học</Link>
+                                    <Link href="/course" className='text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500'>Khóa học</Link>
                                 </li>
                                 <li>
                                     <Link href="#" className='text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500'>Giáo viên</Link>

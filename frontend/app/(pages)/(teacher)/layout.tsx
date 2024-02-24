@@ -2,6 +2,7 @@ import HeaderTeacher from '@/app/_components/Header/HeaderTeacher'
 import Sidebar from '@/app/_components/Sidebar/Sidebar'
 import { Suspense } from 'react'
 import 'react-toastify/dist/ReactToastify.css';
+import HeaderStudent from '@/app/_components/Header/HeaderStudent'
 
 export default function TeacherLayout({
   children,
@@ -11,7 +12,7 @@ export default function TeacherLayout({
 
   return (
     <section className="">
-      <HeaderTeacher />
+      <HeaderStudent />
       <div className='flex justify-end mt-[70px] '>
         <Sidebar />
         <div className="px-4 py-7 w-[calc(100%-254px)] min-h-svh bg-[#fbfbfd] pb-5">

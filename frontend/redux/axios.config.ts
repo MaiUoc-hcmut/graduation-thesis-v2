@@ -24,14 +24,21 @@ instance.interceptors.request.use(
             // Request to course service
             if (
                 config.url.indexOf('/document') >= 0 ||
-                config.url.indexOf('/courses') >= 0 ||
                 config.url.indexOf('/reviews') >= 0 ||
-                config.url.indexOf('/folder') >= 0
+                config.url.indexOf('/folder') >= 0 ||
+                config.url.indexOf('/images') >= 0 ||
+                config.url.indexOf('/comments') >= 0
             ) {
                 config.baseURL = 'http://localhost:4001/api/v1';
-                // config.headers['Content-Type'] = 'multipart/form-data';
             }
 
+            if (
+                config.url.indexOf('/images') >= 0 ||
+                config.url.indexOf('/courses') >= 0
+            ) {
+                config.baseURL = 'http://localhost:4001/api/v1';
+                config.headers['Content-Type'] = 'multipart/form-data';
+            }
             // if (
             //     config.url.indexOf('/upload-file') >= 0 ||
             //     config.url.indexOf('/upload-avatar') >= 0 ||

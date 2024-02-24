@@ -24,10 +24,6 @@ type CourseData = {
     cover_image: Array<File>
 }
 
-type User = {
-    id: string
-}
-
 export default function CourseDashboard() {
     const authUser = useAppSelector(state => state.authReducer.user);
     const [courses, setCourses] = useState<[CourseData]>()
@@ -65,13 +61,11 @@ export default function CourseDashboard() {
                                         <Link href="#" >
                                             <h3 className="text-[#171347] font-bold text-lg">
                                                 {course.name}
-                                                <span className="ml-3 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border-[1px] border-green-500">Cơ bản</span>
+                                                {/* <span className="ml-3 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border-[1px] border-green-500">Cơ bản</span> */}
                                             </h3>
                                         </Link>
                                         <button>
-                                            <Link href='course/edit/1'>
-                                                <PencilSquareIcon className="w-6 h-6 text-gray-500" />
-                                            </Link>
+                                            <PencilSquareIcon className="w-6 h-6 text-gray-500" onClick={() => courseApi.delete(course.id)} />
                                         </button>
                                     </div>
                                     <div className="flex items-center mt-4">
@@ -87,27 +81,15 @@ export default function CourseDashboard() {
                                     </div>
                                     <div className="mt-auto flex items-center justify-between flex-wrap">
                                         <div className="flex items-center flex-col mt-[20px] mr-[15px]">
-                                            <span className="text-sm text-[#818894]">Item ID:</span>
+                                            <span className="text-sm text-[#818894]">Lớp:</span>
                                             <span className="text-sm text-[#171347]">2001</span>
                                         </div>
                                         <div className="flex items-center flex-col mt-[20px] mr-[15px]">
-                                            <span className="text-sm text-[#818894]">Item ID:</span>
+                                            <span className="text-sm text-[#818894]">Môn học:</span>
                                             <span className="text-sm text-[#171347]">2001</span>
                                         </div>
                                         <div className="flex items-center flex-col mt-[20px] mr-[15px]">
-                                            <span className="text-sm text-[#818894]">Item ID:</span>
-                                            <span className="text-sm text-[#171347]">2001</span>
-                                        </div>
-                                        <div className="flex items-center flex-col mt-[20px] mr-[15px]">
-                                            <span className="text-sm text-[#818894]">Item ID:</span>
-                                            <span className="text-sm text-[#171347]">2001</span>
-                                        </div>
-                                        <div className="flex items-center flex-col mt-[20px] mr-[15px]">
-                                            <span className="text-sm text-[#818894]">Item ID:</span>
-                                            <span className="text-sm text-[#171347]">2001</span>
-                                        </div>
-                                        <div className="flex items-center flex-col mt-[20px] mr-[15px]">
-                                            <span className="text-sm text-[#818894]">Item ID:</span>
+                                            <span className="text-sm text-[#818894]">Mức độ:</span>
                                             <span className="text-sm text-[#171347]">2001</span>
                                         </div>
                                     </div>

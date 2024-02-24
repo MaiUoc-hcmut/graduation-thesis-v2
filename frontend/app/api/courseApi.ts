@@ -6,20 +6,21 @@ const courseApi = {
         return axiosConfig.get(url);
     },
 
-    // getAll: (params: Object) => {
-    //     const url = '/courses';
-    //     return axiosClient.get(url, { params });
-    // },
-
-    get: (id: string) => {
-        const url = `/courses/full/${id}`;
+    getAll: () => {
+        const url = '/courses';
         return axiosConfig.get(url);
     },
 
-    // getFull: (id: string) => {
-    //     const url = `/courses/${id}/all`;
-    //     return axiosClient.get(url);
-    // },
+    get: async (id: string) => {
+        const url = `/courses/full/${id}`;
+        return await axiosConfig.get(url);
+    },
+
+    filter: (filterString: string) => {
+        const url = `/courses/filter?${filterString}`;
+        return axiosConfig.get(url);
+    },
+
 
     // update: (id: string) => {
     //     const url = `/courses/${id}`;
@@ -32,10 +33,10 @@ const courseApi = {
         return course
     },
 
-    // delete: (id: number) => {
-    //     const url = `/courses/${id}`;
-    //     return axiosClient.delete(url);
-    // },
+    delete: (id: string) => {
+        const url = `/courses/${id}`;
+        return axiosConfig.delete(url);
+    },
 
     createReview: async (data: object) => {
         const url = `/reviews`;
@@ -47,6 +48,21 @@ const courseApi = {
     getReview: (id: string) => {
         const url = `/reviews/course/${id}`;
         return axiosConfig.get(url);
+    },
+
+    getCommentByLecture: (id: string) => {
+        const url = `/comments/${id}`;
+        return axiosConfig.get(url);
+    },
+
+    createComment: (data: object) => {
+        const url = `/comments`;
+        return axiosConfig.post(url, data);
+    },
+
+    uploadVideo: (video: object) => {
+        const url = `/images`;
+        return axiosConfig.post(url, video);
     },
 }
 
