@@ -3,6 +3,7 @@ const Chapter = require('../../db/models/chapter');
 const Lecture = require('../../db/models/lecture');
 const Category = require('../../db/models/category');
 const Review = require('../../db/models/review');
+const ParentCategory = require('../../db/models/parent-category');
 
 import { Request, Response, NextFunction } from 'express';
 
@@ -120,7 +121,7 @@ class CourseController {
                     },
                     {
                         model: Category,
-                        attributes: ['name'],
+                        attributes: ['name', 'id_par_category'],
                         through: {
                             attributes: []
                         }
@@ -129,6 +130,13 @@ class CourseController {
             });
 
             if (!course) return res.status(404).json({ message: "Course does not exist" });
+
+            for (const category of course.Categories) {
+                const parCategory = await ParentCategory.findByPk(category.id_par_category);
+                category.dataValues[`${parCategory.name}`] = category.name;
+                delete category.dataValues.name;
+                delete category.dataValues.id_par_category;
+            }
 
             let totalCourseDuration = 0;
             let totalLectures = 0;
@@ -194,17 +202,22 @@ class CourseController {
                 include: [
                     {
                         model: Category,
-                        attributes: ['name'],
+                        attributes: ['name', 'id_par_category'],
                         through: {
                             attributes: []
                         }
                     },
-                    {
-                        model: Review,
-                        attributes: [[sequelize.fn('AVG', sequelize.col('rating')), 'averageRating']]
-                    }
                 ]
             });
+
+            for (const course of courses) {
+                for (const category of course.Categories) {
+                    const parCategory = await ParentCategory.findByPk(category.id_par_category);
+                    category.dataValues[`${parCategory.name}`] = category.name;
+                    delete category.dataValues.name;
+                    delete category.dataValues.id_par_category;
+                }
+            }
 
             res.status(200).json(courses)
         } catch (error: any) {
