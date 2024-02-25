@@ -15,6 +15,7 @@ import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 import courseApi from "@/app/api/courseApi";
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
+import { Controller } from "react-hook-form";
 
 
 // Register the plugins
@@ -50,6 +51,7 @@ export function BasicInfomationForm({
         register,
         setValue,
         getValues,
+        control,
         formState: { errors }
     } = handleForm
 
@@ -62,10 +64,10 @@ export function BasicInfomationForm({
     }, []);
 
     useEffect(() => {
-        setFiles(images?.thumbnail ? images.thumbnail : [])
+        setFiles(getValues().thumbnail[0] ? getValues().thumbnail[0] : [])
     }, []);
 
-    console.log(images, getValues());
+    console.log(getValues().thumbnail[0]?.name);
 
 
     return (
@@ -195,13 +197,13 @@ export function BasicInfomationForm({
                     {...register("thumbnail", {
                         required: "Ảnh đại diện không thể trống."
                     })}
-                    defaultValue={""}
                     accept=".png, .jpg, .jpeg"
                     name="thumbnail"
                     className={`bg-white border border-gray-300 text-[#343434] block w-full mb-2 text-xs rounded-lg cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400`}
                     id="thumbnail"
                     type="file"
                 />
+                <p>{`${getValues().thumbnail[0]?.name ? getValues().thumbnail[0]?.name : ''}`}</p>
                 {/* <FilePond
                     files={files}
                     onupdatefiles={setFiles}
@@ -254,6 +256,7 @@ export function BasicInfomationForm({
                 >
                     Ảnh nền
                 </label>
+
                 <input
                     accept=".png, .jpg, .jpeg"
                     {...register("cover", {
@@ -263,6 +266,7 @@ export function BasicInfomationForm({
                     id="cover"
                     type="file"
                 />
+                <p>{`${getValues().cover[0]?.name ? getValues().cover[0]?.name : ''}`}</p>
                 <p className="mt-2 text-sm text-red-600 dark:text-red-500">
                     {errors?.cover?.message}
                 </p>
