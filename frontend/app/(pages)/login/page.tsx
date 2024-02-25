@@ -135,18 +135,18 @@ export default function Login() {
     })
 
     const handleLoginSubmit: SubmitHandler<{ email: string, password: string }> = async (data) => {
-        await dispatch(loginTeacher(data));
+        await dispatch(login(data));
     };
 
     useEffect(() => {
         dispatch(reset());
         if (isSuccess) {
-            toastSuccess("Login success");
+            // toastSuccess("Login success");
             dispatch(reset());
-            redirect('/teacher');
+            redirect('/course');
         }
         if (isFailed) {
-            toastError(message);
+            // toastError(message);
             dispatch(reset());
         }
     }, [dispatch, isSuccess]);
@@ -208,7 +208,7 @@ export default function Login() {
                         <div>
                             <button
                                 type="submit"
-                                className="flex w-full justify-center rounded-md text-[white] bg-btn_secondary px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                className="flex w-full justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm"
                             >
                                 Đăng nhập
                             </button>

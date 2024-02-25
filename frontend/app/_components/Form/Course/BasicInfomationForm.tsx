@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react"
 import { ReactQuillEditor } from "../../Editor/ReactQuillEditor";
 import categoryApi from "@/app/api/category";
+import Select from "react-select";
+
+
 // Import React FilePond
 import { FilePond, registerPlugin } from 'react-filepond'
 
@@ -67,8 +70,8 @@ export function BasicInfomationForm({
         setFiles(getValues().thumbnail[0] ? getValues().thumbnail[0] : [])
     }, []);
 
-    console.log(getValues().thumbnail[0]?.name);
-
+    const levels = category.Level.map((level: any) => { return { ...level, label: level.name } })
+    console.log(getValues());
 
     return (
         <>
@@ -99,17 +102,22 @@ export function BasicInfomationForm({
                 >
                     Lớp học
                 </label>
-                <select id="grade" name="grade" {...register("grade", {
-                    required: "Lớp không thể trống"
-                })} defaultValue={getValues().grade} className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                    <option value="">Chọn lớp học</option>
+                <Controller
+                    control={control}
+                    name="grade"
+                    rules={{ required: "Lớp học không thể trống" }}
+                    render={({ field }) => (
+                        <select id="grade" {...field} defaultValue={getValues().grade} className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option value="">Chọn lớp học</option>
 
-                    {category.Class?.map((cl, index) => {
-                        return (
-                            <option key={index} value={`${cl.id}`}>{cl.name}</option>
-                        )
-                    })}
-                </select>
+                            {category.Class?.map((cl, index) => {
+                                return (
+                                    <option key={index} value={`${cl.id}`}>{cl.name}</option>
+                                )
+                            })}
+                        </select>
+                    )}
+                />
                 <p className="mt-2 text-sm text-red-600 dark:text-red-500">
                     {errors?.grade?.message}
                 </p>
@@ -121,17 +129,23 @@ export function BasicInfomationForm({
                 >
                     Môn học
                 </label>
-                <select {...register("subject", {
-                    required: "Môn không thể trống"
-                })} id="subject" className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                    <option value="" defaultChecked>Chọn môn học</option>
 
-                    {category.Subject?.map((subject, index) => {
-                        return (
-                            <option key={index} value={`${subject.id}`} >{subject.name}</option>
-                        )
-                    })}
-                </select>
+                <Controller
+                    control={control}
+                    name="subject"
+                    rules={{ required: "Môn học không thể trống" }}
+                    render={({ field }) => (
+                        <select {...field} id="subject" className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option value="" defaultChecked>Chọn môn học</option>
+
+                            {category.Subject?.map((subject, index) => {
+                                return (
+                                    <option key={index} value={`${subject.id}`} >{subject.name}</option>
+                                )
+                            })}
+                        </select>
+                    )}
+                />
                 <p className="mt-2 text-sm text-red-600 dark:text-red-500">
                     {errors?.subject?.message}
                 </p>
@@ -143,18 +157,24 @@ export function BasicInfomationForm({
                 >
                     Mức độ
                 </label>
-                <select  {...register("level", {
-                    required: "Mức độ không thể trống"
-                })}
-                    id="level" className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                    <option value="" defaultChecked>Chọn mức độ</option>
+                <Controller
+                    control={control}
+                    name="level"
+                    rules={{ required: "Mức độ không thể trống" }}
+                    render={({ field }) => (
+                        <select
+                            {...field}
+                            id="level" className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option value="" defaultChecked>Chọn mức độ</option>
 
-                    {category.Level?.map((level, index) => {
-                        return (
-                            <option key={index} value={`${level.id}`} >{level.name}</option>
-                        )
-                    })}
-                </select>
+                            {category.Level?.map((level, index) => {
+                                return (
+                                    <option key={index} value={`${level.id}`} >{level.name}</option>
+                                )
+                            })}
+                        </select>
+                    )}
+                />
                 <p className="mt-2 text-sm text-red-600 dark:text-red-500">
                     {errors?.level?.message}
                 </p>
@@ -203,7 +223,7 @@ export function BasicInfomationForm({
                     id="thumbnail"
                     type="file"
                 />
-                <p>{`${getValues().thumbnail[0]?.name ? getValues().thumbnail[0]?.name : ''}`}</p>
+                <p>{`${getValues().thumbnail?.name ? getValues().thumbnail[0]?.name : ''}`}</p>
                 {/* <FilePond
                     files={files}
                     onupdatefiles={setFiles}
@@ -266,7 +286,8 @@ export function BasicInfomationForm({
                     id="cover"
                     type="file"
                 />
-                <p>{`${getValues().cover[0]?.name ? getValues().cover[0]?.name : ''}`}</p>
+                <p>{`${getValues().cover?.name ? getValues().cover[0]?.name : ''}`}</p>
+
                 <p className="mt-2 text-sm text-red-600 dark:text-red-500">
                     {errors?.cover?.message}
                 </p>

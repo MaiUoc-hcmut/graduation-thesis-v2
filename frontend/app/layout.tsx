@@ -28,7 +28,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" /> */}
       </head>
       <body className="">
         <Suspense fallback={<p>Loading data...</p>}>

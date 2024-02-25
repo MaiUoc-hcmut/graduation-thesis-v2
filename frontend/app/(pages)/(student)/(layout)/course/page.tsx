@@ -9,6 +9,8 @@ import Image from 'next/image';
 import courseApi from '@/app/api/courseApi';
 import categoryApi from '@/app/api/category'
 import { useSearchParams } from 'next/navigation'
+import { formatCash } from '@/app/helper/FormatFunction'
+
 
 const sortOptions = [
     { name: 'Phổ biến nhất', href: '#', current: true },
@@ -54,6 +56,7 @@ const sortOptions = [
 //         ],
 //     },
 // ]
+
 
 function classNames(...classes: any) {
     return classes.filter(Boolean).join(' ')
@@ -112,7 +115,7 @@ export default function CourseList() {
         fetchData()
     }, [])
 
-    console.log(category);
+    console.log(category, courses);
 
 
     return (
@@ -346,7 +349,7 @@ export default function CourseList() {
                                                         <div className='flex items-center'>
                                                             <div className='mr-2 w-10 h-10 max-h-10 max-w-10 rounded-full relative'>
                                                                 <Image
-                                                                    src={`${course.thumbnail}`}
+                                                                    src='/images/avatar-teacher.png'
                                                                     fill
                                                                     className='rounded-full overflow-hidden object-cover object-center'
                                                                     alt="logo"
@@ -389,7 +392,7 @@ export default function CourseList() {
 
                                                         </div>
                                                         <div className='mt-6'>
-                                                            <span className='text-xl text-primary font-extrabold'>{course.price} VNĐ</span>
+                                                            <span className='text-xl text-primary font-extrabold'>{formatCash(`${course.price}`)} VNĐ</span>
                                                         </div>
                                                     </div>
                                                 </div>

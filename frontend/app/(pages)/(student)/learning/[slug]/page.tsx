@@ -1,23 +1,24 @@
 "use client"
 import Link from 'next/link';
 import Image from 'next/image';
-import { Bars3Icon } from '@heroicons/react/24/solid'
 import { ChevronDownIcon, ChevronUpIcon, Squares2X2Icon, FilmIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
 import ReactPlayer from 'react-player'
 import courseApi from "@/app/api/courseApi"
 import { ReactQuillEditorComment } from '@/app/_components/Editor/ReactQuillEditorComment'
 import parse from 'html-react-parser';
+import { formatDateTime, convertTime } from '@/app/helper/FormatFunction';
+
 
 export default function LearningPage({ params }: { params: { slug: string } }) {
-    const [course, setCourse] = useState()
+    const [course, setCourse] = useState<any>()
     const initToggle: any = {}
     const [toggle, setToggle] = useState(initToggle)
     const [tab, setTab] = useState(0)
     const [link, setLink] = useState(0)
     const [content, setContent] = useState('')
     const [lectureId, setLectureId] = useState('')
-    const [comments, setComments] = useState([])
+    const [comments, setComments] = useState<[any]>()
 
 
     useEffect(() => {
@@ -34,36 +35,11 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
             )
         }
         fetchData()
-    }, []);
+    }, [lectureId, params.slug]);
 
     console.log(course, lectureId, comments);
 
-    function formatTime(time: string): string {
-        const objectDate = new Date(time)
-        // const objectDate = res.toLocaleString('vi-VN')
-        let day = objectDate.getDate();
 
-        let month = objectDate.getMonth() + 1;
-
-        let year = objectDate.getFullYear();
-
-        return day + "/" + month + "/" + year
-    }
-
-    function time_convert(time: number) {
-        const totalMinutes = Math.floor(time / 60);
-
-        const seconds = time % 60;
-        const hours = Math.floor(totalMinutes / 60);
-        const minutes = totalMinutes % 60;
-
-        const strHours = hours < 10 ? `0${hours}` : `${hours}`
-        const strMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`
-        const strSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`
-
-
-        return `${strHours}:${strMinutes}:${strSeconds}`;
-    }
 
 
     return (
@@ -99,7 +75,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                         {/* <Link href="#" className='bg-white mr-2 text-[#343434] cursor-pointer px-4 py-1 border rounded border-[1px] border-[#e3e1e1]'>
                             Bình luận
                         </Link> */}
-                        <Link href={`/course/${params.slug}`} className='bg-white mr-5 text-[#343434] cursor-pointer px-4 py-1 border rounded border-[1px] border-[#e3e1e1]'>
+                        <Link href={`/course/${params.slug}`} className='bg-white mr-5 text-[#343434] cursor-pointer px-4 py-1 rounded border-[1px] border-[#e3e1e1]'>
                             Trang khóa học
                         </Link>
                         {/* <button type="button">
@@ -113,7 +89,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                     <div className='flex bg-black p-4 h-full'>
                         <div className='w-full rounded-xl'>
                             <div className='flex flex-col h-full'>
-                                <ReactPlayer width='100%' height='100%' controls={true} url={link ? link : '/'} />
+                                <ReactPlayer width='100%' height='100%' controls={true} url={`${link ? link : '/'}`} />
                             </div>
                         </div>
                     </div>
@@ -184,10 +160,10 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                     </div>
                                 </div>
                                 <div className='mt-10  '>
-                                    <p className='font-medium text-lg mb-10'>{comments.length} bình luận</p>
+                                    <p className='font-medium text-lg mb-10'>{comments?.length} bình luận</p>
 
                                     {
-                                        comments.map((cmt) => {
+                                        comments?.map((cmt) => {
                                             return (
                                                 <div key={cmt.id} className='' >
                                                     <div className='flex mb-2'>
@@ -206,7 +182,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                                 <div className='p-3'>
                                                                     <div className='flex items-center'>
                                                                         <p className='mr-2 text-[#184983] font-medium'>Mai Nguyện Ước:</p>
-                                                                        <p className='text-[#828282] text-sm'>{formatTime(cmt.createdAt)}</p>
+                                                                        <p className='text-[#828282] text-sm'>{formatDateTime(cmt.createdAt)}</p>
                                                                     </div>
                                                                     <div>
                                                                         <div className='mt-2 max-w-3xl min-w-75'>{parse(cmt.content)}</div>
@@ -251,7 +227,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                             <div className='p-4'>
 
                                 {
-                                    course?.chapters?.map((chapter) => {
+                                    course?.chapters?.map((chapter: any) => {
                                         return (
                                             <div key={chapter.id} className='mb-3'>
 
@@ -267,7 +243,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                                 </span>
                                                                 <span className="font-normal text-[818894] text-xs flex">
                                                                     {chapter.lectures?.length} chủ đề
-                                                                    | {time_convert(chapter.totalDuration)}
+                                                                    | {convertTime(chapter.totalDuration)}
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -291,18 +267,18 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                     <div className={`${toggle[`open_chapter_${chapter.id}`] ? '' : 'hidden'} border-t-[1px] border-[#f1f1f1] pt-4`}>
                                                         <div>
                                                             {
-                                                                chapter.lectures.map((lecture) => {
+                                                                chapter.lectures.map((lecture: any) => {
                                                                     return (
                                                                         <div onClick={() => {
                                                                             setLink(lecture.video)
                                                                             setLectureId(lecture.id)
-                                                                        }} key={lecture.id} className={`${lectureId == lecture.id ? 'bg-[#f1f1f1]' : 'bg-white'} px-2 py-1 cursor-pointer flex items-center`}>
+                                                                        }} key={lecture.id} className={`${lectureId == lecture.id ? 'bg-[#f1f1f1]' : 'bg-white'} px-2 py-2 mb-1 cursor-pointer flex items-center`}>
                                                                             <span className='mr-3 bg-[#ececec] w-10 h-10 rounded-full flex justify-center items-center'>
                                                                                 <FilmIcon className='w-4 h-4' />
                                                                             </span>
                                                                             <div className='flex flex-col'>
                                                                                 <span className='font-medium text-[#171347]'>{lecture.name}</span>
-                                                                                <span className='text-[#818894] text-xs'>{time_convert(lecture.duration)}</span>
+                                                                                <span className='text-[#818894] text-xs'>{convertTime(lecture.duration)}</span>
                                                                             </div>
                                                                         </div>
                                                                     )

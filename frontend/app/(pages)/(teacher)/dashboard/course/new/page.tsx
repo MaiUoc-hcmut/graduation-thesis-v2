@@ -187,8 +187,10 @@ export default function CreateCourse() {
                                     }
                                 })
                             })
-                            courseApi.create(formData)
-                            router.push("/dashboard/course")
+                            courseApi.create(formData).then(() => {
+                                router.push("/dashboard/course")
+                            })
+
                         }
                     })
                 }>

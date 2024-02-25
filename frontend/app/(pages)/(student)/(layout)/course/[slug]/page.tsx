@@ -30,6 +30,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
         return res.toLocaleString('vi-VN')
     }
 
+
     function time_convert(time: number) {
         const totalMinutes = Math.floor(time / 60);
 
@@ -447,29 +448,29 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                             </div>
                             <div className='px-5'>
                                 <div className='flex items-center justify-center mt-5'>
-                                    <span className='text-3xl text-primary font-bold'>{course?.price}0.000 VNĐ</span>
+                                    <span className='text-3xl text-primary font-bold'>{course?.price} VNĐ</span>
                                 </div>
                                 <div className='mt-5 flex flex-col'>
-                                    <Link href="" className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Mua khóa học</Link>
+                                    <Link href={`/learning/${params.slug}`} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Trang học</Link>
                                 </div>
                                 <div className='mt-9'>
                                     <strong className='text-[#343434]'>Khóa học này bao gồm</strong>
                                     <div className='mt-4 grid grid-cols-2 gap-2'>
                                         <div className='flex items-center'>
                                             <ClockIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                            <span className='text-[#171347] font-medium text-sm'>1:20 giờ</span>
+                                            <span className='text-[#171347] font-medium text-sm'>{time_convert(course.totalDuration)}</span>
                                         </div>
                                         <div className='flex items-center'>
                                             <Squares2X2Icon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                            <span className='text-[#171347] font-medium text-sm'>20 chương</span>
+                                            <span className='text-[#171347] font-medium text-sm'>{course.chapters?.length} chương</span>
                                         </div>
                                         <div className='flex items-center'>
                                             <FilmIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                            <span className='text-[#171347] font-medium text-sm'>120 bài giảng</span>
+                                            <span className='text-[#171347] font-medium text-sm'>{course.totalLectures} bài giảng</span>
                                         </div>
                                         <div className='flex items-center'>
                                             <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                            <span className='text-[#171347] font-medium text-sm'>120 đề thi</span>
+                                            <span className='text-[#171347] font-medium text-sm'>0 đề thi</span>
                                         </div>
 
                                     </div>

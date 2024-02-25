@@ -80,14 +80,14 @@ export const LectureCard = ({ chapter, lecture, index, indexLecture, innerRef, p
                             </span>
                             <div>
                                 <span className="font-bold text-[#171347] text-lg">
-                                    Bài giảng {lecture.id}: {lecture.name}
+                                    {lecture.name}
                                 </span>
                             </div>
                         </div>
                         <div className="flex items-center justify-center">
-                            <button type="button" className="mr-[10px] ">
+                            {/* <button type="button" className="mr-[10px] ">
                                 <PlusCircleIcon className="w-7 h-7 text-primary" />
-                            </button>
+                            </button> */}
                             <button type="button" className="mr-[10px] text-red-500">
                                 <TrashIcon className="w-6 h-6"
                                     onClick={() => {

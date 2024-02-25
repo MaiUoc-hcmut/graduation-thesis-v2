@@ -3,6 +3,7 @@ import Sidebar from '@/app/_components/Sidebar/Sidebar'
 import { Suspense } from 'react'
 import 'react-toastify/dist/ReactToastify.css';
 import HeaderStudent from '@/app/_components/Header/HeaderStudent'
+import FlowbiteClient from '@/app/_components/Flowbite/FlowbiteClient';
 
 export default function TeacherLayout({
   children,
@@ -21,6 +22,7 @@ export default function TeacherLayout({
           </Suspense>
         </div>
       </div>
+      <FlowbiteClient />
     </section>
   )
 }
