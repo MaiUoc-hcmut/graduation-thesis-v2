@@ -12,10 +12,10 @@ import courseApi from "@/app/api/courseApi"
 import { createCourse } from "@/redux/features/courseSlice"
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@/redux/store";
-import { DetailsView, FileManagerComponent, NavigationPane, Toolbar, Inject } from '@syncfusion/ej2-react-filemanager';
-import { registerLicense } from '@syncfusion/ej2-base';
-registerLicense('Ngo9BigBOggjHTQxAR8/V1NAaF1cXmhLYVF/WmFZfVpgdV9CaVZVQmYuP1ZhSXxXdkdhW39fdH1RQGVdUkI=');
-
+// import { DetailsView, FileManagerComponent, NavigationPane, Toolbar, Inject } from '@syncfusion/ej2-react-filemanager';
+// import { registerLicense } from '@syncfusion/ej2-base';
+// registerLicense('Ngo9BigBOggjHTQxAR8/V1NAaF1cXmhLYVF/WmFZfVpgdV9CaVZVQmYuP1ZhSXxXdkdhW39fdH1RQGVdUkI=');
+import Flmngr from "@flmngr/flmngr-react";
 
 type CourseData = {
     name: string
@@ -151,6 +151,25 @@ export default function CreateCourse() {
                 <Inject services={[NavigationPane, DetailsView, Toolbar]} />
             </FileManagerComponent> */}
 
+            <button
+                onClick={() => {
+
+                    Flmngr.open({
+                        apiKey: "1eZGiCrt",                                  // default free key
+                        urlFileManager: 'https://fm.flmngr.com/fileManager', // demo server
+                        urlFiles: `http://localhost:4001/api/v1/teacher/`,             // demo file storage
+                        isMultiple: false,                                   // let selecting a single file
+                        acceptExtensions: ["png", "jpg", "jpeg", "gif", "webp"],
+                        onFinish: (files) => {
+                            console.log("User picked:");
+                            console.log(files);
+                        }
+                    });
+                }}
+            >
+                Open file manager
+            </button>
+
             <div className="flex flex-col ">
                 <form onSubmit={
                     handleSubmit(async (dataForm: any) => {
@@ -187,7 +206,10 @@ export default function CreateCourse() {
                                     }
                                 })
                             })
+
                             courseApi.create(formData).then(() => {
+
+
                                 router.push("/dashboard/course")
                             })
 

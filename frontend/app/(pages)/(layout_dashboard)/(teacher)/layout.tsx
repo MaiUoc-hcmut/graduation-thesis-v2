@@ -2,7 +2,7 @@ import HeaderTeacher from '@/app/_components/Header/HeaderTeacher'
 import Sidebar from '@/app/_components/Sidebar/Sidebar'
 import { Suspense } from 'react'
 import 'react-toastify/dist/ReactToastify.css';
-import HeaderStudent from '@/app/_components/Header/HeaderStudent'
+import HeaderStudent from '@/app/_components/Header/Header'
 import FlowbiteClient from '@/app/_components/Flowbite/FlowbiteClient';
 
 export default function TeacherLayout({

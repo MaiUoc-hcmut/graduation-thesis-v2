@@ -75,6 +75,8 @@ export const loginTeacher = createAsyncThunk('auth-teacher/login', async (user: 
 })
 
 export const signout = createAsyncThunk('/auth/signout', async (arg, thunkAPI) => {
+    console.log(2);
+
     try {
         localStorage.removeItem('user');
         localStorage.removeItem('accessToken');
@@ -83,7 +85,6 @@ export const signout = createAsyncThunk('/auth/signout', async (arg, thunkAPI) =
         localStorage.removeItem('persist:documentReducer');
         localStorage.removeItem('persist:studentReducer');
         localStorage.removeItem('persist:root');
-        // console.log(initialState);
         return initialState;
     } catch (error) {
         return thunkAPI.rejectWithValue(error);

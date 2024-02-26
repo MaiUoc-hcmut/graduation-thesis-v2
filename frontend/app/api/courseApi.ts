@@ -29,8 +29,12 @@ const courseApi = {
 
     create: async (data: object) => {
         const url = `/courses`;
-        const course = await axiosConfig.post(url, data);
-        return course
+        axiosConfig.post(url, data).then((course) => {
+            Promise.all()
+            update
+            return course
+        });
+
     },
 
     delete: (id: string) => {

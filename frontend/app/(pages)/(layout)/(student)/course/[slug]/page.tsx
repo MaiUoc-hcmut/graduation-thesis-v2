@@ -63,7 +63,10 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                 setReviews(data.data.reviews)
                 if (data.data.averageRating) {
                     setAvgReview(data.data.averageRating)
+
+
                 }
+                console.log(data.data);
             }
             )
         }
@@ -92,7 +95,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
 
     return (
         <div className="">
-            <div className="relative h-[530px] block overflow-hidden mt-20">
+            <div className="relative h-[530px] block overflow-hidden">
                 <Image
                     src={`${course?.cover_image ? course?.cover_image : '/'}`}
                     fill={true}
@@ -343,7 +346,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                             const formData = {
                                                 data: {
                                                     ...dataReview,
-                                                    "id_course": "3680824d-f68a-4ea7-9430-b9150006a04a",
+                                                    "id_course": params.slug,
                                                     rating
                                                 }
                                             }
