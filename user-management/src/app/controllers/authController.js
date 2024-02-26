@@ -92,7 +92,8 @@ class Auth {
                 success: true,
                 accessToken,
                 refreshToken,
-                user: req.student
+                user: req.student,
+                role: "student"
             });
         } catch (error) {
             console.log(error?.message);
@@ -108,7 +109,8 @@ class Auth {
                 success: true,
                 accessToken,
                 refreshToken,
-                user: req.teacher
+                user: req.teacher,
+                role: "teacher"
             });
         } catch (error) {
             console.log(error?.message);
