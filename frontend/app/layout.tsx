@@ -9,8 +9,9 @@ import { Suspense } from 'react'
 // import { far } from '@fortawesome/free-regular-svg-icons'
 
 import { ReduxProvider } from '@/redux/provider';
-
-
+// import GlobalError from './global-error';
+import Error from './Error';
+import { ErrorBoundary } from 'next/dist/client/components/error-boundary';
 import { registerLicense } from '@syncfusion/ej2-base';
 registerLicense('Ngo9BigBOggjHTQxAR8/V1NAaF1cXmhLYVF/WmFZfVpgdV9CaVZVQmYuP1ZhSXxXdkdhW39fdH1RQGVdUkI=');
 
@@ -32,7 +33,9 @@ export default function RootLayout({
       <body className="">
         <Suspense fallback={<p>Loading data...</p>}>
           <ReduxProvider>
-            {children}
+            <ErrorBoundary fallback={<p>Something went wrong</p>}>
+              {children}
+            </ErrorBoundary>
           </ReduxProvider>
         </Suspense>
         <FlowbiteClient />

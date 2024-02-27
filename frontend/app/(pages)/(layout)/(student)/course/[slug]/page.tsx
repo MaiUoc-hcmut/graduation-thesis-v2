@@ -106,7 +106,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                     <div className="relative z-0 after:content-['*'] after:absolute after:top-0 after:left-0 after:right-0 after:bottom-0 after:bg-black after:opacity-60 after:h-[530px]"></div>
                 </div>
             </div>
-            <div className='container relative top-[-200px] mx-auto px-20 w-full'>
+            <div className='container relative top-[-200px] mx-16 w-full'>
                 <div className='flex'>
                     <div className='px-4 w-2/3 flex flex-col'>
                         <div className=''>

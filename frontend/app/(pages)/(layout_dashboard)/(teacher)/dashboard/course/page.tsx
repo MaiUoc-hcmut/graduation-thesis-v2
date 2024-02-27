@@ -65,7 +65,7 @@ export default function CourseDashboard() {
                                             </h3>
                                         </Link>
                                         <button>
-                                            {/* <PencilSquareIcon className="w-6 h-6 text-gray-500" onClick={() => courseApi.delete(course.id)} /> */}
+                                            <PencilSquareIcon className="w-6 h-6 text-gray-500" onClick={() => courseApi.delete(course.id)} />
                                             <Link href={`/dashboard/course/edit/${course.id}`} >
                                                 <PencilSquareIcon className="w-6 h-6 text-gray-500" />
                                             </Link>

@@ -1,6 +1,6 @@
 
 const { sequelize } = require('../../config/db');
-import { Model, DataTypes, CreationOptional, UUID, UUIDV4 } from 'sequelize';
+import { Model, DataTypes, CreationOptional } from 'sequelize';
 const Chapter = require('./chapter');
 const Lecture = require('./lecture');
 const Category = require('./category');
@@ -14,7 +14,7 @@ Course.init(
   {
     id: {
       type: DataTypes.UUID,
-      defaultValue: UUIDV4,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
     id_teacher: {

@@ -19,44 +19,6 @@ const sortOptions = [
     { name: 'Giá: Thấp đến cao', href: '#', current: false },
     { name: 'Giá: Cao đến thấp', href: '#', current: false },
 ]
-// const filters = [
-//     {
-//         id: 'color',
-//         name: 'Lớp',
-//         options: [
-//             { value: 'white', label: 'White', checked: false },
-//             { value: 'beige', label: 'Beige', checked: false },
-//             { value: 'blue', label: 'Blue', checked: true },
-//             { value: 'brown', label: 'Brown', checked: false },
-//             { value: 'green', label: 'Green', checked: false },
-//             { value: 'purple', label: 'Purple', checked: false },
-//         ],
-//     },
-//     {
-//         id: 'category',
-//         name: 'Môn',
-//         options: [
-//             { value: 'new-arrivals', label: 'New Arrivals', checked: false },
-//             { value: 'sale', label: 'Sale', checked: false },
-//             { value: 'travel', label: 'Travel', checked: true },
-//             { value: 'organization', label: 'Organization', checked: false },
-//             { value: 'accessories', label: 'Accessories', checked: false },
-//         ],
-//     },
-//     {
-//         id: 'size',
-//         name: 'Mức độ',
-//         options: [
-//             { value: '2l', label: '2L', checked: false },
-//             { value: '6l', label: '6L', checked: false },
-//             { value: '12l', label: '12L', checked: false },
-//             { value: '18l', label: '18L', checked: false },
-//             { value: '20l', label: '20L', checked: false },
-//             { value: '40l', label: '40L', checked: true },
-//         ],
-//     },
-// ]
-
 
 function classNames(...classes: any) {
     return classes.filter(Boolean).join(' ')
@@ -119,7 +81,7 @@ export default function CourseList() {
 
 
     return (
-        <div className="bg-white container mx-auto px-12">
+        <div className="bg-white container mx-auto">
             <div>
                 {/* Mobile filter dialog */}
                 <Transition.Root show={mobileFiltersOpen} as={Fragment}>
