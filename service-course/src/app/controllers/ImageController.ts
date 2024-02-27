@@ -1,3 +1,4 @@
+const CourseDraft = require('../../db/models/course_draft');
 import { Request, Response, NextFunction } from 'express';
 
 const fileUpload = require('../../config/firebase/fileUpload');
@@ -24,10 +25,16 @@ class ImageController {
 
             if (file) {
                 const dateTime = fileUpload.giveCurrentDateTime();
+
+                let body = req.body.data;
+
+                body = JSON.parse(body);
+
+                const { id_course, type } = body;
     
                 const storageRef = ref(
                     storage,
-                    `comments/${file?.originalname + '       ' + dateTime}`
+                    `${type}/${file?.originalname + '       ' + dateTime}`
                 );
     
                 // Create file metadata including the content type
@@ -45,6 +52,13 @@ class ImageController {
                 // Grab the public url
                 const downloadURL = await getDownloadURL(snapshot.ref);
                 resUrl = downloadURL;
+
+                await CourseDraft.create({
+                    id_course,
+                    url: resUrl,
+                    chapter_order: 0,
+                    lecture_order: 0
+                });
             }
 
             res.status(200).json({ url: resUrl });

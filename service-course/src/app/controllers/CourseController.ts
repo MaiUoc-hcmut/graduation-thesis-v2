@@ -138,6 +138,12 @@ class CourseController {
                 delete category.dataValues.id_par_category;
             }
 
+            course.chapters.sort((a: any, b: any) => a.order - b.order);
+
+            course.chapters.forEach((chapter: any) => {
+                chapter.lectures.sort((a: any, b: any) => a.order - b.order);
+            });
+
             let totalCourseDuration = 0;
             let totalLectures = 0;
             course.chapters.forEach((chapter: any) => {
@@ -217,9 +223,15 @@ class CourseController {
                     delete category.dataValues.name;
                     delete category.dataValues.id_par_category;
                 }
+
+                let totalLectures = 0;
+
+                course.chapters.forEach((chapter: any) => {
+                    totalLectures += chapter.lectures.length;
+                });
             }
 
-            res.status(200).json(courses)
+            res.status(200).json(courses);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
