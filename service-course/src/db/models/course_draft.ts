@@ -4,6 +4,11 @@ import { Model, DataTypes } from 'sequelize';
 class CourseDraft extends Model {}
 
 CourseDraft.init({
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true,
+  },
   url: {
     type: DataTypes.TEXT
   },
@@ -16,6 +21,9 @@ CourseDraft.init({
   id_course: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4
+  },
+  type: {
+    type: DataTypes.STRING(20),
   }
 }, {
   sequelize,
