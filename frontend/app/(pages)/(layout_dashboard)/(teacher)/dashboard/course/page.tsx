@@ -65,7 +65,7 @@ export default function CourseDashboard() {
                                             </h3>
                                         </Link>
                                         <button>
-                                            <PencilSquareIcon className="w-6 h-6 text-gray-500" onClick={() => courseApi.delete(course.id)} />
+                                            {/* <PencilSquareIcon className="w-6 h-6 text-gray-500" onClick={() => courseApi.delete(course.id)} /> */}
                                             <Link href={`/dashboard/course/edit/${course.id}`} >
                                                 <PencilSquareIcon className="w-6 h-6 text-gray-500" />
                                             </Link>
@@ -85,15 +85,15 @@ export default function CourseDashboard() {
                                     <div className="mt-auto flex items-center justify-between flex-wrap">
                                         <div className="flex items-center flex-col mt-[20px] mr-[15px]">
                                             <span className="text-sm text-[#818894]">Lớp:</span>
-                                            <span className="text-sm text-[#171347]">{course.Categories[0].Class}</span>
+                                            <span className="text-sm text-[#171347]">{course.Categories[0]?.Class}</span>
                                         </div>
                                         <div className="flex items-center flex-col mt-[20px] mr-[15px]">
                                             <span className="text-sm text-[#818894]">Môn học:</span>
-                                            <span className="text-sm text-[#171347]">{course.Categories[1].Subject}</span>
+                                            <span className="text-sm text-[#171347]">{course.Categories[1]?.Subject}</span>
                                         </div>
                                         <div className="flex items-center flex-col mt-[20px] mr-[15px]">
                                             <span className="text-sm text-[#818894]">Mức độ:</span>
-                                            <span className="text-sm text-[#171347]">{course.Categories[2].Level}</span>
+                                            <span className="text-sm text-[#171347]">{course.Categories[2]?.Level}</span>
                                         </div>
                                     </div>
                                 </div>

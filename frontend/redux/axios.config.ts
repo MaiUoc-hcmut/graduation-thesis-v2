@@ -37,17 +37,8 @@ instance.interceptors.request.use(
                 config.url.indexOf('/courses') >= 0
             ) {
                 config.baseURL = 'http://localhost:4001/api/v1';
-                config.headers['Content-Type'] = 'multipart/form-data';
+                // config.headers['Content-Type'] = 'multipart/form-data';
             }
-            // if (
-            //     config.url.indexOf('/upload-file') >= 0 ||
-            //     config.url.indexOf('/upload-avatar') >= 0 ||
-            //     config.url.indexOf('/upload-image') >= 0
-            // ) {
-            //     config.headers['Content-Type'] = 'multipart/form-data';
-            // } else {
-            //     config.headers['Content-Type'] = 'application/json';
-            // }
         }
 
         let accessToken = localStorage.getItem('accessToken');

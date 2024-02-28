@@ -66,9 +66,11 @@ export function BasicInfomationForm({
         fetchCategory()
     }, []);
 
-    useEffect(() => {
-        setFiles(getValues().thumbnail[0] ? getValues().thumbnail[0] : [])
-    }, []);
+    console.log(getValues());
+
+    // useEffect(() => {
+    //     setFiles(getValues().thumbnail[0] ? getValues().thumbnail[0] : [])
+    // }, []);
 
     const levels = category.Level.map((level: any) => { return { ...level, label: level.name } })
     console.log(getValues());

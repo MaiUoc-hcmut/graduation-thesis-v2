@@ -12,8 +12,8 @@ import { ReduxProvider } from '@/redux/provider';
 // import GlobalError from './global-error';
 import Error from './Error';
 import { ErrorBoundary } from 'next/dist/client/components/error-boundary';
-import { registerLicense } from '@syncfusion/ej2-base';
-registerLicense('Ngo9BigBOggjHTQxAR8/V1NAaF1cXmhLYVF/WmFZfVpgdV9CaVZVQmYuP1ZhSXxXdkdhW39fdH1RQGVdUkI=');
+
+import '@/node_modules/react-multi-carousel/lib/styles.css'
 
 export const metadata: Metadata = {
   title: 'Study365',

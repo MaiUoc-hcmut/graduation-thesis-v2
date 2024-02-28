@@ -22,18 +22,16 @@ const courseApi = {
     },
 
 
-    // update: (id: string) => {
-    //     const url = `/courses/${id}`;
-    //     return axiosClient.get(url);
-    // },
+    update: (id: string, data: object) => {
+        console.log(data);
+
+        const url = `/courses/${id}`;
+        return axiosConfig.put(url, data);
+    },
 
     create: async (data: object) => {
         const url = `/courses`;
-        axiosConfig.post(url, data).then((course) => {
-            Promise.all()
-            update
-            return course
-        });
+        return axiosConfig.post(url, data);
 
     },
 

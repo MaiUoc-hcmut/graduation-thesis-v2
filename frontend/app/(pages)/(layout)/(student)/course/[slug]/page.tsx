@@ -106,7 +106,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                     <div className="relative z-0 after:content-['*'] after:absolute after:top-0 after:left-0 after:right-0 after:bottom-0 after:bg-black after:opacity-60 after:h-[530px]"></div>
                 </div>
             </div>
-            <div className='container relative top-[-200px] mx-16 w-full'>
+            <div className='container relative top-[-200px] mx-auto px-16 w-full'>
                 <div className='flex'>
                     <div className='px-4 w-2/3 flex flex-col'>
                         <div className=''>
@@ -454,7 +454,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                     <span className='text-3xl text-primary font-bold'>{course?.price} VNĐ</span>
                                 </div>
                                 <div className='mt-5 flex flex-col'>
-                                    <Link href={`/learning/${params.slug}`} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Trang học</Link>
+                                    <Link href={`/course/learning/${params.slug}`} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Trang học</Link>
                                 </div>
                                 <div className='mt-9'>
                                     <strong className='text-[#343434]'>Khóa học này bao gồm</strong>

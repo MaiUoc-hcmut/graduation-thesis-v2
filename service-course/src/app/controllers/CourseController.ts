@@ -481,9 +481,10 @@ class CourseController {
     updateCourse = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
-            let body = req.body;
+            let body = req.body.data;
+            console.log(req);
 
-            // body = JSON.parse(body);
+            body = JSON.parse(body);
 
             let { chapters, categories, ...courseBody } = body;
 

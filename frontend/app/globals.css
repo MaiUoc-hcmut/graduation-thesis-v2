@@ -78,3 +78,14 @@ body {
 .filepond--root .filepond--credits {
   display: none;
 }
+
+.react-multi-carousel-dot button {
+  width: 16px !important;
+  height: 16px !important;
+  margin-right: 16px !important;
+  border: 1px solid #d4d4d4 !important;
+}
+
+.react-multi-carousel-dot--active button {
+  background: #43d477 !important;
+}

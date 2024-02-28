@@ -109,42 +109,42 @@ class Auth {
       console.log(error?.message);
     }
   };
+
+  loginTeacher = async (req, res, next) => {
+    try {
+      const accessToken = SignToken.signAccessToken(req.teacher.id);
+      const refreshToken = SignToken.signRefreshToken(req.teacher.id);
+
+      res.status(200).json({
+        success: true,
+        accessToken,
+        refreshToken,
+        user: req.teacher,
+        role: 'teacher',
+      });
+    } catch (error) {
+      console.log(error?.message);
+      res.status(500).json({ error });
+    }
+  };
+
+  refreshToken = async (req, res, next) => {
+    try {
+      const { parsedRefreshToken } = req.body;
+      if (!parsedRefreshToken)
+        return next(createError.BadRequest('Refresh token are required'));
+      const id = await SignToken.verifyRefreshToken(parsedRefreshToken);
+      const accessToken = SignToken.signAccessToken(id);
+      const refToken = SignToken.signRefreshToken(id);
+      res.status(200).json({
+        success: true,
+        accessToken,
+        refreshToken: refToken,
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 }
-
-loginTeacher = async (req, res, next) => {
-  try {
-    const accessToken = SignToken.signAccessToken(req.teacher.id);
-    const refreshToken = SignToken.signRefreshToken(req.teacher.id);
-
-    res.status(200).json({
-      success: true,
-      accessToken,
-      refreshToken,
-      user: req.teacher,
-      role: 'teacher',
-    });
-  } catch (error) {
-    console.log(error?.message);
-    res.status(500).json({ error });
-  }
-};
-
-refreshToken = async (req, res, next) => {
-  try {
-    const { parsedRefreshToken } = req.body;
-    if (!parsedRefreshToken)
-      return next(createError.BadRequest('Refresh token are required'));
-    const id = await SignToken.verifyRefreshToken(parsedRefreshToken);
-    const accessToken = SignToken.signAccessToken(id);
-    const refToken = SignToken.signRefreshToken(id);
-    res.status(200).json({
-      success: true,
-      accessToken,
-      refreshToken: refToken,
-    });
-  } catch (error) {
-    console.log(error.message);
-  }
-};
 
 module.exports = new Auth();
