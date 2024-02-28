@@ -1,6 +1,6 @@
 
 const { sequelize } = require('../../config/db');
-import { Model, DataTypes, CreationOptional, UUIDV4 } from 'sequelize';
+import { Model, DataTypes, CreationOptional } from 'sequelize';
 
 class Comment extends Model {
   declare createdAt: CreationOptional<Date>;
@@ -11,7 +11,7 @@ Comment.init(
   {
     id: {
       type: DataTypes.UUID,
-      defaultValue: UUIDV4,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
     id_parent: {

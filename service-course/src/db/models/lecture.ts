@@ -19,7 +19,7 @@ Lecture.init(
             allowNull: false,
         },
         video: {
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
         },
         name: {
             type: DataTypes.STRING,
@@ -29,7 +29,7 @@ Lecture.init(
             type: DataTypes.STRING,
         },
         duration: {
-            type: DataTypes.BIGINT,
+            type: DataTypes.INTEGER.UNSIGNED,
         },
         order: DataTypes.INTEGER.UNSIGNED,
         status: {

@@ -29,20 +29,17 @@ Course.init(
       type: DataTypes.STRING,
     },
     price: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
     },
     goal: {
       type: DataTypes.STRING,
-      allowNull: false,
     },
     object: {
       type: DataTypes.STRING,
-      allowNull: false,
     },
     requirement: {
       type: DataTypes.STRING,
-      allowNull: false,
     },
     thumbnail: DataTypes.STRING,
     cover_image: DataTypes.STRING,

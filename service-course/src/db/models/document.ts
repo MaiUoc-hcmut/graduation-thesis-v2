@@ -9,22 +9,22 @@ class Document extends Model {}
 Document.init(
     {
         id: {
-            type: DataTypes.INTEGER.UNSIGNED,
-            autoIncrement: true,
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
             primaryKey: true
         },
         id_teacher: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.UUID,
             allowNull: false
         },
         parent_folder_id: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.UUID,
         },
         name: {
             type: DataTypes.STRING(100),
         },
         url: {
-            type: DataTypes.STRING(),
+            type: DataTypes.TEXT,
             allowNull: false,
         },
         views: {
