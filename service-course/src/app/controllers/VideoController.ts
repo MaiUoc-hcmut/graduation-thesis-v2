@@ -1,7 +1,7 @@
 const CourseDraft = require('../../db/models/course_draft');
 const Course = require('../../db/models/course');
 const Chapter = require('../../db/models/chapter');
-const Lecture = require('../../db/models/lecture');
+const Topic = require('../../db/models/topic');
 import { Request, Response, NextFunction } from 'express';
 
 const { getVideoDurationInSeconds } = require('get-video-duration');
@@ -22,7 +22,7 @@ const storage = getStorage();
 class VideoController {
 
     // [POST] /videos
-    uploadSingleLectureVideo = async (req: Request, res: Response, _next: NextFunction) => {
+    uploadSingleTopicVideo = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const video = req.file;
 
@@ -34,7 +34,7 @@ class VideoController {
 
             if (!video.mimetype.startsWith('video/')) {
                 return res.status(400).json({
-                    message: "Invalid mimetype for video lecture!"
+                    message: "Invalid mimetype for video topic!"
                 })
             }
             const dateTime = fileUpload.giveCurrentDateTime();
@@ -49,7 +49,7 @@ class VideoController {
             const chapterIdx = video.originalname.substring(0, firstHyphen);
 
             const secondHyphen = video.originalname.indexOf('-', firstHyphen + 1);
-            const lectureIdx = video.originalname.substring(firstHyphen + 1, secondHyphen);
+            const topicIdx = video.originalname.substring(firstHyphen + 1, secondHyphen);
 
             const originalFileName = video.originalname.substring(secondHyphen + 1);
 
@@ -69,14 +69,14 @@ class VideoController {
             // Check if course has been created
             const course = await Course.findByPk(body.id_course);
 
-            // If course is not created yet, create a draft of lecture
+            // If course is not created yet, create a draft of topic
             if (!course) {
                 await CourseDraft.create({
                     id_course: body.id_course,
                     url,
                     duration,
                     chapter_order: chapterIdx,
-                    lecture_order: lectureIdx,
+                    topic_order: topicIdx,
                     type: "video"
                 });
 
@@ -93,14 +93,14 @@ class VideoController {
                 }
             });
 
-            const lecture = await Lecture.findOne({
+            const topic = await Topic.findOne({
                 where: { 
                     id_chapter: chapter.id,
-                    order: lectureIdx
+                    order: topicIdx
                 }
             });
 
-            await lecture.update({
+            await topic.update({
                 duration,
                 video: url
             });

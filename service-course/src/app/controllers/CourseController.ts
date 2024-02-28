@@ -1,6 +1,6 @@
 const Course = require('../../db/models/course');
 const Chapter = require('../../db/models/chapter');
-const Lecture = require('../../db/models/lecture');
+const Topic = require('../../db/models/topic');
 const Category = require('../../db/models/category');
 const Review = require('../../db/models/review');
 const ParentCategory = require('../../db/models/parent-category');
@@ -41,7 +41,7 @@ declare global {
         interface Request {
             URL: ImageURL;
             teacher?: any;
-            lectureURL: ResponseVideoFile[];
+            topicURL: ResponseVideoFile[];
         }
 
     }
@@ -50,14 +50,14 @@ declare global {
         name: string,
         url: string,
         chapterIdx: number,
-        lectureIdx: number,
+        topicIdx: number,
         duration: number,
     }
 
     interface RequestForCourse extends Request {
         URL: ImageURL;
         teacher?: any;
-        lectureURL: ResponseVideoFile[];
+        topicURL: ResponseVideoFile[];
         file: Express.Multer.File;
         files: Express.Multer.File[];
     }
@@ -115,8 +115,8 @@ class CourseController {
                         as: 'chapters',
                         include: [
                             {
-                                model: Lecture,
-                                as: 'lectures'
+                                model: Topic,
+                                as: 'topics'
                             }
                         ]
                     },
@@ -142,22 +142,22 @@ class CourseController {
             course.chapters.sort((a: any, b: any) => a.order - b.order);
 
             course.chapters.forEach((chapter: any) => {
-                chapter.lectures.sort((a: any, b: any) => a.order - b.order);
+                chapter.topics.sort((a: any, b: any) => a.order - b.order);
             });
 
             let totalCourseDuration = 0;
-            let totalLectures = 0;
+            let totalTopics = 0;
             course.chapters.forEach((chapter: any) => {
                 let totalChapterDuration = 0;
-                chapter.lectures.forEach((lecture: any) => {
-                    totalChapterDuration += lecture.duration;
+                chapter.topics.forEach((topic: any) => {
+                    totalChapterDuration += topic.duration;
                 });
                 chapter.dataValues.totalDuration = totalChapterDuration;
                 totalCourseDuration += totalChapterDuration;
-                totalLectures += chapter.lectures.length;
+                totalTopics += chapter.topics.length;
             });
             course.dataValues.totalDuration = totalCourseDuration;
-            course.dataValues.totalLectures = totalLectures;
+            course.dataValues.totalTopics = totalTopics;
 
             res.status(200).json(course);
         } catch (error: any) {
@@ -225,10 +225,10 @@ class CourseController {
                     delete category.dataValues.id_par_category;
                 }
 
-                let totalLectures = 0;
+                let totalTopics = 0;
 
                 course.chapters.forEach((chapter: any) => {
-                    totalLectures += chapter.lectures.length;
+                    totalTopics += chapter.topics.length;
                 });
             }
 
@@ -313,31 +313,31 @@ class CourseController {
                         transaction: t
                     });
     
-                    if (chapters[i].lectures !== undefined) {
-                        for (let j = 0; j < chapters[i].lectures.length; j++) {
-                            let lectureVideoURL = "";
-                            let lectureVideoDuration = 0;
+                    if (chapters[i].topics !== undefined) {
+                        for (let j = 0; j < chapters[i].topics.length; j++) {
+                            let topicVideoURL = "";
+                            let topicVideoDuration = 0;
         
-                            const lectureDraft = await CourseDraft.findOne({
+                            const topicDraft = await CourseDraft.findOne({
                                 where: {
                                     id_chapter: newChapter.id,
                                     order: j + 1
                                 }
                             });
         
-                            if (lectureDraft) {
-                                lectureVideoURL = lectureDraft.url;
-                                lectureVideoDuration = lectureDraft.duration;
+                            if (topicDraft) {
+                                topicVideoURL = topicDraft.url;
+                                topicVideoDuration = topicDraft.duration;
                             }
                             
-                            await Lecture.create({
+                            await Topic.create({
                                 id_chapter: newChapter.id,
-                                video: lectureVideoURL,
-                                name: chapters[i].lectures[j].name,
-                                description: chapters[i].lectures[j].description,
+                                video: topicVideoURL,
+                                name: chapters[i].topics[j].name,
+                                description: chapters[i].topics[j].description,
                                 order: j + 1,
-                                status: chapters[i].lectures[j].status,
-                                duration: lectureVideoDuration
+                                status: chapters[i].topics[j].status,
+                                duration: topicVideoDuration
                             }, {
                                 transaction: t
                             });
@@ -375,12 +375,12 @@ class CourseController {
             await thumbnailDraft.destroy();
             await coverDraft.destroy();
 
-            // const lecturesDraft = await CourseDraft.findAll({
+            // const topicsDraft = await CourseDraft.findAll({
             //     where: { id_course: courseBody.id }
             // });
 
-            // const deletePromises = lecturesDraft.map(async (lectureDraft: any) => {
-            //     const videoRef = ref(lectureDraft.url);
+            // const deletePromises = topicsDraft.map(async (topicDraft: any) => {
+            //     const videoRef = ref(topicDraft.url);
             //     await deleteObject(videoRef);
             // })
 
@@ -494,12 +494,12 @@ class CourseController {
 
                 // originalname of video is separate to 3 part
                 // each part separate by a hyphen
-                // first part is index of chapter in course, second part is index of lecture in chapter
+                // first part is index of chapter in course, second part is index of topic in chapter
                 const firstHyphen = video.originalname.indexOf('-');
                 const chapterIdx = video.originalname.substring(0, firstHyphen);
 
                 const secondHyphen = video.originalname.indexOf('-', firstHyphen + 1);
-                const lectureIdx = video.originalname.substring(firstHyphen + 1, secondHyphen);
+                const topicIdx = video.originalname.substring(firstHyphen + 1, secondHyphen);
 
                 const originalFileName = video.originalname.substring(secondHyphen + 1);
 
@@ -520,7 +520,7 @@ class CourseController {
                     name: originalFileName,
                     url,
                     chapterIdx: parseInt(chapterIdx),
-                    lectureIdx: parseInt(lectureIdx),
+                    topicIdx: parseInt(topicIdx),
                     duration: Math.floor(duration)
                 });
                 // io.to(clientsConnected[req.teacher.data.id]).emit("file uploaded", {
@@ -531,7 +531,7 @@ class CourseController {
             
             await Promise.all(uploadPromises);
 
-            req.lectureURL = urls;
+            req.topicURL = urls;
             next();
         } catch (error: any) {
             console.log(error.message);
@@ -566,32 +566,100 @@ class CourseController {
                 }
                 await course.setCategories(categoriesList, { transaction: t });
             }
-
+            // If chapter need to update
             if (chapters !== undefined) {
                 for (const chapter of chapters) {
-                    const { lectures, ...chapterBody } = chapter;
+                    const { topics, ...chapterBody } = chapter;
+                    
+                    // If chapter does not have id, it's means the new chapter will be add to course
+                    if (chapterBody.id === undefined) {
+                        const newChapter = await Chapter.create({
+                            ...chapterBody,
+                            id_course: courseId,
+                        }, {
+                            transaction: t
+                        });
+
+                        // If topics is contain in data to add
+                        if (topics !== undefined) {
+                            for (const topic of topics) {
+
+                                // Check if the video has been uploaded or not
+                                const topicDraft = await CourseDraft.findOne({
+                                    where: { 
+                                        id_course: courseId,
+                                        chapter_order: chapter.order,
+                                        topic_order: topic.order,
+                                    }
+                                });
+
+                                let videoTopicUrl = "";
+                                let videoTopicDuration = 0;
+
+                                // If video of topic has been uploaded, then assign the url and duration to variable to create new topic
+                                if (topicDraft) {
+                                    videoTopicUrl = topicDraft.url;
+                                    videoTopicDuration = topicDraft.duration;
+                                }
+
+                                await Topic.create({
+                                    id_chapter: newChapter.id,
+                                    ...topic,
+                                    video: videoTopicUrl,
+                                    duration: videoTopicDuration
+                                }, {
+                                    transaction: t
+                                });
+                            }
+                        }
+
+                        continue;
+                    }
+
+                    // If chapterBody have id field, means chapter already exist, check the id is valid or not
                     const chapterToUpdate = await Chapter.findByPk(chapterBody.id);
 
+                    // If id is not valid, means the id provided by FE does not match any chapter, throw the error
                     if (!chapterToUpdate) throw new Error("Chapter does not exist");
 
-                    await chapterToUpdate.update(chapterBody, { transaction: t });
+                    await chapterToUpdate.update({ ...chapterBody }, { transaction: t });
 
-                    if (lectures !== undefined) {
-                        for (const lecture of lectures) {
-                            const lectureToUpdate = await Lecture.findByPk(lecture.id);
+                    // If topics need to update
+                    if (topics !== undefined) {
+                        for (const topic of topics) {
+                            // If topic does not have id, means new topic will be add
+                            if (topic.id === undefined) {
+                                const topicDraft = await CourseDraft.findOne({
+                                    where: { id_course: courseId },
+                                    chapter_order: chapter.order,
+                                    topic_order: topic.order,
+                                });
 
-                            if (!lectureToUpdate) throw new Error("Lecture does not exist");
+                                // If draft does not exist, means the video is not uploaded yet
+                                let videoTopicUrl = "";
+                                let videoTopicDuration = 0;
 
-                            await lectureToUpdate.update(lecture, { transaction: t });
+                                if (topicDraft) {
+                                    videoTopicUrl = topicDraft.url;
+                                    videoTopicDuration = topicDraft.duration;
+                                }
 
-                            if (req.lectureURL !== undefined) {
-                                const obj = req.lectureURL.find(o => o.chapterIdx === chapter.order && o.lectureIdx === lecture.order);
-
-                                await lectureToUpdate.update({
-                                    video: obj?.url,
-                                    duration: obj?.duration
-                                }, { transaction: t })
+                                await Topic.create({
+                                    id_chapter: chapter.id,
+                                    ...topic,
+                                    video: videoTopicUrl,
+                                    duration: videoTopicDuration
+                                }, {
+                                    transaction: t
+                                });
                             }
+
+                            const topicToUpdate = await Topic.findByPk(topic.id);
+
+                            if (!topicToUpdate) throw new Error("Topic does not exist");
+
+                            await topicToUpdate.update(topic, { transaction: t });
+
                         }
                     }
                 }
@@ -604,9 +672,9 @@ class CourseController {
             res.status(500).json({ error });
             t.rollback();
 
-            // if (req.lectureURL !== undefined && req.lectureURL.length > 0) {
-            //     const deletePromises = req.lectureURL.map(async (lecture) => {
-            //         const videoRef = ref(lecture.url);
+            // if (req.topicURL !== undefined && req.topicURL.length > 0) {
+            //     const deletePromises = req.topicURL.map(async (topic) => {
+            //         const videoRef = ref(topic.url);
             //         await deleteObject(videoRef);
             //     });
             //     await Promise.all(deletePromises);
@@ -652,7 +720,7 @@ class CourseController {
                 const chapterIdx = video.originalname.substring(0, firstHyphen);
     
                 const secondHyphen = video.originalname.indexOf('-', firstHyphen + 1);
-                const lectureIdx = video.originalname.substring(firstHyphen + 1, secondHyphen);
+                const topicIdx = video.originalname.substring(firstHyphen + 1, secondHyphen);
     
                 const originalFileName = video.originalname.substring(secondHyphen + 1);
     
@@ -677,7 +745,7 @@ class CourseController {
                     name: originalFileName,
                     url,
                     chapterIdx: parseInt(chapterIdx),
-                    lectureIdx: parseInt(lectureIdx),
+                    topicIdx: parseInt(topicIdx),
                     duration
                 });
             });

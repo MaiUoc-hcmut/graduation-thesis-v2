@@ -62,7 +62,7 @@ class ImageController {
                 id_course,
                 url: resUrl,
                 chapter_order: 0,
-                lecture_order: 0,
+                topic_order: 0,
                 type
             });
 

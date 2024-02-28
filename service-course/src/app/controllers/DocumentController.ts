@@ -1,7 +1,7 @@
 const Document = require('../../db/models/document');
 const Course = require('../../db/models/course');
 const Chapter = require('../../db/models/chapter');
-const Lecture = require('../../db/models/lecture');
+const Topic = require('../../db/models/topic');
 
 const { ref, getDownloadURL, uploadBytes, getStorage } = require('firebase/storage');
 const { initializeApp } = require('firebase/app');
@@ -121,8 +121,8 @@ class DocumentController {
         }
     }
 
-    // [GET] /api/v1/document/:lectureId
-    getDocumentBelongToLecture = async (req: Request, res: Response, _next: NextFunction) => {
+    // [GET] /api/v1/document/:topicId
+    getDocumentBelongToTopic = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             
         } catch (error: any) {

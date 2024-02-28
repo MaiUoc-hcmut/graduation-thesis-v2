@@ -1,4 +1,4 @@
-const Lecture = require('../../db/models/lecture')
+const Topic = require('../../db/models/topic')
 const Chapter = require('../../db/models/chapter')
 import { Request, Response, NextFunction } from "express";
 const { getVideoDurationInSeconds } = require('get-video-duration');
@@ -21,71 +21,71 @@ const { initializeApp } = require('firebase/app');
 initializeApp(firebaseConfig);
 // const storage = getStorage();
 
-class LectureController {
+class TopicController {
 
-    // [GET] /lectures
-    getAllLectures = async (req: Request, res: Response, _next: NextFunction) => {
+    // [GET] /topics
+    getAllTopics = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const lectures = await Lecture.findAll();
+            const topics = await Topic.findAll();
 
-            res.status(200).json(lectures);
+            res.status(200).json(topics);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
         }
     }
 
-    // [GET] /lectures/:lectureId
-    getLectureById = async (req: Request, res: Response, _next: NextFunction) => {
+    // [GET] /topics/:topicId
+    getTopicById = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const id = req.params.lectureId;
+            const id = req.params.topicId;
 
-            const lecture = await Lecture.findByPk(id);
+            const topic = await Topic.findByPk(id);
 
-            res.status(200).json(lecture);
+            res.status(200).json(topic);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
         }
     }
 
-    // [GET] /lectures/chapter/:chapterId
-    getLectureBelongToChapter = async (req: Request, res: Response, _next: NextFunction) => {
+    // [GET] /topics/chapter/:chapterId
+    getTopicBelongToChapter = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const chapterId = req.params.chapterId;
 
-            const lectures = await Lecture.findAll({
+            const topics = await Topic.findAll({
                 where: { id_chapter: chapterId }
             });
 
-            res.status(200).json(lectures);
+            res.status(200).json(topics);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
         }
     }
 
-    // [POST] /lectures
-    createLecture = async (req: Request, res: Response, _next: NextFunction) => {
+    // [POST] /topics
+    createTopic = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const body = req.body;
 
-            const lectureURL = req.lectureURL[0];
+            const topicURL = req.topicURL[0];
 
-            const newLecture = await Lecture.create({
-                video: lectureURL.url,
-                duration: lectureURL.duration,
+            const newTopic = await Topic.create({
+                video: topicURL.url,
+                duration: topicURL.duration,
                 ...body
             });
 
-            res.status(201).json(newLecture);
+            res.status(201).json(newTopic);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
         }
     }
 
-    uploadLectureVideo = async (req: Request, res: Response, next: NextFunction) => {
+    uploadTopicVideo = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
@@ -96,12 +96,12 @@ class LectureController {
 
                 // originalname of video is separate to 3 part
                 // each part separate by a hyphen
-                // first part is index of chapter in course, second part is index of lecture in chapter
+                // first part is index of chapter in course, second part is index of topic in chapter
                 const firstHyphen = video.originalname.indexOf('-');
                 const chapterIdx = video.originalname.substring(0, firstHyphen);
 
                 const secondHyphen = video.originalname.indexOf('-', firstHyphen + 1);
-                const lectureIdx = video.originalname.substring(firstHyphen + 1, secondHyphen);
+                const topicIdx = video.originalname.substring(firstHyphen + 1, secondHyphen);
 
                 const originalFileName = video.originalname.substring(secondHyphen + 1);
 
@@ -122,7 +122,7 @@ class LectureController {
                     name: originalFileName,
                     url,
                     chapterIdx: parseInt(chapterIdx),
-                    lectureIdx: parseInt(lectureIdx),
+                    topicIdx: parseInt(topicIdx),
                     duration
                 });
                 io.to(clientsConnected[req.teacher.data.id]).emit("file uploaded", {
@@ -133,7 +133,7 @@ class LectureController {
             
             await Promise.all(uploadPromises);
 
-            req.lectureURL = urls;
+            req.topicURL = urls;
             next();
         } catch (error: any) {
             console.log(error.message);
@@ -141,32 +141,32 @@ class LectureController {
         }
     }
 
-    // [PUT] /lectures/:lectureId
-    updateLecture = async (req: Request, res: Response, next: NextFunction) => {
+    // [PUT] /topics/:topicId
+    updateTopic = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const body = req.body;
 
-            const lecture = await Lecture.update(body, {
-                where: { id: req.params.lectureId }
+            const topic = await Topic.update(body, {
+                where: { id: req.params.topicId }
             });
 
-            res.status(200).json(lecture);
+            res.status(200).json(topic);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
         }
     }
 
-    // [DELETE] /lectures/:lectureId
-    deleteLecture = async (req: Request, res: Response, next: NextFunction) => {
+    // [DELETE] /topics/:topicId
+    deleteTopic = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            await Lecture.destroy({
-                where: { id: req.params.lectureId }
+            await Topic.destroy({
+                where: { id: req.params.topicId }
             });
 
             res.status(200).json({
-                id: req.params.lectureId,
-                message: "Lecture has been deleted"
+                id: req.params.topicId,
+                message: "Topic has been deleted"
             })
         } catch (error: any) {
             console.log(error.message);
@@ -213,4 +213,4 @@ class LectureController {
 
 }
 
-module.exports = new LectureController();
+module.exports = new TopicController();

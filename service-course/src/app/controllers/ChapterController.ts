@@ -1,5 +1,5 @@
 const Chapter = require('../../db/models/chapter');
-const Lecture = require('../../db/models/lecture');
+const Topic = require('../../db/models/topic');
 const Course = require('../../db/models/course');
 
 const { getVideoDurationInSeconds } = require('get-video-duration')
@@ -67,48 +67,48 @@ class ChapterController {
 
     // [GET] /chapters/:id/all
     getChapterFull(req: Request, res: Response, next: NextFunction) {
-        Chapter.findAll({ where: { id_course: req.params.id_course }, include: ["lectures"] }).then((chapter: any) =>
+        Chapter.findAll({ where: { id_course: req.params.id_course }, include: ["topics"] }).then((chapter: any) =>
             res.send(chapter))
             .catch(next);
     }
 
     // [POST] /chapters/create
-    createChapter = async (req: Request, res: Response, _next: NextFunction) => {
-        try {
-            const { lectures, ...body } = req.body;
+    // createChapter = async (req: Request, res: Response, _next: NextFunction) => {
+    //     try {
+    //         const { topics, ...body } = req.body;
 
-            const newChapter = await Chapter.create(body);
+    //         const newChapter = await Chapter.create(body);
 
-            if (lectures !== undefined) {
+    //         if (topics !== undefined) {
 
-                const lectureURL = req.lectureURL;
+    //             const topicURL = req.topicURL;
 
-                for (let i = 0; i < lectures.length; i++) {
-                    const obj = lectureURL.find(o => o.lectureIdx === i + 1);
-                    let lectureVideoURL = "";
-                    let lectureVideoDuration = 0;
-                    if (obj) {
-                        lectureVideoURL = obj.url;
-                        lectureVideoDuration = obj.duration;
-                    }
-                    const newLecture = await Lecture.create({
-                        id_chapter: newChapter.id,
-                        name: lectures[i].name,
-                        description: lectures[i].description,
-                        order: i + 1,
-                        status: lectures[i].status,
-                        video: lectureVideoURL,
-                        duration: lectureVideoDuration
-                    });
-                }
-            }
+    //             for (let i = 0; i < topics.length; i++) {
+    //                 const obj = topicURL.find(o => o.topicIdx === i + 1);
+    //                 let topicVideoURL = "";
+    //                 let topicVideoDuration = 0;
+    //                 if (obj) {
+    //                     topicVideoURL = obj.url;
+    //                     topicVideoDuration = obj.duration;
+    //                 }
+    //                 const newTopic = await Topic.create({
+    //                     id_chapter: newChapter.id,
+    //                     name: topics[i].name,
+    //                     description: topics[i].description,
+    //                     order: i + 1,
+    //                     status: topics[i].status,
+    //                     video: topicVideoURL,
+    //                     duration: topicVideoDuration
+    //                 });
+    //             }
+    //         }
 
-            res.status(201).json(newChapter);
-        } catch (error: any) {
-            console.log(error.message);
-            res.status(500).json({ error: error.message });
-        }
-    }
+    //         res.status(201).json(newChapter);
+    //     } catch (error: any) {
+    //         console.log(error.message);
+    //         res.status(500).json({ error: error.message });
+    //     }
+    // }
 
     uploadLectureVideo = async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -121,12 +121,12 @@ class ChapterController {
 
                 // originalname of video is separate to 3 part
                 // each part separate by a hyphen
-                // first part is index of chapter in course, second part is index of lecture in chapter
+                // first part is index of chapter in course, second part is index of topic in chapter
                 const firstHyphen = video.originalname.indexOf('-');
                 const chapterIdx = video.originalname.substring(0, firstHyphen);
 
                 const secondHyphen = video.originalname.indexOf('-', firstHyphen + 1);
-                const lectureIdx = video.originalname.substring(firstHyphen + 1, secondHyphen);
+                const topicIdx = video.originalname.substring(firstHyphen + 1, secondHyphen);
 
                 const originalFileName = video.originalname.substring(secondHyphen + 1);
 
@@ -147,7 +147,7 @@ class ChapterController {
                     name: originalFileName,
                     url,
                     chapterIdx: parseInt(chapterIdx),
-                    lectureIdx: parseInt(lectureIdx),
+                    topicIdx: parseInt(topicIdx),
                     duration
                 });
                 io.to(clientsConnected[req.teacher.data.id]).emit("file uploaded", {
@@ -158,7 +158,7 @@ class ChapterController {
             
             await Promise.all(uploadPromises);
 
-            req.lectureURL = urls;
+            req.topicURL = urls;
             next();
         } catch (error: any) {
             console.log(error.message);
