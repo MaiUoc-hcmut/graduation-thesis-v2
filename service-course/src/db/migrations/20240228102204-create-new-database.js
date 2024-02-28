@@ -38,7 +38,7 @@ module.exports = {
       thumbnail: DataTypes.TEXT,
       cover_image: DataTypes.TEXT,
       status: {
-        type: DataTypes.BOOLEAN,
+        type: DataTypes.STRING,
         allowNull: false,
       },
       createdAt: {
@@ -74,7 +74,7 @@ module.exports = {
         allowNull: false,
       },
       status: {
-        type: DataTypes.BOOLEAN,
+        type: DataTypes.STRING,
         allowNull: false,
       },
       createdAt: {
@@ -86,7 +86,7 @@ module.exports = {
         allowNull: false,
       },
     });
-    await queryInterface.createTable('lecture', {
+    await queryInterface.createTable('topic', {
       id: {
         type: DataTypes.UUID,
         primaryKey: true,
@@ -101,6 +101,7 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       },
+      id_exam: DataTypes.UUID,
       video: {
         type: DataTypes.TEXT,
       },
@@ -118,8 +119,9 @@ module.exports = {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      type: DataTypes.STRING,
       status: {
-        type: DataTypes.BOOLEAN,
+        type: DataTypes.STRING,
         allowNull: false,
       },
       createdAt: {
@@ -213,11 +215,11 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       },
-      id_lecture: {
+      id_topic: {
         type: DataTypes.UUID,
         allowNull: false,
         references: {
-          model: 'Lecture',
+          model: 'Topic',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -234,7 +236,7 @@ module.exports = {
         type: DataTypes.TEXT,
       },
       status: {
-        type: DataTypes.BOOLEAN,
+        type: DataTypes.STRING,
         allowNull: false,
       },
       role: {
@@ -376,7 +378,7 @@ module.exports = {
         type: DataTypes.TEXT,
         allowNull: false,
       },
-      lecture_order: {
+      topic_order: {
         type: DataTypes.INTEGER,
       },
       chapter_order: {
@@ -398,15 +400,41 @@ module.exports = {
         type: DataTypes.DATE
       }
     });
+    await queryInterface.createTable('course-progress', {
+      id: {
+        type: DataTypes.UUID,
+        primaryKey: true
+      },
+      id_student: DataTypes.UUID,
+      id_topic: {
+        type: DataTypes.UUID,
+        references: {
+          model: 'Topic',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      },
+      id_course: {
+        type: DataTypes.UUID,
+        references: {
+          model: 'Course',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      }
+    })
   },
 
   async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable('course-progress');
     await queryInterface.dropTable('category-course');
     await queryInterface.dropTable('document');
     await queryInterface.dropTable('folder');
     await queryInterface.dropTable('review');
     await queryInterface.dropTable('comment');
-    await queryInterface.dropTable('lecture');
+    await queryInterface.dropTable('topic');
     await queryInterface.dropTable('chapter');
     await queryInterface.dropTable('course');
     await queryInterface.dropTable('category');

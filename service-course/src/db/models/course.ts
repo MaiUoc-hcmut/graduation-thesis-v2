@@ -2,7 +2,7 @@
 const { sequelize } = require('../../config/db');
 import { Model, DataTypes, CreationOptional } from 'sequelize';
 const Chapter = require('./chapter');
-const Lecture = require('./lecture');
+const Topic = require('./topic');
 const Category = require('./category');
 
 class Course extends Model {
@@ -68,8 +68,8 @@ Chapter.belongsTo(Course, {
 });
 
 
-Chapter.hasMany(Lecture, { foreignKey: "id_chapter", as: "lectures" })
-Lecture.belongsTo(Chapter, {
+Chapter.hasMany(Topic, { foreignKey: "id_chapter", as: "topics" })
+Topic.belongsTo(Chapter, {
   foreignKey: "id_chapter"
 });
 

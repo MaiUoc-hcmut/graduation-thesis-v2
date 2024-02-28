@@ -12,7 +12,7 @@ CourseDraft.init({
   url: {
     type: DataTypes.TEXT
   },
-  lecture_order: {
+  topic_order: {
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 0

@@ -2,12 +2,14 @@
 const { sequelize } = require('../../config/db');
 import { Model, DataTypes, CreationOptional } from 'sequelize';
 
-class Lecture extends Model {
+const Comment = require('./comment');
+
+class Topic extends Model {
     declare createdAt: CreationOptional<Date>;
     declare updatedAt: CreationOptional<Date>;
 }
 
-Lecture.init(
+Topic.init(
     {
         id: {
             type: DataTypes.UUID,
@@ -47,10 +49,13 @@ Lecture.init(
         },
     },
     {
-        tableName: 'lecture',
+        tableName: 'topic',
         sequelize,
     },
 );
 
+Comment.belongsTo(Topic, { foreignKey: "id_topic" });
+Topic.hasMany(Comment, { foreignKey: "id_topic", as: "topics" })
 
-module.exports = Lecture
+
+module.exports = Topic;
