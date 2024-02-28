@@ -39,9 +39,11 @@ class VideoController {
             }
             const dateTime = fileUpload.giveCurrentDateTime();
 
-            let body = req.body.data;
+            let body = req.body;
 
-            body = JSON.parse(body);
+            if (typeof(body) == 'string') {
+                body = JSON.parse(body);
+            }
 
             const firstHyphen = video.originalname.indexOf('-');
             const chapterIdx = video.originalname.substring(0, firstHyphen);
