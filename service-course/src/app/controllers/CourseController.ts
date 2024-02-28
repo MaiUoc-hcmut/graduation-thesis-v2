@@ -4,6 +4,7 @@ const Lecture = require('../../db/models/lecture');
 const Category = require('../../db/models/category');
 const Review = require('../../db/models/review');
 const ParentCategory = require('../../db/models/parent-category');
+const CourseDraft = require('../../db/models/course_draft');
 
 import { Request, Response, NextFunction } from 'express';
 
@@ -138,6 +139,12 @@ class CourseController {
                 delete category.dataValues.id_par_category;
             }
 
+            course.chapters.sort((a: any, b: any) => a.order - b.order);
+
+            course.chapters.forEach((chapter: any) => {
+                chapter.lectures.sort((a: any, b: any) => a.order - b.order);
+            });
+
             let totalCourseDuration = 0;
             let totalLectures = 0;
             course.chapters.forEach((chapter: any) => {
@@ -217,9 +224,15 @@ class CourseController {
                     delete category.dataValues.name;
                     delete category.dataValues.id_par_category;
                 }
+
+                let totalLectures = 0;
+
+                course.chapters.forEach((chapter: any) => {
+                    totalLectures += chapter.lectures.length;
+                });
             }
 
-            res.status(200).json(courses)
+            res.status(200).json(courses);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
@@ -229,6 +242,14 @@ class CourseController {
     // [POST] /courses
     createCourse = async (req: Request, res: Response, _next: NextFunction) => {
         let newCourse;
+
+        let body = req.body.data;
+
+        body = JSON.parse(body);
+
+        let { chapters, categories, ...courseBody } = body;
+
+        const t = sequelize.transaction();
 
         try {
             const id_teacher = req.teacher.data.id;
@@ -240,23 +261,29 @@ class CourseController {
             // chapters = JSON.parse(chapters);
             // categories = JSON.parse(categories);
 
-            let body = req.body.data;
 
-            body = JSON.parse(body);
+            // Query thumbnail and cover image that created in draft table before
+            const thumbnailDraft = CourseDraft.findOne({
+                where: {
+                    id_course: courseBody.id,
+                    type: "thumbnail"
+                }
+            });
 
-            let { chapters, categories, ...courseBody } = body;
-
-            // Thumbnail and cover image url after upload
-            const { thumbnail, cover } = req.URL as { thumbnail: string, cover: string };
-
-            // Lecture video url and its chapter index in course, lecture index in chapter.
-            const lectureURL = req.lectureURL;
+            const coverDraft = CourseDraft.findOne({
+                where: {
+                    id_course: courseBody.id,
+                    type: "cover"
+                }
+            });
 
             newCourse = await Course.create({
-                thumbnail,
-                cover_image: cover,
+                thumbnail: thumbnailDraft.url,
+                cover_image: coverDraft.url,
                 ...courseBody,
                 id_teacher
+            }, {
+                transaction: t
             });
 
             const categoriesInstances = [];
@@ -266,64 +293,93 @@ class CourseController {
                 categoriesInstances.push(category);
             }
 
-            newCourse.addCategories(categoriesInstances);
+            newCourse.addCategories(categoriesInstances, { transaction: t });
 
-            const newChapters = [];
-            for (let i = 0; i < chapters.length; i++) {
-                const newChapter = await Chapter.create({
-                    name: chapters[i].name,
-                    id_course: newCourse.id,
-                    status: chapters[i].status,
-                    order: i + 1
-                });
-
-                newChapters.push(newChapter);
-
-                for (let j = 0; j < chapters[i].lectures.length; j++) {
-                    const obj = lectureURL.find(o => o.chapterIdx === i + 1 && o.lectureIdx === j + 1);
-                    let lectureVideoURL = "";
-                    let lectureVideoDuration = 0;
-                    if (obj) {
-                        lectureVideoURL = obj.url;
-                        lectureVideoDuration = obj.duration;
-                    }
-
-
-                    const newLecture = await Lecture.create({
-                        id_chapter: newChapter.id,
-                        video: lectureVideoURL,
-                        name: chapters[i].lectures[j].name,
-                        description: chapters[i].lectures[j].description,
-                        order: j + 1,
-                        status: chapters[i].lectures[j].status,
-                        duration: lectureVideoDuration
+            if (chapters !== undefined) {
+                for (let i = 0; i < chapters.length; i++) {
+                    const newChapter = await Chapter.create({
+                        name: chapters[i].name,
+                        id_course: newCourse.id,
+                        status: chapters[i].status,
+                        order: i + 1
+                    }, {
+                        transaction: t
                     });
 
+                    if (chapters[i].lectures !== undefined) {
+                        for (let j = 0; j < chapters[i].lectures.length; j++) {
+                            let lectureVideoURL = "";
+                            let lectureVideoDuration = 0;
 
+                            const lectureDraft = await CourseDraft.findOne({
+                                where: {
+                                    id_chapter: newChapter.id,
+                                    order: j + 1
+                                }
+                            });
 
+                            if (lectureDraft) {
+                                lectureVideoURL = lectureDraft.url;
+                                lectureVideoDuration = lectureDraft.duration;
+                            }
+
+                            await Lecture.create({
+                                id_chapter: newChapter.id,
+                                video: lectureVideoURL,
+                                name: chapters[i].lectures[j].name,
+                                description: chapters[i].lectures[j].description,
+                                order: j + 1,
+                                status: chapters[i].lectures[j].status,
+                                duration: lectureVideoDuration
+                            }, {
+                                transaction: t
+                            });
+                        }
+                    }
                 }
             }
+
+            t.commit();
 
             res.status(201).json(newCourse);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
 
-            const thumbnailRef = ref(req.URL.thumbnail);
-            const coverRef = ref(req.URL.cover);
+            const thumbnailDraft = CourseDraft.findOne({
+                where: {
+                    id_course: courseBody.id,
+                    type: "thumbnail"
+                }
+            });
+
+            const coverDraft = CourseDraft.findOne({
+                where: {
+                    id_course: courseBody.id,
+                    type: "cover"
+                }
+            });
+
+            const thumbnailRef = ref(thumbnailDraft.url);
+            const coverRef = ref(coverDraft.url);
             await deleteObject(thumbnailRef);
             await deleteObject(coverRef);
-            if (req.lectureURL !== undefined && req.lectureURL.length > 0) {
-                const deletePromises = req.lectureURL.map(async (lecture) => {
-                    const videoRef = ref(lecture.url);
-                    await deleteObject(videoRef);
-                });
-                await Promise.all(deletePromises);
-            }
 
-            if (newCourse) {
-                await newCourse.destroy();
-            }
+            await thumbnailDraft.destroy();
+            await coverDraft.destroy();
+
+            const lecturesDraft = await CourseDraft.findAll({
+                where: { id_course: courseBody.id }
+            });
+
+            const deletePromises = lecturesDraft.map(async (lectureDraft: any) => {
+                const videoRef = ref(lectureDraft.url);
+                await deleteObject(videoRef);
+            })
+
+            Promise.all(deletePromises);
+
+            t.rollback();
         }
     }
 
@@ -482,7 +538,6 @@ class CourseController {
         const t = await sequelize.transaction();
         try {
             let body = req.body.data;
-            console.log(req);
 
             body = JSON.parse(body);
 

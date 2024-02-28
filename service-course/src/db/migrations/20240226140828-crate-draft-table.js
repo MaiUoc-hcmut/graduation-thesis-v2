@@ -10,11 +10,9 @@ module.exports = {
       },
       lecture_order: {
         type: Sequelize.INTEGER,
-        allowNull: false,
       },
       chapter_order: {
         type: Sequelize.INTEGER,
-        allowNull: false,
       },
       id_course: {
         type: Sequelize.UUID,

@@ -33,3 +33,6 @@
 # typescript
 /frontend/*.tsbuildinfo
 /frontend/next-env.d.ts
+
+# user management service
+/user-management/.env
