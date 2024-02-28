@@ -295,43 +295,47 @@ class CourseController {
 
             newCourse.addCategories(categoriesInstances, { transaction: t });
 
-            for (let i = 0; i < chapters.length; i++) {
-                const newChapter = await Chapter.create({
-                    name: chapters[i].name,
-                    id_course: newCourse.id,
-                    status: chapters[i].status,
-                    order: i + 1
-                }, {
-                    transaction: t
-                });
-
-                for (let j = 0; j < chapters[i].lectures.length; j++) {
-                    let lectureVideoURL = "";
-                    let lectureVideoDuration = 0;
-
-                    const lectureDraft = await CourseDraft.findOne({
-                        where: {
-                            id_chapter: newChapter.id,
-                            order: j + 1
-                        }
-                    });
-
-                    if (lectureDraft) {
-                        lectureVideoURL = lectureDraft.url;
-                        lectureVideoDuration = lectureDraft.duration;
-                    }
-                    
-                    await Lecture.create({
-                        id_chapter: newChapter.id,
-                        video: lectureVideoURL,
-                        name: chapters[i].lectures[j].name,
-                        description: chapters[i].lectures[j].description,
-                        order: j + 1,
-                        status: chapters[i].lectures[j].status,
-                        duration: lectureVideoDuration
+            if (chapters !== undefined) {
+                for (let i = 0; i < chapters.length; i++) {
+                    const newChapter = await Chapter.create({
+                        name: chapters[i].name,
+                        id_course: newCourse.id,
+                        status: chapters[i].status,
+                        order: i + 1
                     }, {
                         transaction: t
                     });
+    
+                    if (chapters[i].lectures !== undefined) {
+                        for (let j = 0; j < chapters[i].lectures.length; j++) {
+                            let lectureVideoURL = "";
+                            let lectureVideoDuration = 0;
+        
+                            const lectureDraft = await CourseDraft.findOne({
+                                where: {
+                                    id_chapter: newChapter.id,
+                                    order: j + 1
+                                }
+                            });
+        
+                            if (lectureDraft) {
+                                lectureVideoURL = lectureDraft.url;
+                                lectureVideoDuration = lectureDraft.duration;
+                            }
+                            
+                            await Lecture.create({
+                                id_chapter: newChapter.id,
+                                video: lectureVideoURL,
+                                name: chapters[i].lectures[j].name,
+                                description: chapters[i].lectures[j].description,
+                                order: j + 1,
+                                status: chapters[i].lectures[j].status,
+                                duration: lectureVideoDuration
+                            }, {
+                                transaction: t
+                            });
+                        }
+                    }
                 }
             }
 
@@ -532,9 +536,9 @@ class CourseController {
     updateCourse = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
-            let body = req.body;
+            let body = req.body.data;
 
-            // body = JSON.parse(body);
+            body = JSON.parse(body);
             
             let { chapters, categories, ...courseBody } = body;
 
