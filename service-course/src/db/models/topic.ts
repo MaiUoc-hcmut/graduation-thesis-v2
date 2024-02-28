@@ -20,6 +20,7 @@ Topic.init(
             type: DataTypes.UUID,
             allowNull: false,
         },
+        id_exam: DataTypes.UUID,
         video: {
             type: DataTypes.TEXT,
         },
@@ -38,6 +39,10 @@ Topic.init(
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: true,
+        },
+        type: {
+            type: DataTypes.STRING,
+            defaultValue: 'lecture',
         },
         createdAt: {
             type: DataTypes.DATE,
