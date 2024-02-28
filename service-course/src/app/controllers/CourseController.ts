@@ -278,8 +278,8 @@ class CourseController {
             });
 
             newCourse = await Course.create({
-                thumbnail: thumbnailDraft.url,
-                cover_image: coverDraft.url,
+                thumbnail: "",
+                cover_image: "",
                 ...courseBody,
                 id_teacher
             }, {
