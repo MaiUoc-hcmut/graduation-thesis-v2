@@ -241,8 +241,6 @@ class CourseController {
 
     // [POST] /courses
     createCourse = async (req: Request, res: Response, _next: NextFunction) => {
-        let newCourse;
-        
         let body = req.body.data;
 
         if (typeof(body) == 'string') {
@@ -251,7 +249,7 @@ class CourseController {
         
         let { chapters, categories, id, ...courseBody } = body;
 
-        const t = sequelize.transaction();
+        const t = await sequelize.transaction();
 
         try {
             const id_teacher = req.teacher.data.id;
@@ -260,30 +258,29 @@ class CourseController {
             let cover_image = "";
             
             // Query thumbnail and cover image that created in draft table before
-            CourseDraft.findOne({
+            const thumbnailDraft = await CourseDraft.findOne({
                 where: { 
                     id_course: id,
                     type: "thumbnail"
                 }
-            }).then((thumbnailDraft: any) => {
-                thumbnail = thumbnailDraft.url;
-            }).catch(() => {
-                thumbnail = "";
             });
-
-            CourseDraft.findOne({
+            
+            const coverDraft = await CourseDraft.findOne({
                 where: {
                     id_course: id,
                     type: "cover"
                 }
-            }).then((coverDraft: any) => {
-                cover_image = coverDraft.url;
-            }).catch(() => {
-                cover_image = ""
             });
 
+            if (thumbnailDraft) {
+                thumbnail = thumbnailDraft.url;
+            }
 
-            newCourse = await Course.create({
+            if (coverDraft) {
+                cover_image = coverDraft.url;
+            }
+
+            const newCourse = await Course.create({
                 id,
                 thumbnail,
                 cover_image,
@@ -293,14 +290,16 @@ class CourseController {
                 transaction: t
             });
 
-            const categoriesInstances = [];
+            if (categories !== undefined) {
+                const categoriesInstances = [];
 
-            for (let i = 0; i < categories.length; i++) {
-                const category = await Category.findByPk(categories[i]);
-                categoriesInstances.push(category);
+                for (let i = 0; i < categories.length; i++) {
+                    const category = await Category.findByPk(categories[i]);
+                    categoriesInstances.push(category);
+                }
+
+                newCourse.addCategories(categoriesInstances, { transaction: t });
             }
-
-            newCourse.addCategories(categoriesInstances, { transaction: t });
 
             if (chapters !== undefined) {
                 for (let i = 0; i < chapters.length; i++) {
@@ -320,8 +319,9 @@ class CourseController {
         
                             const topicDraft = await CourseDraft.findOne({
                                 where: {
-                                    id_chapter: newChapter.id,
-                                    order: j + 1
+                                    id_course: id,
+                                    topic_order: j + 1,
+                                    chapter_order: i + 1,
                                 }
                             });
         
@@ -346,7 +346,7 @@ class CourseController {
                 }
             }
 
-            t.commit();
+            await t.commit();
 
             res.status(201).json(newCourse);
         } catch (error: any) {
@@ -355,14 +355,14 @@ class CourseController {
 
             const thumbnailDraft = await CourseDraft.findOne({
                 where: { 
-                    id_course: courseBody.id,
+                    id_course: id,
                     type: "thumbnail"
                 }
             });
 
             const coverDraft = await CourseDraft.findOne({
                 where: {
-                    id_course: courseBody.id,
+                    id_course: id,
                     type: "cover"
                 }
             });
@@ -372,11 +372,16 @@ class CourseController {
             // await deleteObject(thumbnailRef);
             // await deleteObject(coverRef);
 
-            await thumbnailDraft.destroy();
-            await coverDraft.destroy();
+            if (thumbnailDraft) {
+                await thumbnailDraft.destroy();
+            }
+
+            if (coverDraft) {
+                await coverDraft.destroy();
+            }
 
             // const topicsDraft = await CourseDraft.findAll({
-            //     where: { id_course: courseBody.id }
+            //     where: { id_course: id }
             // });
 
             // const deletePromises = topicsDraft.map(async (topicDraft: any) => {
@@ -386,7 +391,7 @@ class CourseController {
 
             // Promise.all(deletePromises);
 
-            t.rollback();
+            await t.rollback();
         }
     }
 

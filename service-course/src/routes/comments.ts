@@ -14,8 +14,8 @@ router.route('/:commentId')
     .get(commentController.getCommentById)
     .delete(commentController.deleteComment)
 
-router.route('/lecture/:lectureId')
-    .get(commentController.getCommentBelongToLecture);
+router.route('/topic/:topicId')
+    .get(commentController.getCommentBelongToTopic);
 
 router.put("/:id", commentController.update);
 

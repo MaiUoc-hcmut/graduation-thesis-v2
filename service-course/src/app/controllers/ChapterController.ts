@@ -73,42 +73,42 @@ class ChapterController {
     }
 
     // [POST] /chapters/create
-    // createChapter = async (req: Request, res: Response, _next: NextFunction) => {
-    //     try {
-    //         const { topics, ...body } = req.body;
+    createChapter = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const { topics, ...body } = req.body;
 
-    //         const newChapter = await Chapter.create(body);
+            const newChapter = await Chapter.create(body);
 
-    //         if (topics !== undefined) {
+            if (topics !== undefined) {
 
-    //             const topicURL = req.topicURL;
+                const topicURL = req.topicURL;
 
-    //             for (let i = 0; i < topics.length; i++) {
-    //                 const obj = topicURL.find(o => o.topicIdx === i + 1);
-    //                 let topicVideoURL = "";
-    //                 let topicVideoDuration = 0;
-    //                 if (obj) {
-    //                     topicVideoURL = obj.url;
-    //                     topicVideoDuration = obj.duration;
-    //                 }
-    //                 const newTopic = await Topic.create({
-    //                     id_chapter: newChapter.id,
-    //                     name: topics[i].name,
-    //                     description: topics[i].description,
-    //                     order: i + 1,
-    //                     status: topics[i].status,
-    //                     video: topicVideoURL,
-    //                     duration: topicVideoDuration
-    //                 });
-    //             }
-    //         }
+                for (let i = 0; i < topics.length; i++) {
+                    const obj = topicURL.find(o => o.topicIdx === i + 1);
+                    let topicVideoURL = "";
+                    let topicVideoDuration = 0;
+                    if (obj) {
+                        topicVideoURL = obj.url;
+                        topicVideoDuration = obj.duration;
+                    }
+                    const newTopic = await Topic.create({
+                        id_chapter: newChapter.id,
+                        name: topics[i].name,
+                        description: topics[i].description,
+                        order: i + 1,
+                        status: topics[i].status,
+                        video: topicVideoURL,
+                        duration: topicVideoDuration
+                    });
+                }
+            }
 
-    //         res.status(201).json(newChapter);
-    //     } catch (error: any) {
-    //         console.log(error.message);
-    //         res.status(500).json({ error: error.message });
-    //     }
-    // }
+            res.status(201).json(newChapter);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
 
     uploadLectureVideo = async (req: Request, res: Response, next: NextFunction) => {
         try {

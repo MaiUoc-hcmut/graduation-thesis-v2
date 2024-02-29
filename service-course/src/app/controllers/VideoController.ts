@@ -22,7 +22,7 @@ const storage = getStorage();
 class VideoController {
 
     // [POST] /videos
-    uploadSingleTopicVideo = async (req: Request, res: Response, _next: NextFunction) => {
+    uploadSingleLectureVideo = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const video = req.file;
 

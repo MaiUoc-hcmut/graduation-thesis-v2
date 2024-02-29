@@ -30,6 +30,7 @@ Course.init(
     },
     price: {
       type: DataTypes.INTEGER.UNSIGNED,
+      defaultValue: 0,
       allowNull: false,
     },
     goal: {

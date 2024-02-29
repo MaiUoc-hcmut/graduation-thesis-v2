@@ -1,7 +1,7 @@
 const { sequelize } = require('../../config/db');
 import { Model, DataTypes } from 'sequelize';
 const Category = require('./category');
-const Lecture = require('./lecture');
+const Topic = require('./topic');
 const Folder = require('./folder');
 
 class Document extends Model {}
@@ -53,8 +53,8 @@ Document.init(
 Document.belongsToMany(Category, { through: 'documentcategory', foreignKey: "documentId" });
 Category.belongsToMany(Document, { through: 'documentcategory', foreignKey: "categoryId" });
 
-Document.belongsToMany(Lecture, { through: 'documentlecture', foreignKey: "documentId" });
-Lecture.belongsToMany(Document, { through: 'documentlecture', foreignKey: "lectureId" });
+Document.belongsToMany(Topic, { through: 'documenttopic', foreignKey: "documentId" });
+Topic.belongsToMany(Document, { through: 'documenttopic', foreignKey: "topicId" });
 
 Document.belongsTo(Folder, { foreignKey: 'parent_folder_id' });
 Folder.hasMany(Document, { foreignKey: 'parent_folder_id' });
