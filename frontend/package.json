@@ -41,6 +41,7 @@
     "react-player": "^2.14.1",
     "react-quill": "^2.0.0",
     "react-toastify": "^10.0.1",
+    "react-uuid": "^2.0.0",
     "redux-persist": "^6.0.0"
   },
   "devDependencies": {

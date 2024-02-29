@@ -5,8 +5,8 @@ import Link from "next/link"
 import { FormEvent, useEffect, useState } from "react"
 import { useMultistepForm } from "@/app/hooks/useMultiStep"
 import { useRouter } from 'next/navigation'
-import { BasicInfomationForm } from "@/app/_components/Form/Course/BasicInfomationForm"
-import { ContentForm } from "@/app/_components/Form/Course/ContentForm"
+import { BasicInfomationForm } from "@/app/_components/Form/CreateCourse/BasicInfomationForm"
+import { ContentForm } from "@/app/_components/Form/CreateCourse/ContentForm"
 import { useForm } from "react-hook-form"
 import courseApi from "@/app/api/courseApi"
 import { createCourse } from "@/redux/features/courseSlice"
@@ -36,14 +36,14 @@ type ChapterData = {
     id: string
     name: string
     lectures: Array<LectureData>
-    status: Boolean
+    status: string
 }
 
 type LectureData = {
     id: string
     name: string
     description: string
-    status: Boolean
+    status: string
     link_video: Array<File>
 }
 
@@ -61,16 +61,6 @@ const INITIAL_DATA: CourseData = {
     thumbnail: [],
     cover: [],
     chapters: [
-        // {
-        //     id: `a`,
-        //     name: "",
-        //     status: true,
-        //     lectures: [{
-        //         name: "",
-        //         description: "",
-        //         status: true
-        //     }]
-        // }
     ]
 }
 
@@ -151,7 +141,7 @@ export default function CreateCourse() {
                 <Inject services={[NavigationPane, DetailsView, Toolbar]} />
             </FileManagerComponent> */}
 
-            <button
+            {/* <button
                 onClick={() => {
 
                     Flmngr.open({
@@ -168,7 +158,7 @@ export default function CreateCourse() {
                 }}
             >
                 Open file manager
-            </button>
+            </button> */}
 
             <div className="flex flex-col ">
                 <form onSubmit={
@@ -183,6 +173,7 @@ export default function CreateCourse() {
                         data1.categories.push(dataForm.grade)
                         data1.categories.push(dataForm.subject)
                         data1.categories.push(dataForm.level)
+                        data1.id = '8d4ef46e-d3da-4463-bc47-4578a5ba2573'
 
 
                         console.log('submit', dataForm, data, typeSubmit);
@@ -199,13 +190,13 @@ export default function CreateCourse() {
                             formData.append("thumbnail", dataForm.thumbnail[0])
                             formData.append("cover", dataForm.cover[0])
 
-                            dataForm.chapters.map((chapter: ChapterData, indexChapter: number) => {
-                                chapter.lectures.map((lecture: LectureData, indexLecture: number) => {
-                                    if (lecture.link_video.length != 0) {
-                                        formData.append("video", lecture.link_video[0], `${indexChapter + 1}-${indexLecture + 1}-${lecture.link_video[0]?.name}`)
-                                    }
-                                })
-                            })
+                            // dataForm.chapters.map((chapter: ChapterData, indexChapter: number) => {
+                            //     chapter.lectures.map((lecture: LectureData, indexLecture: number) => {
+                            //         if (lecture.link_video.length != 0) {
+                            //             formData.append("video", lecture.link_video[0], `${indexChapter + 1}-${indexLecture + 1}-${lecture.link_video[0]?.name}`)
+                            //         }
+                            //     })
+                            // })
 
                             courseApi.create(formData).then(() => {
 
@@ -226,7 +217,7 @@ export default function CreateCourse() {
                             <button disabled={isFirstStep ? true : false} className={`${isFirstStep ? 'opacity-60' : ''} bg-primary mr-5 border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover" type="button`} onClick={back}>
                                 Trang trước
                             </button>
-                            <button className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover" type="submit">
+                            <button disabled={isLastStep ? true : false} className={`${isLastStep ? 'opacity-60' : ''} bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover`} type="submit">
                                 Tiếp theo
                             </button>
                         </div>

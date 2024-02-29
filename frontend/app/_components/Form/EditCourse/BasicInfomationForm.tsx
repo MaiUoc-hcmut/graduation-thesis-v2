@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react"
 import { ReactQuillEditor } from "../../Editor/ReactQuillEditor";
 import categoryApi from "@/app/api/category";
-import Select from "react-select";
 
-
+import Image from 'next/image';
 // Import React FilePond
 import { FilePond, registerPlugin } from 'react-filepond'
 
@@ -44,8 +43,7 @@ const initCategory: Category = {
 
 export function BasicInfomationForm({
     handleForm,
-    images,
-    setImages
+    course
 }: any) {
     const [category, setCategory] = useState<Category>(initCategory)
     const [files, setFiles] = useState([])
@@ -65,12 +63,6 @@ export function BasicInfomationForm({
         }
         fetchCategory()
     }, []);
-
-    console.log(getValues());
-
-    // useEffect(() => {
-    //     setFiles(getValues().thumbnail[0] ? getValues().thumbnail[0] : [])
-    // }, []);
 
     const levels = category.Level.map((level: any) => { return { ...level, label: level.name } })
     console.log(getValues());
@@ -152,7 +144,7 @@ export function BasicInfomationForm({
                     {errors?.subject?.message}
                 </p>
             </div>
-            <div className="mb-5 w-1/3">
+            <div className="mb-10 w-1/3">
                 <label
                     htmlFor="level"
                     className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
@@ -215,7 +207,7 @@ export function BasicInfomationForm({
                 >
                     Ảnh đại diện
                 </label>
-                <input
+                {/* <input
                     {...register("thumbnail", {
                         required: "Ảnh đại diện không thể trống."
                     })}
@@ -224,11 +216,11 @@ export function BasicInfomationForm({
                     className={`bg-white border border-gray-300 text-[#343434] block w-full mb-2 text-xs rounded-lg cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400`}
                     id="thumbnail"
                     type="file"
-                />
-                <p>{`${getValues().thumbnail?.name ? getValues().thumbnail[0]?.name : ''}`}</p>
-                {/* <FilePond
+                /> */}
+                {/* <p>{`${getValues().thumbnail?.name ? getValues().thumbnail[0]?.name : ''}`}</p> */}
+                <FilePond
                     files={files}
-                    onupdatefiles={setFiles}
+                    onupdatefiles={() => setFiles}
                     acceptedFileTypes={['image/*']}
                     allowMultiple={true}
                     server={{
@@ -259,16 +251,22 @@ export function BasicInfomationForm({
                         }
                     }
                     }
-                    // onaddfile={(error, file) => {
-                    //     setImages({ ...images, thumbnail: file.file })
-                    // }}
-                    name="image"
+
+                    name="images"
                     labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
-                /> */}
+                />
 
                 <p className="mt-2 text-sm text-red-600 dark:text-red-500">
                     {errors?.thumbnail?.message}
                 </p>
+                <div className="w-full h-[240px] relative">
+                    <Image
+                        src={`${course?.thumbnail ? course?.thumbnail : '/'}`}
+                        fill={true}
+                        className='w-full h-full absolute top-0 left-0 overflow-hidden object-cover object-center'
+                        alt="logo"
+                    />
+                </div>
             </div>
             <div className="mb-5 w-1/2">
                 <label
@@ -278,8 +276,44 @@ export function BasicInfomationForm({
                 >
                     Ảnh nền
                 </label>
+                <FilePond
+                    files={files}
+                    onupdatefiles={() => setFiles}
+                    acceptedFileTypes={['image/*']}
+                    allowMultiple={true}
+                    server={{
+                        process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
+                            const formData = new FormData();
+                            formData.append(fieldName, file, file.name);
 
-                <input
+                            const request = new XMLHttpRequest();
+                            request.open('POST', 'http://localhost:4001/api/v1/images')
+
+
+
+                            request.upload.onprogress = (e) => {
+                                progress(e.lengthComputable, e.loaded, e.total);
+                            };
+
+                            request.onload = function () {
+                                if (request.status >= 200 && request.status < 300) {
+                                    // the load method accepts either a string (id) or an object
+                                    load(request.responseText);
+                                } else {
+                                    // Can call the error method if something is wrong, should exit after
+                                    error('oh no');
+                                }
+                            };
+                            request.send(formData);
+                            // courseApi.uploadVideo(formData)
+                        }
+                    }
+                    }
+
+                    name="images"
+                    labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
+                />
+                {/* <input
                     accept=".png, .jpg, .jpeg"
                     {...register("cover", {
                         required: "Ảnh nền không thể trống."
@@ -288,11 +322,18 @@ export function BasicInfomationForm({
                     id="cover"
                     type="file"
                 />
-                <p>{`${getValues().cover?.name ? getValues().cover[0]?.name : ''}`}</p>
 
                 <p className="mt-2 text-sm text-red-600 dark:text-red-500">
                     {errors?.cover?.message}
-                </p>
+                </p> */}
+                <div className="w-full h-[240px] relative">
+                    <Image
+                        src={`${course?.cover_image ? course?.cover_image : '/'}`}
+                        fill={true}
+                        className='w-full h-full absolute top-0 left-0 overflow-hidden object-cover object-center'
+                        alt="logo"
+                    />
+                </div>
             </div>
             {/* <div className="mb-16">
                 <label

@@ -245,9 +245,9 @@ class CourseController {
 
         let body = req.body.data;
 
-        body = JSON.parse(body);
+        // body = JSON.parse(body);
 
-        let { chapters, categories, ...courseBody } = body;
+        let { chapters, categories, id, ...courseBody } = body;
 
         const t = sequelize.transaction();
 
@@ -265,19 +265,20 @@ class CourseController {
             // Query thumbnail and cover image that created in draft table before
             const thumbnailDraft = CourseDraft.findOne({
                 where: {
-                    id_course: courseBody.id,
+                    id_course: id,
                     type: "thumbnail"
                 }
             });
 
             const coverDraft = CourseDraft.findOne({
                 where: {
-                    id_course: courseBody.id,
+                    id_course: id,
                     type: "cover"
                 }
             });
 
             newCourse = await Course.create({
+                id,
                 thumbnail: "",
                 cover_image: "",
                 ...courseBody,
@@ -299,7 +300,7 @@ class CourseController {
                 for (let i = 0; i < chapters.length; i++) {
                     const newChapter = await Chapter.create({
                         name: chapters[i].name,
-                        id_course: newCourse.id,
+                        id_course: id,
                         status: chapters[i].status,
                         order: i + 1
                     }, {
@@ -348,14 +349,14 @@ class CourseController {
 
             const thumbnailDraft = CourseDraft.findOne({
                 where: {
-                    id_course: courseBody.id,
+                    id_course: id,
                     type: "thumbnail"
                 }
             });
 
             const coverDraft = CourseDraft.findOne({
                 where: {
-                    id_course: courseBody.id,
+                    id_course: id,
                     type: "cover"
                 }
             });
@@ -369,7 +370,7 @@ class CourseController {
             await coverDraft.destroy();
 
             const lecturesDraft = await CourseDraft.findAll({
-                where: { id_course: courseBody.id }
+                where: { id_course: id }
             });
 
             const deletePromises = lecturesDraft.map(async (lectureDraft: any) => {

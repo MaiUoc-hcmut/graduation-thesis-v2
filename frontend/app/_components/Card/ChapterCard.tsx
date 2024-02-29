@@ -4,7 +4,7 @@ import {
     ExclamationCircleIcon, PencilSquareIcon, ArrowsPointingOutIcon, Squares2X2Icon,
     PlusCircleIcon, TrashIcon, ChevronDownIcon, ChevronUpIcon, BookOpenIcon
 } from "@heroicons/react/24/outline"
-
+import { convertTime } from '@/app/helper/FormatFunction'
 import { Dropdown } from 'flowbite-react';
 import { Button, Checkbox, Label, Modal, TextInput, Radio } from 'flowbite-react';
 import { ToastContainer, toast } from 'react-toastify';
@@ -33,7 +33,7 @@ import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 // Register the plugins
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
 
-export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, reset, control, index, innerRef, provided, data, setData, remove, setTypeSubmit, toggle, setToggle }: any) => {
+export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, reset, control, index, innerRef, provided, data, setData, remove, setTypeSubmit, toggle, setToggle, getValues }: any) => {
     const [modal, setModal] = useState<any>({})
     const notify = () => {
         toast.success('Thành công', {
@@ -132,29 +132,57 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                 <TextInput
                                     type="text"
                                     {...register(`chapters.${index}.name`, {
-                                        required: "Tên chương không thể thiếu."
+                                        required: "Tên mục không thể thiếu."
                                     })}
                                 />
                                 <div className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                    {errors?.name?.message}
+                                    {errors?.chapters?.[index]?.name?.message}
                                 </div>
                             </div>
 
-                            <div className="mt-2 flex w-full items-center">
+                            <div className="mt-2 w-full">
                                 <div
                                     className="block mr-2 text-sm font-semibold text-[14px] text-[#171347] "
                                 >
                                     Trạng thái
                                 </div>
-                                <label className="relative inline-flex items-center me-5 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        className="sr-only peer"
-                                        defaultChecked={chapter.status[0] == "on"}
-                                        {...register(`chapters.${index}.status`)}
-                                    />
-                                    <div className="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600" />
-                                </label>
+                                <div className="mt-2">
+                                    <label className="relative inline-flex items-center me-5 cursor-pointer">
+                                        <div className="flex">
+                                            <div className="flex items-center me-4" >
+                                                <input
+                                                    id="inline-radio"
+                                                    type="radio"
+                                                    {...register(`chapters.${index}.status`)}
+                                                    value="public"
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                />
+                                                <label
+                                                    htmlFor="inline-radio"
+                                                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                >
+                                                    Công khai
+                                                </label>
+                                            </div>
+                                            <div className="flex items-center me-4">
+                                                <input
+                                                    id="inline-2-radio"
+                                                    type="radio"
+                                                    {...register(`chapters.${index}.status`)}
+                                                    value="private"
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                />
+                                                <label
+                                                    htmlFor="inline-2-radio"
+                                                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                >
+                                                    Riêng tư
+                                                </label>
+                                            </div>
+
+                                        </div>
+                                    </label>
+                                </div>
 
                             </div>
                             <div className="mt-6 flex justify-end">
@@ -194,8 +222,8 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                 {chapter.name}
                             </span>
                             <span className="font-normal text-[818894] text-xs flex">
-                                0 chủ đề
-                                | 0:00 giờ
+                                {chapter?.lectures?.length} chủ đề
+                                | {convertTime(0 && getValues().totalDuration)}
                             </span>
                         </div>
                     </div>
@@ -210,7 +238,7 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                         id: `lecture_${lecturesData.length}`,
                                         name: "",
                                         description: "",
-                                        status: true
+                                        status: "public"
                                     })
 
                                     setToggle({ ...toggle, [`add_lecture_${chapter.id}`]: true, [`open_chapter_${chapter.id}`]: true })
@@ -288,9 +316,7 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                         Mô tả
                                     </label>
                                     <textarea
-                                        {...register(`chapters.${index}.lectures.${indexLecture}.description`, {
-                                            required: "Mô tả không thể thiếu",
-                                        })}
+                                        {...register(`chapters.${index}.lectures.${indexLecture}.description`)}
                                         rows={4} className="block p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Viết mô tả cho chủ đề..."></textarea>
 
                                     <p className="mt-2 text-sm text-red-600 dark:text-red-500">
@@ -298,7 +324,7 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                     </p>
                                 </div>
 
-                                <div className="mb-5 w-1/3">
+                                {/* <div className="mb-5 w-1/3">
                                     <label
                                         className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
                                         htmlFor="cover"
@@ -310,62 +336,99 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                         className={`bg-white border border-gray-300 text-[#343434] block w-full mb-2 text-xs rounded-lg cursor-pointer focus:outline-none`}
                                         type="file"
                                     />
+                                </div> */}
+                                <div className="mb-5 w-1/2">
+                                    <label
+                                        className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
+                                        htmlFor="video"
+                                    >
+                                        Video bài giảng
+                                    </label>
+                                    <FilePond
+                                        files={files}
+                                        onupdatefiles={() => setFiles}
+                                        acceptedFileTypes={['video/*']}
+                                        server={{
+                                            process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
+                                                const formData = new FormData();
+                                                formData.append(fieldName, file, `${index}-${indexLecture}-${file.name}`);
+                                                const data = { id_course: '8d4ef46e-d3da-4463-bc47-4578a5ba2573' }
+                                                formData.append('data', JSON.stringify(data));
+
+                                                const request = new XMLHttpRequest();
+                                                request.open('POST', 'http://localhost:4001/api/v1/videos')
+
+                                                request.upload.onprogress = (e) => {
+                                                    progress(e.lengthComputable, e.loaded, e.total);
+                                                };
+
+                                                request.onload = function () {
+                                                    if (request.status >= 200 && request.status < 300) {
+                                                        // the load method accepts either a string (id) or an object
+                                                        load(request.responseText);
+                                                    } else {
+                                                        // Can call the error method if something is wrong, should exit after
+                                                        error('oh no');
+                                                    }
+                                                };
+                                                request.send(formData);
+                                                // courseApi.uploadVideo(formData)
+                                            }
+                                        }
+                                        }
+                                        // onaddfile={(error, file) => {
+                                        //     setImages({ ...images, thumbnail: file.file })
+                                        // }}
+                                        name="video"
+                                        labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
+                                    />
+                                    <p>{getValues().chapters?.index?.lectures?.indexLecture?.link_video}</p>
                                 </div>
 
-                                <FilePond
-                                    files={files}
-                                    onupdatefiles={setFiles}
-                                    allowMultiple={true}
-                                    server={{
-                                        process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
-                                            const formData = new FormData();
-                                            formData.append(fieldName, file, file.name);
-
-                                            const request = new XMLHttpRequest();
-                                            request.open('POST', 'http://localhost:4001/api/v1/images')
-
-
-
-                                            request.upload.onprogress = (e) => {
-                                                progress(e.lengthComputable, e.loaded, e.total);
-                                            };
-
-                                            request.onload = function () {
-                                                if (request.status >= 200 && request.status < 300) {
-                                                    // the load method accepts either a string (id) or an object
-                                                    load(request.responseText);
-                                                } else {
-                                                    // Can call the error method if something is wrong, should exit after
-                                                    error('oh no');
-                                                }
-                                            };
-                                            request.send(formData);
-                                            // courseApi.uploadVideo(formData)
-                                        }
-                                    }
-                                    }
-                                    // onaddfile={(error, file) => {
-                                    //     setImages({ ...images, thumbnail: file.file })
-                                    // }}
-                                    name="image"
-                                    labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
-                                />
-
-                                <div className="mb-5 flex w-full items-center">
+                                <div className="mb-5 w-full">
                                     <div
                                         className="block mr-2 text-sm font-semibold text-[14px] text-[#171347] "
                                     >
                                         Trạng thái
                                     </div>
-                                    <label className="relative inline-flex items-center me-5 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            className="sr-only peer"
-                                            defaultChecked
-                                            {...register(`chapters.${index}.lectures.${indexLecture}.status`)}
-                                        />
-                                        <div className="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600" />
-                                    </label>
+                                    <div className="mt-2">
+                                        <label className="relative inline-flex items-center me-5 cursor-pointer">
+                                            <div className="flex">
+                                                <div className="flex items-center me-4" >
+                                                    <input
+                                                        id="inline-radio"
+                                                        type="radio"
+                                                        {...register(`chapters.${index}.lectures.${indexLecture}.status`)}
+                                                        value="public"
+                                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                    />
+                                                    <label
+                                                        htmlFor="inline-radio"
+                                                        className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                    >
+                                                        Công khai
+                                                    </label>
+                                                </div>
+                                                <div className="flex items-center me-4">
+                                                    <input
+                                                        id="inline-2-radio"
+                                                        type="radio"
+                                                        {...register(`chapters.${index}.lectures.${indexLecture}.status`)}
+                                                        value="private"
+                                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                    />
+                                                    <label
+                                                        htmlFor="inline-2-radio"
+                                                        className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                    >
+                                                        Riêng tư
+                                                    </label>
+                                                </div>
+
+                                            </div>
+                                        </label>
+                                    </div>
+
 
                                 </div>
 
@@ -416,7 +479,7 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
 
                                                             <LectureCard
                                                                 chapter={chapter} lecture={lecture} index={index} indexLecture={indexLecture} innerRef={provided.innerRef} provided={provided} data={data} setData={setData} remove={remove}
-                                                                register={register} errors={errors} watch={watch} removeLecture={removeLecture} reset={reset} fieldsLecture={fieldsLecture}
+                                                                register={register} errors={errors} watch={watch} removeLecture={removeLecture} reset={reset} fieldsLecture={fieldsLecture} getValues={getValues} setTypeSubmit={setTypeSubmit}
                                                             />
                                                         )
                                                     }

@@ -4,8 +4,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { FormEvent, useEffect, useState } from "react"
 import { useMultistepForm } from "@/app/hooks/useMultiStep"
-import { BasicInfomationForm } from "@/app/_components/Form/Course/BasicInfomationForm"
-import { ContentForm } from "@/app/_components/Form/Course/ContentForm"
+import { BasicInfomationForm } from "@/app/_components/Form/EditCourse/BasicInfomationForm"
+import { ContentForm } from "@/app/_components/Form/EditCourse/ContentForm"
 import { useForm } from "react-hook-form"
 import courseApi from "@/app/api/courseApi"
 import { useRouter } from "next/router"
@@ -172,6 +172,7 @@ export default function Edit({ id, course }: any) {
     const [toggle, setToggle] = useState<any>({})
     const [typeSubmit, setTypeSubmit] = useState("")
     const [currentStepIndex, setCurrentStepIndex] = useState(0)
+    course.grade = '3c138a43-4fb5-4a86-8332-3d3b6e995082'
     // const router = useRouter()
 
     const handleForm = useForm<CourseData>(
@@ -188,7 +189,7 @@ export default function Edit({ id, course }: any) {
 
     const { steps, step, isFirstStep, isLastStep, back, next, goTo } =
         useMultistepForm([
-            <BasicInfomationForm key={'step1'} handleForm={handleForm} images={images} setImages={setImages} />,
+            <BasicInfomationForm key={'step1'} handleForm={handleForm} course={course} />,
             <ContentForm key={'step2'} data={data} setData={setData} handleForm={handleForm} toggle={toggle} setToggle={setToggle} typeSubmit={typeSubmit} setTypeSubmit={setTypeSubmit} />,
         ], currentStepIndex, setCurrentStepIndex)
 
@@ -260,7 +261,7 @@ export default function Edit({ id, course }: any) {
                 <form onSubmit={
                     handleSubmit(async (dataForm: any) => {
                         if (!(Object.entries(errors).length === 0)) return
-                        setToggle({ ...toggle, [`${typeSubmit}`]: false })
+                        setToggle({ ...oggle, [`${typeSubmit}`]: false })
                         setData(dataForm)
 
                         const { thumbnail, cover, ...data1 } = dataForm
@@ -273,8 +274,6 @@ export default function Edit({ id, course }: any) {
 
                         console.log('submit', dataForm, data, typeSubmit);
 
-
-
                         if (!isLastStep) return next()
 
 
@@ -282,16 +281,7 @@ export default function Edit({ id, course }: any) {
                             const formData = new FormData();
 
                             formData.append("data", JSON.stringify(data1))
-                            formData.append("thumbnail", dataForm.thumbnail[0])
-                            formData.append("cover", dataForm.cover[0])
 
-                            dataForm.chapters.map((chapter: ChapterData, indexChapter: number) => {
-                                chapter.lectures.map((lecture: LectureData, indexLecture: number) => {
-                                    if (lecture.link_video.length != 0) {
-                                        formData.append("video", lecture.link_video[0], `${indexChapter + 1}-${indexLecture + 1}-${lecture.link_video[0]?.name}`)
-                                    }
-                                })
-                            })
                             try {
                                 courseApi.update(id, formData).then(() => {
                                     // router.push("/dashboard/course")
@@ -314,7 +304,7 @@ export default function Edit({ id, course }: any) {
                             <button disabled={isFirstStep ? true : false} className={`${isFirstStep ? 'opacity-60' : ''} bg-primary mr-5 border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover" type="button`} onClick={back}>
                                 Trang trước
                             </button>
-                            <button className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover" type="submit">
+                            <button disabled={isLastStep ? true : false} className={`${isLastStep ? 'opacity-60' : ''} bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover`} type="submit">
                                 Tiếp theo
                             </button>
                         </div>

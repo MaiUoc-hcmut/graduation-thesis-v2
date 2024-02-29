@@ -62,7 +62,7 @@ export function ContentForm({
                     append({
                         id: `chapter-${getValues().chapters.length}`,
                         name: "",
-                        status: true,
+                        status: "public",
                         lectures: []
                     })
                     setToggle({ ...toggle, "add-section": true })
@@ -101,21 +101,51 @@ export function ContentForm({
                                         {errors?.chapters?.[index]?.name?.message}
                                     </div>
 
-                                    <div className="mt-4 flex w-full items-center">
+                                    <div className="mt-4 w-full ">
                                         <div
                                             className="block mr-2 text-sm font-semibold text-[14px] text-[#171347] "
                                         >
                                             Trạng thái
                                         </div>
-                                        <label className="relative inline-flex items-center me-5 cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                className="sr-only peer"
-                                                defaultChecked
-                                                {...register(`chapters.${index}.status`)}
-                                            />
-                                            <div className="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600" />
-                                        </label>
+                                        <div className="mt-2">
+                                            <label className="relative inline-flex items-center me-5 cursor-pointer">
+                                                <div className="flex">
+
+                                                    <div className="flex items-center me-4" >
+                                                        <input
+                                                            id="inline-radio"
+                                                            type="radio"
+                                                            defaultChecked
+                                                            {...register(`chapters.${index}.status`)}
+                                                            value="public"
+                                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                        />
+                                                        <label
+                                                            htmlFor="inline-radio"
+                                                            className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                        >
+                                                            Công khai
+                                                        </label>
+                                                    </div>
+                                                    <div className="flex items-center me-4">
+                                                        <input
+                                                            id="inline-2-radio"
+                                                            type="radio"
+                                                            {...register(`chapters.${index}.status`)}
+                                                            value="private"
+                                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                        />
+                                                        <label
+                                                            htmlFor="inline-2-radio"
+                                                            className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                        >
+                                                            Riêng tư
+                                                        </label>
+                                                    </div>
+
+                                                </div>
+                                            </label>
+                                        </div>
 
                                     </div>
                                 </div>
@@ -193,7 +223,7 @@ export function ContentForm({
                                                         <Draggable key={chapter.id} index={index} draggableId={`${chapter.id}`}>
                                                             {
                                                                 (provided) => (
-                                                                    <ChapterCard chapter={chaptersData[index]} watch={watch} register={register} handleSubmit={handleSubmit} errors={errors} index={index} innerRef={provided.innerRef} provided={provided} data={data} setData={setData} remove={remove} control={control} reset={reset} setTypeSubmit={setTypeSubmit} toggle={toggle} setToggle={setToggle} />
+                                                                    <ChapterCard chapter={chaptersData[index]} watch={watch} register={register} handleSubmit={handleSubmit} errors={errors} index={index} innerRef={provided.innerRef} provided={provided} data={data} setData={setData} remove={remove} control={control} reset={reset} setTypeSubmit={setTypeSubmit} toggle={toggle} setToggle={setToggle} getValues={getValues} />
                                                                 )
                                                             }
                                                         </Draggable>

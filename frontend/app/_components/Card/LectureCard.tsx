@@ -10,6 +10,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { DragDropContext, Draggable, Droppable, DroppableProps } from 'react-beautiful-dnd';
 import { StrictModeDroppable } from "../React_Beautiful_Dnd/StrictModeDroppable";
+import ReactPlayer from 'react-player';
 
 type lectureData = {
     id: string
@@ -17,7 +18,7 @@ type lectureData = {
     status: boolean
 }
 
-export const LectureCard = ({ chapter, lecture, index, indexLecture, innerRef, provided, data, setData, register, errors, watch, removeLecture, reset, fieldsLecture }: any) => {
+export const LectureCard = ({ chapter, lecture, index, indexLecture, innerRef, provided, data, setData, register, errors, watch, removeLecture, reset, fieldsLecture, getValues, setTypeSubmit }: any) => {
     const initToggle: any = {}
     const [toggle, setToggle] = useState(initToggle)
     const [modal, setModal] = useState(initToggle)
@@ -118,7 +119,7 @@ export const LectureCard = ({ chapter, lecture, index, indexLecture, innerRef, p
                         </div>
                     </div>
 
-                    {/* <div className={`${toggle[`edit_lecture_${lecture.id}`] ? "" : "hidden"}  mt-3 pt-4 border-t-[1px] border-[#ececec]`}>
+                    <div className={`${toggle[`edit_lecture_${lecture.id}`] ? "" : "hidden"}  mt-3 pt-4 border-t-[1px] border-[#ececec]`}>
                         <div className="mt-3">
                             <div className="mb-5 w-1/3">
                                 <label
@@ -157,7 +158,7 @@ export const LectureCard = ({ chapter, lecture, index, indexLecture, innerRef, p
                                 </p>
                             </div>
 
-                            <div className="mb-5 w-1/3">
+                            {/* <div className="mb-5 w-1/3">
                                 <label
                                     className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
                                     htmlFor="cover"
@@ -169,6 +170,61 @@ export const LectureCard = ({ chapter, lecture, index, indexLecture, innerRef, p
                                     className={`bg-white border border-gray-300 text-[#343434] block w-full mb-2 text-xs rounded-lg cursor-pointer focus:outline-none`}
                                     type="file"
                                 />
+                            </div> */}
+                            {
+                                getValues().chapters[index]?.lectures[indexLecture]?.video ?
+                                    <div className='my-10 p-2 bg-black w-1/2'>
+                                        <ReactPlayer width='100%' height='240px' controls={true} url={`${getValues().chapters[index]?.lectures[indexLecture]?.video}}`} />
+                                    </div>
+                                    : null
+
+                            }
+
+
+                            <div className="mb-5 w-full">
+                                <div
+                                    className="block mr-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                >
+                                    Trạng thái
+                                </div>
+                                <div className="mt-2">
+                                    <label className="relative inline-flex items-center me-5 cursor-pointer">
+                                        <div className="flex">
+                                            <div className="flex items-center me-4" >
+                                                <input
+                                                    id="inline-radio"
+                                                    type="radio"
+                                                    {...register(`chapters.${index}.lectures.${indexLecture}.status`)}
+                                                    value="public"
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                />
+                                                <label
+                                                    htmlFor="inline-radio"
+                                                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                >
+                                                    Công khai
+                                                </label>
+                                            </div>
+                                            <div className="flex items-center me-4">
+                                                <input
+                                                    id="inline-2-radio"
+                                                    type="radio"
+                                                    {...register(`chapters.${index}.lectures.${indexLecture}.status`)}
+                                                    value="private"
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                />
+                                                <label
+                                                    htmlFor="inline-2-radio"
+                                                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                >
+                                                    Riêng tư
+                                                </label>
+                                            </div>
+
+                                        </div>
+                                    </label>
+                                </div>
+
                             </div>
 
                             <div className="mb-2">
@@ -178,11 +234,15 @@ export const LectureCard = ({ chapter, lecture, index, indexLecture, innerRef, p
                                         reset({ [`chapters.${index}.lectures.${indexLecture}`]: {} })
 
                                     }} type="button" className="mr-4 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Huỷ</button>
-                                <button type="submit"
+                                <button type="submit" onClick={() => {
+                                    setToggle({ ...toggle, [`edit_lecture_${lecture.id}`]: false })
+                                    setTypeSubmit(`edit_lecture_${lecture.id}`)
+                                    notify()
+                                }}
                                     className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mt-3">Lưu</button>
                             </div>
                         </div>
-                    </div> */}
+                    </div>
                 </div>
             </li>
 
