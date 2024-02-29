@@ -45,6 +45,7 @@ Review.belongsTo(Course, {
 });
 
 Course.hasMany(Review, {
-    foreignKey: 'id_course'
+    foreignKey: 'id_course',
+    as: 'ratings'
 });
 module.exports = Review;

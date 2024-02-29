@@ -39,7 +39,7 @@ class VideoController {
             }
             const dateTime = fileUpload.giveCurrentDateTime();
 
-            let body = req.body;
+            let body = req.body.data;
 
             if (typeof(body) == 'string') {
                 body = JSON.parse(body);
