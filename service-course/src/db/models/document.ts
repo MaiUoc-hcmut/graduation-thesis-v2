@@ -1,7 +1,7 @@
 const { sequelize } = require('../../config/db');
 import { Model, DataTypes } from 'sequelize';
 const Category = require('./category');
-const Lecture = require('./lecture');
+const Topic = require('./topic');
 const Folder = require('./folder');
 
 class Document extends Model {}
@@ -9,22 +9,22 @@ class Document extends Model {}
 Document.init(
     {
         id: {
-            type: DataTypes.INTEGER.UNSIGNED,
-            autoIncrement: true,
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
             primaryKey: true
         },
         id_teacher: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.UUID,
             allowNull: false
         },
         parent_folder_id: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.UUID,
         },
         name: {
             type: DataTypes.STRING(100),
         },
         url: {
-            type: DataTypes.STRING(),
+            type: DataTypes.TEXT,
             allowNull: false,
         },
         views: {
@@ -53,8 +53,8 @@ Document.init(
 Document.belongsToMany(Category, { through: 'documentcategory', foreignKey: "documentId" });
 Category.belongsToMany(Document, { through: 'documentcategory', foreignKey: "categoryId" });
 
-Document.belongsToMany(Lecture, { through: 'documentlecture', foreignKey: "documentId" });
-Lecture.belongsToMany(Document, { through: 'documentlecture', foreignKey: "lectureId" });
+Document.belongsToMany(Topic, { through: 'documenttopic', foreignKey: "documentId" });
+Topic.belongsToMany(Document, { through: 'documenttopic', foreignKey: "topicId" });
 
 Document.belongsTo(Folder, { foreignKey: 'parent_folder_id' });
 Folder.hasMany(Document, { foreignKey: 'parent_folder_id' });

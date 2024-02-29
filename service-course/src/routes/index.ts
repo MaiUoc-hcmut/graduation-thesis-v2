@@ -3,7 +3,7 @@ const commentsRouter = require("./comments");
 const documentRouter = require('./document');
 const folderRouter = require('./folders');
 const chapterRouter = require('./chapters');
-const lectureRouter = require('./lectures');
+const topicRouter = require('./topic');
 const categoryRouter = require('./category');
 const parentCategoryRouter = require('./par-category');
 const reviewRouter = require('./review');
@@ -14,7 +14,7 @@ const testRouter = require('./test');
 function route(app: any) {
     app.use("/api/v1/courses", coursesRouter);
     app.use("/api/v1/chapters", chapterRouter);
-    app.use("/api/v1/lectures", lectureRouter);
+    app.use("/api/v1/topics", topicRouter);
     app.use("/api/v1/comments", commentsRouter);
     app.use('/api/v1/document', documentRouter);
     app.use('/api/v1/folder', folderRouter);

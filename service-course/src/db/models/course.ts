@@ -2,7 +2,7 @@
 const { sequelize } = require('../../config/db');
 import { Model, DataTypes, CreationOptional } from 'sequelize';
 const Chapter = require('./chapter');
-const Lecture = require('./lecture');
+const Topic = require('./topic');
 const Category = require('./category');
 
 class Course extends Model {
@@ -29,20 +29,18 @@ Course.init(
       type: DataTypes.STRING,
     },
     price: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER.UNSIGNED,
+      defaultValue: 0,
       allowNull: false,
     },
     goal: {
       type: DataTypes.STRING,
-      allowNull: false,
     },
     object: {
       type: DataTypes.STRING,
-      allowNull: false,
     },
     requirement: {
       type: DataTypes.STRING,
-      allowNull: false,
     },
     thumbnail: DataTypes.STRING,
     cover_image: DataTypes.STRING,
@@ -71,8 +69,8 @@ Chapter.belongsTo(Course, {
 });
 
 
-Chapter.hasMany(Lecture, { foreignKey: "id_chapter", as: "lectures" })
-Lecture.belongsTo(Chapter, {
+Chapter.hasMany(Topic, { foreignKey: "id_chapter", as: "topics" })
+Topic.belongsTo(Chapter, {
   foreignKey: "id_chapter"
 });
 

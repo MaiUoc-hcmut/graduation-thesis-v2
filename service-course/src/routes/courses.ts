@@ -12,11 +12,7 @@ router.use("/chapters", chaptersRouter)
 //route course
 router.route('/')
     .get(courseController.getAllCourse)
-    .post(Authorize.protectedAPI,
-        // fileUpload.uploadCourseFiles, 
-        // courseController.uploadThumbnailAndCover, 
-        // courseController.uploadLectureVideo, 
-        courseController.createCourse)
+    .post(Authorize.protectedAPI, courseController.createCourse)
 
 
 router.route('/filter')

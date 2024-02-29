@@ -12,15 +12,19 @@ CourseDraft.init({
   url: {
     type: DataTypes.TEXT
   },
-  lecture_order: {
-    type: DataTypes.INTEGER
+  topic_order: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0
   },
   chapter_order: {
-    type: DataTypes.INTEGER
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
   },
   id_course: {
     type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4
+    allowNull: false,
   },
   type: {
     type: DataTypes.STRING(20),

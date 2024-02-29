@@ -22,8 +22,8 @@ router.route('/course/:courseId')
     .get(DocumentController.getDocumentBelongToCourse);
 router.route('/chapter/:chapterId')
     .get(DocumentController.getDocumentBelongToChapter);
-router.route('/lecture/:lectureId')
-    .get(DocumentController.getDocumentBelongToLecture);
+router.route('/topic/:topicId')
+    .get(DocumentController.getDocumentBelongToTopic);
 router.route('/folder/:parentId')
     .get(Authorize.protectedAPI, DocumentController.getDocumentBelongToFolder);
 

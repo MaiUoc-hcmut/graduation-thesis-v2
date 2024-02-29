@@ -51,11 +51,11 @@ class CommentController {
         }
     }
 
-    // [GET] /comments/lecture/:lectureId
-    getCommentBelongToLecture = async (req: Request, res: Response, _next: NextFunction) => {
+    // [GET] /comments/topic/:topicId
+    getCommentBelongToTopic = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const comments = await Comment.findAll({
-                where: { id_lecture: req.params.lectureId }
+                where: { id_topic: req.params.topicId }
             });
 
             res.status(200).json(comments);

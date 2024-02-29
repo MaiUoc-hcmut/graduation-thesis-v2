@@ -2,12 +2,14 @@
 const { sequelize } = require('../../config/db');
 import { Model, DataTypes, CreationOptional } from 'sequelize';
 
-class Lecture extends Model {
+const Comment = require('./comment');
+
+class Topic extends Model {
     declare createdAt: CreationOptional<Date>;
     declare updatedAt: CreationOptional<Date>;
 }
 
-Lecture.init(
+Topic.init(
     {
         id: {
             type: DataTypes.UUID,
@@ -18,8 +20,9 @@ Lecture.init(
             type: DataTypes.UUID,
             allowNull: false,
         },
+        id_exam: DataTypes.UUID,
         video: {
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
         },
         name: {
             type: DataTypes.STRING,
@@ -29,13 +32,17 @@ Lecture.init(
             type: DataTypes.STRING,
         },
         duration: {
-            type: DataTypes.BIGINT,
+            type: DataTypes.INTEGER.UNSIGNED,
         },
         order: DataTypes.INTEGER.UNSIGNED,
         status: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: true,
+        },
+        type: {
+            type: DataTypes.STRING,
+            defaultValue: 'lecture',
         },
         createdAt: {
             type: DataTypes.DATE,
@@ -47,10 +54,13 @@ Lecture.init(
         },
     },
     {
-        tableName: 'lecture',
+        tableName: 'topic',
         sequelize,
     },
 );
 
+Comment.belongsTo(Topic, { foreignKey: "id_topic" });
+Topic.hasMany(Comment, { foreignKey: "id_topic", as: "topics" })
 
-module.exports = Lecture
+
+module.exports = Topic;

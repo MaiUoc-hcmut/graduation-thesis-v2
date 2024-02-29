@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const lecturesRouter = require("./lectures");
+const lecturesRouter = require("./topic");
 
 const chapterController = require("../app/controllers/ChapterController");
 const fileUpload = require('../config/firebase/fileUpload');

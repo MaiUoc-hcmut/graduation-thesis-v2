@@ -5,7 +5,7 @@ const createError = require('http-errors');
 
 const Course = require('../../db/models/course');
 const Comment = require('../../db/models/comment');
-const Lecture = require('../../db/models/lecture');
+const Topic = require('../../db/models/topic');
 
 import { Request, Response, NextFunction } from "express";
 
