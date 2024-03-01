@@ -28,7 +28,7 @@ type CourseData = {
 }
 
 type ChapterData = {
-    id: string
+    key: string
     name: string
     topics: Array<TopicData>
     status: Boolean
@@ -50,6 +50,9 @@ export default function Edit({ id, course }: any) {
     const [typeSubmit, setTypeSubmit] = useState("")
     const [currentStepIndex, setCurrentStepIndex] = useState(0)
     // const router = useRouter()
+
+
+
 
     const handleForm = useForm<CourseData>(
         {

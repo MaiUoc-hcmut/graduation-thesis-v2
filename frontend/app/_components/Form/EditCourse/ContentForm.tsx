@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { ChapterCard } from "../../Card/ChapterCard"
+import { ChapterCard } from "../../Card/EditCourse/ChapterCard"
 import { ToastContainer, toast } from 'react-toastify';
 import { useFieldArray, useForm } from "react-hook-form";
 import { DragDropContext, Draggable, Droppable, DroppableProps } from 'react-beautiful-dnd';
@@ -23,12 +23,13 @@ export function ContentForm({
         register,
         control,
         getValues,
+        setValue,
         formState: { errors },
     } = handleForm
-    const [chaptersData, setChaptersData] = useState(data?.chapters ? data.chapters : [])
+    const [chaptersData, setChaptersData] = useState(data?.chapters ? data.chapters.filter((chapter: any) => chapter.modify != "delete") : [])
 
     useEffect(() => {
-        setChaptersData(data?.chapters ? data.chapters : [])
+        setChaptersData(data?.chapters ? data.chapters?.filter((chapter: any) => chapter.modify != "delete") : [])
     }, [data]);
 
 
@@ -55,11 +56,12 @@ export function ContentForm({
             <div>
                 <button type="button" onClick={() => {
                     appendChapter({
-                        id: `chapter-${getValues().chapters.length}`,
+                        key: `chapter-${getValues().chapters.length}`,
                         name: "",
                         status: "public",
-                        topics: []
+                        topics: [],
                     })
+
                     setToggle({ ...toggle, "add-section": true })
 
                 }} className="mt-3 bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover">
@@ -153,6 +155,7 @@ export function ContentForm({
                         <button
                             onClick={() => {
                                 setToggle({ ...toggle, "add-section": false })
+
                                 removeChapter(fields.length - 1)
                             }}
                             type="button" className="mr-5 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Hủy</button>
@@ -160,6 +163,7 @@ export function ContentForm({
                             type="submit"
                             onClick={
                                 () => {
+                                    setValue(`chapters.${getValues().chapters.length - 1}.modify`, "create")
                                     setTypeSubmit("add-section")
                                 }
                             }
@@ -206,6 +210,7 @@ export function ContentForm({
                                     result.destination.index
                                 );
                                 setChaptersData(items)
+                                setValue('chapters', items)
                             }}>
                                 <StrictModeDroppable droppableId="chapter">
                                     {(provided) => (
@@ -214,7 +219,7 @@ export function ContentForm({
                                                 chaptersData.map((chapter: any, index: any) => {
                                                     return (
 
-                                                        <Draggable key={chapter.id} index={index} draggableId={`${chapter.id}`}>
+                                                        <Draggable key={chapter.id || chapter.key} index={index} draggableId={`${(chapter.id || chapter.key)}`}>
                                                             {
                                                                 (provided) => (
                                                                     <ChapterCard chapter={chaptersData[index]} handleForm={handleForm} indexChapter={index} innerRef={provided.innerRef} provided={provided} data={data} setData={setData} removeChapter={removeChapter} setTypeSubmit={setTypeSubmit} toggle={toggle} setToggle={setToggle} getValues={getValues} id_course={id_course} />

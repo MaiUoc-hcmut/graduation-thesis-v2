@@ -212,8 +212,6 @@ export function BasicInfomationForm({
                     files={files}
                     onupdatefiles={() => setFiles}
                     acceptedFileTypes={['image/*']}
-                    allowMultiple={true}
-                    required
                     server={{
                         process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                             const formData = new FormData();
@@ -275,8 +273,6 @@ export function BasicInfomationForm({
                     files={files}
                     onupdatefiles={() => setFiles}
                     acceptedFileTypes={['image/*']}
-                    allowMultiple={true}
-                    required
                     server={{
                         process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                             const formData = new FormData();

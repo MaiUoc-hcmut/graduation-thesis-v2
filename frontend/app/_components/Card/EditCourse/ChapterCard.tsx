@@ -10,7 +10,7 @@ import { Button, Checkbox, Label, Modal, TextInput, Radio } from 'flowbite-react
 import { ToastContainer, toast } from 'react-toastify';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { DragDropContext, Draggable, Droppable, DroppableProps } from 'react-beautiful-dnd';
-import { StrictModeDroppable } from "../React_Beautiful_Dnd/StrictModeDroppable";
+import { StrictModeDroppable } from "../../React_Beautiful_Dnd/StrictModeDroppable";
 import { TopicCard } from './TopicCard';
 
 
@@ -87,18 +87,15 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
     return (
         <div ref={innerRef}  {...provided.draggableProps}  >
             <>
-                <Modal show={modal[`delete_section${chapter.id}`]} size="md" onClose={() => setModal({ ...modal, [`delete_section${chapter.id}`]: false })} popup>
+                <Modal show={modal[`delete_section${chapter.id || chapter.key}`]} size="md" onClose={() => setModal({ ...modal, [`delete_section${chapter.id || chapter.key}`]: false })} popup>
                     <Modal.Header />
                     <Modal.Body>
                         <form className="space-y-6" onSubmit={(e: any) => {
                             e.preventDefault()
-                            setModal({ ...modal, [`delete_section${chapter.id}`]: false })
-                            removeChapter(indexChapter)
-
-                            setData((data: any) => {
-                                data.chapters?.splice(indexChapter, 1)
-                                return data
-                            })
+                            setModal({ ...modal, [`delete_section${chapter.id || chapter.key}`]: false })
+                            if (getValues().chapters[indexChapter].modify != "create") {
+                                setValue(`chapters.${indexChapter}.modify`, "delete")
+                            }
                             notify()
                         }}>
                             <ExclamationCircleIcon className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
@@ -110,7 +107,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                     Xóa
                                 </Button>
                                 <Button color="gray" onClick={() => {
-                                    setModal({ ...modal, [`delete_section${chapter.id}`]: false })
+                                    setModal({ ...modal, [`delete_section${chapter.id || chapter.key}`]: false })
 
                                 }}>
                                     Hủy
@@ -122,19 +119,22 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
             </>
 
             <>
-                <Modal show={modal[`edit_section_${chapter.id}`]} size="md" onClose={() => setModal({ ...modal, [`edit_section_${chapter.id}`]: false })} popup>
+                <Modal show={modal[`edit_section_${chapter.id || chapter.key}`]} size="md" onClose={() => setModal({ ...modal, [`edit_section_${chapter.id || chapter.key}`]: false })} popup>
                     <Modal.Header />
                     <Modal.Body>
                         <form className="space-y-6" onSubmit={handleSubmit(async (data1: any) => {
                             if (!(Object.entries(errors).length === 0)) return
-                            setModal({ ...modal, [`edit_section_${chapter.id}`]: false })
+                            setModal({ ...modal, [`edit_section_${chapter.id || chapter.key}`]: false })
                             setData((data: any) => {
                                 data.chapters[indexChapter].name = data1.chapters[indexChapter].name
                                 data.chapters[indexChapter].status = data1.chapters[indexChapter].status
-
+                                if (getValues().chapters[indexChapter].modify != "create") {
+                                    setValue(`chapters.${indexChapter}.modify`, "change")
+                                }
                                 return data
                             })
-                            setTypeSubmit(`edit_section_${chapter.id}`)
+
+                            setTypeSubmit(`edit_section_${chapter.id || chapter.key}`)
                             notify()
                         })}>
 
@@ -203,7 +203,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                 <button
                                     onClick={() => {
                                         reset({ [`chapters.${indexChapter}`]: {} })
-                                        setModal({ ...modal, [`edit_section_${chapter.id}`]: false })
+                                        setModal({ ...modal, [`edit_section_${chapter.id || chapter.key}`]: false })
                                     }
                                     }
                                     type="button"
@@ -214,7 +214,6 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                 <div>
                                     <button
                                         onClick={() => {
-                                            setValue(`chapters.${indexChapter}.modify`, "change")
                                         }}
                                         type="submit"
                                         className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
@@ -251,20 +250,20 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
 
                             <Dropdown label="" renderTrigger={() => <PlusCircleIcon className="w-7 h-7 text-primary" />} placement="left">
                                 <Dropdown.Item onClick={() => {
-                                    console.log(fieldsTopic);
 
                                     if (fieldsTopic?.length == 0) {
                                         appendTopic({
-                                            id: `topic_${topicsData.length}`,
+                                            key: `topic_${topicsData.length}`,
                                             name: "",
                                             description: "",
-                                            status: "public"
+                                            status: "public",
+                                            type: "lecture"
                                         })
                                     } else {
 
                                         if (fieldsTopic[fieldsTopic?.length - 1].name != "")
                                             appendTopic({
-                                                id: `topic_${topicsData.length}`,
+                                                key: `topic_${topicsData.length}`,
                                                 name: "",
                                                 description: "",
                                                 status: "public"
@@ -272,7 +271,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                     }
                                     console.log(fieldsTopic);
 
-                                    setToggle({ ...toggle, [`add_topic_${chapter.id}`]: true, [`open_chapter_${chapter.id}`]: true })
+                                    setToggle({ ...toggle, [`add_topic_${chapter.id || chapter.key}`]: true, [`open_chapter_${chapter.id || chapter.key}`]: true })
                                 }}>
                                     Thêm chủ đề
                                 </Dropdown.Item>
@@ -281,11 +280,11 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
 
                         </div>
                         <button type="button" className="mr-[10px] text-yellow-400"
-                            onClick={() => { setModal({ ...modal, [`edit_section_${chapter.id}`]: true }) }}>
+                            onClick={() => { setModal({ ...modal, [`edit_section_${chapter.id || chapter.key}`]: true }) }}>
                             <PencilSquareIcon className="w-6 h-6" />
                         </button>
                         <button type="button" className="mr-[10px] text-red-500">
-                            <TrashIcon className="w-6 h-6" onClick={() => setModal({ ...modal, [`delete_section${chapter.id}`]: true })} />
+                            <TrashIcon className="w-6 h-6" onClick={() => setModal({ ...modal, [`delete_section${chapter.id || chapter.key}`]: true })} />
                         </button>
 
                         <div className='flex justify-center items-center'  {...provided.dragHandleProps} >
@@ -295,15 +294,15 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                             </button>
                         </div>
                         {
-                            !toggle[`open_chapter_${chapter.id}`] ?
+                            !toggle[`open_chapter_${chapter.id || chapter.key}`] ?
                                 <button type="button" className="mr-[10px] text-[#818894]" onClick={() => {
-                                    setToggle({ ...toggle, [`open_chapter_${chapter.id}`]: true })
+                                    setToggle({ ...toggle, [`open_chapter_${chapter.id || chapter.key}`]: true })
                                 }}>
                                     <ChevronDownIcon className="w-5 h-5" />
                                 </button>
                                 :
                                 <button type="button" className="mr-[10px] text-[#818894]" onClick={() => {
-                                    setToggle({ ...toggle, [`open_chapter_${chapter.id}`]: false })
+                                    setToggle({ ...toggle, [`open_chapter_${chapter.id || chapter.key}`]: false })
                                 }}>
                                     <ChevronUpIcon className="w-5 h-5" />
                                 </button>
@@ -315,7 +314,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
 
 
 
-                <div className={`${toggle[`add_topic_${chapter.id}`] ? "" : "hidden"} mt-3 pt-4 border-t-[1px] border-[#ececec]`}>
+                <div className={`${toggle[`add_topic_${chapter.id || chapter.key}`] ? "" : "hidden"} mt-3 pt-4 border-t-[1px] border-[#ececec]`}>
                     {fieldsTopic.map((field: any, indexFieldTopic: any) => (
 
                         indexFieldTopic == fieldsTopic.length - 1 ?
@@ -455,13 +454,13 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                     <button
                                         onClick={() => {
                                             removeTopic(indexFieldTopic)
-                                            setToggle({ ...toggle, [`add_topic_${chapter.id}`]: false })
+                                            setToggle({ ...toggle, [`add_topic_${chapter.id || chapter.key}`]: false })
 
                                         }} type="button" className="mr-4 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Huỷ</button>
                                     <button type="submit"
                                         onClick={() => {
-                                            setValue(`chapters.${indexChapter}.topics.${indexFieldTopic}.modify`, 'create')
-                                            setTypeSubmit(`add_topic_${chapter.id}`)
+                                            setValue(`chapters.${indexChapter}.topics.${chapter.topics.length - 1}.modify`, "create")
+                                            setTypeSubmit(`add_topic_${chapter.id || chapter.key}`)
                                         }}
                                         className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mt-3">Lưu</button>
                                 </div>
@@ -475,7 +474,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
 
 
 
-                <div className={`${toggle[`open_chapter_${chapter.id}`] ? "" : "hidden"} `}>
+                <div className={`${toggle[`open_chapter_${chapter.id || chapter.key}`] ? "" : "hidden"} `}>
 
                     <DragDropContext onDragEnd={(result) => {
                         if (!result.destination) return;

@@ -36,7 +36,7 @@ type CourseData = {
 }
 
 type ChapterData = {
-    id: string
+    key: string
     name: string
     topics: Array<TopicData>
     status: string

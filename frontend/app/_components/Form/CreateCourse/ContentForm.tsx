@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { ChapterCard } from "../../Card/ChapterCard"
+import { ChapterCard } from "../../Card/CreateCourse/ChapterCard"
 import { ToastContainer, toast } from 'react-toastify';
 import { useFieldArray, useForm } from "react-hook-form";
 import { DragDropContext, Draggable, Droppable, DroppableProps } from 'react-beautiful-dnd';
@@ -23,6 +23,7 @@ export function ContentForm({
         register,
         control,
         reset,
+        setValue,
         getValues,
         formState: { errors },
     } = handleForm
@@ -56,7 +57,7 @@ export function ContentForm({
             <div>
                 <button type="button" onClick={() => {
                     appendChapter({
-                        id: `chapter-${getValues().chapters.length}`,
+                        key: `chapter-${getValues().chapters.length}`,
                         name: "",
                         status: "public",
                         topics: []
@@ -208,6 +209,7 @@ export function ContentForm({
                                     result.destination.index
                                 );
                                 setChaptersData(items)
+                                setValue('chapters', items)
                             }}>
                                 <StrictModeDroppable droppableId="chapter">
                                     {(provided) => (
@@ -216,7 +218,7 @@ export function ContentForm({
                                                 chaptersData.map((chapter: any, index: any) => {
                                                     return (
 
-                                                        <Draggable key={chapter.id} index={index} draggableId={`${chapter.id}`}>
+                                                        <Draggable key={chapter.key} index={index} draggableId={`${chapter.key}`}>
                                                             {
                                                                 (provided) => (
                                                                     <ChapterCard chapter={chaptersData[index]} handleForm={handleForm} indexChapter={index} innerRef={provided.innerRef} provided={provided} data={data} setData={setData} removeChapter={removeChapter} setTypeSubmit={setTypeSubmit} toggle={toggle} setToggle={setToggle} getValues={getValues} id_course={id_course} />

@@ -9,6 +9,7 @@ const parentCategoryRouter = require('./par-category');
 const reviewRouter = require('./review');
 const imageRouter = require('./image');
 const videoRouter = require('./video');
+const progressRouter = require('./progress');
 const testRouter = require('./test');
 
 function route(app: any) {
@@ -23,6 +24,7 @@ function route(app: any) {
     app.use('/api/v1/reviews', reviewRouter);
     app.use('/api/v1/images', imageRouter);
     app.use('/api/v1/videos', videoRouter);
+    app.use('/api/v1/progresses', progressRouter);
     app.use('/api/v1/test', testRouter);
 }
 
