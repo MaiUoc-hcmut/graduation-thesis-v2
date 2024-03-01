@@ -39,9 +39,9 @@ class VideoController {
             }
             const dateTime = fileUpload.giveCurrentDateTime();
 
-            let body = req.body;
+            let body = req.body.data;
 
-            if (typeof(body) == 'string') {
+            if (typeof (body) == 'string') {
                 body = JSON.parse(body);
             }
 
@@ -54,7 +54,7 @@ class VideoController {
             const originalFileName = video.originalname.substring(secondHyphen + 1);
 
             const storageRef = ref(
-                storage, 
+                storage,
                 `video course/${originalFileName + "       " + dateTime}`
             );
 
@@ -87,14 +87,14 @@ class VideoController {
 
             // If course has been created, then update
             const chapter = await Chapter.findOne({
-                where: { 
+                where: {
                     id_course: body.id_course,
                     order: chapterIdx
                 }
             });
 
             const topic = await Topic.findOne({
-                where: { 
+                where: {
                     id_chapter: chapter.id,
                     order: topicIdx
                 }
@@ -108,7 +108,7 @@ class VideoController {
             res.status(200).json({
                 message: "Video has been uploaded to cloud and course has been updated!"
             });
-            
+
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });

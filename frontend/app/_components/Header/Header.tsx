@@ -6,11 +6,12 @@ import Image from 'next/image';
 import { signout } from '@/redux/features/authSlice';
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import { useDispatch } from "react-redux";
+import { useRouter } from 'next/navigation'
 
 export default function Header() {
     const dispatch = useDispatch<AppDispatch>();
-
-    const authReducer = JSON.parse(localStorage.getItem('persist:authReducer') || '')
+    const router = useRouter()
+    const authReducer = JSON.parse(localStorage.getItem('persist:authReducer') || '{}')
     const isAuth = (authReducer?.isAuth == "true" || authReducer?.isAuthTeacher == "true") ? true : false
     const { user } = useAppSelector(state => state.authReducer);
 
@@ -353,8 +354,8 @@ export default function Header() {
                                         <li>
                                             <button
                                                 onClick={() => {
-                                                    console.log(1);
                                                     dispatch(signout())
+                                                    router.push('/')
                                                 }}
                                                 className="w-full text-left block py-2 px-4 text-sm text-[#f63c3c] hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                                             >

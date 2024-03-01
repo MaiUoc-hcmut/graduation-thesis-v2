@@ -5,23 +5,28 @@ import {
 } from "@heroicons/react/24/outline"
 
 import { Dropdown } from 'flowbite-react';
-import { Button, Checkbox, Label, Modal, TextInput, Radio } from 'flowbite-react';
+import { Button, Modal } from 'flowbite-react';
 import { ToastContainer, toast } from 'react-toastify';
-import { useFieldArray, useForm } from 'react-hook-form';
-import { DragDropContext, Draggable, Droppable, DroppableProps } from 'react-beautiful-dnd';
-import { StrictModeDroppable } from "../React_Beautiful_Dnd/StrictModeDroppable";
 import ReactPlayer from 'react-player';
+// Import React FilePond
+import { FilePond, registerPlugin } from 'react-filepond'
 
-type lectureData = {
-    id: string
-    name: string
-    status: boolean
-}
+// Import FilePond styles
+import 'filepond/dist/filepond.min.css'
 
-export const LectureCard = ({ chapter, lecture, index, indexLecture, innerRef, provided, data, setData, register, errors, watch, removeLecture, reset, fieldsLecture, getValues, setTypeSubmit }: any) => {
+// Import the Image EXIF Orientation and Image Preview plugins
+// Note: These need to be installed separately
+// `npm i filepond-plugin-image-preview filepond-plugin-image-exif-orientation --save`
+import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation'
+import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
+import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
+
+export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm, innerRef, provided, data, setData,
+    removeTopic, fieldsTopic, setTypeSubmit, id_course }: any) => {
     const initToggle: any = {}
     const [toggle, setToggle] = useState(initToggle)
     const [modal, setModal] = useState(initToggle)
+    const [files, setFiles] = useState()
     const notify = () => {
         toast.success('Thành công', {
             position: "bottom-right",
@@ -34,34 +39,46 @@ export const LectureCard = ({ chapter, lecture, index, indexLecture, innerRef, p
             theme: "colored",
         });
     };
+    const {
+        register,
+        getValues,
+        setValue,
+        reset,
+        formState: { errors },
+    } = hanldeForm
+    console.log(indexTopic);
 
     return (
         <div ref={innerRef} {...provided.draggableProps}  >
             <>
-                <Modal show={modal[`delete-lecture${lecture.id}`]} size="md" onClose={() => setModal({ ...modal, [`delete-lecture${lecture.id}`]: false })} popup>
+                <Modal show={modal[`delete-topic${topic.id}`]} size="md" onClose={() => setModal({ ...modal, [`delete-topic${topic.id}`]: false })} popup>
                     <Modal.Header />
                     <Modal.Body>
                         <form className="space-y-6" onSubmit={(e: any) => {
                             e.preventDefault()
-                            setModal({ ...modal, [`delete-lecture${lecture.id}`]: false })
-                            removeLecture(index)
+                            console.log(fieldsTopic, indexTopic);
+
+                            removeTopic(indexTopic)
+                            console.log(fieldsTopic);
+
+                            // setValue(`chapters.${indexChapter}.topics.${indexTopic}.modify`, 'delete')
                             setData((data: any) => {
-                                data.chapters.lectures?.splice(index, 1)
+                                data.chapters[indexChapter].topics?.splice(indexTopic, 1)
                                 return data
                             })
+                            setModal({ ...modal, [`delete-topic${topic.id}`]: false })
                             notify()
                         }}>
                             <ExclamationCircleIcon className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
                             <h3 className="mb-5 text-lg font-normal text-center text-gray-500 dark:text-gray-400">
-                                Bạn có chắc muốn xóa mục này?
+                                Bạn có chắc muốn xóa chủ đề này?
                             </h3>
                             <div className="flex justify-center gap-4">
                                 <Button color="failure" type='submit'>
                                     Xóa
                                 </Button>
                                 <Button color="gray" onClick={() => {
-                                    setModal({ ...modal, [`delete-lecture${lecture.id}`]: false })
-
+                                    setModal({ ...modal, [`delete-topic${topic.id}`]: false })
                                 }}>
                                     Hủy
                                 </Button>
@@ -81,7 +98,7 @@ export const LectureCard = ({ chapter, lecture, index, indexLecture, innerRef, p
                             </span>
                             <div>
                                 <span className="font-bold text-[#171347] text-lg">
-                                    {lecture.name}
+                                    {topic.name}
                                 </span>
                             </div>
                         </div>
@@ -92,7 +109,7 @@ export const LectureCard = ({ chapter, lecture, index, indexLecture, innerRef, p
                             <button type="button" className="mr-[10px] text-red-500">
                                 <TrashIcon className="w-6 h-6"
                                     onClick={() => {
-                                        setModal({ ...modal, [`delete-lecture${lecture.id}`]: true })
+                                        setModal({ ...modal, [`delete-topic${topic.id}`]: true })
                                     }}
                                 />
                             </button>
@@ -103,15 +120,15 @@ export const LectureCard = ({ chapter, lecture, index, indexLecture, innerRef, p
                                 </button>
                             </div>
                             {
-                                !toggle[`edit_lecture_${lecture.id}`] ?
+                                !toggle[`edit_topic_${topic.id}`] ?
                                     <button type="button" className="mr-[10px] text-[#818894]" onClick={() => {
-                                        setToggle({ ...toggle, [`edit_lecture_${lecture.id}`]: true })
+                                        setToggle({ ...toggle, [`edit_topic_${topic.id}`]: true })
                                     }}>
                                         <ChevronDownIcon className="w-5 h-5" />
                                     </button>
                                     :
                                     <button type="button" className="mr-[10px] text-[#818894]" onClick={() => {
-                                        setToggle({ ...toggle, [`edit_lecture_${lecture.id}`]: false })
+                                        setToggle({ ...toggle, [`edit_topic_${topic.id}`]: false })
                                     }}>
                                         <ChevronUpIcon className="w-5 h-5" />
                                     </button>
@@ -119,7 +136,7 @@ export const LectureCard = ({ chapter, lecture, index, indexLecture, innerRef, p
                         </div>
                     </div>
 
-                    <div className={`${toggle[`edit_lecture_${lecture.id}`] ? "" : "hidden"}  mt-3 pt-4 border-t-[1px] border-[#ececec]`}>
+                    <div className={`${toggle[`edit_topic_${topic.id}`] ? "" : "hidden"}  mt-3 pt-4 border-t-[1px] border-[#ececec]`}>
                         <div className="mt-3">
                             <div className="mb-5 w-1/3">
                                 <label
@@ -129,7 +146,7 @@ export const LectureCard = ({ chapter, lecture, index, indexLecture, innerRef, p
                                     Tiêu đề
                                 </label>
                                 <input
-                                    {...register(`chapters.${index}.lectures.${indexLecture}.name`, {
+                                    {...register(`chapters.${indexChapter}.topics.${indexTopic}.name`, {
                                         required: "Tên bài giảng không thể thiếu",
                                     })}
                                     type="text"
@@ -137,7 +154,7 @@ export const LectureCard = ({ chapter, lecture, index, indexLecture, innerRef, p
                                 />
 
                                 <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                    {errors.chapters?.[index]?.lectures?.[indexLecture]?.name?.message}
+                                    {errors.chapters?.[indexChapter]?.topics?.[indexTopic]?.name?.message}
                                 </p>
                             </div>
                             <div className="mb-5 w-1/2">
@@ -148,13 +165,11 @@ export const LectureCard = ({ chapter, lecture, index, indexLecture, innerRef, p
                                     Mô tả
                                 </label>
                                 <textarea
-                                    {...register(`chapters.${index}.lectures.${indexLecture}.description`, {
-                                        required: "Mô tả không thể thiếu",
-                                    })}
+                                    {...register(`chapters.${indexChapter}.topics.${indexTopic}.description`)}
                                     rows={4} className="block p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Viết mô tả cho chủ đề..."></textarea>
 
                                 <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                    {errors.chapters?.[index]?.lectures?.[indexLecture]?.description?.message}
+                                    {errors.chapters?.[indexChapter]?.topics?.[indexTopic]?.description?.message}
                                 </p>
                             </div>
 
@@ -166,19 +181,57 @@ export const LectureCard = ({ chapter, lecture, index, indexLecture, innerRef, p
                                     Video
                                 </label>
                                 <input
-                                    {...register(`chapters.${index}.lectures.${indexLecture}.link_video`)}
+                                    {...register(`chapters.${index}.topics.${indextopic}.link_video`)}
                                     className={`bg-white border border-gray-300 text-[#343434] block w-full mb-2 text-xs rounded-lg cursor-pointer focus:outline-none`}
                                     type="file"
                                 />
                             </div> */}
-                            {
-                                getValues().chapters[index]?.lectures[indexLecture]?.video ?
+                            <FilePond
+                                files={files}
+                                onupdatefiles={() => setFiles}
+                                acceptedFileTypes={['video/*']}
+                                server={{
+                                    process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
+                                        const formData = new FormData();
+                                        formData.append(fieldName, file, `${indexChapter + 1}-${indexTopic + 1}-${file.name}`);
+                                        const data = { id_course: id_course }
+                                        console.log(formData.get('video'));
+
+                                        formData.append('data', JSON.stringify(data));
+
+                                        const request = new XMLHttpRequest();
+                                        request.open('POST', 'http://localhost:4001/api/v1/videos')
+
+                                        request.upload.onprogress = (e) => {
+                                            progress(e.lengthComputable, e.loaded, e.total);
+                                        };
+
+                                        request.onload = function () {
+                                            if (request.status >= 200 && request.status < 300) {
+                                                // the load method accepts either a string (id) or an object
+                                                load(request.responseText);
+                                            } else {
+                                                // Can call the error method if something is wrong, should exit after
+                                                error('oh no');
+                                            }
+                                        };
+                                        request.send(formData);
+                                        // courseApi.uploadVideo(formData)
+                                    }
+                                }
+                                }
+
+                                name="video"
+                                labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
+                            />
+                            {/* {
+                                getValues().chapters[index]?.topics[indexTopic]?.video ?
                                     <div className='my-10 p-2 bg-black w-1/2'>
-                                        <ReactPlayer width='100%' height='240px' controls={true} url={`${getValues().chapters[index]?.lectures[indexLecture]?.video}}`} />
+                                        <ReactPlayer width='100%' height='240px' controls={true} url={`${getValues().chapters[index]?.topics[indexTopic]?.video}}`} />
                                     </div>
                                     : null
 
-                            }
+                            } */}
 
 
                             <div className="mb-5 w-full">
@@ -194,7 +247,7 @@ export const LectureCard = ({ chapter, lecture, index, indexLecture, innerRef, p
                                                 <input
                                                     id="inline-radio"
                                                     type="radio"
-                                                    {...register(`chapters.${index}.lectures.${indexLecture}.status`)}
+                                                    {...register(`chapters.${indexChapter}.topics.${indexTopic}.status`)}
                                                     value="public"
                                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                                 />
@@ -209,7 +262,7 @@ export const LectureCard = ({ chapter, lecture, index, indexLecture, innerRef, p
                                                 <input
                                                     id="inline-2-radio"
                                                     type="radio"
-                                                    {...register(`chapters.${index}.lectures.${indexLecture}.status`)}
+                                                    {...register(`chapters.${indexChapter}.topics.${indexTopic}.status`)}
                                                     value="private"
                                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                                 />
@@ -230,13 +283,14 @@ export const LectureCard = ({ chapter, lecture, index, indexLecture, innerRef, p
                             <div className="mb-2">
                                 <button
                                     onClick={() => {
-                                        setToggle({ ...toggle, [`edit_lecture_${lecture.id}`]: false })
-                                        reset({ [`chapters.${index}.lectures.${indexLecture}`]: {} })
+                                        setToggle({ ...toggle, [`edit_topic_${topic.id}`]: false })
+                                        reset({ [`chapters.${indexChapter}.topics.${indexTopic}`]: {} })
 
                                     }} type="button" className="mr-4 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Huỷ</button>
                                 <button type="submit" onClick={() => {
-                                    setToggle({ ...toggle, [`edit_lecture_${lecture.id}`]: false })
-                                    setTypeSubmit(`edit_lecture_${lecture.id}`)
+                                    setToggle({ ...toggle, [`edit_topic_${topic.id}`]: false })
+                                    setTypeSubmit(`edit_topic_${topic.id}`)
+                                    setValue(`chapters.${indexChapter}.topics.${indexTopic}.modify`, 'change')
                                     notify()
                                 }}
                                     className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mt-3">Lưu</button>

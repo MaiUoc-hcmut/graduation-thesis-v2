@@ -11,7 +11,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { DragDropContext, Draggable, Droppable, DroppableProps } from 'react-beautiful-dnd';
 import { StrictModeDroppable } from "../React_Beautiful_Dnd/StrictModeDroppable";
-import { LectureCard } from './LectureCard';
+import { TopicCard } from './TopicCard';
 
 
 // Import React FilePond
@@ -26,14 +26,14 @@ import 'filepond/dist/filepond.min.css'
 import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation'
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
-import courseApi from "@/app/api/courseApi";
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
+import courseApi from "@/app/api/courseApi";
 
 
 // Register the plugins
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
 
-export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, reset, control, index, innerRef, provided, data, setData, remove, setTypeSubmit, toggle, setToggle, getValues }: any) => {
+export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provided, data, setData, removeChapter, setTypeSubmit, toggle, setToggle, id_course }: any) => {
     const [modal, setModal] = useState<any>({})
     const notify = () => {
         toast.success('Thành công', {
@@ -47,21 +47,33 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
             theme: "colored",
         });
     };
-    const { fields: fieldsLecture, append: appendLecture, remove: removeLecture } = useFieldArray({
+
+    const {
+        register,
         control,
-        name: `chapters.${index}.lectures`
+        getValues,
+        setValue,
+        watch,
+        reset,
+        handleSubmit,
+        formState: { errors },
+    } = handleForm
+
+    const { fields: fieldsTopic, append: appendTopic, remove: removeTopic } = useFieldArray({
+        control,
+        name: `chapters.${indexChapter}.topics`
     });
 
-    const [lecturesData, setLecturesData] = useState(chapter.lectures)
+    const [topicsData, setTopicsData] = useState(chapter.topics)
     const [files, setFiles] = useState([])
 
     useEffect(() => {
-        const lectures = chapter?.lectures
-        if (lectures && lectures[lectures?.length - 1]?.name === "")
-            setLecturesData(chapter.lectures.slice(0, -1))
+        const topics = chapter?.topics
+        if (topics && topics[topics?.length - 1]?.name === "")
+            setTopicsData(chapter.topics.slice(0, -1))
         else
-            setLecturesData(chapter.lectures)
-    }, [chapter.lectures, data]);
+            setTopicsData(chapter.topics)
+    }, [chapter.topics, data]);
 
 
     const reorder = (list: Array<any>, startIndex: any, endIndex: any) => {
@@ -81,9 +93,10 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                         <form className="space-y-6" onSubmit={(e: any) => {
                             e.preventDefault()
                             setModal({ ...modal, [`delete_section${chapter.id}`]: false })
-                            remove(index)
+                            removeChapter(indexChapter)
+
                             setData((data: any) => {
-                                data.chapters?.splice(index, 1)
+                                data.chapters?.splice(indexChapter, 1)
                                 return data
                             })
                             notify()
@@ -109,18 +122,19 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
             </>
 
             <>
-                <Modal show={modal[`edit_section1_${chapter.id}`]} size="md" onClose={() => setModal({ ...modal, [`edit_section1_${chapter.id}`]: false })} popup>
+                <Modal show={modal[`edit_section_${chapter.id}`]} size="md" onClose={() => setModal({ ...modal, [`edit_section_${chapter.id}`]: false })} popup>
                     <Modal.Header />
                     <Modal.Body>
                         <form className="space-y-6" onSubmit={handleSubmit(async (data1: any) => {
                             if (!(Object.entries(errors).length === 0)) return
-                            setModal({ ...modal, [`edit_section1_${chapter.id}`]: false })
+                            setModal({ ...modal, [`edit_section_${chapter.id}`]: false })
                             setData((data: any) => {
-                                data.chapters[index].name = data1.chapters[index].name
-                                data.chapters[index].status = data1.chapters[index].status
+                                data.chapters[indexChapter].name = data1.chapters[indexChapter].name
+                                data.chapters[indexChapter].status = data1.chapters[indexChapter].status
 
                                 return data
                             })
+                            setTypeSubmit(`edit_section_${chapter.id}`)
                             notify()
                         })}>
 
@@ -131,12 +145,12 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                 </div>
                                 <TextInput
                                     type="text"
-                                    {...register(`chapters.${index}.name`, {
+                                    {...register(`chapters.${indexChapter}.name`, {
                                         required: "Tên mục không thể thiếu."
                                     })}
                                 />
                                 <div className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                    {errors?.chapters?.[index]?.name?.message}
+                                    {errors?.chapters?.[indexChapter]?.name?.message}
                                 </div>
                             </div>
 
@@ -153,7 +167,7 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                                 <input
                                                     id="inline-radio"
                                                     type="radio"
-                                                    {...register(`chapters.${index}.status`)}
+                                                    {...register(`chapters.${indexChapter}.status`)}
                                                     value="public"
                                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                                 />
@@ -168,7 +182,7 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                                 <input
                                                     id="inline-2-radio"
                                                     type="radio"
-                                                    {...register(`chapters.${index}.status`)}
+                                                    {...register(`chapters.${indexChapter}.status`)}
                                                     value="private"
                                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                                 />
@@ -188,8 +202,8 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                             <div className="mt-6 flex justify-end">
                                 <button
                                     onClick={() => {
-                                        reset({ [`chapters.${index}`]: {} })
-                                        setModal({ ...modal, [`edit_section1_${chapter.id}`]: false })
+                                        reset({ [`chapters.${indexChapter}`]: {} })
+                                        setModal({ ...modal, [`edit_section_${chapter.id}`]: false })
                                     }
                                     }
                                     type="button"
@@ -199,6 +213,9 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                 </button>
                                 <div>
                                     <button
+                                        onClick={() => {
+                                            setValue(`chapters.${indexChapter}.modify`, "change")
+                                        }}
                                         type="submit"
                                         className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     >
@@ -222,7 +239,7 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                 {chapter.name}
                             </span>
                             <span className="font-normal text-[818894] text-xs flex">
-                                {chapter?.lectures?.length} chủ đề
+                                {chapter?.topics?.length} chủ đề
                                 | {convertTime(0 && getValues().totalDuration)}
                             </span>
                         </div>
@@ -234,14 +251,28 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
 
                             <Dropdown label="" renderTrigger={() => <PlusCircleIcon className="w-7 h-7 text-primary" />} placement="left">
                                 <Dropdown.Item onClick={() => {
-                                    appendLecture({
-                                        id: `lecture_${lecturesData.length}`,
-                                        name: "",
-                                        description: "",
-                                        status: "public"
-                                    })
+                                    console.log(fieldsTopic);
 
-                                    setToggle({ ...toggle, [`add_lecture_${chapter.id}`]: true, [`open_chapter_${chapter.id}`]: true })
+                                    if (fieldsTopic?.length == 0) {
+                                        appendTopic({
+                                            id: `topic_${topicsData.length}`,
+                                            name: "",
+                                            description: "",
+                                            status: "public"
+                                        })
+                                    } else {
+
+                                        if (fieldsTopic[fieldsTopic?.length - 1].name != "")
+                                            appendTopic({
+                                                id: `topic_${topicsData.length}`,
+                                                name: "",
+                                                description: "",
+                                                status: "public"
+                                            })
+                                    }
+                                    console.log(fieldsTopic);
+
+                                    setToggle({ ...toggle, [`add_topic_${chapter.id}`]: true, [`open_chapter_${chapter.id}`]: true })
                                 }}>
                                     Thêm chủ đề
                                 </Dropdown.Item>
@@ -250,7 +281,7 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
 
                         </div>
                         <button type="button" className="mr-[10px] text-yellow-400"
-                            onClick={() => { setModal({ ...modal, [`edit_section1_${chapter.id}`]: true }) }}>
+                            onClick={() => { setModal({ ...modal, [`edit_section_${chapter.id}`]: true }) }}>
                             <PencilSquareIcon className="w-6 h-6" />
                         </button>
                         <button type="button" className="mr-[10px] text-red-500">
@@ -284,10 +315,10 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
 
 
 
-                <div className={`${toggle[`add_lecture_${chapter.id}`] ? "" : "hidden"} mt-3 pt-4 border-t-[1px] border-[#ececec]`}>
-                    {fieldsLecture.map((field: any, indexLecture: any) => (
+                <div className={`${toggle[`add_topic_${chapter.id}`] ? "" : "hidden"} mt-3 pt-4 border-t-[1px] border-[#ececec]`}>
+                    {fieldsTopic.map((field: any, indexFieldTopic: any) => (
 
-                        indexLecture == fieldsLecture.length - 1 ?
+                        indexFieldTopic == fieldsTopic.length - 1 ?
                             <div key={field.id} className="mt-3">
                                 <div className="mb-5 w-1/3">
                                     <label
@@ -297,7 +328,7 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                         Tiêu đề
                                     </label>
                                     <input
-                                        {...register(`chapters.${index}.lectures.${indexLecture}.name`, {
+                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.name`, {
                                             required: "Tên bài giảng không thể thiếu",
                                         })}
                                         type="text"
@@ -305,7 +336,7 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                     />
 
                                     <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                        {errors.chapters?.[index]?.lectures?.[indexLecture]?.name?.message}
+                                        {errors.chapters?.[indexChapter]?.topics?.[indexFieldTopic]?.name?.message}
                                     </p>
                                 </div>
                                 <div className="mb-5 w-1/2">
@@ -316,27 +347,14 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                         Mô tả
                                     </label>
                                     <textarea
-                                        {...register(`chapters.${index}.lectures.${indexLecture}.description`)}
+                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.description`)}
                                         rows={4} className="block p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Viết mô tả cho chủ đề..."></textarea>
 
                                     <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                        {errors.chapters?.[index]?.lectures?.[indexLecture]?.description?.message}
+                                        {errors.chapters?.[indexChapter]?.topics?.[indexFieldTopic]?.description?.message}
                                     </p>
                                 </div>
 
-                                {/* <div className="mb-5 w-1/3">
-                                    <label
-                                        className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
-                                        htmlFor="cover"
-                                    >
-                                        Video
-                                    </label>
-                                    <input
-                                        {...register(`chapters.${index}.lectures.${indexLecture}.link_video`)}
-                                        className={`bg-white border border-gray-300 text-[#343434] block w-full mb-2 text-xs rounded-lg cursor-pointer focus:outline-none`}
-                                        type="file"
-                                    />
-                                </div> */}
                                 <div className="mb-5 w-1/2">
                                     <label
                                         className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
@@ -348,11 +366,14 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                         files={files}
                                         onupdatefiles={() => setFiles}
                                         acceptedFileTypes={['video/*']}
+
                                         server={{
                                             process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                                                 const formData = new FormData();
-                                                formData.append(fieldName, file, `${index}-${indexLecture}-${file.name}`);
-                                                const data = { id_course: '8d4ef46e-d3da-4463-bc47-4578a5ba2573' }
+                                                formData.append(fieldName, file, `${indexChapter + 1}-${indexFieldTopic + 1}-${file.name}`);
+                                                const data = { id_course: id_course }
+                                                console.log(formData.get('video'));
+
                                                 formData.append('data', JSON.stringify(data));
 
                                                 const request = new XMLHttpRequest();
@@ -376,13 +397,11 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                             }
                                         }
                                         }
-                                        // onaddfile={(error, file) => {
-                                        //     setImages({ ...images, thumbnail: file.file })
-                                        // }}
+
                                         name="video"
                                         labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
                                     />
-                                    <p>{getValues().chapters?.index?.lectures?.indexLecture?.link_video}</p>
+                                    <p>{getValues().chapters?.indexChapter?.topics?.indexTopic?.link_video}</p>
                                 </div>
 
                                 <div className="mb-5 w-full">
@@ -398,7 +417,7 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                                     <input
                                                         id="inline-radio"
                                                         type="radio"
-                                                        {...register(`chapters.${index}.lectures.${indexLecture}.status`)}
+                                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.status`)}
                                                         value="public"
                                                         className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                                     />
@@ -413,7 +432,7 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                                     <input
                                                         id="inline-2-radio"
                                                         type="radio"
-                                                        {...register(`chapters.${index}.lectures.${indexLecture}.status`)}
+                                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.status`)}
                                                         value="private"
                                                         className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                                     />
@@ -435,14 +454,14 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                                 <div className="mb-2">
                                     <button
                                         onClick={() => {
-                                            removeLecture(indexLecture)
-                                            setTypeSubmit(`add_lecture_${chapter.id}`)
-                                            setToggle({ ...toggle, [`add_lecture_${chapter.id}`]: false })
+                                            removeTopic(indexFieldTopic)
+                                            setToggle({ ...toggle, [`add_topic_${chapter.id}`]: false })
 
                                         }} type="button" className="mr-4 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Huỷ</button>
                                     <button type="submit"
                                         onClick={() => {
-                                            setTypeSubmit(`add_lecture_${chapter.id}`)
+                                            setValue(`chapters.${indexChapter}.topics.${indexFieldTopic}.modify`, 'create')
+                                            setTypeSubmit(`add_topic_${chapter.id}`)
                                         }}
                                         className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mt-3">Lưu</button>
                                 </div>
@@ -461,25 +480,25 @@ export const ChapterCard = ({ chapter, register, handleSubmit, errors, watch, re
                     <DragDropContext onDragEnd={(result) => {
                         if (!result.destination) return;
                         const items: any = reorder(
-                            lecturesData,
+                            topicsData,
                             result.source.index,
                             result.destination.index
                         );
-                        setLecturesData(items)
+                        setTopicsData(items)
                     }}>
-                        <StrictModeDroppable droppableId="lecture">
+                        <StrictModeDroppable droppableId="topic">
                             {(provided) => (
                                 <ul  {...provided.droppableProps} ref={provided.innerRef}>
                                     {
-                                        lecturesData?.map((lecture: any, indexLecture: any) => {
+                                        topicsData?.map((topic: any, indexTopic: any) => {
                                             return (
-                                                <Draggable key={lecture.id} index={indexLecture} draggableId={`${lecture.id} `}>
+                                                <Draggable key={topic.id} index={indexTopic} draggableId={`${topic.id} `}>
                                                     {
                                                         (provided) => (
 
-                                                            <LectureCard
-                                                                chapter={chapter} lecture={lecture} index={index} indexLecture={indexLecture} innerRef={provided.innerRef} provided={provided} data={data} setData={setData} remove={remove}
-                                                                register={register} errors={errors} watch={watch} removeLecture={removeLecture} reset={reset} fieldsLecture={fieldsLecture} getValues={getValues} setTypeSubmit={setTypeSubmit}
+                                                            <TopicCard
+                                                                chapter={chapter} topic={topic} indexChapter={indexChapter} indexTopic={indexTopic} hanldeForm={handleForm} innerRef={provided.innerRef} provided={provided} data={data} setData={setData}
+                                                                removeTopic={removeTopic} fieldsTopic={fieldsTopic} setTypeSubmit={setTypeSubmit} id_course={id_course}
                                                             />
                                                         )
                                                     }

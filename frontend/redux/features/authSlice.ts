@@ -81,7 +81,7 @@ export const signout = createAsyncThunk('/auth/signout', async (arg, thunkAPI) =
         localStorage.removeItem('user');
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        localStorage.removeItem('persist:authReducer');
+        // localStorage.removeItem('persist:authReducer');
         localStorage.removeItem('persist:documentReducer');
         localStorage.removeItem('persist:studentReducer');
         localStorage.removeItem('persist:root');

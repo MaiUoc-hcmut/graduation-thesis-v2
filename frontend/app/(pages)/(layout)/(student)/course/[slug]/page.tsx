@@ -8,6 +8,7 @@ import { ChevronDownIcon, ChevronUpIcon, StarIcon } from '@heroicons/react/20/so
 import courseApi from '@/app/api/courseApi';
 import { useForm, SubmitHandler } from "react-hook-form"
 import CourseList from '../page';
+import { formatCash, convertTime, formatDateTime } from '@/app/helper/FormatFunction';
 
 type Review = {
     content: string
@@ -23,28 +24,8 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
     const [course, setCourse] = useState({});
     const [rating, setRating] = useState(0);
     const [avgReview, setAvgReview] = useState(0);
+    const [starDetails, setStarDetails] = useState<any>();
     const [hoverRating, setHoverRating] = useState(0);
-
-    function formatTime(time: string): string {
-        const res = new Date(time)
-        return res.toLocaleString('vi-VN')
-    }
-
-
-    function time_convert(time: number) {
-        const totalMinutes = Math.floor(time / 60);
-
-        const seconds = time % 60;
-        const hours = Math.floor(totalMinutes / 60);
-        const minutes = totalMinutes % 60;
-
-        const strHours = hours < 10 ? `0${hours}` : `${hours}`
-        const strMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`
-        const strSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`
-
-
-        return `${strHours}:${strMinutes}:${strSeconds}`;
-    }
 
     const {
         register,
@@ -63,17 +44,17 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                 setReviews(data.data.reviews)
                 if (data.data.averageRating) {
                     setAvgReview(data.data.averageRating)
-
-
                 }
-                console.log(data.data);
+                if (data.data.starDetails) {
+                    setStarDetails(data.data.starDetails)
+                }
             }
             )
         }
         fetchData()
     }, [changeData])
     reviews?.sort(function (a, b) { return Date.parse(b.createdAt) - Date.parse(a.createdAt) })
-    console.log(course, reviews, avgReview);
+    console.log(course, reviews, avgReview, starDetails);
 
 
     const handleHover = (hoverRating: any) => {
@@ -200,7 +181,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                                     </span>
                                                                     <span className="font-normal text-[818894] text-xs flex">
                                                                         {course?.chapters?.length} chủ đề
-                                                                        | {time_convert(chapter.totalDuration)}
+                                                                        | {convertTime(chapter.totalDuration)}
                                                                     </span>
                                                                 </div>
                                                             </div>
@@ -228,9 +209,9 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                     </div>
                                                     <ul className={`${toggle[`open_chapter_${chapter.id}`] ? '' : 'hidden'} mt-4 pt-8 border-t-[1px] border-[#ececec]`}>
                                                         {
-                                                            chapter.lectures?.map((lecture) => {
+                                                            chapter.topics?.map((topic) => {
                                                                 return (
-                                                                    <li key={lecture.id} className='bg-white py-3 pl-[20px] pr-6 rounded-lg mb-5 list-none border-[1px] border-[#ececec]'>
+                                                                    <li key={topic.id} className='bg-white py-3 pl-[20px] pr-6 rounded-lg mb-5 list-none border-[1px] border-[#ececec]'>
                                                                         <div className='flex items-center justify-between'>
                                                                             <div className="flex justify-between items-center">
                                                                                 <div className="flex justify-center items-center">
@@ -238,7 +219,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                                                         <FilmIcon className='w-4 h-4' />
                                                                                     </span>
                                                                                     <span className="font-bold text-[rgb(23,19,71)] text-base">
-                                                                                        {lecture.name}
+                                                                                        {topic.name}
                                                                                     </span>
 
                                                                                 </div>
@@ -276,10 +257,10 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                     5 sao
                                                 </div>
                                                 <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: "70%" }} />
+                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${0 || starDetails?.['5star'].percentage}%` }} />
                                                 </div>
                                                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    70%
+                                                    {0 || Math.floor(starDetails?.['5star'].percentage)}%
                                                 </span>
                                             </div>
                                             <div className="flex items-center mt-4">
@@ -289,10 +270,10 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                     4 sao
                                                 </div>
                                                 <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: "17%" }} />
+                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${0 || starDetails?.['4star'].percentage}%` }} />
                                                 </div>
                                                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    17%
+                                                    {0 || Math.floor(starDetails?.['4star'].percentage)}%
                                                 </span>
                                             </div>
                                             <div className="flex items-center mt-4">
@@ -302,10 +283,10 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                     3 sao
                                                 </div>
                                                 <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: "8%" }} />
+                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${0 || starDetails?.['3star'].percentage}%` }} />
                                                 </div>
                                                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    8%
+                                                    {0 || Math.floor(starDetails?.['3star'].percentage)}%
                                                 </span>
                                             </div>
                                             <div className="flex items-center mt-4">
@@ -315,10 +296,10 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                     2 sao
                                                 </div>
                                                 <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: "4%" }} />
+                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${0 || starDetails?.['2star'].percentage}%` }} />
                                                 </div>
                                                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    4%
+                                                    {0 || Math.floor(starDetails?.['2star'].percentage)}%
                                                 </span>
                                             </div>
                                             <div className="flex items-center mt-4">
@@ -328,10 +309,10 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                     1 sao
                                                 </div>
                                                 <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: "1%" }} />
+                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${0 || starDetails?.['1star'].percentage}%` }} />
                                                 </div>
                                                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    1%
+                                                    {0 || Math.floor(starDetails?.['1star'].percentage)}%
                                                 </span>
                                             </div>
                                         </div>
@@ -341,8 +322,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                             Đánh giá ({reviews.length})
                                         </div>
                                         <form onSubmit={handleSubmit(async (dataReview) => {
-                                            console.log(dataReview);
-
+                                            if (rating == 0) return
                                             const formData = {
                                                 data: {
                                                     ...dataReview,
@@ -388,7 +368,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                             </div>
                                             <textarea
                                                 placeholder="Nhập đánh giá của bạn..."
-                                                {...register("content", { required: true })}
+                                                {...register("content")}
                                                 className="w-full p-2 border rounded focus:ring-0 focus:border-primary_border"
                                                 rows={4}
                                             ></textarea>
@@ -424,7 +404,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                             </div>
                                                             <div>
                                                                 <span className='text-[#818894] text-sm'>
-                                                                    {formatTime(review.createdAt)}
+                                                                    {formatDateTime(review.createdAt)}
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -451,7 +431,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                             </div>
                             <div className='px-5'>
                                 <div className='flex items-center justify-center mt-5'>
-                                    <span className='text-3xl text-primary font-bold'>{course?.price} VNĐ</span>
+                                    <span className='text-3xl text-primary font-bold'>{formatCash(`${course?.price}`)} VNĐ</span>
                                 </div>
                                 <div className='mt-5 flex flex-col'>
                                     <Link href={`/course/learning/${params.slug}`} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Trang học</Link>
@@ -461,7 +441,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                     <div className='mt-4 grid grid-cols-2 gap-2'>
                                         <div className='flex items-center'>
                                             <ClockIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                            <span className='text-[#171347] font-medium text-sm'>{time_convert(course.totalDuration)}</span>
+                                            <span className='text-[#171347] font-medium text-sm'>{convertTime(course.totalDuration)}</span>
                                         </div>
                                         <div className='flex items-center'>
                                             <Squares2X2Icon className='w-5 h-5 text-secondary font-medium mr-1' />
@@ -469,7 +449,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                         </div>
                                         <div className='flex items-center'>
                                             <FilmIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                            <span className='text-[#171347] font-medium text-sm'>{course.totalLectures} bài giảng</span>
+                                            <span className='text-[#171347] font-medium text-sm'>{course.totalTopics} bài giảng</span>
                                         </div>
                                         <div className='flex items-center'>
                                             <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />

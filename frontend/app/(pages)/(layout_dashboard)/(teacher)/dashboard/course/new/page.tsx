@@ -15,7 +15,10 @@ import { AppDispatch, useAppSelector } from "@/redux/store";
 // import { DetailsView, FileManagerComponent, NavigationPane, Toolbar, Inject } from '@syncfusion/ej2-react-filemanager';
 // import { registerLicense } from '@syncfusion/ej2-base';
 // registerLicense('Ngo9BigBOggjHTQxAR8/V1NAaF1cXmhLYVF/WmFZfVpgdV9CaVZVQmYuP1ZhSXxXdkdhW39fdH1RQGVdUkI=');
-import Flmngr from "@flmngr/flmngr-react";
+// import Flmngr from "@flmngr/flmngr-react";
+import uuid from 'react-uuid';
+
+const id_course: string = uuid()
 
 type CourseData = {
     name: string
@@ -35,11 +38,11 @@ type CourseData = {
 type ChapterData = {
     id: string
     name: string
-    lectures: Array<LectureData>
+    topics: Array<TopicData>
     status: string
 }
 
-type LectureData = {
+type TopicData = {
     id: string
     name: string
     description: string
@@ -73,9 +76,7 @@ export default function CreateCourse() {
     const [typeSubmit, setTypeSubmit] = useState("")
     const [currentStepIndex, setCurrentStepIndex] = useState(0)
 
-
-    const dispatch = useDispatch<AppDispatch>();
-    console.log(images);
+    // console.log(images);
 
 
     const handleForm = useForm<CourseData>(
@@ -92,8 +93,8 @@ export default function CreateCourse() {
     const router = useRouter()
     const { steps, step, isFirstStep, isLastStep, back, next, goTo } =
         useMultistepForm([
-            <BasicInfomationForm key={'step1'} handleForm={handleForm} images={images} setImages={setImages} />,
-            <ContentForm key={'step2'} data={data} setData={setData} handleForm={handleForm} toggle={toggle} setToggle={setToggle} typeSubmit={typeSubmit} setTypeSubmit={setTypeSubmit} />,
+            <BasicInfomationForm key={'step1'} id_course={id_course} handleForm={handleForm} images={images} setImages={setImages} />,
+            <ContentForm key={'step2'} data={data} id_course={id_course} setData={setData} handleForm={handleForm} toggle={toggle} setToggle={setToggle} typeSubmit={typeSubmit} setTypeSubmit={setTypeSubmit} />,
         ], currentStepIndex, setCurrentStepIndex)
 
     return (
@@ -163,6 +164,8 @@ export default function CreateCourse() {
             <div className="flex flex-col ">
                 <form onSubmit={
                     handleSubmit(async (dataForm: any) => {
+                        console.log(errors);
+
                         if (!(Object.entries(errors).length === 0)) return
                         setToggle({ ...toggle, [`${typeSubmit}`]: false })
                         setData(dataForm)
@@ -173,7 +176,7 @@ export default function CreateCourse() {
                         data1.categories.push(dataForm.grade)
                         data1.categories.push(dataForm.subject)
                         data1.categories.push(dataForm.level)
-                        data1.id = '8d4ef46e-d3da-4463-bc47-4578a5ba2573'
+                        data1.id = id_course
 
 
                         console.log('submit', dataForm, data, typeSubmit);
@@ -189,14 +192,6 @@ export default function CreateCourse() {
                             formData.append("data", JSON.stringify(data1))
                             formData.append("thumbnail", dataForm.thumbnail[0])
                             formData.append("cover", dataForm.cover[0])
-
-                            // dataForm.chapters.map((chapter: ChapterData, indexChapter: number) => {
-                            //     chapter.lectures.map((lecture: LectureData, indexLecture: number) => {
-                            //         if (lecture.link_video.length != 0) {
-                            //             formData.append("video", lecture.link_video[0], `${indexChapter + 1}-${indexLecture + 1}-${lecture.link_video[0]?.name}`)
-                            //         }
-                            //     })
-                            // })
 
                             courseApi.create(formData).then(() => {
 

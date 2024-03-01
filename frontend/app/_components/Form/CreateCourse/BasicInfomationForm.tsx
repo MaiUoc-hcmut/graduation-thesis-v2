@@ -43,13 +43,13 @@ const initCategory: Category = {
 
 export function BasicInfomationForm({
     handleForm,
+    id_course
 }: any) {
     const [category, setCategory] = useState<Category>(initCategory)
     const [files, setFiles] = useState([])
 
     const {
         register,
-        setValue,
         getValues,
         control,
         formState: { errors }
@@ -212,17 +212,7 @@ export function BasicInfomationForm({
                 >
                     Ảnh đại diện
                 </label>
-                {/* <input
-                    {...register("thumbnail", {
-                        required: "Ảnh đại diện không thể trống."
-                    })}
-                    accept=".png, .jpg, .jpeg"
-                    name="thumbnail"
-                    className={`bg-white border border-gray-300 text-[#343434] block w-full mb-2 text-xs rounded-lg cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400`}
-                    id="thumbnail"
-                    type="file"
-                />
-                <p>{`${getValues().thumbnail?.name ? getValues().thumbnail[0]?.name : ''}`}</p> */}
+
                 <FilePond
                     files={files}
                     onupdatefiles={() => setFiles}
@@ -232,6 +222,10 @@ export function BasicInfomationForm({
                         process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                             const formData = new FormData();
                             formData.append(fieldName, file, file.name);
+                            formData.append('data', JSON.stringify({
+                                id_course: id_course,
+                                type: "thumbnail"
+                            }));
 
                             const request = new XMLHttpRequest();
                             request.open('POST', 'http://localhost:4001/api/v1/images')
@@ -256,16 +250,10 @@ export function BasicInfomationForm({
                         }
                     }
                     }
-                    // onaddfile={(error, file) => {
-                    //     setImages({ ...images, thumbnail: file.file })
-                    // }}
-                    name="video"
+
+                    name="image"
                     labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
                 />
-
-                {/* <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                    {errors?.thumbnail?.message}
-                </p> */}
             </div>
             <div className="mb-5 w-1/2">
                 <label
@@ -276,20 +264,6 @@ export function BasicInfomationForm({
                     Ảnh nền
                 </label>
 
-                {/* <input
-                    accept=".png, .jpg, .jpeg"
-                    {...register("cover", {
-                        required: "Ảnh nền không thể trống."
-                    })}
-                    className={`bg-white border border-gray-300 text-[#343434] block w-full mb-2 text-xs rounded-lg cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400`}
-                    id="cover"
-                    type="file"
-                />
-                <p>{`${getValues().cover?.name ? getValues().cover[0]?.name : ''}`}</p>
-
-                <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                    {errors?.cover?.message}
-                </p> */}
                 <FilePond
                     files={files}
                     onupdatefiles={() => setFiles}
@@ -299,7 +273,10 @@ export function BasicInfomationForm({
                         process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                             const formData = new FormData();
                             formData.append(fieldName, file, file.name);
-
+                            formData.append('data', JSON.stringify({
+                                id_course: id_course,
+                                type: "cover"
+                            }));
                             const request = new XMLHttpRequest();
                             request.open('POST', 'http://localhost:4001/api/v1/images')
 
@@ -323,10 +300,8 @@ export function BasicInfomationForm({
                         }
                     }
                     }
-                    // onaddfile={(error, file) => {
-                    //     setImages({ ...images, thumbnail: file.file })
-                    // }}
-                    name="video"
+
+                    name="image"
                     labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
                 />
             </div>

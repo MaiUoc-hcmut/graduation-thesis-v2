@@ -17,7 +17,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
     const [tab, setTab] = useState(0)
     const [link, setLink] = useState(0)
     const [content, setContent] = useState('')
-    const [lectureId, setLectureId] = useState('')
+    const [topicId, setTopicId] = useState('')
     const [comments, setComments] = useState<[any]>()
 
 
@@ -25,19 +25,19 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
         async function fetchData() {
             await courseApi.get(params.slug).then((data: any) => {
                 setCourse(data.data)
-                setLink(data.data.chapters[0]?.lectures[0]?.video)
-                setLectureId(data.data.chapters[0]?.lectures[0]?.id)
+                setLink(data.data.chapters[0]?.topics[0]?.video)
+                setTopicId(data.data.chapters[0]?.topics[0]?.id)
             }
             )
-            await courseApi.getCommentByLecture(lectureId).then((data: any) => {
+            await courseApi.getCommentByTopic(topicId).then((data: any) => {
                 setComments(data.data)
             }
             )
         }
         fetchData()
-    }, [lectureId, params.slug]);
+    }, [topicId, params.slug]);
 
-    console.log(course, lectureId, comments);
+    console.log(course, topicId, comments);
 
 
 
@@ -135,7 +135,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                 e.preventDefault()
                                                 const formData = {
                                                     data: {
-                                                        id_lecture: lectureId,
+                                                        id_topic: topicId,
                                                         content: content,
                                                     }
                                                 }
@@ -242,7 +242,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                                     {chapter.name}
                                                                 </span>
                                                                 <span className="font-normal text-[818894] text-xs flex">
-                                                                    {chapter.lectures?.length} chủ đề
+                                                                    {chapter.topics?.length} chủ đề
                                                                     | {convertTime(chapter.totalDuration)}
                                                                 </span>
                                                             </div>
@@ -267,18 +267,18 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                     <div className={`${toggle[`open_chapter_${chapter.id}`] ? '' : 'hidden'} border-t-[1px] border-[#f1f1f1] pt-4`}>
                                                         <div>
                                                             {
-                                                                chapter.lectures.map((lecture: any) => {
+                                                                chapter.topics.map((topic: any) => {
                                                                     return (
                                                                         <div onClick={() => {
-                                                                            setLink(lecture.video)
-                                                                            setLectureId(lecture.id)
-                                                                        }} key={lecture.id} className={`${lectureId == lecture.id ? 'bg-[#f1f1f1]' : 'bg-white'} px-2 py-2 mb-1 cursor-pointer flex items-center`}>
+                                                                            setLink(topic.video)
+                                                                            setTopicId(topic.id)
+                                                                        }} key={topic.id} className={`${topicId == topic.id ? 'bg-[#f1f1f1]' : 'bg-white'} px-2 py-2 mb-1 cursor-pointer flex items-center`}>
                                                                             <span className='mr-3 bg-[#ececec] w-10 h-10 rounded-full flex justify-center items-center'>
                                                                                 <FilmIcon className='w-4 h-4' />
                                                                             </span>
                                                                             <div className='flex flex-col'>
-                                                                                <span className='font-medium text-[#171347]'>{lecture.name}</span>
-                                                                                <span className='text-[#818894] text-xs'>{convertTime(lecture.duration)}</span>
+                                                                                <span className='font-medium text-[#171347]'>{topic.name}</span>
+                                                                                <span className='text-[#818894] text-xs'>{convertTime(topic.duration)}</span>
                                                                             </div>
                                                                         </div>
                                                                     )
