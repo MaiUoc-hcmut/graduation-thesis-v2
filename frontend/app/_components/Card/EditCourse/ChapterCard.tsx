@@ -64,16 +64,12 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
         name: `chapters.${indexChapter}.topics`
     });
 
-    const [topicsData, setTopicsData] = useState(chapter.topics)
+    const [topicsData, setTopicsData] = useState(chapter.topics.filter((topic: any) => topic.modify != "delete"))
     const [files, setFiles] = useState([])
 
     useEffect(() => {
-        const topics = chapter?.topics
-        if (topics && topics[topics?.length - 1]?.name === "")
-            setTopicsData(chapter.topics.slice(0, -1))
-        else
-            setTopicsData(chapter.topics)
-    }, [chapter.topics, data]);
+        setTopicsData(data.chapters[indexChapter]?.topics?.filter((topic: any) => topic.modify != "delete"))
+    }, [data, indexChapter]);
 
 
     const reorder = (list: Array<any>, startIndex: any, endIndex: any) => {
@@ -266,7 +262,8 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                                 key: `topic_${topicsData.length}`,
                                                 name: "",
                                                 description: "",
-                                                status: "public"
+                                                status: "public",
+                                                type: "lecture"
                                             })
                                     }
                                     console.log(fieldsTopic);

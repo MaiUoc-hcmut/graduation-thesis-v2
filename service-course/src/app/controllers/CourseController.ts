@@ -122,7 +122,7 @@ class CourseController {
                     },
                     {
                         model: Category,
-                        attributes: ['name', 'id_par_category'],
+                        attributes: ['name', 'id_par_category', 'id'],
                         through: {
                             attributes: []
                         }
@@ -146,18 +146,21 @@ class CourseController {
             });
 
             let totalCourseDuration = 0;
-            let totalTopics = 0;
             course.chapters.forEach((chapter: any) => {
                 let totalChapterDuration = 0;
+                let totalChapterLectures = 0;
+                let totalChapterExams = 0;
                 chapter.topics.forEach((topic: any) => {
                     totalChapterDuration += topic.duration;
+                    topic.type === "lecture" ? totalChapterLectures++ : totalChapterExams++;
                 });
                 chapter.dataValues.totalDuration = totalChapterDuration;
+                chapter.dataValues.totalChapterLectures = totalChapterLectures;
+                chapter.dataValues.totalChapterExams = totalChapterExams;
+
                 totalCourseDuration += totalChapterDuration;
-                totalTopics += chapter.topics.length;
             });
             course.dataValues.totalDuration = totalCourseDuration;
-            course.dataValues.totalTopics = totalTopics;
 
             res.status(200).json(course);
         } catch (error: any) {
@@ -218,18 +221,27 @@ class CourseController {
             });
 
             for (const course of courses) {
+                // Format category before response
                 for (const category of course.Categories) {
                     const parCategory = await ParentCategory.findByPk(category.id_par_category);
                     category.dataValues[`${parCategory.name}`] = category.name;
+
                     delete category.dataValues.name;
                     delete category.dataValues.id_par_category;
                 }
 
-                let totalTopics = 0;
-
-                course.chapters?.forEach((chapter: any) => {
-                    totalTopics += chapter.topics.length;
+                const reviews = await Review.findAll({
+                    where: { id_course: course.id },
+                    attributes: ['rating'],
+                    through: {
+                        attributes: []
+                    }
                 });
+                let averageRating = 0
+                if (reviews.length > 0) {
+                    averageRating = reviews.reduce((sum: number, review: any) => sum + review.rating, 0) / reviews.length
+                }
+                course.dataValues.averageRating = averageRating;
             }
 
             res.status(200).json(courses);
@@ -274,11 +286,16 @@ class CourseController {
 
             if (thumbnailDraft) {
                 thumbnail = thumbnailDraft.url;
+                await thumbnailDraft.destroy({ transaction: t });
             }
 
             if (coverDraft) {
                 cover_image = coverDraft.url;
+                await coverDraft.destroy({ transaction: t });
             }
+
+            let totalLecture = 0;
+            let totalExam = 0;
 
             const newCourse = await Course.create({
                 id,
@@ -291,16 +308,19 @@ class CourseController {
             });
 
             if (categories !== undefined) {
-                const categoriesInstances = [];
-
-                for (let i = 0; i < categories.length; i++) {
-                    const category = await Category.findByPk(categories[i]);
-                    categoriesInstances.push(category);
-                }
-
-                await newCourse.addCategories(categoriesInstances, { transaction: t });
+                throw new Error("Categories missed!");
             }
 
+            const categoriesInstances = [];
+
+            for (let i = 0; i < categories.length; i++) {
+                const category = await Category.findByPk(categories[i]);
+                categoriesInstances.push(category);
+            }
+
+            await newCourse.addCategories(categoriesInstances, { transaction: t });
+
+            // If course contain chapters
             if (chapters !== undefined) {
                 for (let i = 0; i < chapters.length; i++) {
                     const newChapter = await Chapter.create({
@@ -312,7 +332,10 @@ class CourseController {
                         transaction: t
                     });
 
+                    // If chapter contain topics
                     if (chapters[i].topics !== undefined) {
+                        totalLecture += chapters[i].topics.filter((topic: any) => topic.type === "lecture").length;
+                        totalExam += chapters[i].topics.filter((topic: any) => topic.type === "exam").length;
                         for (let j = 0; j < chapters[i].topics.length; j++) {
                             let topicVideoURL = "";
                             let topicVideoDuration = 0;
@@ -328,6 +351,7 @@ class CourseController {
                             if (topicDraft) {
                                 topicVideoURL = topicDraft.url;
                                 topicVideoDuration = topicDraft.duration;
+                                await topicDraft.destroy({ transaction: t });
                             }
 
                             await Topic.create({
@@ -345,6 +369,8 @@ class CourseController {
                     }
                 }
             }
+
+            await newCourse.update({ total_lecture: totalLecture, total_exam: totalExam }, { transaction: t });
 
             await t.commit();
 
@@ -495,7 +521,6 @@ class CourseController {
             }
 
             const uploadPromises = files.video.map(async (video) => {
-
                 const dateTime = fileUpload.giveCurrentDateTime();
 
                 // originalname of video is separate to 3 part
@@ -563,6 +588,7 @@ class CourseController {
                 await course.update({ ...courseBody }, { transaction: t });
             }
 
+            // If categories need to update
             if (categories !== undefined) {
                 const categoriesList: any[] = [];
                 for (const category of categories) {
@@ -574,7 +600,11 @@ class CourseController {
             }
             // If chapter need to update
             if (chapters !== undefined) {
+                let i = 1;
+                let totalLecture = course.total_lecture;
+                let totalExam = course.total_exam;
                 for (const chapter of chapters) {
+
                     const { topics, ...chapterBody } = chapter;
 
                     // If chapter does not have id, it's means the new chapter will be add to course
@@ -582,20 +612,22 @@ class CourseController {
                         const newChapter = await Chapter.create({
                             ...chapterBody,
                             id_course: courseId,
+                            order: i
                         }, {
                             transaction: t
                         });
 
                         // If topics is contain in data to add
                         if (topics !== undefined) {
+                            let j = 1;
                             for (const topic of topics) {
 
                                 // Check if the video has been uploaded or not
                                 const topicDraft = await CourseDraft.findOne({
                                     where: {
                                         id_course: courseId,
-                                        chapter_order: chapter.order,
-                                        topic_order: topic.order,
+                                        chapter_order: i,
+                                        topic_order: j,
                                     }
                                 });
 
@@ -612,13 +644,42 @@ class CourseController {
                                     id_chapter: newChapter.id,
                                     ...topic,
                                     video: videoTopicUrl,
-                                    duration: videoTopicDuration
+                                    duration: videoTopicDuration,
+                                    order: j
                                 }, {
                                     transaction: t
                                 });
+                                topic.type === "lecture" ? totalLecture++ : totalExam++;
+                                j++;
                             }
                         }
+                        i++;
+                        continue;
+                    }
 
+                    // If chapter does not contain modify field, means this chapter does not need to be update or just update the order
+                    if (chapter.modify === undefined) {
+                        await Chapter.update({
+                            order: i
+                        }, {
+                            where: { id: chapter.id }
+                        }, {
+                            transaction: t
+                        });
+
+                        i++;
+                        continue;
+                    }
+
+                    // If the modify state of chapter is "delete", means this chapter need to be delete
+                    if (chapter.modify === "delete") {
+                        totalLecture -= chapter.topics?.filter((topic: any) => topic.type === "lecture").length;
+                        totalExam -= chapter.topics?.filter((topic: any) => topic.type === "exam").length;
+
+                        const chapterToDelete = await Chapter.findByPk(chapter.id);
+
+                        if (!chapterToDelete) throw new Error(`Chapter with id ${chapter.id} does not exist`);
+                        await chapterToDelete.destroy({ transaction: t });
                         continue;
                     }
 
@@ -626,19 +687,20 @@ class CourseController {
                     const chapterToUpdate = await Chapter.findByPk(chapterBody.id);
 
                     // If id is not valid, means the id provided by FE does not match any chapter, throw the error
-                    if (!chapterToUpdate) throw new Error("Chapter does not exist");
+                    if (!chapterToUpdate) throw new Error(`Chapter with id ${chapter.id} does not exist`);
 
-                    await chapterToUpdate.update({ ...chapterBody }, { transaction: t });
+                    await chapterToUpdate.update({ ...chapterBody, order: i }, { transaction: t });
 
                     // If topics need to update
                     if (topics !== undefined) {
+                        let j = 1;
                         for (const topic of topics) {
                             // If topic does not have id, means new topic will be add
                             if (topic.id === undefined) {
                                 const topicDraft = await CourseDraft.findOne({
                                     where: { id_course: courseId },
-                                    chapter_order: chapter.order,
-                                    topic_order: topic.order,
+                                    chapter_order: i,
+                                    topic_order: j,
                                 });
 
                                 // If draft does not exist, means the video is not uploaded yet
@@ -658,16 +720,47 @@ class CourseController {
                                 }, {
                                     transaction: t
                                 });
+
+                                topic.type === "lecture" ? totalLecture++ : totalExam++;
+
+                                j++;
+                                continue;
+                            }
+
+                            // Topic just need to update order or does not need to be update
+                            if (topic.modify === undefined) {
+                                await Topic.update({
+                                    order: j
+                                }, {
+                                    where: { id: topic.id }
+                                }, {
+                                    transaction: t
+                                });
+
+                                j++;
+                                continue;
+                            }
+
+                            // Topic need to delete
+                            if (topic.modify === "delete") {
+                                await Topic.destroy({
+                                    where: { id: topic.id }
+                                }, {
+                                    transaction: t
+                                });
+
+                                topic.type === "lecture" ? totalLecture-- : totalExam--;
                             }
 
                             const topicToUpdate = await Topic.findByPk(topic.id);
 
                             if (!topicToUpdate) throw new Error("Topic does not exist");
 
-                            await topicToUpdate.update(topic, { transaction: t });
-
+                            await topicToUpdate.update({ ...topic, order: j }, { transaction: t });
+                            j++;
                         }
                     }
+                    i++;
                 }
             }
 
