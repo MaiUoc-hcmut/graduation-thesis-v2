@@ -146,8 +146,6 @@ class CourseController {
             });
 
             let totalCourseDuration = 0;
-            let totalLectures = 0;
-            let totalExams = 0;
             course.chapters.forEach((chapter: any) => {
                 let totalChapterDuration = 0;
                 let totalChapterLectures = 0;
@@ -161,12 +159,8 @@ class CourseController {
                 chapter.dataValues.totalChapterExams = totalChapterExams;
 
                 totalCourseDuration += totalChapterDuration;
-                totalLectures += totalChapterLectures;
-                totalExams = totalChapterExams;
             });
             course.dataValues.totalDuration = totalCourseDuration;
-            course.dataValues.totalLectures = totalLectures;
-            course.dataValues.totalExams = totalExams;
 
             res.status(200).json(course);
         } catch (error: any) {
@@ -300,6 +294,9 @@ class CourseController {
                 await coverDraft.destroy({ transaction: t });
             }
 
+            let totalLecture = 0;
+            let totalExam = 0;
+
             const newCourse = await Course.create({
                 id,
                 thumbnail,
@@ -311,7 +308,10 @@ class CourseController {
             });
 
             if (categories !== undefined) {
-                const categoriesInstances = [];
+                throw new Error("Categories missed!");
+            }
+
+            const categoriesInstances = [];
 
                 for (let i = 0; i < categories.length; i++) {
                     const category = await Category.findByPk(categories[i]);
@@ -319,8 +319,8 @@ class CourseController {
                 }
 
                 await newCourse.addCategories(categoriesInstances, { transaction: t });
-            }
 
+            // If course contain chapters
             if (chapters !== undefined) {
                 for (let i = 0; i < chapters.length; i++) {
                     const newChapter = await Chapter.create({
@@ -332,7 +332,10 @@ class CourseController {
                         transaction: t
                     });
     
+                    // If chapter contain topics
                     if (chapters[i].topics !== undefined) {
+                        totalLecture += chapters[i].topics.filter((topic: any) => topic.type === "lecture").length;
+                        totalExam += chapters[i].topics.filter((topic: any) => topic.type === "exam").length;
                         for (let j = 0; j < chapters[i].topics.length; j++) {
                             let topicVideoURL = "";
                             let topicVideoDuration = 0;
@@ -366,6 +369,8 @@ class CourseController {
                     }
                 }
             }
+
+            await newCourse.update({ total_lecture: totalLecture, total_exam: totalExam }, { transaction: t });
 
             await t.commit();
 
@@ -583,6 +588,7 @@ class CourseController {
                 await course.update({ ...courseBody }, { transaction: t });
             }
 
+            // If categories need to update
             if (categories !== undefined) {
                 const categoriesList: any[] = [];
                 for (const category of categories) {
@@ -595,22 +601,10 @@ class CourseController {
             // If chapter need to update
             if (chapters !== undefined) {
                 let i = 1;
+                let totalLecture = course.total_lecture;
+                let totalExam = course.total_exam;
                 for (const chapter of chapters) {
 
-                    // If chapter does not contain modify field, means this chapter does not need to be update
-                    if (chapter.modify === undefined){
-                        i++;
-                        continue;
-                    }
-
-                    // If the modify state of chapter is "delete", means this chapter need to be delete
-                    if (chapter.modify === "delete") {
-                        const chapterToDelete = await Chapter.findByPk(chapter.id);
-                        
-                        if (!chapterToDelete) throw new Error(`Chapter with id ${chapter.id} does not exist`);
-                        await chapterToDelete.destroy({ transaction: t });
-                        continue;
-                    }
                     const { topics, ...chapterBody } = chapter;
                     
                     // If chapter does not have id, it's means the new chapter will be add to course
@@ -618,6 +612,7 @@ class CourseController {
                         const newChapter = await Chapter.create({
                             ...chapterBody,
                             id_course: courseId,
+                            order: i
                         }, {
                             transaction: t
                         });
@@ -649,15 +644,42 @@ class CourseController {
                                     id_chapter: newChapter.id,
                                     ...topic,
                                     video: videoTopicUrl,
-                                    duration: videoTopicDuration
+                                    duration: videoTopicDuration,
+                                    order: j
                                 }, {
                                     transaction: t
                                 });
-
+                                topic.type === "lecture" ? totalLecture++ : totalExam++;
                                 j++;
                             }
                         }
                         i++;
+                        continue;
+                    }
+
+                    // If chapter does not contain modify field, means this chapter does not need to be update or just update the order
+                    if (chapter.modify === undefined){
+                        await Chapter.update({
+                            order: i
+                        },{
+                            where: { id: chapter.id }
+                        }, {
+                            transaction: t
+                        });
+
+                        i++;
+                        continue;
+                    }
+
+                    // If the modify state of chapter is "delete", means this chapter need to be delete
+                    if (chapter.modify === "delete") {
+                        totalLecture -= chapter.topics?.filter((topic: any) => topic.type === "lecture").length;
+                        totalExam -= chapter.topics?.filter((topic: any) => topic.type === "exam").length;
+
+                        const chapterToDelete = await Chapter.findByPk(chapter.id);
+                        
+                        if (!chapterToDelete) throw new Error(`Chapter with id ${chapter.id} does not exist`);
+                        await chapterToDelete.destroy({ transaction: t });
                         continue;
                     }
 
@@ -667,7 +689,7 @@ class CourseController {
                     // If id is not valid, means the id provided by FE does not match any chapter, throw the error
                     if (!chapterToUpdate) throw new Error(`Chapter with id ${chapter.id} does not exist`);
 
-                    await chapterToUpdate.update({ ...chapterBody }, { transaction: t });
+                    await chapterToUpdate.update({ ...chapterBody, order: i }, { transaction: t });
 
                     // If topics need to update
                     if (topics !== undefined) {
@@ -698,6 +720,36 @@ class CourseController {
                                 }, {
                                     transaction: t
                                 });
+
+                                topic.type === "lecture" ? totalLecture++ : totalExam++;
+
+                                j++;
+                                continue;
+                            }
+
+                            // Topic just need to update order or does not need to be update
+                            if (topic.modify === undefined) {
+                                await Topic.update({
+                                    order: j
+                                }, {
+                                    where: { id: topic.id }
+                                }, {
+                                    transaction: t
+                                });
+
+                                j++;
+                                continue;
+                            }
+
+                            // Topic need to delete
+                            if (topic.modify === "delete") {
+                                await Topic.destroy({
+                                    where: { id: topic.id }
+                                }, {
+                                    transaction: t
+                                });
+
+                                topic.type === "lecture" ? totalLecture-- : totalExam--;
                             }
 
                             const topicToUpdate = await Topic.findByPk(topic.id);
