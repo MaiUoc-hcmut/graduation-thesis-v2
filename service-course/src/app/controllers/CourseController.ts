@@ -122,7 +122,7 @@ class CourseController {
                     },
                     {
                         model: Category,
-                        attributes: ['name', 'id_par_category'],
+                        attributes: ['name', 'id_par_category', 'id'],
                         through: {
                             attributes: []
                         }
@@ -146,18 +146,27 @@ class CourseController {
             });
 
             let totalCourseDuration = 0;
-            let totalTopics = 0;
+            let totalLectures = 0;
+            let totalExams = 0;
             course.chapters.forEach((chapter: any) => {
                 let totalChapterDuration = 0;
+                let totalChapterLectures = 0;
+                let totalChapterExams = 0;
                 chapter.topics.forEach((topic: any) => {
                     totalChapterDuration += topic.duration;
+                    topic.type === "lecture" ? totalChapterLectures++ : totalChapterExams++;
                 });
                 chapter.dataValues.totalDuration = totalChapterDuration;
+                chapter.dataValues.totalChapterLectures = totalChapterLectures;
+                chapter.dataValues.totalChapterExams = totalChapterExams;
+
                 totalCourseDuration += totalChapterDuration;
-                totalTopics += chapter.topics.length;
+                totalLectures += totalChapterLectures;
+                totalExams = totalChapterExams;
             });
             course.dataValues.totalDuration = totalCourseDuration;
-            course.dataValues.totalTopics = totalTopics;
+            course.dataValues.totalLectures = totalLectures;
+            course.dataValues.totalExams = totalExams;
 
             res.status(200).json(course);
         } catch (error: any) {
@@ -218,18 +227,27 @@ class CourseController {
             });
 
             for (const course of courses) {
+                // Format category before response
                 for (const category of course.Categories) {
                     const parCategory = await ParentCategory.findByPk(category.id_par_category);
                     category.dataValues[`${parCategory.name}`] = category.name;
+
                     delete category.dataValues.name;
                     delete category.dataValues.id_par_category;
                 }
 
-                let totalTopics = 0;
-
-                course.chapters?.forEach((chapter: any) => {
-                    totalTopics += chapter.topics.length;
+                const reviews = await Review.findAll({
+                    where: { id_course: course.id },
+                    attributes: ['rating'],
+                    through: {
+                        attributes: []
+                    }
                 });
+                let averageRating = 0
+                if (reviews.length > 0) {
+                    averageRating = reviews.reduce((sum: number, review: any) => sum + review.rating, 0) / reviews.length
+                }
+                course.dataValues.averageRating = averageRating;
             }
 
             res.status(200).json(courses);
@@ -274,10 +292,12 @@ class CourseController {
 
             if (thumbnailDraft) {
                 thumbnail = thumbnailDraft.url;
+                await thumbnailDraft.destroy({ transaction: t });
             }
 
             if (coverDraft) {
                 cover_image = coverDraft.url;
+                await coverDraft.destroy({ transaction: t });
             }
 
             const newCourse = await Course.create({
@@ -328,6 +348,7 @@ class CourseController {
                             if (topicDraft) {
                                 topicVideoURL = topicDraft.url;
                                 topicVideoDuration = topicDraft.duration;
+                                await topicDraft.destroy({ transaction: t });
                             }
 
                             await Topic.create({

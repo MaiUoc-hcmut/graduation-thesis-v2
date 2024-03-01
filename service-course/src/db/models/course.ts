@@ -35,12 +35,15 @@ Course.init(
     },
     goal: {
       type: DataTypes.STRING,
+      defaultValue: "",
     },
     object: {
       type: DataTypes.STRING,
+      defaultValue: "",
     },
     requirement: {
       type: DataTypes.STRING,
+      defaultValue: "",
     },
     thumbnail: DataTypes.STRING,
     cover_image: DataTypes.STRING,
