@@ -7,3 +7,6 @@ router.route('/increase')
 
 router.route('/:studentId/:courseId')
     .get(ProgressController.getProgressOfCourse);
+
+
+module.exports = router;
