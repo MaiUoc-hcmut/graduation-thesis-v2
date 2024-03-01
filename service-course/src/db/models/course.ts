@@ -52,6 +52,16 @@ Course.init(
       allowNull: false,
       defaultValue: true,
     },
+    total_lecture: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    total_exam: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,

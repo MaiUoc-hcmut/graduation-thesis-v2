@@ -137,7 +137,7 @@ class DocumentController {
             const id_teacher = req.teacher.data.id;
             const body = req.body;
 
-            const newDocument = await Document.create({ ...body });
+            const newDocument = await Document.create({ ...body, id_teacher });
             
             res.status(201).json(newDocument);
         } catch (error: any) {
