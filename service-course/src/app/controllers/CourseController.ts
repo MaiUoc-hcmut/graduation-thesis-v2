@@ -750,6 +750,7 @@ class CourseController {
                                 });
 
                                 topic.type === "lecture" ? totalLecture-- : totalExam--;
+                                continue;
                             }
 
                             const topicToUpdate = await Topic.findByPk(topic.id);
