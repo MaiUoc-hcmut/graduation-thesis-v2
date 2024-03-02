@@ -7,7 +7,7 @@ const DocumentFile = require('../config/firebase/file');
 
 router.route('/')
     .get(DocumentController.getAllDocuments)
-    .post(Authorize.protectedAPI, DocumentController.createDocument);
+    .post(Authorize.protectedAPI, DocumentFile.upload, DocumentController.createDocument);
 router.route('/upload-file')
     .post(Authorize.protectedAPI, DocumentFile.upload, DocumentController.uploadFile);
 router.route('/upload-multi-file')
