@@ -136,19 +136,15 @@ class DocumentController {
 
     // [POST] /api/v1/document
     createDocument = async (req: RequestWithFile, res: Response, _next: NextFunction) => {
+        let data = req.body.data;
+        if (typeof data === "string") {
+            data = JSON.parse(data);
+        }
         const t = await sequelize.transaction();
         try {
             const id_teacher = req.teacher.data.id;
-            const { id_course } = req.body.data;
+            const { id_course } = data;
             const file = req.file;
-            /*
-            {
-                data: {
-                    id_topic,
-
-                }
-            }
-            */
 
             // originalname of video is separate to 3 part
                 // each part separate by a hyphen
