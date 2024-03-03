@@ -228,7 +228,7 @@ class DocumentController {
         }
         const t = await sequelize.transaction();
         try {
-            const id_teacher = req.teacher.data.id;
+            const id_teacher = "3ecfcb3b-edfd-46c7-a216-899fd5bb488e"; //req.teacher.data.id;
             const { id_course, id_topic } = data;
             const file = req.file;
 
