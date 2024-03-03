@@ -203,7 +203,91 @@ class DocumentController {
                 });
 
                 await topic.update({
-                    id_document: newDocument.id
+                    document_url: url
+                }, {
+                    transaction: t
+                });
+            }
+
+            await t.commit()
+            
+            res.status(201).json(newDocument);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error });
+
+            await t.rollback();
+        }
+    }
+
+    // [POST] /api/v1/document/update
+    updateDocumentForTopic = async (req: RequestWithFile, res: Response, _next: NextFunction) => {
+        let data = req.body;
+        if (typeof data === "string") {
+            data = JSON.parse(data);
+        }
+        const t = await sequelize.transaction();
+        try {
+            const id_teacher = req.teacher.data.id;
+            const { id_course, id_topic } = data;
+            const file = req.file;
+
+            // originalname of video is separate to 3 part
+                // each part separate by a hyphen
+                // first part is index of chapter in course, second part is index of topic in chapter
+            const firstHyphen = file.originalname.indexOf('-');
+            const chapterIdx = file.originalname.substring(0, firstHyphen);
+
+            const secondHyphen = file.originalname.indexOf('-', firstHyphen + 1);
+            const topicIdx = file.originalname.substring(firstHyphen + 1, secondHyphen);
+
+            const originalFileName = file.originalname.substring(secondHyphen + 1);
+            
+            const storage = getStorage();
+
+            const dateTime = DocumentFile.giveCurrentDateTime();
+
+            const storageRef = ref(storage, `document/${file.originalname + "       " + dateTime}`)
+
+            // Create file metadata including the content type
+            const metadata = {
+                contentType: file.mimetype,
+            };
+
+            const snapshot = await uploadBytes(storageRef, file.buffer, metadata);
+            const url = await getDownloadURL(snapshot.ref);
+
+            const newDocument = await Document.create({ url, name: originalFileName, id_teacher });
+
+            // check if the course is created or not
+            const course = await Course.findByPk(id_course);
+
+            // If course is not created yet
+            if (!course) {
+                return res.status(400).json({
+                    message: "The course you want to update is not exist!"
+                });
+            } else {
+                const topic = await Topic.findByPk(id_topic);
+
+                if (!topic) {
+                    await CourseDraft.create({
+                        url,
+                        id_topic,
+                        type: "document"
+                    }, {
+                        transaction: t
+                    });
+    
+                    await t.commit();
+    
+                    return res.status(200).json({
+                        message: "Document has been uploaded to cloud!"
+                    });
+                }
+
+                await topic.update({
+                    document_url: url
                 }, {
                     transaction: t
                 });

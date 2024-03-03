@@ -594,7 +594,9 @@ class CourseController {
         try {
             let body = req.body.data;
 
-            body = JSON.parse(body);
+            if (typeof body === "string") {
+                body = JSON.parse(body);
+            }
             
             let { chapters, categories, ...courseBody } = body;
 
@@ -602,8 +604,36 @@ class CourseController {
 
             const course = await Course.findByPk(courseId);
 
+            // Find if thumbnail or cover need to update
+            const thumbnailDraft = await CourseDraft.findOne({
+                where: {
+                    id_course: courseId,
+                    type: "thumbnail"
+                }
+            });
+
+            const coverDraft = await CourseDraft.findOne({
+                where: {
+                    id_course: courseId,
+                    type: "cover"
+                }
+            });
+
+            let thumbnail = course.thumbnail;
+            let cover = course.cover_image;
+
+            if (thumbnailDraft) {
+                thumbnail = thumbnailDraft.url;
+                await thumbnailDraft.destroy({ transaction: t });
+            }
+
+            if (coverDraft) {
+                cover = coverDraft.url;
+                await coverDraft.destroy({ transaction: t });
+            }
+
             if (courseBody !== undefined) {
-                await course.update({ ...courseBody }, { transaction: t });
+                await course.update({ ...courseBody, thumbnail, cover_image: cover }, { transaction: t });
             }
 
             // If categories need to update
@@ -643,14 +673,21 @@ class CourseController {
                                 // Check if the video has been uploaded or not
                                 const topicDraft = await CourseDraft.findOne({
                                     where: { 
-                                        id_course: courseId,
-                                        chapter_order: i,
-                                        topic_order: j,
+                                        id_topic: topic.id,
+                                        type: "lecture"
                                     }
                                 });
 
+                                const documentDraft = await CourseDraft.findOne({
+                                    where: {
+                                        id_topic: topic.id,
+                                        type: "document"
+                                    }
+                                })
+
                                 let videoTopicUrl = "";
                                 let videoTopicDuration = 0;
+                                let document_url = "";
 
                                 // If video of topic has been uploaded, then assign the url and duration to variable to create new topic
                                 if (topicDraft) {
@@ -658,12 +695,17 @@ class CourseController {
                                     videoTopicDuration = topicDraft.duration;
                                 }
 
+                                if (documentDraft) {
+                                    document_url = documentDraft.url;
+                                }
+
                                 await Topic.create({
                                     id_chapter: newChapter.id,
                                     ...topic,
                                     video: videoTopicUrl,
                                     duration: videoTopicDuration,
-                                    order: j
+                                    order: j,
+                                    document_url
                                 }, {
                                     transaction: t
                                 });
@@ -714,11 +756,12 @@ class CourseController {
                         let j = 1;
                         for (const topic of topics) {
                             // If topic does not have id, means new topic will be add
-                            if (topic.id === undefined) {
+                            if (topic.modify === "create") {
                                 const topicDraft = await CourseDraft.findOne({
-                                    where: { id_course: courseId },
-                                    chapter_order: i,
-                                    topic_order: j,
+                                    where: { 
+                                        id_topic: topic.id,
+                                        type: "lecture"
+                                    },
                                 });
 
                                 // If draft does not exist, means the video is not uploaded yet
@@ -775,7 +818,33 @@ class CourseController {
 
                             if (!topicToUpdate) throw new Error("Topic does not exist");
 
-                            await topicToUpdate.update({ ...topic, order: j }, { transaction: t });
+                            const lectureDraft = CourseDraft.findOne({
+                                where: {
+                                    id_topic: topic.id,
+                                    type: "lecture",
+                                }
+                            });
+
+                            const documentDraft = CourseDraft.findOne({
+                                where: {
+                                    id_topic: topic.id,
+                                    type: "document",
+                                }
+                            });
+
+                            let video = topicToUpdate.video;
+                            let document_url = topicToUpdate.document_url;
+                            if (lectureDraft) {
+                                video = lectureDraft.url;
+                                await lectureDraft.destroy({ transaction: t });
+                            }
+
+                            if (documentDraft) {
+                                document_url = documentDraft.url;
+                                await documentDraft.destroy({ transaction: t });
+                            }
+
+                            await topicToUpdate.update({ ...topic, order: j, video, document_url }, { transaction: t });
                             j++;
                         }
                     }
