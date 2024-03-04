@@ -231,7 +231,53 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                 }
 
                             </div>
+                            <div className="mb-5 w-1/2">
+                                <label
+                                    className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
+                                    htmlFor="video"
+                                >
+                                    Tài liệu
+                                </label>
+                                <FilePond
+                                    files={files}
+                                    onupdatefiles={() => setFiles}
+                                    allowMultiple
+                                    // acceptedFileTypes={[".pdf"]}
+                                    server={{
+                                        process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
+                                            const formData = new FormData();
+                                            formData.append(fieldName, file, `${indexChapter + 1}-${indexTopic + 1}-${file.name}`);
+                                            const data = { id_course: id_course, id_topic: topic.id }
 
+                                            formData.append('data', JSON.stringify(data));
+
+                                            const request = new XMLHttpRequest();
+                                            request.open('PUT', 'http://localhost:4001/api/v1/document/update')
+
+                                            request.upload.onprogress = (e) => {
+                                                progress(e.lengthComputable, e.loaded, e.total);
+                                            };
+
+                                            request.onload = function () {
+                                                if (request.status >= 200 && request.status < 300) {
+                                                    // the load method accepts either a string (id) or an object
+                                                    load(request.responseText);
+                                                } else {
+                                                    // Can call the error method if something is wrong, should exit after
+                                                    error('oh no');
+                                                }
+                                            };
+                                            request.send(formData);
+                                            // courseApi.uploadVideo(formData)
+                                        }
+                                    }
+                                    }
+
+                                    name="document"
+                                    labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
+                                />
+                                <p>{getValues().chapters?.indexChapter?.topics?.indexTopic?.link_video}</p>
+                            </div>
 
                             <div className="mb-5 w-full">
                                 <div

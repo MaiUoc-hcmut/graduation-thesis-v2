@@ -66,7 +66,7 @@ class DocumentController {
         try {
             const teacherId = req.params.teacherId;
             const teacherAuthId = req.teacher.data.id;
-            if (teacherId != teacherAuthId) 
+            if (teacherId != teacherAuthId)
                 return res.status(401).json({ message: "You do not have permission to do this action!" });
 
             const documents = await Document.findAll({
@@ -107,7 +107,7 @@ class DocumentController {
             // const course = await Course.findByPk(courseId);
             // if (!course) return res.status(404).send("Course not found!");
 
-            
+
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
@@ -117,7 +117,7 @@ class DocumentController {
     // [GET] /api/v1/document/:chapterId
     getDocumentBelongToChapter = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            
+
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
@@ -127,7 +127,7 @@ class DocumentController {
     // [GET] /api/v1/document/:topicId
     getDocumentBelongToTopic = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            
+
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
@@ -137,18 +137,21 @@ class DocumentController {
     // [POST] /api/v1/document
     createDocument = async (req: RequestWithFile, res: Response, _next: NextFunction) => {
         let data = req.body.data;
+        console.log(data);
         if (typeof data === "string") {
             data = JSON.parse(data);
         }
+
         const t = await sequelize.transaction();
         try {
-            const id_teacher = req.teacher.data.id;
+            // const id_teacher = req.teacher.data.id;
+            const id_teacher = '067fe991-0853-4d22-b693-b290e4d667fe';
             const { id_course } = data;
             const file = req.file;
 
             // originalname of video is separate to 3 part
-                // each part separate by a hyphen
-                // first part is index of chapter in course, second part is index of topic in chapter
+            // each part separate by a hyphen
+            // first part is index of chapter in course, second part is index of topic in chapter
             const firstHyphen = file.originalname.indexOf('-');
             const chapterIdx = file.originalname.substring(0, firstHyphen);
 
@@ -156,7 +159,7 @@ class DocumentController {
             const topicIdx = file.originalname.substring(firstHyphen + 1, secondHyphen);
 
             const originalFileName = file.originalname.substring(secondHyphen + 1);
-            
+
             const storage = getStorage();
 
             const dateTime = DocumentFile.giveCurrentDateTime();
@@ -209,7 +212,7 @@ class DocumentController {
             }
 
             await t.commit()
-            
+
             res.status(201).json(newDocument);
         } catch (error: any) {
             console.log(error.message);
@@ -241,7 +244,7 @@ class DocumentController {
             const topicIdx = file.originalname.substring(firstHyphen + 1, secondHyphen);
 
             const originalFileName = file.originalname.substring(secondHyphen + 1);
-            
+
             const storage = getStorage();
 
             const dateTime = DocumentFile.giveCurrentDateTime();
@@ -278,9 +281,9 @@ class DocumentController {
                     }, {
                         transaction: t
                     });
-    
+
                     await t.commit();
-    
+
                     return res.status(200).json({
                         message: "Document has been uploaded to cloud!"
                     });
@@ -290,7 +293,7 @@ class DocumentController {
             }
 
             await t.commit()
-            
+
             res.status(201).json(newDocument);
         } catch (error: any) {
             console.log(error.message);
@@ -364,12 +367,12 @@ class DocumentController {
             const uploadPromises = req.files.map(async (file) => {
                 const dateTime = DocumentFile.giveCurrentDateTime();
                 const storageRef = ref(storage, `document/${file.originalname + "       " + dateTime}`)
-            
+
                 // Create file metadata including the content type
                 const metadata = {
                     contentType: file.mimetype,
                 };
-            
+
                 const snapshot = await uploadBytes(storageRef, file.buffer, metadata);
                 const url = await getDownloadURL(snapshot.ref);
                 urls.push({
@@ -377,9 +380,9 @@ class DocumentController {
                     url
                 })
             });
-            
+
             await Promise.all(uploadPromises);
-            
+
             res.status(200).send(urls);
         } catch (error: any) {
             console.log(error.message);
@@ -391,7 +394,7 @@ class DocumentController {
     updateDocument = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const body = req.body;
-            
+
             const documentId = req.params.documentId;
 
             const updatedDocument = Document.findByPk(documentId);
@@ -399,7 +402,7 @@ class DocumentController {
             if (teacherId !== req.teacher.data.id)
                 return res.status(401).json({ message: "You do not have permission to do this action!" });
             updatedDocument.update(body);
-            
+
             res.status(200).json(updatedDocument);
         } catch (error: any) {
             console.log(error.message);
@@ -413,7 +416,7 @@ class DocumentController {
             const documentId = req.params.documentId;
 
             const document = await Document.findByPk(documentId);
-            if (!document) return res.status(404).json({ message: "Document does not exist!"});
+            if (!document) return res.status(404).json({ message: "Document does not exist!" });
 
             const teacherId = document.id_teacher;
 
@@ -422,7 +425,7 @@ class DocumentController {
 
             await document.destroy();
 
-            res.status(200).json({ 
+            res.status(200).json({
                 message: "Document has been deleted",
                 documentId
             });
