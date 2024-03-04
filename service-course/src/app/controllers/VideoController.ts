@@ -143,7 +143,7 @@ class VideoController {
             }
             const dateTime = fileUpload.giveCurrentDateTime();
 
-            let body = req.body.data;
+            let body = req.body;
 
             if (typeof(body) == 'string') {
                 body = JSON.parse(body);
@@ -201,7 +201,8 @@ class VideoController {
             }
 
             await topic.update({
-                video: url
+                video: url,
+                duration,
             }, {
                 transaction: t
             });
