@@ -41,6 +41,26 @@ module.exports = {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      total_lecture: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      total_exam: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      total_chapter: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      total_review: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      average_rating: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+      },
       createdAt: {
         type: DataTypes.DATE,
         allowNull: false,
@@ -388,6 +408,12 @@ module.exports = {
         type: DataTypes.UUID,
         allowNull: false,
       },
+      id_topic: {
+        type: DataTypes.UUID
+      },
+      id_document: {
+        type: DataTypes.UUID
+      },
       type: {
         type: DataTypes.STRING,
       },
@@ -423,11 +449,48 @@ module.exports = {
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
+      },
+      createdAt: {
+        type: DataTypes.DATE,
+      },
+      updatedAt: {
+        type: DataTypes.DATE,
       }
-    })
+    });
+    await queryInterface.createTable('document-topic', {
+      id: {
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4
+      },
+      id_document: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'Document',
+          key: 'id'
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      },
+      id_topic: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'Topic',
+          key: 'id'
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+      },
+      createdAt: {
+        type: Sequelize.DATE
+      },
+      updatedAt: {
+        type: Sequelize.DATE
+      }
+    });
   },
 
   async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable('document-topic');
     await queryInterface.dropTable('course-progress');
     await queryInterface.dropTable('category-course');
     await queryInterface.dropTable('document');
