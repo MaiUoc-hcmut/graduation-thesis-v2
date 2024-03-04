@@ -62,6 +62,22 @@ Course.init(
       allowNull: false,
       defaultValue: 0,
     },
+    total_chapter: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    total_duration: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    average_rating: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0,
+    },
+    total_review: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,

@@ -9,6 +9,7 @@ import { ReactQuillEditorComment } from '@/app/_components/Editor/ReactQuillEdit
 import parse from 'html-react-parser';
 import { formatDateTime, convertTime } from '@/app/helper/FormatFunction';
 import { useForm, SubmitHandler, Controller } from "react-hook-form"
+import { AppDispatch, useAppSelector } from "@/redux/store";
 
 export default function LearningPage({ params }: { params: { slug: string } }) {
     const [course, setCourse] = useState<any>()
@@ -21,17 +22,8 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
     const [comments, setComments] = useState<[any]>()
     const [progress, setProgress] = useState<[any]>()
     const [change, setChange] = useState(false)
-    const {
-        setValue,
-        handleSubmit,
-        reset,
-        control,
-        getValues,
-        formState: { errors },
-    } = useForm({
-    })
-
-    console.log(getValues().content);
+    const { user } = useAppSelector(state => state.authReducer);
+    ;
     useEffect(() => {
         async function fetchData() {
             await courseApi.get(params.slug).then((data: any) => {
@@ -133,7 +125,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                 <ReactPlayer onEnded={() => {
                                     const formData = {
                                         data: {
-                                            id_student: '8d4ef46e-d3da-4463-bc47-4578a5ba2573',
+                                            id_student: user.id,
                                             id_course: params.slug,
                                             id_topic: topicId
                                         }
@@ -183,8 +175,8 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                             />
                                         </div>
                                         <div className='flex-1 mr-4'>
-                                            <form onSubmit={handleSubmit(async () => {
-                                                reset()
+                                            <form onSubmit={async (e) => {
+                                                e.preventDefault()
                                                 const formData = {
                                                     data: {
                                                         id_topic: topicId,
@@ -194,7 +186,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                 await courseApi.createComment(formData)
                                                 setContent('')
                                                 setChange(!change)
-                                            })}>
+                                            }}>
                                                 <div className={`${toggle[`edit-cmt`] ? 'hidden' : ''}`}>
                                                     <input onFocus={() => {
                                                         setToggle({ ...toggle, [`edit-cmt`]: !toggle[`edit-cmt`] })

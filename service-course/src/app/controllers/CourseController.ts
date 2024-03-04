@@ -154,8 +154,6 @@ class CourseController {
             course.chapters.forEach((chapter: any) => {
                 chapter.topics.sort((a: any, b: any) => a.order - b.order);
             });
-
-            let totalCourseDuration = 0;
             course.chapters.forEach((chapter: any) => {
                 let totalChapterDuration = 0;
                 let totalChapterLectures = 0;
@@ -167,10 +165,7 @@ class CourseController {
                 chapter.dataValues.totalDuration = totalChapterDuration;
                 chapter.dataValues.totalChapterLectures = totalChapterLectures;
                 chapter.dataValues.totalChapterExams = totalChapterExams;
-
-                totalCourseDuration += totalChapterDuration;
             });
-            course.dataValues.totalDuration = totalCourseDuration;
 
             res.status(200).json(course);
         } catch (error: any) {
@@ -306,6 +301,8 @@ class CourseController {
 
             let totalLecture = 0;
             let totalExam = 0;
+            let totalChapter = 0;
+            let totalDuration = 0;
 
             const newCourse = await Course.create({
                 id,
@@ -332,6 +329,7 @@ class CourseController {
 
             // If course contain chapters
             if (chapters !== undefined) {
+                totalChapter = chapters.length;
                 for (let i = 0; i < chapters.length; i++) {
                     const newChapter = await Chapter.create({
                         name: chapters[i].name,
@@ -398,12 +396,20 @@ class CourseController {
                                 transaction: t
                             });
                             await newTopic.addDocuments(documentInstances, { transaction: t });
+                            totalDuration += topicVideoDuration;
                         }
                     }
                 }
             }
 
-            await newCourse.update({ total_lecture: totalLecture, total_exam: totalExam }, { transaction: t });
+            await newCourse.update({
+                total_lecture: totalLecture,
+                total_exam: totalExam,
+                total_chapter: totalChapter,
+                total_duration: totalDuration
+            }, {
+                transaction: t
+            });
 
             await t.commit();
 
