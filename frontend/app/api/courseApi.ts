@@ -16,6 +16,11 @@ const courseApi = {
         return await axiosConfig.get(url);
     },
 
+    getProgress: async (id_student: string, id_course: string) => {
+        const url = `/progresses/${id_student}/${id_course}`;
+        return await axiosConfig.get(url);
+    },
+
     filter: (filterString: string) => {
         const url = `/courses/filter?${filterString}`;
         return axiosConfig.get(url);
@@ -53,7 +58,7 @@ const courseApi = {
     },
 
     getCommentByTopic: (id: string) => {
-        const url = `/comments/${id}`;
+        const url = `/comments/topic/${id}`;
         return axiosConfig.get(url);
     },
 

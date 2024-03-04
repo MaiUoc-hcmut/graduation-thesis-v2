@@ -1,14 +1,14 @@
 "use client"
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronDownIcon, ChevronUpIcon, Squares2X2Icon, FilmIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, ChevronUpIcon, Squares2X2Icon, FilmIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
 import ReactPlayer from 'react-player'
 import courseApi from "@/app/api/courseApi"
 import { ReactQuillEditorComment } from '@/app/_components/Editor/ReactQuillEditorComment'
 import parse from 'html-react-parser';
 import { formatDateTime, convertTime } from '@/app/helper/FormatFunction';
-
+import { useForm, SubmitHandler, Controller } from "react-hook-form"
 
 export default function LearningPage({ params }: { params: { slug: string } }) {
     const [course, setCourse] = useState<any>()
@@ -19,8 +19,19 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
     const [content, setContent] = useState('')
     const [topicId, setTopicId] = useState('')
     const [comments, setComments] = useState<[any]>()
+    const [progress, setProgress] = useState<[any]>()
+    const [change, setChange] = useState(false)
+    const {
+        setValue,
+        handleSubmit,
+        reset,
+        control,
+        getValues,
+        formState: { errors },
+    } = useForm({
+    })
 
-
+    console.log(getValues().content);
     useEffect(() => {
         async function fetchData() {
             await courseApi.get(params.slug).then((data: any) => {
@@ -29,16 +40,46 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                 setTopicId(data.data.chapters[0]?.topics[0]?.id)
             }
             )
-            await courseApi.getCommentByTopic(topicId).then((data: any) => {
-                setComments(data.data)
+
+            await courseApi.getProgress('8d4ef46e-d3da-4463-bc47-4578a5ba2573', params.slug).then((data: any) => {
+                setProgress(data.data)
             }
             )
         }
         fetchData()
-    }, [topicId, params.slug]);
 
-    console.log(course, topicId, comments);
 
+    }, [params.slug]);
+
+    useEffect(() => {
+        async function fetchData() {
+            if (topicId != '') {
+                await courseApi.getCommentByTopic(topicId).then((data: any) => {
+                    setComments(data.data)
+                }
+                )
+            }
+
+        }
+        fetchData()
+    }, [topicId, change]);
+    comments?.sort(function (a: any, b: any) { return Date.parse(b.createdAt) - Date.parse(a.createdAt) })
+    console.log(course, comments, progress);
+    // const complete = course?.chapters?.map((chapter: any, indexChapter: any) => {
+    //     chapter?.topics?.map((topic: any, indexTopic: any) => {
+    //         progress?.map((pro: any) => {
+    //             if (pro.id_topic === topic.id) {
+    //                 return { indexChapter, indexTopic }
+    //                 // setCourse((course: any) => {
+    //                 //     course.chapters[indexChapter].topics[indexTopic].complete = "true"
+
+    //                 //     return course
+    //                 // })
+    //             }
+    //         })
+    //     })
+    // })
+    // console.log(complete);
 
 
 
@@ -98,6 +139,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                         }
                                     }
                                     courseApi.createProgress(formData)
+
                                 }} width='100%' height='100%' controls={true} url={`${link ? link : '/'}`} />
                             </div>
                         </div>
@@ -122,6 +164,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                     >
                                         Tài liệu
                                     </button>
+
                                 </li>
                             </ul>
 
@@ -140,8 +183,8 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                             />
                                         </div>
                                         <div className='flex-1 mr-4'>
-                                            <form onSubmit={async (e: any) => {
-                                                e.preventDefault()
+                                            <form onSubmit={handleSubmit(async () => {
+                                                reset()
                                                 const formData = {
                                                     data: {
                                                         id_topic: topicId,
@@ -149,8 +192,9 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                     }
                                                 }
                                                 await courseApi.createComment(formData)
-                                                // setChangeData(!changeData)
-                                            }}>
+                                                setContent('')
+                                                setChange(!change)
+                                            })}>
                                                 <div className={`${toggle[`edit-cmt`] ? 'hidden' : ''}`}>
                                                     <input onFocus={() => {
                                                         setToggle({ ...toggle, [`edit-cmt`]: !toggle[`edit-cmt`] })
@@ -223,7 +267,16 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                 </div>
 
                             </div>
-                            <div className={`${tab === 1 ? '' : 'hidden'} p-10`}>Tài liệu</div>
+                            <div className={`${tab === 1 ? '' : 'hidden'} px-10`}>
+                                <div className='py-2'>
+                                    <Link
+                                        target='_blank'
+                                        href={'https://firebasestorage.googleapis.com/v0/b/study365-a3ffe.appspot.com/o/document%2F1-1-L07.pdf%20%20%20%20%20%20%202024-3-2%2023%3A28%3A41?alt=media&token=9b661baa-892e-4282-be2b-bcadc4d7a78e'}
+                                    >
+                                        <button className='py-2 underline'>File 1</button>
+                                    </Link>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -285,10 +338,24 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                                             <span className='mr-3 bg-[#ececec] w-10 h-10 rounded-full flex justify-center items-center'>
                                                                                 <FilmIcon className='w-4 h-4' />
                                                                             </span>
-                                                                            <div className='flex flex-col'>
-                                                                                <span className='font-medium text-[#171347]'>{topic.name}</span>
+                                                                            <div className='flex flex-col w-2/3'>
+                                                                                <span className='font-medium text-[#171347] text-ellipsis overflow-hidden whitespace-nowrap'>{topic.name}</span>
                                                                                 <span className='text-[#818894] text-xs'>{convertTime(topic.duration)}</span>
                                                                             </div>
+                                                                            {progress?.map((pro: any) => {
+                                                                                if (pro.id_topic === topic.id) {
+                                                                                    return (
+                                                                                        <div key={topic.id} className='ml-2'>
+                                                                                            <span className='bg-white w-6 h-6 rounded-full flex justify-center items-center'>
+
+                                                                                                <CheckIcon className='w-5 h-4 text-primary' />
+
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    )
+                                                                                }
+                                                                            })}
+
                                                                         </div>
                                                                     )
                                                                 })

@@ -33,6 +33,7 @@ export function ReactQuillEditorComment({ value, setValue }: any) {
                 theme="snow"
                 modules={modules}
                 formats={formats}
+                value={value}
                 onChange={(data) => {
                     setValue(data)
                 }}

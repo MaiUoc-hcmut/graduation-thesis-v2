@@ -12,7 +12,7 @@ import { useFieldArray, useForm } from 'react-hook-form';
 import { DragDropContext, Draggable, Droppable, DroppableProps } from 'react-beautiful-dnd';
 import { StrictModeDroppable } from "../../React_Beautiful_Dnd/StrictModeDroppable";
 import { TopicCard } from './TopicCard';
-
+import uuid from 'react-uuid';
 
 // Import React FilePond
 import { FilePond, registerPlugin } from 'react-filepond'
@@ -258,31 +258,14 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                             <Dropdown label="" renderTrigger={() => <PlusCircleIcon className="w-7 h-7 text-primary" />} placement="left">
                                 <Dropdown.Item onClick={() => {
                                     appendTopic({
+                                        id: uuid(),
                                         key: `topic_${topicsData.length}`,
                                         name: "",
                                         description: "",
                                         status: "public",
                                         type: "lecture"
                                     })
-                                    // if (fieldsTopic?.length == 0) {
-                                    //     appendTopic({
-                                    //         key: `topic_${topicsData.length}`,
-                                    //         name: "",
-                                    //         description: "",
-                                    //         status: "public",
-                                    //         type: "lecture"
-                                    //     })
-                                    // } else {
 
-                                    //     if (fieldsTopic[fieldsTopic?.length - 1].name != "")
-                                    //         appendTopic({
-                                    //             key: `topic_${topicsData.length}`,
-                                    //             name: "",
-                                    //             description: "",
-                                    //             status: "public",
-                                    //             type: "lecture"
-                                    //         })
-                                    // }
                                     console.log(fieldsTopic);
 
                                     setToggle({ ...toggle, [`add_topic_${chapter.id || chapter.key}`]: true, [`open_chapter_${chapter.id || chapter.key}`]: true })
@@ -384,13 +367,13 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                             process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                                                 const formData = new FormData();
                                                 formData.append(fieldName, file, `${indexChapter + 1}-${indexFieldTopic + 1}-${file.name}`);
-                                                const data = { id_course: id_course }
+                                                const data = { id_course: id_course, id_topic: getValues().chapters?.[indexChapter]?.topics?.[indexFieldTopic].id }
                                                 console.log(formData.get('video'));
 
                                                 formData.append('data', JSON.stringify(data));
 
                                                 const request = new XMLHttpRequest();
-                                                request.open('POST', 'http://localhost:4001/api/v1/videos')
+                                                request.open('PUT', 'http://localhost:4001/api/v1/videos/update')
 
                                                 request.upload.onprogress = (e) => {
                                                     progress(e.lengthComputable, e.loaded, e.total);
@@ -473,6 +456,10 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                         }} type="button" className="mr-4 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Huỷ</button>
                                     <button type="submit"
                                         onClick={() => {
+                                            if (chapter.modify != "create") {
+                                                setValue(`chapters.${indexChapter}.modify`, "change")
+                                            }
+
                                             setValue(`chapters.${indexChapter}.topics.${chapter.topics.length}.modify`, "create")
                                             setTypeSubmit(`add_topic_${chapter.id || chapter.key}`)
                                         }}

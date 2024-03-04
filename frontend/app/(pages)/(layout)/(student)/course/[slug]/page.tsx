@@ -180,7 +180,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                                         {chapter.name}
                                                                     </span>
                                                                     <span className="font-normal text-[818894] text-xs flex">
-                                                                        {course?.chapters?.length} chủ đề
+                                                                        {chapter.topics?.length} chủ đề
                                                                         | {convertTime(chapter.totalDuration)}
                                                                     </span>
                                                                 </div>
@@ -449,11 +449,11 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                         </div>
                                         <div className='flex items-center'>
                                             <FilmIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                            <span className='text-[#171347] font-medium text-sm'>{course?.totalTopics} bài giảng</span>
+                                            <span className='text-[#171347] font-medium text-sm'>{course?.total_lecture} bài giảng</span>
                                         </div>
                                         <div className='flex items-center'>
                                             <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                            <span className='text-[#171347] font-medium text-sm'>0 đề thi</span>
+                                            <span className='text-[#171347] font-medium text-sm'>{course?.total_exam} đề thi</span>
                                         </div>
 
                                     </div>

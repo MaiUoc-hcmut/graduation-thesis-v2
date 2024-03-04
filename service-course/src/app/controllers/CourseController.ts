@@ -336,6 +336,8 @@ class CourseController {
                     if (chapters[i].topics !== undefined) {
                         totalLecture += chapters[i].topics.filter((topic: any) => topic.type === "lecture").length;
                         totalExam += chapters[i].topics.filter((topic: any) => topic.type === "exam").length;
+                        console.log(totalLecture);
+
                         for (let j = 0; j < chapters[i].topics.length; j++) {
                             let topicVideoURL = "";
                             let topicVideoDuration = 0;

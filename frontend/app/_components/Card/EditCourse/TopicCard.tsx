@@ -20,8 +20,8 @@ import 'filepond/dist/filepond.min.css'
 import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation'
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
+import Link from 'next/link';
 
-import JsFileDownloader from 'js-file-downloader';
 
 export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm, innerRef, provided, data, setData,
     removeTopic, setTypeSubmit, id_course }: any) => {
@@ -41,18 +41,6 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
             theme: "colored",
         });
     };
-    function download(url: string) {
-        new JsFileDownloader({
-            url: url
-        })
-            .then(function () {
-                // Called when download ended
-            })
-            .catch(function (error) {
-                // Called when an error occurred
-            });
-
-    }
     const {
         register,
         getValues,
@@ -241,6 +229,7 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                         : null
 
                                 }
+
                             </div>
 
 

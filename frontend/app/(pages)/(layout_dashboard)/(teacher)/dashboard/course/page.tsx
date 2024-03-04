@@ -30,7 +30,7 @@ type CourseData = {
 export default function CourseDashboard() {
     const authUser = useAppSelector(state => state.authReducer.user);
     const [courses, setCourses] = useState<[CourseData]>()
-    const [modal, setModal] = useState<boolean>(false)
+    const [modal, setModal] = useState<any>({})
     const [change, setChange] = useState<boolean>(false)
 
     const renderStars = (rating: number) => {
@@ -63,18 +63,18 @@ export default function CourseDashboard() {
                     courses?.map((course) => {
                         return (
                             <div key={course.id} className="relative rounded-[10px] flex bg-white mb-8">
-
                                 <>
-                                    <Modal show={modal} size="md" onClose={() => setModal(false)} popup>
+                                    <Modal show={modal[`delete-course${course.id}`] || false} size="md" onClose={() => setModal({ ...modal, [`delete-course${course.id}`]: false })} popup>
                                         <Modal.Header />
                                         <Modal.Body>
-                                            <form className="space-y-6" onSubmit={async () => {
+                                            <form className="space-y-6" onSubmit={async (e) => {
+                                                e.preventDefault()
                                                 await courseApi.delete(course.id)
                                                 setChange(!change)
                                                 setModal(false)
                                             }}>
                                                 <ExclamationCircleIcon className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
-                                                <h3 className="mb-5 text-lg text-center font-normal text-gray-500 dark:text-gray-400">
+                                                <h3 className="mb-5 text-lg font-normal text-center text-gray-500 dark:text-gray-400">
                                                     Bạn có chắc muốn xóa khóa học này?
                                                 </h3>
                                                 <div className="flex justify-center gap-4">
@@ -82,7 +82,7 @@ export default function CourseDashboard() {
                                                         Xóa
                                                     </Button>
                                                     <Button color="gray" onClick={() => {
-                                                        setModal(false)
+                                                        setModal({ ...modal, [`delete-course${course.id}`]: false })
                                                     }}>
                                                         Hủy
                                                     </Button>
@@ -120,7 +120,7 @@ export default function CourseDashboard() {
                                                         Sửa khóa học
                                                     </Link>
                                                 </Dropdown.Item>
-                                                <Dropdown.Item><p className="text-red-600" onClick={() => setModal(true)}>Xóa khóa học</p></Dropdown.Item>
+                                                <Dropdown.Item><p className="text-red-600" onClick={() => setModal({ ...modal, [`delete-course${course.id}`]: true })}>Xóa khóa học</p></Dropdown.Item>
                                             </Dropdown>
                                         </button>
                                     </div>
