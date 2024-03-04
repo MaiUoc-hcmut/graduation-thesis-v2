@@ -154,8 +154,6 @@ class CourseController {
             course.chapters.forEach((chapter: any) => {
                 chapter.topics.sort((a: any, b: any) => a.order - b.order);
             });
-
-            let totalCourseDuration = 0;
             course.chapters.forEach((chapter: any) => {
                 let totalChapterDuration = 0;
                 let totalChapterLectures = 0;
@@ -167,10 +165,7 @@ class CourseController {
                 chapter.dataValues.totalDuration = totalChapterDuration;
                 chapter.dataValues.totalChapterLectures = totalChapterLectures;
                 chapter.dataValues.totalChapterExams = totalChapterExams;
-
-                totalCourseDuration += totalChapterDuration;
             });
-            course.dataValues.totalDuration = totalCourseDuration;
 
             res.status(200).json(course);
         } catch (error: any) {
