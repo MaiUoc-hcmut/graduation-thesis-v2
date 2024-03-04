@@ -192,6 +192,8 @@ class ReviewController {
             const newReview = await Review.create({
                 id_student,
                 ...body
+            }, {
+                transaction: t
             });
 
             if (object === "course") {
@@ -207,6 +209,8 @@ class ReviewController {
                     transaction: t
                 });
             }
+
+            await t.commit();
 
             res.status(201).json(newReview);
         } catch (error: any) {
