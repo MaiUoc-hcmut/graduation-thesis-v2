@@ -121,7 +121,7 @@ class CourseController {
                                 include: [
                                     {
                                         model: Document,
-                                        attributes: ['id', 'url'],
+                                        attributes: ['id', 'url', 'name'],
                                         through: {
                                             attributes: []
                                         }
@@ -859,14 +859,14 @@ class CourseController {
 
                             if (!topicToUpdate) throw new Error("Topic does not exist");
 
-                            const lectureDraft = CourseDraft.findOne({
+                            const lectureDraft = await CourseDraft.findOne({
                                 where: {
                                     id_topic: topic.id,
                                     type: "lecture",
                                 }
                             });
 
-                            const documentsDraft = CourseDraft.findAll({
+                            const documentsDraft = await CourseDraft.findAll({
                                 where: {
                                     id_topic: topic.id,
                                     type: "document",
@@ -886,8 +886,8 @@ class CourseController {
                                     const document = await Document.findByPk(docDraft.id_document);
                                     documentInstances.push(document);
                                 }
+                                await topicToUpdate.setDocuments(documentInstances, { transaction: t });
                             }
-                            await topicToUpdate.setDocuments(documentInstances);
                             await topicToUpdate.update({ ...topic, order: j, video }, { transaction: t });
                             j++;
                         }
