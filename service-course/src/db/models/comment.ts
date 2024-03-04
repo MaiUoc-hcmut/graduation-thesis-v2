@@ -17,7 +17,7 @@ Comment.init(
     id_parent: {
       type: DataTypes.UUID
     },
-    id_lecture: {
+    id_topic: {
       type: DataTypes.UUID,
       allowNull: false,
     },
