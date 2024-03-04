@@ -121,7 +121,7 @@ class CourseController {
                                 include: [
                                     {
                                         model: Document,
-                                        attributes: ['id'],
+                                        attributes: ['id', 'url'],
                                         through: {
                                             attributes: []
                                         }
