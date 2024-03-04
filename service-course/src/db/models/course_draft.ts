@@ -26,6 +26,9 @@ CourseDraft.init({
     type: DataTypes.UUID,
     allowNull: false,
   },
+  id_topic: {
+    type: DataTypes.UUID,
+  },
   type: {
     type: DataTypes.STRING(20),
   }

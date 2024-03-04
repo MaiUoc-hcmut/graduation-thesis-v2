@@ -6,6 +6,8 @@ import { Request, Response, NextFunction } from 'express';
 
 const { getVideoDurationInSeconds } = require('get-video-duration');
 
+const { sequelize } = require('../../config/db/index');
+
 const fileUpload = require('../../config/firebase/fileUpload');
 const { firebaseConfig } = require('../../config/firebase/firebase');
 const {
@@ -23,6 +25,7 @@ class VideoController {
 
     // [POST] /videos
     uploadSingleLectureVideo = async (req: Request, res: Response, _next: NextFunction) => {
+        const t = await sequelize.transaction();
         try {
             const video = req.file;
 
@@ -103,7 +106,11 @@ class VideoController {
             await topic.update({
                 duration,
                 video: url
+            }, {
+                transaction: t
             });
+
+            await t.commit();
 
             res.status(200).json({
                 message: "Video has been uploaded to cloud and course has been updated!"
@@ -112,6 +119,104 @@ class VideoController {
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
+
+            await t.rollback();
+        }
+    }
+
+    // [PUT] /videos/update
+    uploadSingleLectureVideoForUpdate = async (req: Request, res: Response, _next: NextFunction) => {
+        const t = await sequelize.transaction();
+        try {
+            const video = req.file;
+
+            if (!video) {
+                return res.status(400).json({
+                    message: "Can not find video!"
+                })
+            }
+
+            if (!video.mimetype.startsWith('video/')) {
+                return res.status(400).json({
+                    message: "Invalid mimetype for video topic!"
+                })
+            }
+            const dateTime = fileUpload.giveCurrentDateTime();
+
+            let body = req.body.data;
+
+            if (typeof(body) == 'string') {
+                body = JSON.parse(body);
+            }
+
+            const firstHyphen = video.originalname.indexOf('-');
+            // const chapterIdx = video.originalname.substring(0, firstHyphen);
+
+            const secondHyphen = video.originalname.indexOf('-', firstHyphen + 1);
+            // const topicIdx = video.originalname.substring(firstHyphen + 1, secondHyphen);
+
+            const originalFileName = video.originalname.substring(secondHyphen + 1);
+
+            const storageRef = ref(
+                storage, 
+                `video course/${originalFileName + "       " + dateTime}`
+            );
+
+            const metadata = {
+                contentType: video.mimetype,
+            };
+
+            const snapshot = await uploadBytesResumable(storageRef, video.buffer, metadata);
+            const url = await getDownloadURL(snapshot.ref);
+            const duration = await getVideoDurationInSeconds(url);
+
+            // Check if course has been created
+            const course = await Course.findByPk(body.id_course);
+
+            console.log(body);
+
+            if (!course) {
+                return res.status(400).json({
+                    message: "The course you want to update is not exist!"
+                });
+            }
+
+            const topic = await Topic.findByPk(body.id_topic);
+
+            if (!topic) {
+                await CourseDraft.create({
+                    url,
+                    duration,
+                    id_topic: body.id_topic,
+                    type: "lecture"
+                }, {
+                    transaction: t
+                });
+
+                await t.commit();
+
+                return res.status(200).json({
+                    message: "Video has been uploaded to cloud!"
+                });
+            }
+
+            await topic.update({
+                video: url
+            }, {
+                transaction: t
+            });
+
+            await t.commit();
+
+            res.status(200).json({
+                message: "Video has been uploaded to cloud and update to topic"
+            })
+
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error });
+
+            await t.rollback();
         }
     }
 }
