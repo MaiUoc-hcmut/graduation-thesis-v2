@@ -5,6 +5,7 @@ const Category = require('../../db/models/category');
 const Review = require('../../db/models/review');
 const ParentCategory = require('../../db/models/parent-category');
 const CourseDraft = require('../../db/models/course_draft');
+const Document = require('../../db/models/document');
 
 import { Request, Response, NextFunction } from 'express';
 
@@ -116,7 +117,16 @@ class CourseController {
                         include: [
                             {
                                 model: Topic,
-                                as: 'topics'
+                                as: 'topics',
+                                include: [
+                                    {
+                                        model: Document,
+                                        attributes: ['id', 'url'],
+                                        through: {
+                                            attributes: []
+                                        }
+                                    }
+                                ]
                             }
                         ]
                     },
@@ -341,7 +351,6 @@ class CourseController {
                         for (let j = 0; j < chapters[i].topics.length; j++) {
                             let topicVideoURL = "";
                             let topicVideoDuration = 0;
-                            let document_url = "";
 
                             const topicDraft = await CourseDraft.findOne({
                                 where: {
@@ -358,7 +367,7 @@ class CourseController {
                                 await topicDraft.destroy({ transaction: t });
                             }
 
-                            const documentDraft = await CourseDraft.findOne({
+                            const documentsDraft = await CourseDraft.findAll({
                                 where: {
                                     id_course: id,
                                     topic_order: j + 1,
@@ -367,12 +376,18 @@ class CourseController {
                                 }
                             });
 
-                            if (documentDraft) {
-                                document_url = documentDraft.url;
-                                await documentDraft.destroy({ transaction: t });
+
+                            let documentInstances = [];
+
+                            if (documentsDraft.length > 0) {
+                                for (const docDraft of documentsDraft) {
+                                    const document = await Document.findByPk(docDraft.id_document);
+                                    documentInstances.push(document);
+                                    await docDraft.destroy({ transaction: t });
+                                }
                             }
 
-                            await Topic.create({
+                            const newTopic = await Topic.create({
                                 id_chapter: newChapter.id,
                                 video: topicVideoURL,
                                 name: chapters[i].topics[j].name,
@@ -381,10 +396,11 @@ class CourseController {
                                 status: chapters[i].topics[j].status,
                                 duration: topicVideoDuration,
                                 type: chapters[i].topics[j].type,
-                                document_url
                             }, {
                                 transaction: t
                             });
+
+                            await newTopic.addDocuments(documentInstances);
                         }
                     }
                 }
@@ -680,7 +696,7 @@ class CourseController {
                                     }
                                 });
 
-                                const documentDraft = await CourseDraft.findOne({
+                                const documentsDraft = await CourseDraft.All({
                                     where: {
                                         id_topic: topic.id,
                                         type: "document"
@@ -689,7 +705,6 @@ class CourseController {
 
                                 let videoTopicUrl = "";
                                 let videoTopicDuration = 0;
-                                let document_url = "";
 
                                 // If video of topic has been uploaded, then assign the url and duration to variable to create new topic
                                 if (topicDraft) {
@@ -697,22 +712,30 @@ class CourseController {
                                     videoTopicDuration = topicDraft.duration;
                                 }
 
-                                if (documentDraft) {
-                                    document_url = documentDraft.url;
+                                let documentInstances = [];
+
+                                if (documentsDraft.length > 0) {
+                                    for (const docDraft of documentsDraft) {
+                                        const document = await Document.findByPk(docDraft.id_document);
+                                        documentInstances.push(document);
+
+                                        await docDraft.destroy({ transaction: t });
+                                    }
                                 }
 
-                                await Topic.create({
+                                const newTopic = await Topic.create({
                                     id_chapter: newChapter.id,
                                     ...topic,
                                     video: videoTopicUrl,
                                     duration: videoTopicDuration,
                                     order: j,
-                                    document_url
                                 }, {
                                     transaction: t
                                 });
                                 topic.type === "lecture" ? totalLecture++ : totalExam++;
                                 j++;
+
+                                newTopic.addDocuments(documentInstances);
                             }
                         }
                         i++;
@@ -766,6 +789,13 @@ class CourseController {
                                     },
                                 });
 
+                                const documentsDraft = await CourseDraft.findAll({
+                                    where: {
+                                        id_topic: topic.id,
+                                        type: "document"
+                                    }
+                                })
+
                                 // If draft does not exist, means the video is not uploaded yet
                                 let videoTopicUrl = "";
                                 let videoTopicDuration = 0;
@@ -775,17 +805,29 @@ class CourseController {
                                     videoTopicDuration = topicDraft.duration;
                                 }
 
-                                await Topic.create({
+                                let documentInstances = [];
+
+                                if (documentsDraft.length > 0) {
+                                    for (const docDraft of documentsDraft) {
+                                        const document = await Document.findByPk(docDraft.id_document);
+                                        documentInstances.push(document);
+
+                                        await docDraft.destroy({ transaction: t });
+                                    }
+                                }
+
+                                const newTopic = await Topic.create({
                                     id_chapter: chapter.id,
                                     ...topic,
                                     video: videoTopicUrl,
-                                    duration: videoTopicDuration
+                                    duration: videoTopicDuration,
+                                    order: j,
                                 }, {
                                     transaction: t
                                 });
 
                                 topic.type === "lecture" ? totalLecture++ : totalExam++;
-
+                                await newTopic.addDocuments(documentInstances);
                                 j++;
                                 continue;
                             }
@@ -827,7 +869,7 @@ class CourseController {
                                 }
                             });
 
-                            const documentDraft = CourseDraft.findOne({
+                            const documentsDraft = CourseDraft.findAll({
                                 where: {
                                     id_topic: topic.id,
                                     type: "document",
@@ -835,23 +877,33 @@ class CourseController {
                             });
 
                             let video = topicToUpdate.video;
-                            let document_url = topicToUpdate.document_url;
+                            let documentInstances = [];
+
                             if (lectureDraft) {
                                 video = lectureDraft.url;
                                 await lectureDraft.destroy({ transaction: t });
                             }
 
-                            if (documentDraft) {
-                                document_url = documentDraft.url;
-                                await documentDraft.destroy({ transaction: t });
+                            if (documentsDraft.length > 0) {
+                                for (const docDraft of documentsDraft) {
+                                    const document = await Document.findByPk(docDraft.id_document);
+                                    documentInstances.push(document);
+                                }
                             }
-
-                            await topicToUpdate.update({ ...topic, order: j, video, document_url }, { transaction: t });
+                            await topicToUpdate.setDocuments(documentInstances);
+                            await topicToUpdate.update({ ...topic, order: j, video }, { transaction: t });
                             j++;
                         }
                     }
                     i++;
                 }
+
+                await course.update({
+                    total_lecture: totalLecture,
+                    total_exam: totalExam,
+                }, {
+                    transaction: t
+                });
             }
 
             t.commit();

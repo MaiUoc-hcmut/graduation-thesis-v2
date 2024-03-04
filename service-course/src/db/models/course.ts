@@ -94,7 +94,7 @@ Course.belongsToMany(Category, {
 });
 Category.belongsToMany(Course, { 
   through: 'categoty-course',
-  foreignKey: 'category',
+  foreignKey: 'id_category',
   otherKey: 'id_course'
 });
 

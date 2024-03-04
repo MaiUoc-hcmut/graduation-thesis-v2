@@ -50,11 +50,11 @@ Document.init(
 );
 
 
-Document.belongsToMany(Category, { through: 'documentcategory', foreignKey: "documentId" });
-Category.belongsToMany(Document, { through: 'documentcategory', foreignKey: "categoryId" });
+Document.belongsToMany(Category, { through: 'documentcategory', foreignKey: "id_document" });
+Category.belongsToMany(Document, { through: 'documentcategory', foreignKey: "id_category" });
 
-Document.belongsToMany(Topic, { through: 'documenttopic', foreignKey: "documentId" });
-Topic.belongsToMany(Document, { through: 'documenttopic', foreignKey: "topicId" });
+Document.belongsToMany(Topic, { through: 'document-topic', foreignKey: "id_document", otherKey: "id_topic" });
+Topic.belongsToMany(Document, { through: 'document-topic', foreignKey: "id_topic", otherKey: "id_document" });
 
 Document.belongsTo(Folder, { foreignKey: 'parent_folder_id' });
 Folder.hasMany(Document, { foreignKey: 'parent_folder_id' });

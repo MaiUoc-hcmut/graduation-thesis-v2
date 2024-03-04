@@ -183,6 +183,7 @@ class DocumentController {
                     topic_order: topicIdx,
                     chapter_order: chapterIdx,
                     id_course,
+                    id_document: newDocument.id,
                     type: "document"
                 }, {
                     transaction: t
@@ -202,9 +203,7 @@ class DocumentController {
                     }
                 });
 
-                await topic.update({
-                    document_url: url
-                }, {
+                await topic.addDocument(newDocument, {
                     transaction: t
                 });
             }
@@ -233,8 +232,8 @@ class DocumentController {
             const file = req.file;
 
             // originalname of video is separate to 3 part
-                // each part separate by a hyphen
-                // first part is index of chapter in course, second part is index of topic in chapter
+            // each part separate by a hyphen
+            // first part is index of chapter in course, second part is index of topic in chapter
             const firstHyphen = file.originalname.indexOf('-');
             const chapterIdx = file.originalname.substring(0, firstHyphen);
 
@@ -274,6 +273,7 @@ class DocumentController {
                     await CourseDraft.create({
                         url,
                         id_topic,
+                        id_document: newDocument.id,
                         type: "document"
                     }, {
                         transaction: t
@@ -286,11 +286,7 @@ class DocumentController {
                     });
                 }
 
-                await topic.update({
-                    document_url: url
-                }, {
-                    transaction: t
-                });
+                await topic.addDocument(newDocument, { transaction: t });
             }
 
             await t.commit()

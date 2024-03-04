@@ -1,4 +1,5 @@
 const Progress = require('../../db/models/course_progress');
+const Course = require('../../db/models/course');
 
 import { Request, Response, NextFunction } from 'express';
 
@@ -9,6 +10,15 @@ class ProgressController {
         try {
             const { studentId, courseId } = req.params;
 
+            
+            const course = await Course.findByPk(courseId);
+
+            if (!course) {
+                return res.status(400).json({
+                    message: "Course does not exist!"
+                });
+            }
+
             const progress = await Progress.findAll({
                 where: {
                     id_student: studentId,
@@ -16,7 +26,13 @@ class ProgressController {
                 }
             });
 
-            res.status(200).json(progress);
+            const totalTopic = course.total_lecture + course.total_exam;
+            const percentageProgress = (progress.length / totalTopic) * 100;
+
+            res.status(200).json({
+                progress,
+                percentage: `${percentageProgress}%`
+            });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
