@@ -68,8 +68,9 @@ class CommentController {
     // [GET] /comments/student/:studentId
     getCommentCreatedByStudent = async (req: Request, res: Response, _next: NextFunction) => {
         try {
+            const { studentId } = req.params;
             const comments = await Comment.findAll({
-                where: {  }
+                where: { id_student: studentId }
             });
 
             res.status(200).json(comments);
