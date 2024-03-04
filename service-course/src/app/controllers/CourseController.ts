@@ -323,12 +323,12 @@ class CourseController {
 
             const categoriesInstances = [];
 
-                for (let i = 0; i < categories.length; i++) {
-                    const category = await Category.findByPk(categories[i]);
-                    categoriesInstances.push(category);
-                }
+            for (let i = 0; i < categories.length; i++) {
+                const category = await Category.findByPk(categories[i]);
+                categoriesInstances.push(category);
+            }
 
-                await newCourse.addCategories(categoriesInstances, { transaction: t });
+            await newCourse.addCategories(categoriesInstances, { transaction: t });
 
             // If course contain chapters
             if (chapters !== undefined) {
@@ -397,8 +397,7 @@ class CourseController {
                             }, {
                                 transaction: t
                             });
-
-                            await newTopic.addDocuments(documentInstances);
+                            await newTopic.addDocuments(documentInstances, { transaction: t });
                         }
                     }
                 }
