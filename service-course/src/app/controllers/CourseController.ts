@@ -764,20 +764,34 @@ class CourseController {
                                     },
                                 });
 
+                                const documentDraft = await CourseDraft.findOne({
+                                    where: {
+                                        id_topic: topic.id,
+                                        type: "document"
+                                    }
+                                })
+
                                 // If draft does not exist, means the video is not uploaded yet
                                 let videoTopicUrl = "";
                                 let videoTopicDuration = 0;
+                                let document_url = "";
 
                                 if (topicDraft) {
                                     videoTopicUrl = topicDraft.url;
                                     videoTopicDuration = topicDraft.duration;
                                 }
 
+                                if (documentDraft) {
+                                    document_url = documentDraft.url;
+                                }
+
                                 await Topic.create({
                                     id_chapter: chapter.id,
                                     ...topic,
                                     video: videoTopicUrl,
-                                    duration: videoTopicDuration
+                                    duration: videoTopicDuration,
+                                    order: j,
+                                    document_url
                                 }, {
                                     transaction: t
                                 });
@@ -850,6 +864,13 @@ class CourseController {
                     }
                     i++;
                 }
+
+                await course.update({
+                    total_lecture: totalLecture,
+                    total_exam: totalExam,
+                }, {
+                    transaction: t
+                });
             }
 
             t.commit();
