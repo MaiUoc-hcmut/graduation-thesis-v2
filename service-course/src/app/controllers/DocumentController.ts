@@ -137,15 +137,12 @@ class DocumentController {
     // [POST] /api/v1/document
     createDocument = async (req: RequestWithFile, res: Response, _next: NextFunction) => {
         let data = req.body.data;
-        console.log(data);
         if (typeof data === "string") {
             data = JSON.parse(data);
         }
-
         const t = await sequelize.transaction();
         try {
-            // const id_teacher = req.teacher.data.id;
-            const id_teacher = '067fe991-0853-4d22-b693-b290e4d667fe';
+            const id_teacher = "92042d2b-3dee-4176-a62a-81c5e971bc16"; //req.teacher.data.id;
             const { id_course } = data;
             const file = req.file;
 
@@ -181,6 +178,7 @@ class DocumentController {
 
             // If course is not created yet
             if (!course) {
+                console.log(newDocument.id);
                 await CourseDraft.create({
                     url,
                     topic_order: topicIdx,
@@ -224,7 +222,7 @@ class DocumentController {
 
     // [POST] /api/v1/document/update
     updateDocumentForTopic = async (req: RequestWithFile, res: Response, _next: NextFunction) => {
-        let data = req.body;
+        let data = req.body.data;
         if (typeof data === "string") {
             data = JSON.parse(data);
         }

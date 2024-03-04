@@ -121,7 +121,7 @@ class CourseController {
                                 include: [
                                     {
                                         model: Document,
-                                        attributes: ['id', 'url'],
+                                        attributes: ['id', 'url', 'name'],
                                         through: {
                                             attributes: []
                                         }
@@ -346,8 +346,6 @@ class CourseController {
                     if (chapters[i].topics !== undefined) {
                         totalLecture += chapters[i].topics.filter((topic: any) => topic.type === "lecture").length;
                         totalExam += chapters[i].topics.filter((topic: any) => topic.type === "exam").length;
-                        console.log(totalLecture);
-
                         for (let j = 0; j < chapters[i].topics.length; j++) {
                             let topicVideoURL = "";
                             let topicVideoDuration = 0;
@@ -399,8 +397,7 @@ class CourseController {
                             }, {
                                 transaction: t
                             });
-
-                            await newTopic.addDocuments(documentInstances);
+                            await newTopic.addDocuments(documentInstances, { transaction: t });
                         }
                     }
                 }
@@ -862,14 +859,14 @@ class CourseController {
 
                             if (!topicToUpdate) throw new Error("Topic does not exist");
 
-                            const lectureDraft = CourseDraft.findOne({
+                            const lectureDraft = await CourseDraft.findOne({
                                 where: {
                                     id_topic: topic.id,
                                     type: "lecture",
                                 }
                             });
 
-                            const documentsDraft = CourseDraft.findAll({
+                            const documentsDraft = await CourseDraft.findAll({
                                 where: {
                                     id_topic: topic.id,
                                     type: "document",

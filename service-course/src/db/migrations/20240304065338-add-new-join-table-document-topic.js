@@ -4,7 +4,10 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('document-topic', {
-      id: Sequelize.UUID,
+      id: {
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4
+      },
       id_document: {
         type: Sequelize.UUID,
         references: {

@@ -337,19 +337,19 @@ export default function CourseList() {
                                                         <div className='mt-4 grid grid-cols-2 gap-2'>
                                                             <div className='flex items-center'>
                                                                 <ClockIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                <span className='text-[#171347] font-medium text-sm'>1:20 giờ</span>
+                                                                <span className='text-[#171347] font-medium text-sm'>{course.totalDuration} giờ</span>
                                                             </div>
                                                             <div className='flex items-center'>
                                                                 <Squares2X2Icon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                <span className='text-[#171347] font-medium text-sm'>20 chương</span>
+                                                                <span className='text-[#171347] font-medium text-sm'>{course?.chapters?.length} chương</span>
                                                             </div>
                                                             <div className='flex items-center'>
                                                                 <FilmIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                <span className='text-[#171347] font-medium text-sm'>120 bài giảng</span>
+                                                                <span className='text-[#171347] font-medium text-sm'>{course?.total_lecture} bài giảng</span>
                                                             </div>
                                                             <div className='flex items-center'>
                                                                 <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                <span className='text-[#171347] font-medium text-sm'>120 đề thi</span>
+                                                                <span className='text-[#171347] font-medium text-sm'>{course?.total_exam} đề thi</span>
                                                             </div>
 
                                                         </div>

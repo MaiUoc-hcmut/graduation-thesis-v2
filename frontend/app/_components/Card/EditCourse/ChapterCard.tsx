@@ -444,7 +444,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                         name="document"
                                         labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
                                     />
-                                    <p>{getValues().chapters?.indexChapter?.topics?.indexTopic?.link_video}</p>
+                                 
                                 </div>
                                 <div className="mb-5 w-full">
                                     <div

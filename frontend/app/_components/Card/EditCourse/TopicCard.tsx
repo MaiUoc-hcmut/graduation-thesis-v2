@@ -246,7 +246,7 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                     server={{
                                         process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                                             const formData = new FormData();
-                                            formData.append(fieldName, file, `${indexChapter + 1}-${indexTopic + 1}-${file.name}`);
+                                            formData.append(fieldName, file, file.name);
                                             const data = { id_course: id_course, id_topic: topic.id }
 
                                             formData.append('data', JSON.stringify(data));
@@ -276,7 +276,15 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                     name="document"
                                     labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
                                 />
-                                <p>{getValues().chapters?.indexChapter?.topics?.indexTopic?.link_video}</p>
+                                {
+                                    topic?.Documents?.map((document: any) => {
+                                        return (
+                                            <div key={document.id}>
+                                                <p className='pb-2'>{document.id}</p>
+                                            </div>
+                                        )
+                                    })
+                                }
                             </div>
 
                             <div className="mb-5 w-full">
