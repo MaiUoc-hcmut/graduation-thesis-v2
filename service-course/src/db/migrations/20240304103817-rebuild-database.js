@@ -49,6 +49,10 @@ module.exports = {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      total_duration: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
       total_chapter: {
         type: DataTypes.INTEGER,
         allowNull: false,
