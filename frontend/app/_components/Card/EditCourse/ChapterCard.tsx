@@ -33,6 +33,7 @@ import courseApi from "@/app/api/courseApi";
 // Register the plugins
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
 
+
 export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provided, data, setData, removeChapter, setTypeSubmit, toggle, setToggle, id_course }: any) => {
     const [modal, setModal] = useState<any>({})
     const notify = () => {
@@ -69,7 +70,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
 
     useEffect(() => {
         setTopicsData(data.chapters[indexChapter]?.topics?.filter((topic: any) => topic.modify != "delete"))
-    }, [data, indexChapter]);
+    }, [data]);
 
 
     const reorder = (list: Array<any>, startIndex: any, endIndex: any) => {
@@ -89,9 +90,18 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                         <form className="space-y-6" onSubmit={(e: any) => {
                             e.preventDefault()
                             setModal({ ...modal, [`delete_section${chapter.id || chapter.key}`]: false })
-                            if (getValues().chapters[indexChapter].modify != "create") {
+
+                            if (chapter.modify != "create") {
                                 setValue(`chapters.${indexChapter}.modify`, "delete")
+                            } else {
+                                removeChapter(indexChapter)
+
+                                setData((data: any) => {
+                                    data.chapters.splice(indexChapter, 1)
+                                    return data
+                                })
                             }
+
                             notify()
                         }}>
                             <ExclamationCircleIcon className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
@@ -235,8 +245,9 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                             </span>
                             <span className="font-normal text-[818894] text-xs flex">
                                 {chapter?.topics?.length} chủ đề
-                                | {convertTime(0 && getValues().totalDuration)}
+                                | {convertTime(chapter.totalDuration || '0')}
                             </span>
+
                         </div>
                     </div>
                     <div className="ml-5 flex items-center justify-center">
@@ -246,26 +257,32 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
 
                             <Dropdown label="" renderTrigger={() => <PlusCircleIcon className="w-7 h-7 text-primary" />} placement="left">
                                 <Dropdown.Item onClick={() => {
+                                    appendTopic({
+                                        key: `topic_${topicsData.length}`,
+                                        name: "",
+                                        description: "",
+                                        status: "public",
+                                        type: "lecture"
+                                    })
+                                    // if (fieldsTopic?.length == 0) {
+                                    //     appendTopic({
+                                    //         key: `topic_${topicsData.length}`,
+                                    //         name: "",
+                                    //         description: "",
+                                    //         status: "public",
+                                    //         type: "lecture"
+                                    //     })
+                                    // } else {
 
-                                    if (fieldsTopic?.length == 0) {
-                                        appendTopic({
-                                            key: `topic_${topicsData.length}`,
-                                            name: "",
-                                            description: "",
-                                            status: "public",
-                                            type: "lecture"
-                                        })
-                                    } else {
-
-                                        if (fieldsTopic[fieldsTopic?.length - 1].name != "")
-                                            appendTopic({
-                                                key: `topic_${topicsData.length}`,
-                                                name: "",
-                                                description: "",
-                                                status: "public",
-                                                type: "lecture"
-                                            })
-                                    }
+                                    //     if (fieldsTopic[fieldsTopic?.length - 1].name != "")
+                                    //         appendTopic({
+                                    //             key: `topic_${topicsData.length}`,
+                                    //             name: "",
+                                    //             description: "",
+                                    //             status: "public",
+                                    //             type: "lecture"
+                                    //         })
+                                    // }
                                     console.log(fieldsTopic);
 
                                     setToggle({ ...toggle, [`add_topic_${chapter.id || chapter.key}`]: true, [`open_chapter_${chapter.id || chapter.key}`]: true })
@@ -456,7 +473,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                         }} type="button" className="mr-4 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Huỷ</button>
                                     <button type="submit"
                                         onClick={() => {
-                                            setValue(`chapters.${indexChapter}.topics.${chapter.topics.length - 1}.modify`, "create")
+                                            setValue(`chapters.${indexChapter}.topics.${chapter.topics.length}.modify`, "create")
                                             setTypeSubmit(`add_topic_${chapter.id || chapter.key}`)
                                         }}
                                         className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mt-3">Lưu</button>
@@ -481,6 +498,10 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                             result.destination.index
                         );
                         setTopicsData(items)
+                        setValue(`chapters.${indexChapter}.topics`, items)
+                        if (chapter.modify != "create") {
+                            setValue(`chapters.${indexChapter}.modify`, "change")
+                        }
                     }}>
                         <StrictModeDroppable droppableId="topic">
                             {(provided) => (

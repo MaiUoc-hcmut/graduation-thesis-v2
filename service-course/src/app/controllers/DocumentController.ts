@@ -2,6 +2,7 @@ const Document = require('../../db/models/document');
 const Course = require('../../db/models/course');
 const Chapter = require('../../db/models/chapter');
 const Topic = require('../../db/models/topic');
+const CourseDraft = require('../../db/models/course_draft');
 
 const { ref, getDownloadURL, uploadBytes, getStorage } = require('firebase/storage');
 const { initializeApp } = require('firebase/app');
@@ -10,6 +11,8 @@ const DocumentFile = require('../../config/firebase/file');
 
 import { Request, Response, NextFunction } from "express";
 const dotenv = require('dotenv').config();
+
+const { sequelize } = require('../../config/db/index');
 
 declare global {
     namespace Express {
@@ -132,17 +135,92 @@ class DocumentController {
     }
 
     // [POST] /api/v1/document
-    createDocument = async (req: Request, res: Response, _next: NextFunction) => {
+    createDocument = async (req: RequestWithFile, res: Response, _next: NextFunction) => {
+        const t = await sequelize.transaction();
         try {
             const id_teacher = req.teacher.data.id;
-            const body = req.body;
+            const { id_course } = req.body.data;
+            const file = req.file;
+            /*
+            {
+                data: {
+                    id_topic,
 
-            const newDocument = await Document.create({ ...body, id_teacher });
+                }
+            }
+            */
+
+            // originalname of video is separate to 3 part
+                // each part separate by a hyphen
+                // first part is index of chapter in course, second part is index of topic in chapter
+            const firstHyphen = file.originalname.indexOf('-');
+            const chapterIdx = file.originalname.substring(0, firstHyphen);
+
+            const secondHyphen = file.originalname.indexOf('-', firstHyphen + 1);
+            const topicIdx = file.originalname.substring(firstHyphen + 1, secondHyphen);
+
+            const originalFileName = file.originalname.substring(secondHyphen + 1);
+            
+            const storage = getStorage();
+
+            const dateTime = DocumentFile.giveCurrentDateTime();
+
+            const storageRef = ref(storage, `document/${file.originalname + "       " + dateTime}`)
+
+            // Create file metadata including the content type
+            const metadata = {
+                contentType: file.mimetype,
+            };
+
+            const snapshot = await uploadBytes(storageRef, file.buffer, metadata);
+            const url = await getDownloadURL(snapshot.ref);
+
+            const newDocument = await Document.create({ url, name: originalFileName, id_teacher });
+
+            // check if the course is created or not
+            const course = await Course.findByPk(id_course);
+
+            // If course is not created yet
+            if (!course) {
+                await CourseDraft.create({
+                    url,
+                    topic_order: topicIdx,
+                    chapter_order: chapterIdx,
+                    id_course,
+                    type: "document"
+                }, {
+                    transaction: t
+                });
+            } else {
+                const chapter = await Chapter.findOne({
+                    where: {
+                        id_course,
+                        order: chapterIdx
+                    }
+                });
+
+                const topic = await Topic.findOne({
+                    where: {
+                        id_chapter: chapter.id,
+                        order: topicIdx
+                    }
+                });
+
+                await topic.update({
+                    id_document: newDocument.id
+                }, {
+                    transaction: t
+                });
+            }
+
+            await t.commit()
             
             res.status(201).json(newDocument);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
+
+            await t.rollback();
         }
     }
 

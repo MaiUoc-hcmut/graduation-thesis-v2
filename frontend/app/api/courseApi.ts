@@ -66,6 +66,11 @@ const courseApi = {
         const url = `/images`;
         return axiosConfig.post(url, video);
     },
+
+    createProgress: (data: object) => {
+        const url = `/progresses/increase`;
+        return axiosConfig.post(url, data);
+    },
 }
 
 export default courseApi;

@@ -77,7 +77,7 @@ class VideoController {
                     duration,
                     chapter_order: chapterIdx,
                     topic_order: topicIdx,
-                    type: "video"
+                    type: "lecture"
                 });
 
                 return res.status(201).json({

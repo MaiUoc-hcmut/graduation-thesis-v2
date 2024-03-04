@@ -4,8 +4,8 @@ import { useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
-export function ReactQuillEditor({ field, setValue, register }: any) {
-    const [text, setText] = useState('');
+export function ReactQuillEditor({ field, setValue, value }: any) {
+    const [text, setText] = useState(value);
     const modules = {
         toolbar: [
             [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
@@ -36,8 +36,6 @@ export function ReactQuillEditor({ field, setValue, register }: any) {
                 formats={formats}
                 value={text}
                 onChange={(data) => {
-                    data = data.replace('<p>', '')
-                    data = data.replace('</p>', '')
                     setValue(field, data)
                 }}
             />

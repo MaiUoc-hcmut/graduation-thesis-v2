@@ -307,7 +307,7 @@ class CourseController {
                 transaction: t
             });
 
-            if (categories !== undefined) {
+            if (categories === undefined) {
                 throw new Error("Categories missed!");
             }
 
@@ -339,12 +339,14 @@ class CourseController {
                         for (let j = 0; j < chapters[i].topics.length; j++) {
                             let topicVideoURL = "";
                             let topicVideoDuration = 0;
+                            let document_url = "";
 
                             const topicDraft = await CourseDraft.findOne({
                                 where: {
                                     id_course: id,
                                     topic_order: j + 1,
                                     chapter_order: i + 1,
+                                    type: "lecture"
                                 }
                             });
 
@@ -354,6 +356,20 @@ class CourseController {
                                 await topicDraft.destroy({ transaction: t });
                             }
 
+                            const documentDraft = await CourseDraft.findOne({
+                                where: {
+                                    id_course: id,
+                                    topic_order: j + 1,
+                                    chapter_order: i + 1,
+                                    type: "document"
+                                }
+                            });
+
+                            if (documentDraft) {
+                                document_url = documentDraft.url;
+                                await documentDraft.destroy({ transaction: t });
+                            }
+
                             await Topic.create({
                                 id_chapter: newChapter.id,
                                 video: topicVideoURL,
@@ -361,7 +377,9 @@ class CourseController {
                                 description: chapters[i].topics[j].description,
                                 order: j + 1,
                                 status: chapters[i].topics[j].status,
-                                duration: topicVideoDuration
+                                duration: topicVideoDuration,
+                                type: chapters[i].topics[j].type,
+                                document_url
                             }, {
                                 transaction: t
                             });

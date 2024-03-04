@@ -21,8 +21,10 @@ import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orien
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 
+import JsFileDownloader from 'js-file-downloader';
+
 export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm, innerRef, provided, data, setData,
-    removeTopic, fieldsTopic, setTypeSubmit, id_course }: any) => {
+    removeTopic, setTypeSubmit, id_course }: any) => {
     const initToggle: any = {}
     const [toggle, setToggle] = useState(initToggle)
     const [modal, setModal] = useState(initToggle)
@@ -39,6 +41,18 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
             theme: "colored",
         });
     };
+    function download(url: string) {
+        new JsFileDownloader({
+            url: url
+        })
+            .then(function () {
+                // Called when download ended
+            })
+            .catch(function (error) {
+                // Called when an error occurred
+            });
+
+    }
     const {
         register,
         getValues,
@@ -56,14 +70,17 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                         <form className="space-y-6" onSubmit={(e: any) => {
                             e.preventDefault()
 
-                            if (chapter.modify != "create") {
+                            if (chapter.modify != "create" && chapter.topics[indexTopic].modify != "create") {
                                 setValue(`chapters.${indexChapter}.topics.${indexTopic}.modify`, "delete")
                                 setValue(`chapters.${indexChapter}.modify`, 'change')
                             }
-                            // setData((data: any) => {
-                            //     data.chapters[indexChapter].topics?.splice(indexTopic, 1)
-                            //     return data
-                            // })
+                            if (chapter.topics[indexTopic].modify == "create") {
+                                removeTopic(indexTopic)
+                                setData((data: any) => {
+                                    data.chapters[indexChapter].topics?.splice(indexTopic, 1)
+                                    return data
+                                })
+                            }
                             setModal({ ...modal, [`delete-topic${topic.id || topic.key}`]: false })
                             notify()
                         }}>
@@ -216,9 +233,10 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                     labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
                                 />
                                 {
-                                    getValues().chapters[indexChapter]?.topics[indexTopic]?.video ?
+                                    topic?.video ?
                                         <div className='my-10 p-2 bg-black'>
-                                            <ReactPlayer width='100%' height='240px' controls={true} url={`${getValues().chapters[indexChapter]?.topics[indexTopic]?.video}}`} />
+
+                                            <ReactPlayer width='100%' height='240px' controls={true} url={`${topic?.video}}`} />
                                         </div>
                                         : null
 

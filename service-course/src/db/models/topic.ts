@@ -44,6 +44,10 @@ Topic.init(
             type: DataTypes.STRING,
             defaultValue: 'lecture',
         },
+        document_url: {
+            type: DataTypes.TEXT,
+            defaultValue: ""
+        },
         createdAt: {
             type: DataTypes.DATE,
             allowNull: false,

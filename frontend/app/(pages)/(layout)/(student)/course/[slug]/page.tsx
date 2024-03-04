@@ -7,7 +7,7 @@ import { ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon, CheckIcon } from
 import { ChevronDownIcon, ChevronUpIcon, StarIcon } from '@heroicons/react/20/solid'
 import courseApi from '@/app/api/courseApi';
 import { useForm, SubmitHandler } from "react-hook-form"
-import CourseList from '../page';
+import parse from 'html-react-parser';
 import { formatCash, convertTime, formatDateTime } from '@/app/helper/FormatFunction';
 
 type Review = {
@@ -21,7 +21,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
 
     const [reviews, setReviews] = useState([]);
     const [changeData, setChangeData] = useState(false);
-    const [course, setCourse] = useState({});
+    const [course, setCourse] = useState<any>();
     const [rating, setRating] = useState(0);
     const [avgReview, setAvgReview] = useState(0);
     const [starDetails, setStarDetails] = useState<any>();
@@ -53,7 +53,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
         }
         fetchData()
     }, [changeData])
-    reviews?.sort(function (a, b) { return Date.parse(b.createdAt) - Date.parse(a.createdAt) })
+    reviews?.sort(function (a: any, b: any) { return Date.parse(b.createdAt) - Date.parse(a.createdAt) })
     console.log(course, reviews, avgReview, starDetails);
 
 
@@ -142,7 +142,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                         <h3 className='text-secondary font-bold mb-4'>Bạn sẽ học được gì?</h3>
                                         <p className='flex items-start mt-2 text-[14px] text-[#818894]'>
                                             <CheckIcon className='w-[18px] h-[18px] mr-2' />
-                                            {course.goal}
+                                            {parse(course?.goal || '')}
                                         </p>
 
                                     </div>
@@ -152,21 +152,21 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                         </h2>
                                         <div className='mt-5 text-[#818894]'>
                                             <p>
-                                                {course.description}
+                                                {parse(course?.description || '')}
                                             </p>
                                         </div>
                                         <div className='mt-5'>
                                             <h3 className='font-bold text-secondary'>Yêu cầu</h3>
                                             <p className='flex items-start mt-2 text-[14px] text-[#818894]'>
                                                 <CheckIcon className='w-[18px] h-[18px] mr-2' />
-                                                {course.requirement}
+                                                {parse(course?.requirement || "")}
                                             </p>
                                         </div>
                                     </div>
                                 </div>
                                 <div className={`${tab == 2 ? '' : 'hidden'}`}>
                                     <ul>
-                                        {course?.chapters?.map((chapter) => {
+                                        {course?.chapters?.map((chapter: any) => {
                                             return (
                                                 <li key={chapter.id} className='bg-white py-3 pl-[20px] pr-6 rounded-lg mb-5 list-none border-[1px] border-[#ececec]'>
                                                     <div className='flex items-center justify-between'>
@@ -209,7 +209,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                     </div>
                                                     <ul className={`${toggle[`open_chapter_${chapter.id}`] ? '' : 'hidden'} mt-4 pt-8 border-t-[1px] border-[#ececec]`}>
                                                         {
-                                                            chapter.topics?.map((topic) => {
+                                                            chapter.topics?.map((topic: any) => {
                                                                 return (
                                                                     <li key={topic.id} className='bg-white py-3 pl-[20px] pr-6 rounded-lg mb-5 list-none border-[1px] border-[#ececec]'>
                                                                         <div className='flex items-center justify-between'>
@@ -257,7 +257,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                     5 sao
                                                 </div>
                                                 <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${0 || starDetails?.['5star'].percentage}%` }} />
+                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['5star']?.quantity == 0 ? 0 : starDetails?.['5star'].percentage}%` }} />
                                                 </div>
                                                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
                                                     {0 || Math.floor(starDetails?.['5star'].percentage)}%
@@ -270,7 +270,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                     4 sao
                                                 </div>
                                                 <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${0 || starDetails?.['4star'].percentage}%` }} />
+                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['5star']?.quantity == 0 ? 0 : starDetails?.['4star'].percentage}%` }} />
                                                 </div>
                                                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
                                                     {0 || Math.floor(starDetails?.['4star'].percentage)}%
@@ -283,7 +283,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                     3 sao
                                                 </div>
                                                 <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${0 || starDetails?.['3star'].percentage}%` }} />
+                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['5star']?.quantity == 0 ? 0 : starDetails?.['3star'].percentage}%` }} />
                                                 </div>
                                                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
                                                     {0 || Math.floor(starDetails?.['3star'].percentage)}%
@@ -296,7 +296,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                     2 sao
                                                 </div>
                                                 <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${0 || starDetails?.['2star'].percentage}%` }} />
+                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['5star']?.quantity == 0 ? 0 : starDetails?.['2star'].percentage}%` }} />
                                                 </div>
                                                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
                                                     {0 || Math.floor(starDetails?.['2star'].percentage)}%
@@ -309,7 +309,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                     1 sao
                                                 </div>
                                                 <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${0 || starDetails?.['1star'].percentage}%` }} />
+                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['5star']?.quantity == 0 ? 0 : starDetails?.['1star'].percentage}%` }} />
                                                 </div>
                                                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
                                                     {0 || Math.floor(starDetails?.['1star'].percentage)}%
@@ -382,7 +382,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                         </form>
                                         <div className='mt-12'>
                                             {
-                                                reviews?.map((review) => (
+                                                reviews?.map((review: any) => (
                                                     <div key={review.id} className="bg-white px-4 py-4 mb-5 border rounded-lg shadow-md">
                                                         <div className='flex items-center justify-between'>
                                                             <div className='flex items-center mt-2'>
@@ -441,15 +441,15 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                     <div className='mt-4 grid grid-cols-2 gap-2'>
                                         <div className='flex items-center'>
                                             <ClockIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                            <span className='text-[#171347] font-medium text-sm'>{convertTime(course.totalDuration)}</span>
+                                            <span className='text-[#171347] font-medium text-sm'>{convertTime(course?.totalDuration)}</span>
                                         </div>
                                         <div className='flex items-center'>
                                             <Squares2X2Icon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                            <span className='text-[#171347] font-medium text-sm'>{course.chapters?.length} chương</span>
+                                            <span className='text-[#171347] font-medium text-sm'>{course?.chapters?.length} chương</span>
                                         </div>
                                         <div className='flex items-center'>
                                             <FilmIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                            <span className='text-[#171347] font-medium text-sm'>{course.totalTopics} bài giảng</span>
+                                            <span className='text-[#171347] font-medium text-sm'>{course?.totalTopics} bài giảng</span>
                                         </div>
                                         <div className='flex items-center'>
                                             <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />

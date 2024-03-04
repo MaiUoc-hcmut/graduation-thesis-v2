@@ -8,7 +8,7 @@ import { BasicInfomationForm } from "@/app/_components/Form/EditCourse/BasicInfo
 import { ContentForm } from "@/app/_components/Form/EditCourse/ContentForm"
 import { useForm } from "react-hook-form"
 import courseApi from "@/app/api/courseApi"
-import { useRouter } from "next/router"
+import { useRouter } from 'next/navigation'
 
 
 
@@ -44,13 +44,12 @@ type TopicData = {
 
 
 export default function Edit({ id, course }: any) {
+    const router = useRouter()
     const [data, setData] = useState<CourseData>()
     const [images, setImages] = useState()
     const [toggle, setToggle] = useState<any>({})
     const [typeSubmit, setTypeSubmit] = useState("")
     const [currentStepIndex, setCurrentStepIndex] = useState(0)
-    // const router = useRouter()
-
 
 
 
@@ -163,13 +162,11 @@ export default function Edit({ id, course }: any) {
 
                             formData.append("data", JSON.stringify(data1))
 
-                            try {
-                                courseApi.update(id, formData).then(() => {
-                                    // router.push("/dashboard/course")
-                                })
-                            } catch (error) {
 
-                            }
+                            courseApi.update(id, formData).then(() => {
+                                router.push("/dashboard/course")
+                            })
+
 
 
                         }

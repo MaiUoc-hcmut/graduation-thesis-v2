@@ -89,7 +89,16 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                     <div className='flex bg-black p-4 h-full'>
                         <div className='w-full rounded-xl'>
                             <div className='flex flex-col h-full'>
-                                <ReactPlayer width='100%' height='100%' controls={true} url={`${link ? link : '/'}`} />
+                                <ReactPlayer onEnded={() => {
+                                    const formData = {
+                                        data: {
+                                            id_student: '8d4ef46e-d3da-4463-bc47-4578a5ba2573',
+                                            id_course: params.slug,
+                                            id_topic: topicId
+                                        }
+                                    }
+                                    courseApi.createProgress(formData)
+                                }} width='100%' height='100%' controls={true} url={`${link ? link : '/'}`} />
                             </div>
                         </div>
                     </div>

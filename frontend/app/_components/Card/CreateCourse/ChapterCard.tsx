@@ -251,23 +251,23 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                 <Dropdown.Item onClick={() => {
                                     console.log(fieldsTopic);
 
-                                    if (fieldsTopic?.length == 0) {
-                                        appendTopic({
-                                            key: `topic_${topicsData.length}`,
-                                            name: "",
-                                            description: "",
-                                            status: "public"
-                                        })
-                                    } else {
+                                    appendTopic({
+                                        key: `topic_${topicsData.length}`,
+                                        name: "",
+                                        description: "",
+                                        status: "public"
+                                    })
+                                    // if (fieldsTopic?.length == 0) {
+                                    // } else {
 
-                                        if (fieldsTopic[fieldsTopic?.length - 1].name != "")
-                                            appendTopic({
-                                                key: `topic_${topicsData.length}`,
-                                                name: "",
-                                                description: "",
-                                                status: "public"
-                                            })
-                                    }
+                                    //     if (fieldsTopic[fieldsTopic?.length - 1].name != "")
+                                    //         appendTopic({
+                                    //             key: `topic_${topicsData.length}`,
+                                    //             name: "",
+                                    //             description: "",
+                                    //             status: "public"
+                                    //         })
+                                    // }
                                     console.log(fieldsTopic);
 
                                     setToggle({ ...toggle, [`add_topic_${chapter.key}`]: true, [`open_chapter_${chapter.key}`]: true })
@@ -402,6 +402,53 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                     <p>{getValues().chapters?.indexChapter?.topics?.indexTopic?.link_video}</p>
                                 </div>
 
+                                <div className="mb-5 w-1/2">
+                                    <label
+                                        className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
+                                        htmlFor="video"
+                                    >
+                                        Tài liệu
+                                    </label>
+                                    <FilePond
+                                        files={files}
+                                        onupdatefiles={() => setFiles}
+                                        allowMultiple
+                                        server={{
+                                            process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
+                                                const formData = new FormData();
+                                                formData.append(fieldName, file, `${indexChapter + 1}-${indexFieldTopic + 1}-${file.name}`);
+                                                const data = { id_course: id_course }
+
+                                                formData.append('data', JSON.stringify(data));
+
+                                                const request = new XMLHttpRequest();
+                                                request.open('POST', 'http://localhost:4001/api/v1/document/upload-file')
+
+                                                request.upload.onprogress = (e) => {
+                                                    progress(e.lengthComputable, e.loaded, e.total);
+                                                };
+
+                                                request.onload = function () {
+                                                    if (request.status >= 200 && request.status < 300) {
+                                                        // the load method accepts either a string (id) or an object
+                                                        load(request.responseText);
+                                                    } else {
+                                                        // Can call the error method if something is wrong, should exit after
+                                                        error('oh no');
+                                                    }
+                                                };
+                                                request.send(formData);
+                                                // courseApi.uploadVideo(formData)
+                                            }
+                                        }
+                                        }
+
+                                        name="document"
+                                        labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
+                                    />
+                                    <p>{getValues().chapters?.indexChapter?.topics?.indexTopic?.link_video}</p>
+                                </div>
+
                                 <div className="mb-5 w-full">
                                     <div
                                         className="block mr-2 text-sm font-semibold text-[14px] text-[#171347] "
@@ -415,6 +462,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                                     <input
                                                         id="inline-radio"
                                                         type="radio"
+                                                        defaultChecked
                                                         {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.status`)}
                                                         value="public"
                                                         className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"

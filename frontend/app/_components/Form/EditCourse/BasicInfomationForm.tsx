@@ -216,7 +216,10 @@ export function BasicInfomationForm({
                         process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                             const formData = new FormData();
                             formData.append(fieldName, file, file.name);
-                            formData.append('data', JSON.stringify({ type: "thumbnail" }));
+                            formData.append('data', JSON.stringify({
+                                id_course: id_course,
+                                type: "thumbnail"
+                            }));
 
                             const request = new XMLHttpRequest();
                             request.open('POST', 'http://localhost:4001/api/v1/images')
@@ -242,7 +245,7 @@ export function BasicInfomationForm({
                     }
                     }
 
-                    name="images"
+                    name="image"
                     labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
                 />
                 <p className="mt-2 text-sm text-red-600 dark:text-red-500">
@@ -277,7 +280,10 @@ export function BasicInfomationForm({
                         process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                             const formData = new FormData();
                             formData.append(fieldName, file, file.name);
-
+                            formData.append('data', JSON.stringify({
+                                id_course: id_course,
+                                type: "cover"
+                            }));
                             const request = new XMLHttpRequest();
                             request.open('POST', 'http://localhost:4001/api/v1/images')
 
@@ -302,7 +308,7 @@ export function BasicInfomationForm({
                     }
                     }
 
-                    name="images"
+                    name="image"
                     labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
                 />
                 {
@@ -317,14 +323,14 @@ export function BasicInfomationForm({
                         </div> : null
                 }
             </div>
-            {/* <div className="mb-16">
+            <div className="mb-16">
                 <label
                     className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
                 >
                     Mô tả
                 </label>
                 <ReactQuillEditor
-                    setValue={setValue} field={"description"}
+                    setValue={setValue} field={"description"} value={getValues().description}
                 />
                 <p className="mt-12 text-sm text-red-600 dark:text-red-500">
                     {errors?.description?.message}
@@ -336,7 +342,7 @@ export function BasicInfomationForm({
                 >
                     Mục tiêu
                 </label>
-                <ReactQuillEditor setValue={setValue} field={"goal"} />
+                <ReactQuillEditor setValue={setValue} field={"goal"} value={getValues().goal} />
             </div>
             <div className="mb-16">
                 <label
@@ -344,7 +350,7 @@ export function BasicInfomationForm({
                 >
                     Đối tượng
                 </label>
-                <ReactQuillEditor setValue={setValue} field={"object"} />
+                <ReactQuillEditor setValue={setValue} field={"object"} value={getValues().object} />
             </div>
             <div className="mb-16">
                 <label
@@ -352,8 +358,8 @@ export function BasicInfomationForm({
                 >
                     Yêu cầu
                 </label>
-                <ReactQuillEditor setValue={setValue} field={"requirement"} />
-            </div> */}
+                <ReactQuillEditor setValue={setValue} field={"requirement"} value={getValues().requirement} />
+            </div>
         </>
     )
 }

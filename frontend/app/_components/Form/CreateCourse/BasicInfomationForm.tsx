@@ -3,6 +3,7 @@ import { ReactQuillEditor } from "../../Editor/ReactQuillEditor";
 import categoryApi from "@/app/api/category";
 
 
+import Image from 'next/image';
 // Import React FilePond
 import { FilePond, registerPlugin } from 'react-filepond'
 
@@ -52,6 +53,7 @@ export function BasicInfomationForm({
         register,
         getValues,
         control,
+        setValue,
         formState: { errors }
     } = handleForm
 
@@ -63,14 +65,7 @@ export function BasicInfomationForm({
         fetchCategory()
     }, []);
 
-    console.log(getValues());
-
-    // useEffect(() => {
-    //     setFiles(getValues().thumbnail[0] ? getValues().thumbnail[0] : [])
-    // }, []);
-
-    const levels = category.Level.map((level: any) => { return { ...level, label: level.name } })
-    console.log(getValues());
+    console.log(getValues(), files);
 
     return (
         <>
@@ -106,8 +101,8 @@ export function BasicInfomationForm({
                     name="grade"
                     rules={{ required: "Lớp học không thể trống" }}
                     render={({ field }) => (
-                        <select id="grade" {...field} defaultValue={getValues().grade} className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                            <option value="">Chọn lớp học</option>
+                        <select id="grade" {...field} className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option value="" defaultChecked>Chọn lớp học</option>
 
                             {category.Class?.map((cl, index) => {
                                 return (
@@ -217,7 +212,6 @@ export function BasicInfomationForm({
                     files={files}
                     onupdatefiles={() => setFiles}
                     acceptedFileTypes={['image/*']}
-                    allowMultiple={true}
                     server={{
                         process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                             const formData = new FormData();
@@ -226,6 +220,7 @@ export function BasicInfomationForm({
                                 id_course: id_course,
                                 type: "thumbnail"
                             }));
+
 
                             const request = new XMLHttpRequest();
                             request.open('POST', 'http://localhost:4001/api/v1/images')
@@ -245,7 +240,8 @@ export function BasicInfomationForm({
                                     error('oh no');
                                 }
                             };
-                            request.send(formData);
+                            request.send(formData)
+
                             // courseApi.uploadVideo(formData)
                         }
                     }
@@ -254,6 +250,7 @@ export function BasicInfomationForm({
                     name="image"
                     labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
                 />
+
             </div>
             <div className="mb-5 w-1/2">
                 <label
@@ -268,7 +265,6 @@ export function BasicInfomationForm({
                     files={files}
                     onupdatefiles={() => setFiles}
                     acceptedFileTypes={['image/*']}
-                    allowMultiple={true}
                     server={{
                         process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                             const formData = new FormData();
@@ -305,14 +301,14 @@ export function BasicInfomationForm({
                     labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
                 />
             </div>
-            {/* <div className="mb-16">
+            <div className="mb-16">
                 <label
                     className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
                 >
                     Mô tả
                 </label>
                 <ReactQuillEditor
-                    setValue={setValue} field={"description"}
+                    setValue={setValue} field={"description"} value={getValues().description}
                 />
                 <p className="mt-12 text-sm text-red-600 dark:text-red-500">
                     {errors?.description?.message}
@@ -324,7 +320,7 @@ export function BasicInfomationForm({
                 >
                     Mục tiêu
                 </label>
-                <ReactQuillEditor setValue={setValue} field={"goal"} />
+                <ReactQuillEditor setValue={setValue} field={"goal"} value={getValues().goal} />
             </div>
             <div className="mb-16">
                 <label
@@ -332,7 +328,7 @@ export function BasicInfomationForm({
                 >
                     Đối tượng
                 </label>
-                <ReactQuillEditor setValue={setValue} field={"object"} />
+                <ReactQuillEditor setValue={setValue} field={"object"} value={getValues().object} />
             </div>
             <div className="mb-16">
                 <label
@@ -340,8 +336,8 @@ export function BasicInfomationForm({
                 >
                     Yêu cầu
                 </label>
-                <ReactQuillEditor setValue={setValue} field={"requirement"} />
-            </div> */}
+                <ReactQuillEditor setValue={setValue} field={"requirement"} value={getValues().requirement} />
+            </div>
         </>
     )
 }

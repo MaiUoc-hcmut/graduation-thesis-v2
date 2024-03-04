@@ -29,6 +29,7 @@
     "flowbite": "^2.2.1",
     "flowbite-react": "^0.7.2",
     "html-react-parser": "^5.1.7",
+    "js-file-downloader": "^1.1.25",
     "jwt-decode": "^4.0.0",
     "next": "14.0.4",
     "query-string": "^8.1.0",

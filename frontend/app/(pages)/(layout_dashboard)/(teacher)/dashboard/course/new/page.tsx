@@ -9,9 +9,6 @@ import { BasicInfomationForm } from "@/app/_components/Form/CreateCourse/BasicIn
 import { ContentForm } from "@/app/_components/Form/CreateCourse/ContentForm"
 import { useForm } from "react-hook-form"
 import courseApi from "@/app/api/courseApi"
-import { createCourse } from "@/redux/features/courseSlice"
-import { useDispatch } from "react-redux";
-import { AppDispatch, useAppSelector } from "@/redux/store";
 // import { DetailsView, FileManagerComponent, NavigationPane, Toolbar, Inject } from '@syncfusion/ej2-react-filemanager';
 // import { registerLicense } from '@syncfusion/ej2-base';
 // registerLicense('Ngo9BigBOggjHTQxAR8/V1NAaF1cXmhLYVF/WmFZfVpgdV9CaVZVQmYuP1ZhSXxXdkdhW39fdH1RQGVdUkI=');
@@ -75,9 +72,6 @@ export default function CreateCourse() {
     const [toggle, setToggle] = useState<any>({})
     const [typeSubmit, setTypeSubmit] = useState("")
     const [currentStepIndex, setCurrentStepIndex] = useState(0)
-
-    // console.log(images);
-
 
     const handleForm = useForm<CourseData>(
         {
@@ -194,8 +188,6 @@ export default function CreateCourse() {
                             formData.append("cover", dataForm.cover[0])
 
                             courseApi.create(formData).then(() => {
-
-
                                 router.push("/dashboard/course")
                             })
 
