@@ -306,6 +306,8 @@ class CourseController {
 
             let totalLecture = 0;
             let totalExam = 0;
+            let totalChapter = 0;
+            let totalDuration = 0;
 
             const newCourse = await Course.create({
                 id,
@@ -332,6 +334,7 @@ class CourseController {
 
             // If course contain chapters
             if (chapters !== undefined) {
+                totalChapter = chapters.length;
                 for (let i = 0; i < chapters.length; i++) {
                     const newChapter = await Chapter.create({
                         name: chapters[i].name,
@@ -398,12 +401,20 @@ class CourseController {
                                 transaction: t
                             });
                             await newTopic.addDocuments(documentInstances, { transaction: t });
+                            totalDuration += topicVideoDuration;
                         }
                     }
                 }
             }
 
-            await newCourse.update({ total_lecture: totalLecture, total_exam: totalExam }, { transaction: t });
+            await newCourse.update({ 
+                total_lecture: totalLecture, 
+                total_exam: totalExam,
+                total_chapter: totalChapter,
+                total_duration: totalDuration
+            }, { 
+                transaction: t 
+            });
 
             await t.commit();
 

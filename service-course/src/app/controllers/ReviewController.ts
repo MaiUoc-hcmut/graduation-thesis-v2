@@ -1,6 +1,9 @@
 const Review = require('../../db/models/review');
+const Course = require('../../db/models/course');
 
 import { Request, Response, NextFunction } from 'express';
+
+const { sequelize } = require('../../config/db/index');
 
 const fileUpload = require('../../config/firebase/fileUpload');
 const { firebaseConfig } = require('../../config/firebase/firebase');
@@ -181,14 +184,29 @@ class ReviewController {
 
     // [POST] /reviews
     createReview = async (req: Request, res: Response, _next: NextFunction) => {
+        const t = await sequelize.transaction();
         try {
             const id_student = req.student.data.id;
-            const body = req.body.data;
+            const { object, ...body } = req.body.data;
 
             const newReview = await Review.create({
                 id_student,
                 ...body
             });
+
+            if (object === "course") {
+                const course = await Course.findByPk(body.id_course);
+
+                const total_review = course.total_review + 1;
+                const average_rating = ((course.average_rating * course.total_review) + body.rating) / total_review;
+
+                await course.update({
+                    total_review,
+                    average_rating,
+                }, {
+                    transaction: t
+                });
+            }
 
             res.status(201).json(newReview);
         } catch (error: any) {
