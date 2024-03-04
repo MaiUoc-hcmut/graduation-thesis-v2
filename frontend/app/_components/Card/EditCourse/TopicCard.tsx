@@ -280,7 +280,7 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                     topic?.Documents?.map((document: any) => {
                                         return (
                                             <div key={document.id}>
-                                                <p className='pb-2'>{document.id}</p>
+                                                <p className='pb-2'>{document.name}</p>
                                             </div>
                                         )
                                     })

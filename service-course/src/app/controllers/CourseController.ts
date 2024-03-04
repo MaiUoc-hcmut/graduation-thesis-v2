@@ -886,8 +886,8 @@ class CourseController {
                                     const document = await Document.findByPk(docDraft.id_document);
                                     documentInstances.push(document);
                                 }
+                                await topicToUpdate.setDocuments(documentInstances, { transaction: t });
                             }
-                            await topicToUpdate.setDocuments(documentInstances);
                             await topicToUpdate.update({ ...topic, order: j, video }, { transaction: t });
                             j++;
                         }

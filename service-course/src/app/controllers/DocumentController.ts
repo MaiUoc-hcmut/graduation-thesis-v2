@@ -235,13 +235,7 @@ class DocumentController {
             // originalname of video is separate to 3 part
             // each part separate by a hyphen
             // first part is index of chapter in course, second part is index of topic in chapter
-            const firstHyphen = file.originalname.indexOf('-');
-            const chapterIdx = file.originalname.substring(0, firstHyphen);
-
-            const secondHyphen = file.originalname.indexOf('-', firstHyphen + 1);
-            const topicIdx = file.originalname.substring(firstHyphen + 1, secondHyphen);
-
-            const originalFileName = file.originalname.substring(secondHyphen + 1);
+            const originalFileName = file.originalname;
 
             const storage = getStorage();
 
