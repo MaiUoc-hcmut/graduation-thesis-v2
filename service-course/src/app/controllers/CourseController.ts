@@ -7,6 +7,10 @@ const ParentCategory = require('../../db/models/parent-category');
 const CourseDraft = require('../../db/models/course_draft');
 const Document = require('../../db/models/document');
 
+require('dotenv').config();
+
+const { Op } = require('sequelize');
+
 import { Request, Response, NextFunction } from 'express';
 
 const { sequelize } = require('../../config/db/index');
@@ -178,28 +182,53 @@ class CourseController {
     getCourseFilterByCategory = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const categories = Object.values(req.query);
+            
+            const currentPage: number = +req.params.page;
+            
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+
+            const count = await Course.count({
+                include: [
+                    {
+                        model: Category,
+                        where: {
+                            id: {
+                                [Op.in]: categories,
+                            },
+                        },
+                        through: {
+                            attributes: [],
+                        },
+                    },
+                ],
+                group: ['Course.id'],
+                having: sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`),
+                raw: true
+            });
 
             const courses = await Course.findAll({
                 include: [
                     {
                         model: Category,
                         where: {
-                            id: categories
+                            id: {
+                                [Op.in]: categories,
+                            },
                         },
                         attributes: ['name', 'id'],
                         through: {
-                            attributes: []
-                        }
-                    }
-                ]
+                            attributes: [],
+                        },
+                    },
+                ],
+                group: ['Course.id'],
+                having: sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`),
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1),
+                subQuery: false
             });
 
-            const filteredCourses = courses.filter((course: any) => {
-                const courseCategoryIds = course.Categories.map((category: any) => category.id);
-                return categories.every(categoryId => courseCategoryIds.includes(categoryId));
-            });
-
-            res.status(200).json(filteredCourses);
+            res.status(200).json({ count: count.length, courses });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
@@ -207,11 +236,20 @@ class CourseController {
     }
 
     // Get all courses that created by a teacher
-    // [GET] /courses/teacher/:teacherId
+    // [GET] /courses/teacher/:teacherId/page/:page
     getCourseCreatedByTeacher = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_teacher = req.params.teacherId;
+            const currentPage: number = +req.params.page;
+            
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
+            // Count all the record that match the condition
+            const count = await Course.count({
+                where: { id_teacher }
+            });
+
+            // Response the result with the limit for pagination
             const courses = await Course.findAll({
                 where: { id_teacher },
                 include: [
@@ -222,7 +260,9 @@ class CourseController {
                             attributes: []
                         }
                     },
-                ]
+                ],
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1)
             });
 
             for (const course of courses) {
@@ -249,7 +289,7 @@ class CourseController {
                 course.dataValues.averageRating = averageRating;
             }
 
-            res.status(200).json(courses);
+            res.status(200).json({ count, courses });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });

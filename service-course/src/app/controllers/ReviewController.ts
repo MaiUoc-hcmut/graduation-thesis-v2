@@ -32,11 +32,23 @@ class ReviewController {
         }
     }
 
-    // [GET] /reviews/teacher/:teacherId
+    // [GET] /reviews/teacher/:teacherId/page/:page
     getReviewsForTeacher = async (req: Request, res: Response, _next: NextFunction) => {
         try {
+            const id_teacher = req.params.teacherId;
+
+            const currentPage: number = +req.params.page;
+            
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+
+            const count = await Review.count({
+                where: { id_teacher }
+            });
+
             const reviews = await Review.findAll({
-                where: { id_teacher: req.params.teacherId }
+                where: { id_teacher },
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1)
             });
 
             let totalRating = 0;
@@ -57,6 +69,7 @@ class ReviewController {
             }
 
             let response = {
+                count,
                 reviews,
                 averageRating: totalRating / reviews.length,
                 starDetails
@@ -69,11 +82,23 @@ class ReviewController {
         }
     }
 
-    // [GET] /reviews/course/:courseId
+    // [GET] /reviews/course/:courseId/page.:page
     getReviewsForCourse = async (req: Request, res: Response, _next: NextFunction) => {
         try {
+            const id_course = req.params.courseId;
+
+            const currentPage: number = +req.params.page;
+            
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+
+            const count = await Review.count({
+                where: { id_course }
+            });
+
             const reviews = await Review.findAll({
-                where: { id_course: req.params.courseId }
+                where: { id_course },
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1)
             });
 
             let totalRating = 0;
@@ -94,6 +119,7 @@ class ReviewController {
             }
 
             let response = {
+                count,
                 reviews,
                 averageRating: totalRating / reviews.length,
                 starDetails
@@ -106,11 +132,23 @@ class ReviewController {
         }
     }
 
-    // [GET] /reviews/exam/:examId
+    // [GET] /reviews/exam/:examId/page/:page
     getReviewsForExam = async (req: Request, res: Response, _next: NextFunction) => {
         try {
+            const id_exam = req.params.examId;
+
+            const currentPage: number = +req.params.page;
+            
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+
+            const count = await Review.count({
+                where: { id_exam }
+            });
+
             const reviews = await Review.findAll({
-                where: { id_exam: req.params.examId }
+                where: { id_exam },
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1)
             });
 
             let totalRating = 0;
@@ -131,6 +169,7 @@ class ReviewController {
             }
 
             let response = {
+                count,
                 reviews,
                 averageRating: totalRating / reviews.length,
                 starDetails
@@ -157,11 +196,23 @@ class ReviewController {
         }
     }
 
-    // [GET] /reviews/student/:studentId
+    // [GET] /reviews/student/:studentId/page/:page
     getReviewsBelongToStudent = async (req: Request, res: Response, _next: NextFunction) => {
         try {
+            const id_student = req.params.studentId;
+
+            const currentPage: number = +req.params.page;
+            
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+
+            const count = await Review.count({
+                where: { id_student }
+            });
+
             const reviews = await Review.findAll({
-                where: { id_student: req.params.studentId }
+                where: { id_student },
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1)
             });
 
             let totalRating = 0;
@@ -208,6 +259,8 @@ class ReviewController {
                 }, {
                     transaction: t
                 });
+            } else if (object === "teacher") {
+                
             }
 
             await t.commit();
