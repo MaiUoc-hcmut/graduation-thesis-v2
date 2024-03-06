@@ -11,18 +11,20 @@ require('dotenv').config();
 
 const { Op } = require('sequelize');
 
+const axios = require('axios');
 import { Request, Response, NextFunction } from 'express';
 
 const { sequelize } = require('../../config/db/index');
 
 const { getVideoDurationInSeconds } = require('get-video-duration');
 
-const io = require('../../index');
-const clientsConnected = require('../../socket');
+const algoliasearch = require('algoliasearch');
+
+// const io = require('../../index');
+// const clientsConnected = require('../../socket');
 
 const fileUpload = require('../../config/firebase/fileUpload');
 const { firebaseConfig } = require('../../config/firebase/firebase');
-const admin = require('firebase-admin');
 const {
     ref,
     getDownloadURL,
@@ -78,13 +80,18 @@ class CourseController {
                 include: [
                     {
                         model: Category,
-                        attributes: ['name'],
+                        attributes: ['name', 'id'],
                         through: {
                             attributes: []
                         }
                     }
                 ]
             });
+
+            for (const course of courses) {
+                const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${course.id_teacher}`);
+                course.dataValues.user = { id: user.data.id, name: user.data.name };
+            }
 
             res.status(200).json(courses)
         } catch (error: any) {
@@ -103,6 +110,32 @@ class CourseController {
             if (!course) return res.status(404).json({ message: "Course not found!" });
 
             res.status(200).json(course);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error });
+        }
+    }
+
+    // [GET] /courses/search/page/:page
+    searchCourse = async (req: Request, res: Response, _next: NextFunction) => {
+        const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);
+        const index = client.initIndex(process.env.ALGOLIA_INDEX_NAME);
+        try {
+            const currentPage: number = +req.params.page;
+            
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+
+            const query = req.body.data.query;
+
+            const result = await index.search(query, {
+                hitsPerPage: pageSize,
+                page: currentPage - 1
+            });
+
+            res.status(200).json({
+                result: result.hits,
+                total: result.nbHits
+            })
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
@@ -308,6 +341,9 @@ class CourseController {
 
         const t = await sequelize.transaction();
 
+        const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);
+        const index = client.initIndex(process.env.ALGOLIA_INDEX_NAME);
+
         try {
             const id_teacher = req.teacher.data.id;
             
@@ -452,6 +488,19 @@ class CourseController {
             });
 
             await t.commit();
+
+            const Categories = categoriesInstances.map(({ id, name }) => ({ id, name }));
+            const user = { id: id_teacher, name: req.teacher?.data.name };
+
+            const algoliaDataSave = {
+                ...newCourse,
+                objectID: newCourse.id,
+                Categories,
+                user
+            }
+
+            // Save data to algolia
+            index.saveObject(algoliaDataSave);
 
             res.status(201).json(newCourse);
         } catch (error: any) {
@@ -652,6 +701,9 @@ class CourseController {
     // [PUT] /courses/:courseId
     updateCourse = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
+
+        const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);
+        const index = client.initIndex(process.env.ALGOLIA_INDEX_NAME);
         try {
             let body = req.body.data;
 
@@ -697,6 +749,9 @@ class CourseController {
                 await course.update({ ...courseBody, thumbnail, cover_image: cover }, { transaction: t });
             }
 
+            // Categories to update to algolia
+            let Categories: any[] = [];
+
             // If categories need to update
             if (categories !== undefined) {
                 const categoriesList: any[] = [];
@@ -706,6 +761,7 @@ class CourseController {
                     categoriesList.push(categoryRecord);
                 }
                 await course.setCategories(categoriesList, { transaction: t });
+                Categories = categoriesList.map(({ id, name }) => ({ id, name }));
             }
             // If chapter need to update
             if (chapters !== undefined) {
@@ -950,6 +1006,12 @@ class CourseController {
             }
 
             t.commit();
+            const dataToUpdate = {
+                ...courseBody,
+                objectID: courseId,
+                Categories
+            }
+            index.partialUpdateObject(dataToUpdate);
             res.status(200).json(course);
         } catch (error: any) {
             console.log(error.message);
@@ -976,10 +1038,14 @@ class CourseController {
 
     // [DELETE] /courses/:id
     deleteCourse = async (req: Request, res: Response, _next: NextFunction) => {
+        const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);
+        const index = client.initIndex(process.env.ALGOLIA_INDEX_NAME);
         try {
             await Course.destroy({
                 where: { id: req.params.courseId }
             });
+
+            index.deleteObject(req.params.courseId);
 
             res.status(200).json({
                 id: req.params.courseId,

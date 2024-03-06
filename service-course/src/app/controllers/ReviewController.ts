@@ -62,7 +62,7 @@ class ReviewController {
                 
                 const user = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${review.id_student}`);
 
-                review.dataValues.user = { avatar: user.avatar, name: user.name };
+                review.dataValues.user = { avatar: user.data.avatar, name: user.data.name };
             }
 
             let starDetails: { [key: string]: { quantity: number, percentage: number } } = {};
@@ -116,7 +116,7 @@ class ReviewController {
 
                 const user = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${review.id_student}`);
 
-                review.dataValues.user = { avatar: user.avatar, name: user.name };
+                review.dataValues.user = { avatar: user.data.avatar, name: user.data.name };
             }
 
             let starDetails: { [key: string]: { quantity: number, percentage: number } } = {};
@@ -170,7 +170,7 @@ class ReviewController {
                 
                 const user = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${review.id_student}`);
 
-                review.dataValues.user = { avatar: user.avatar, name: user.name };
+                review.dataValues.user = { avatar: user.data.avatar, name: user.data.name };
             }
 
             let starDetails: { [key: string]: { quantity: number, percentage: number } } = {};

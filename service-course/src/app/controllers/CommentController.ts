@@ -80,9 +80,9 @@ class CommentController {
                     comment.dataValues.user = { avatar: user.avatar, name: user.name, role: comment.role };
                     delete comment.dataValues.role;
                 } else if (comment.role === "teacher") {
-                    const user = await axios.get(`${process.env.BASE_URL_LOCAL}/get-teacher-by-id/${comment.id_user}`);
+                    const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${comment.id_user}`);
 
-                    comment.dataValues.user = { avatar: user.avatar, name: user.name, role: comment.role };
+                    comment.dataValues.user = { avatar: user.data.avatar, name: user.data.name, role: comment.role };
                     delete comment.dataValues.role;
                 }
             }

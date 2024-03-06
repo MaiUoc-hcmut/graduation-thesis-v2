@@ -18,6 +18,9 @@ router.route('/')
 router.route('/filter/page/:page')
     .get(courseController.getCourseFilterByCategory);
 
+router.route('/search/page/:page')
+    .get(courseController.searchCourse);
+
 router.route('/:courseId')
     .get(courseController.getCourseById)
     .put(Authorize.authorizeTeacher, courseController.updateCourse)
