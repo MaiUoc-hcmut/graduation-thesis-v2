@@ -1,6 +1,8 @@
 const Review = require('../../db/models/review');
 const Course = require('../../db/models/course');
 
+const axios = require('axios');
+require('dotenv').config();
 import { Request, Response, NextFunction } from 'express';
 
 const { sequelize } = require('../../config/db/index');
@@ -57,6 +59,10 @@ class ReviewController {
             for (const review of reviews) {
                 totalRating += review.rating;
                 starCount[review.rating]++;
+                
+                const user = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${review.id_student}`);
+
+                review.dataValues.user = { avatar: user.avatar, name: user.name };
             }
 
             let starDetails: { [key: string]: { quantity: number, percentage: number } } = {};
@@ -107,6 +113,10 @@ class ReviewController {
             for (const review of reviews) {
                 totalRating += review.rating;
                 starCount[review.rating]++;
+
+                const user = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${review.id_student}`);
+
+                review.dataValues.user = { avatar: user.avatar, name: user.name };
             }
 
             let starDetails: { [key: string]: { quantity: number, percentage: number } } = {};
@@ -157,6 +167,10 @@ class ReviewController {
             for (const review of reviews) {
                 totalRating += review.rating;
                 starCount[review.rating]++;
+                
+                const user = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${review.id_student}`);
+
+                review.dataValues.user = { avatar: user.avatar, name: user.name };
             }
 
             let starDetails: { [key: string]: { quantity: number, percentage: number } } = {};

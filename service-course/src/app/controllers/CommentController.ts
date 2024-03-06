@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 const Comment = require('../../db/models/comment');
+const axios = require('axios');
+
+require('dotenv').config();
 
 const fileUpload = require('../../config/firebase/fileUpload');
 const { firebaseConfig } = require('../../config/firebase/firebase');
@@ -69,6 +72,20 @@ class CommentController {
                 limit: pageSize,
                 offset: pageSize * (currentPage - 1)
             });
+
+            for (const comment of comments) {
+                if (comment.role === "student") {
+                    const user = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${comment.id_user}`);
+
+                    comment.dataValues.user = { avatar: user.avatar, name: user.name, role: comment.role };
+                    delete comment.dataValues.role;
+                } else if (comment.role === "teacher") {
+                    const user = await axios.get(`${process.env.BASE_URL_LOCAL}/get-teacher-by-id/${comment.id_user}`);
+
+                    comment.dataValues.user = { avatar: user.avatar, name: user.name, role: comment.role };
+                    delete comment.dataValues.role;
+                }
+            }
 
             res.status(200).json({ count, comments });
         } catch (error: any) {
