@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 const Comment = require('../../db/models/comment');
+const axios = require('axios');
+
+require('dotenv').config();
 
 const fileUpload = require('../../config/firebase/fileUpload');
 const { firebaseConfig } = require('../../config/firebase/firebase');
@@ -51,29 +54,66 @@ class CommentController {
         }
     }
 
-    // [GET] /comments/topic/:topicId
+    // [GET] /comments/topic/:topicId/page/:page
     getCommentBelongToTopic = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const comments = await Comment.findAll({
-                where: { id_topic: req.params.topicId }
+            const id_topic = req.params.topicId
+
+            const currentPage: number = +req.params.page;
+            
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+
+            const count = await Comment.count({
+                where: { id_topic }
             });
 
-            res.status(200).json(comments);
+            const comments = await Comment.findAll({
+                where: { id_topic },
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1)
+            });
+
+            for (const comment of comments) {
+                if (comment.role === "student") {
+                    const user = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${comment.id_user}`);
+
+                    comment.dataValues.user = { avatar: user.avatar, name: user.name, role: comment.role };
+                    delete comment.dataValues.role;
+                } else if (comment.role === "teacher") {
+                    const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${comment.id_user}`);
+
+                    comment.dataValues.user = { avatar: user.data.avatar, name: user.data.name, role: comment.role };
+                    delete comment.dataValues.role;
+                }
+            }
+
+            res.status(200).json({ count, comments });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
         }
     }
 
-    // [GET] /comments/student/:studentId
+    // [GET] /comments/student/:studentId/page/:page
     getCommentCreatedByStudent = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const { studentId } = req.params;
+            const id_student = req.params.studentId;
+
+            const currentPage: number = +req.params.page;
+            
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+
+            const count = await Comment.count({
+                where: { id_student }
+            })
+
             const comments = await Comment.findAll({
-                where: { id_student: studentId }
+                where: { id_student },
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1)
             });
 
-            res.status(200).json(comments);
+            res.status(200).json({ count, comments });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });

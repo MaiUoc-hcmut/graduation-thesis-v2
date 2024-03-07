@@ -11,16 +11,16 @@ router.route('/:reviewId')
     .get(reviewController.getReviewById)
     .delete(reviewController.deleteReview);
 
-router.route('/student/:studentId')
+router.route('/student/:studentId/page/:page')
     .get(reviewController.getReviewsBelongToStudent);
 
-router.route('/teacher/:teacherId')
+router.route('/teacher/:teacherId/page/:page')
     .get(reviewController.getReviewsForTeacher);
 
-router.route('/course/:courseId')
+router.route('/course/:courseId/page/:page')
     .get(reviewController.getReviewsForCourse);
 
-router.route('/exam/:examId')
+router.route('/exam/:examId/page/:page')
     .get(reviewController.getReviewsForExam);
 
 module.exports = router;

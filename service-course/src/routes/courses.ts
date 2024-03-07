@@ -15,8 +15,11 @@ router.route('/')
     .post(Authorize.protectedAPI, courseController.createCourse)
 
 
-router.route('/filter')
+router.route('/filter/page/:page')
     .get(courseController.getCourseFilterByCategory);
+
+router.route('/search/page/:page')
+    .get(courseController.searchCourse);
 
 router.route('/:courseId')
     .get(courseController.getCourseById)
@@ -26,8 +29,9 @@ router.route('/:courseId')
 router.route('/full/:courseId')
     .get(courseController.getAllDetailCourse);
 
-router.route('/teacher/:teacherId')
+router.route('/teacher/:teacherId/page/:page')
     .get(Authorize.authorizeTeacher, courseController.getCourseCreatedByTeacher);
+    
 router.post("/test", fileUpload.uploadCourseFiles, courseController.test);
 
 
