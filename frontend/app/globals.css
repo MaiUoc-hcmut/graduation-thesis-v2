@@ -37,6 +37,7 @@ body {
   background: #555;
 }
 
+
 /* new course */
 .section-title::after {
   content: "";

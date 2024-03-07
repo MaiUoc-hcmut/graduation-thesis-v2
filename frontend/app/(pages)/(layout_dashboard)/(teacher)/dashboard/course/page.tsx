@@ -108,21 +108,17 @@ export default function CourseDashboard() {
                                                 {/* <span className="ml-3 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border-[1px] border-green-500">Cơ bản</span> */}
                                             </h3>
                                         </Link>
-                                        <button>
 
+                                        <Dropdown label="" renderTrigger={() => <EllipsisVerticalIcon className="w-7 h-7" />} placement="left">
+                                            <Dropdown.Item onClick={() => {
 
-
-                                            <Dropdown label="" renderTrigger={() => <EllipsisVerticalIcon className="w-7 h-7" />} placement="left">
-                                                <Dropdown.Item onClick={() => {
-
-                                                }}>
-                                                    <Link href={`/dashboard/course/edit/${course.id}`} >
-                                                        Sửa khóa học
-                                                    </Link>
-                                                </Dropdown.Item>
-                                                <Dropdown.Item><p className="text-red-600" onClick={() => setModal({ ...modal, [`delete-course${course.id}`]: true })}>Xóa khóa học</p></Dropdown.Item>
-                                            </Dropdown>
-                                        </button>
+                                            }}>
+                                                <Link href={`/dashboard/course/edit/${course.id}`} >
+                                                    Sửa khóa học
+                                                </Link>
+                                            </Dropdown.Item>
+                                            <Dropdown.Item><p className="text-red-600" onClick={() => setModal({ ...modal, [`delete-course${course.id}`]: true })}>Xóa khóa học</p></Dropdown.Item>
+                                        </Dropdown>
                                     </div>
                                     <div className="flex items-center mt-4">
                                         {

@@ -10,7 +10,7 @@ import courseApi from '@/app/api/courseApi';
 import categoryApi from '@/app/api/category'
 import { useSearchParams } from 'next/navigation'
 import { formatCash } from '@/app/helper/FormatFunction'
-
+import { convertTime } from '@/app/helper/FormatFunction'
 
 const sortOptions = [
     { name: 'Phổ biến nhất', href: '#', current: true },
@@ -32,6 +32,19 @@ export default function CourseList() {
     const subjectFilters = searchParams.getAll('subject')
     const levelFilters = searchParams.getAll('level')
     const classFilters = searchParams.getAll('class')
+
+    const renderStars = (rating: number) => {
+        const stars = [];
+        for (let i = 1; i <= 5; i++) {
+            stars.push(
+                <StarIcon
+                    key={i}
+                    className={`text-${i <= rating ? 'yellow-300' : 'gray-300'} w-5 h-5`}
+                />
+            );
+        }
+        return stars;
+    };
 
     useEffect(() => {
         async function fetchData() {
@@ -327,21 +340,17 @@ export default function CourseList() {
 
 
                                                         <div className="flex items-center mt-4">
-                                                            <StarIcon className="w-5- h-5 text-[#ffc600] mr-[3px]" />
-                                                            <StarIcon className="w-5- h-5 text-[#ffc600] mr-[3px]" />
-                                                            <StarIcon className="w-5- h-5 text-[#ffc600] mr-[3px]" />
-                                                            <StarIcon className="w-5- h-5 text-[#ffc600] mr-[3px]" />
-                                                            <StarIcon className="w-5- h-5 text-[#ffc600] mr-[3px]" />
-                                                            <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">5.0</span>
+                                                            {renderStars(Math.floor(course?.average_rating))}
+                                                            <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{course?.average_rating.toFixed(1)}</span>
                                                         </div>
                                                         <div className='mt-4 grid grid-cols-2 gap-2'>
                                                             <div className='flex items-center'>
                                                                 <ClockIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                <span className='text-[#171347] font-medium text-sm'>{course.totalDuration} giờ</span>
+                                                                <span className='text-[#171347] font-medium text-sm'>{convertTime(course?.total_duration)} giờ</span>
                                                             </div>
                                                             <div className='flex items-center'>
                                                                 <Squares2X2Icon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                <span className='text-[#171347] font-medium text-sm'>{course?.chapters?.length} chương</span>
+                                                                <span className='text-[#171347] font-medium text-sm'>{course?.total_chapter} chương</span>
                                                             </div>
                                                             <div className='flex items-center'>
                                                                 <FilmIcon className='w-5 h-5 text-secondary font-medium mr-1' />

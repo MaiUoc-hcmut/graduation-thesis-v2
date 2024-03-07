@@ -1,4 +1,3 @@
-import HeaderTeacher from '@/app/_components/Header/HeaderTeacher'
 import Sidebar from '@/app/_components/Sidebar/Sidebar'
 import { Suspense } from 'react'
 import 'react-toastify/dist/ReactToastify.css';

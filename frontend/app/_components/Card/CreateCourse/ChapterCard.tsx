@@ -9,7 +9,7 @@ import { Dropdown } from 'flowbite-react';
 import { Button, Checkbox, Label, Modal, TextInput, Radio } from 'flowbite-react';
 import { ToastContainer, toast } from 'react-toastify';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { DragDropContext, Draggable, Droppable, DroppableProps } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable } from 'react-beautiful-dnd';
 import { StrictModeDroppable } from "../../React_Beautiful_Dnd/StrictModeDroppable";
 import { TopicCard } from './TopicCard';
 
@@ -83,6 +83,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
 
         return result;
     };
+    console.log(errors);
 
     return (
         <div ref={innerRef}  {...provided.draggableProps}  >
@@ -212,8 +213,6 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                 </button>
                                 <div>
                                     <button
-                                        onClick={() => {
-                                        }}
                                         type="submit"
                                         className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     >
@@ -249,32 +248,32 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
 
                             <Dropdown label="" renderTrigger={() => <PlusCircleIcon className="w-7 h-7 text-primary" />} placement="left">
                                 <Dropdown.Item onClick={() => {
-                                    console.log(fieldsTopic);
 
                                     appendTopic({
-                                        key: `topic_${topicsData.length}`,
+                                        key: `lecture_${topicsData.length}`,
                                         name: "",
+                                        title: "a",
                                         description: "",
-                                        status: "public"
+                                        duration: 0,
+                                        status: "public",
+                                        type: "lecture"
                                     })
-                                    // if (fieldsTopic?.length == 0) {
-                                    // } else {
-
-                                    //     if (fieldsTopic[fieldsTopic?.length - 1].name != "")
-                                    //         appendTopic({
-                                    //             key: `topic_${topicsData.length}`,
-                                    //             name: "",
-                                    //             description: "",
-                                    //             status: "public"
-                                    //         })
-                                    // }
-                                    console.log(fieldsTopic);
-
-                                    setToggle({ ...toggle, [`add_topic_${chapter.key}`]: true, [`open_chapter_${chapter.key}`]: true })
+                                    setToggle({ ...toggle, [`add_lecture_${chapter.key}`]: true, [`open_chapter_${chapter.key}`]: true })
                                 }}>
-                                    Thêm chủ đề
+                                    Thêm bài giảng
                                 </Dropdown.Item>
-                                <Dropdown.Item>Thêm đề thi</Dropdown.Item>
+                                <Dropdown.Item onClick={() => {
+
+                                    appendTopic({
+                                        key: `exam_${topicsData.length}`,
+                                        title: "",
+                                        name: "a",
+                                        duration: 0,
+                                        status: "public",
+                                        type: "exam"
+                                    })
+                                    setToggle({ ...toggle, [`add_exam_${chapter.key}`]: true, [`open_chapter_${chapter.key}`]: true })
+                                }}>Thêm bài tập</Dropdown.Item>
                             </Dropdown>
 
                         </div>
@@ -313,7 +312,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
 
 
 
-                <div className={`${toggle[`add_topic_${chapter.key}`] ? "" : "hidden"} mt-3 pt-4 border-t-[1px] border-[#ececec]`}>
+                <div className={`${toggle[`add_lecture_${chapter.key}`] ? "" : "hidden"} mt-3 pt-4 border-t-[1px] border-[#ececec]`}>
                     {fieldsTopic.map((field: any, indexFieldTopic: any) => (
 
                         indexFieldTopic == fieldsTopic.length - 1 ?
@@ -501,12 +500,121 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                     <button
                                         onClick={() => {
                                             removeTopic(indexFieldTopic)
-                                            setToggle({ ...toggle, [`add_topic_${chapter.key}`]: false })
+                                            setToggle({ ...toggle, [`add_lecture_${chapter.key}`]: false })
 
                                         }} type="button" className="mr-4 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Huỷ</button>
                                     <button type="submit"
                                         onClick={() => {
-                                            setTypeSubmit(`add_topic_${chapter.key}`)
+                                            setTypeSubmit(`add_lecture_${chapter.key}`)
+                                        }}
+                                        className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mt-3">Lưu</button>
+                                </div>
+                            </div>
+                            : null
+                    ))}
+
+                </div>
+
+                <div className={`${toggle[`add_exam_${chapter.key}`] ? "" : "hidden"} mt-3 pt-4 border-t-[1px] border-[#ececec]`}>
+                    {fieldsTopic.map((field: any, indexFieldTopic: any) => (
+
+                        indexFieldTopic == fieldsTopic.length - 1 ?
+                            <div key={field.id} className="mt-3">
+                                <div className="mb-5 w-1/3">
+                                    <label
+                                        className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                    >
+                                        Tiêu đề
+                                    </label>
+                                    <input
+                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.title`, {
+                                            required: "Tiêu đề không thể thiếu",
+                                        })}
+                                        type="text"
+                                        className={`bg-white border-[1px] border-[#ececec] text-[#343434] text-sm focus: ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
+                                    />
+
+                                    <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                        {errors.chapters?.[indexChapter]?.topics?.[indexFieldTopic]?.title?.message}
+                                    </p>
+                                </div>
+                                <div className="mb-5 w-1/3">
+                                    <label
+                                        className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                    >
+                                        Thời gian (phút)
+                                    </label>
+                                    <input
+                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.duration`, {
+                                            required: "Thời gian không thể thiếu",
+                                        })}
+                                        type="number"
+                                        className={`bg-white border-[1px] border-[#ececec] text-[#343434] text-sm focus: ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
+                                    />
+
+                                    <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                        {errors.chapters?.[indexChapter]?.topics?.[indexFieldTopic]?.duration?.message}
+                                    </p>
+                                </div>
+
+                                <div className="mb-5 w-full">
+                                    <div
+                                        className="block mr-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                    >
+                                        Trạng thái
+                                    </div>
+                                    <div className="mt-2">
+                                        <label className="relative inline-flex items-center me-5 cursor-pointer">
+                                            <div className="flex">
+                                                <div className="flex items-center me-4" >
+                                                    <input
+                                                        id="inline-radio"
+                                                        type="radio"
+                                                        defaultChecked
+                                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.status`)}
+                                                        value="public"
+                                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                    />
+                                                    <label
+                                                        htmlFor="inline-radio"
+                                                        className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                    >
+                                                        Công khai
+                                                    </label>
+                                                </div>
+                                                <div className="flex items-center me-4">
+                                                    <input
+                                                        id="inline-2-radio"
+                                                        type="radio"
+                                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.status`)}
+                                                        value="private"
+                                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                    />
+                                                    <label
+                                                        htmlFor="inline-2-radio"
+                                                        className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                    >
+                                                        Riêng tư
+                                                    </label>
+                                                </div>
+
+                                            </div>
+                                        </label>
+                                    </div>
+
+
+                                </div>
+
+                                <div className="mb-2">
+                                    <button
+                                        onClick={() => {
+                                            removeTopic(indexFieldTopic)
+                                            setToggle({ ...toggle, [`add_exam_${chapter.key}`]: false })
+
+                                        }} type="button" className="mr-4 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Huỷ</button>
+                                    <button type="submit"
+                                        onClick={() => {
+                                            setTypeSubmit(`add_exam_${chapter.key}`)
                                         }}
                                         className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mt-3">Lưu</button>
                                 </div>
@@ -530,6 +638,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                             result.destination.index
                         );
                         setTopicsData(items)
+                        setValue(`chapters.${indexChapter}.topics`, items)
                     }}>
                         <StrictModeDroppable droppableId="topic">
                             {(provided) => (
@@ -537,10 +646,10 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                     {
                                         topicsData?.map((topic: any, indexTopic: any) => {
                                             return (
-                                                <Draggable key={topic.id} index={indexTopic} draggableId={`${topic.id} `}>
+
+                                                <Draggable key={topic.key} index={indexTopic} draggableId={`${topic.key}`}>
                                                     {
                                                         (provided) => (
-
                                                             <TopicCard
                                                                 chapter={chapter} topic={topic} indexChapter={indexChapter} indexTopic={indexTopic} hanldeForm={handleForm} innerRef={provided.innerRef} provided={provided} data={data} setData={setData}
                                                                 removeTopic={removeTopic} fieldsTopic={fieldsTopic} setTypeSubmit={setTypeSubmit} id_course={id_course}
@@ -548,10 +657,8 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                                         )
                                                     }
                                                 </Draggable>
-
                                             )
                                         })
-
                                     }
                                     {provided.placeholder}
                                 </ul>

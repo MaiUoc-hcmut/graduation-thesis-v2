@@ -87,7 +87,7 @@ export default function CreateCourse() {
     const router = useRouter()
     const { steps, step, isFirstStep, isLastStep, back, next, goTo } =
         useMultistepForm([
-            <BasicInfomationForm key={'step1'} id_course={id_course} handleForm={handleForm} images={images} setImages={setImages} />,
+            // <BasicInfomationForm key={'step1'} id_course={id_course} handleForm={handleForm} images={images} setImages={setImages} />,
             <ContentForm key={'step2'} data={data} id_course={id_course} setData={setData} handleForm={handleForm} toggle={toggle} setToggle={setToggle} typeSubmit={typeSubmit} setTypeSubmit={setTypeSubmit} />,
         ], currentStepIndex, setCurrentStepIndex)
 
@@ -158,7 +158,7 @@ export default function CreateCourse() {
             <div className="flex flex-col ">
                 <form onSubmit={
                     handleSubmit(async (dataForm: any) => {
-                        console.log(errors);
+                        console.log(errors, 111);
 
                         if (!(Object.entries(errors).length === 0)) return
                         setToggle({ ...toggle, [`${typeSubmit}`]: false })
@@ -187,9 +187,9 @@ export default function CreateCourse() {
                             formData.append("thumbnail", dataForm.thumbnail[0])
                             formData.append("cover", dataForm.cover[0])
 
-                            courseApi.create(formData).then(() => {
-                                router.push("/dashboard/course")
-                            })
+                            // courseApi.create(formData).then(() => {
+                            //     router.push("/dashboard/course")
+                            // })
 
                         }
                     })

@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronDownIcon, ChevronUpIcon, Squares2X2Icon, FilmIcon, CheckIcon } from '@heroicons/react/24/outline';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import ReactPlayer from 'react-player'
 import courseApi from "@/app/api/courseApi"
 import { ReactQuillEditorComment } from '@/app/_components/Editor/ReactQuillEditorComment'
@@ -19,21 +19,23 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
     const [link, setLink] = useState(0)
     const [content, setContent] = useState('')
     const [topicId, setTopicId] = useState('')
+    const [topic, setTopic] = useState()
     const [comments, setComments] = useState<[any]>()
     const [progress, setProgress] = useState<[any]>()
     const [change, setChange] = useState(false)
     const { user } = useAppSelector(state => state.authReducer);
-    ;
+    const playerRef = useRef();
     useEffect(() => {
         async function fetchData() {
             await courseApi.get(params.slug).then((data: any) => {
                 setCourse(data.data)
                 setLink(data.data.chapters[0]?.topics[0]?.video)
                 setTopicId(data.data.chapters[0]?.topics[0]?.id)
+                setTopic(data.data.chapters[0]?.topics[0])
             }
             )
 
-            await courseApi.getProgress('8d4ef46e-d3da-4463-bc47-4578a5ba2573', params.slug).then((data: any) => {
+            await courseApi.getProgress(user.id, params.slug).then((data: any) => {
                 setProgress(data.data)
             }
             )
@@ -56,67 +58,13 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
         fetchData()
     }, [topicId, change]);
     comments?.sort(function (a: any, b: any) { return Date.parse(b.createdAt) - Date.parse(a.createdAt) })
-    console.log(course, comments, progress);
-    // const complete = course?.chapters?.map((chapter: any, indexChapter: any) => {
-    //     chapter?.topics?.map((topic: any, indexTopic: any) => {
-    //         progress?.map((pro: any) => {
-    //             if (pro.id_topic === topic.id) {
-    //                 return { indexChapter, indexTopic }
-    //                 // setCourse((course: any) => {
-    //                 //     course.chapters[indexChapter].topics[indexTopic].complete = "true"
-
-    //                 //     return course
-    //                 // })
-    //             }
-    //         })
-    //     })
-    // })
-    // console.log(complete);
+    console.log(course, comments, progress, topic);
 
 
 
     return (
         <div className="">
-            <div className="fixed top-0 left-0 h-24 w-full flex z-10 bg-white items-center justify-between px-9 py-4 shadow-sm">
-                <div className="flex items-center">
-                    <div>
-                        <Link href="/" className=''>
-                            <Image
-                                src="/images/logo.png"
-                                width={170}
-                                height={39}
-                                alt="logo"
-                            />
-                        </Link>
-                    </div>
-                    <div className='flex flex-col border-l-[1px] border-[#f1f1f1] ml-3 pl-3'>
-                        <div>
-                            <span className='font-bold text-[#343434] text-lg'>{course?.name}</span>
-                        </div>
-                        <div className='flex items-center'>
-                            <div className='w-[465px]'>
-                                <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                                    <div className="bg-yellow-300 h-2.5 rounded-full" style={{ width: "45%" }} />
-                                </div>
-                            </div>
-                            <span className='ml-3 font-medium text-[#818894]'>Hoàn thành 45%</span>
-                        </div>
-                    </div>
-                </div>
-                <div className='flex items-center mt-[5px]'>
-                    <div className='flex items-center'>
-                        {/* <Link href="#" className='bg-white mr-2 text-[#343434] cursor-pointer px-4 py-1 border rounded border-[1px] border-[#e3e1e1]'>
-                            Bình luận
-                        </Link> */}
-                        <Link href={`/course/${params.slug}`} className='bg-white mr-5 text-[#343434] cursor-pointer px-4 py-1 rounded border-[1px] border-[#e3e1e1]'>
-                            Trang khóa học
-                        </Link>
-                        {/* <button type="button">
-                            <Bars3Icon className='w-6 h-6' />
-                        </button> */}
-                    </div>
-                </div>
-            </div>
+
             <div className='flex relative h-[calc(100vh-85px)] w-[calc(100%-373px)]  mt-24'>
                 <div className='flex-1'>
                     <div className='flex bg-black p-4 h-full'>
@@ -132,11 +80,16 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                     }
                                     courseApi.createProgress(formData)
 
-                                }} width='100%' height='100%' controls={true} url={`${link ? link : '/'}`} />
+                                }} ref={playerRef} width='100%' height='100%' controls={true} url={`${link ? link : '/'}`} />
                             </div>
                         </div>
                     </div>
                     <div className=' overflow-auto'>
+                        <button onClick={() => {
+                            playerRef.current.seekTo(50)
+                        }}>
+                            dsf
+                        </button>
                         <div className='px-10 mt-5'>
                             <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400">
                                 <li className="me-2">
@@ -260,14 +213,21 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
 
                             </div>
                             <div className={`${tab === 1 ? '' : 'hidden'} px-10`}>
-                                <div className='py-2'>
-                                    <Link
-                                        target='_blank'
-                                        href={'https://firebasestorage.googleapis.com/v0/b/study365-a3ffe.appspot.com/o/document%2F1-1-L07.pdf%20%20%20%20%20%20%202024-3-2%2023%3A28%3A41?alt=media&token=9b661baa-892e-4282-be2b-bcadc4d7a78e'}
-                                    >
-                                        <button className='py-2 underline'>File 1</button>
-                                    </Link>
-                                </div>
+                                {
+                                    topic?.Documents?.map((document: any) => {
+                                        return (
+                                            <div className='py-2' key={document.id}>
+                                                <Link
+                                                    target='_blank'
+                                                    href={document.url}
+                                                >
+                                                    <button className='py-2 underline'>{document.name}</button>
+                                                </Link>
+                                            </div>
+                                        )
+                                    })
+                                }
+
                             </div>
                         </div>
                     </div>
@@ -326,6 +286,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                                         <div onClick={() => {
                                                                             setLink(topic.video)
                                                                             setTopicId(topic.id)
+                                                                            setTopic(topic)
                                                                         }} key={topic.id} className={`${topicId == topic.id ? 'bg-[#f1f1f1]' : 'bg-white'} px-2 py-2 mb-1 cursor-pointer flex items-center`}>
                                                                             <span className='mr-3 bg-[#ececec] w-10 h-10 rounded-full flex justify-center items-center'>
                                                                                 <FilmIcon className='w-4 h-4' />
@@ -334,7 +295,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                                                 <span className='font-medium text-[#171347] text-ellipsis overflow-hidden whitespace-nowrap'>{topic.name}</span>
                                                                                 <span className='text-[#818894] text-xs'>{convertTime(topic.duration)}</span>
                                                                             </div>
-                                                                            {progress?.map((pro: any) => {
+                                                                            {progress?.progress.map((pro: any) => {
                                                                                 if (pro.id_topic === topic.id) {
                                                                                     return (
                                                                                         <div key={topic.id} className='ml-2'>
