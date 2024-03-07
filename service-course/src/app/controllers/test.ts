@@ -76,7 +76,7 @@ class Test {
         const index = client.initIndex(process.env.ALGOLIA_INDEX_NAME);
 
         try {
-            const result = await index.search(req.body.data.query, {
+            const result = await index.search(req.query.query, {
                 hitsPerPage: 10,
                 page: 0
             });

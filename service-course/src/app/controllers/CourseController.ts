@@ -492,8 +492,10 @@ class CourseController {
             const Categories = categoriesInstances.map(({ id, name }) => ({ id, name }));
             const user = { id: id_teacher, name: req.teacher?.data.name };
 
+            const dataValues = newCourse.dataValues;
+
             const algoliaDataSave = {
-                ...newCourse,
+                ...dataValues,
                 objectID: newCourse.id,
                 Categories,
                 user
