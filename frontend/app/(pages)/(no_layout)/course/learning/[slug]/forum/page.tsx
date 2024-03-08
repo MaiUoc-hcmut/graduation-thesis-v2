@@ -6,6 +6,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useForm } from "react-hook-form"
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import { Label, Modal, TextInput, Textarea } from 'flowbite-react';
+import courseApi from '@/app/api/courseApi';
 
 
 type TopicData = {
@@ -15,7 +16,7 @@ type TopicData = {
 }
 
 export default function ForumPage({ params }: { params: { slug: string } }) {
-    const [topics, setTopics] = useState([1, 2, 3, 4])
+    const [forum, setForum] = useState<any>()
     const [modal, setModal] = useState(false)
     const [files, setFiles] = useState([])
 
@@ -25,6 +26,20 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
         handleSubmit,
         formState: { errors },
     } = useForm<TopicData>()
+
+    useEffect(() => {
+        async function fetchData() {
+            await courseApi.getForumOfCourse(params.slug, 1).then((data: any) => {
+                setForum(data.data)
+            }
+            )
+
+        }
+        fetchData()
+
+
+    }, [params.slug]);
+
     return (
         <div>
             <>
@@ -33,7 +48,15 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                     <Modal.Body>
                         <form className="space-y-6" onSubmit={handleSubmit(async (data: any) => {
                             if (!(Object.entries(errors).length === 0)) return
-                            console.log(data);
+                            const formData = {
+                                data: {
+                                    id_forum: 'aab6580a-4ed3-46d9-a56c-0234968bdd00',
+                                    title: data.title,
+                                    description: data.description,
+                                    file: data.file[0]
+                                }
+                            }
+                            await courseApi.createTopicForum(formData)
                             reset()
                             setModal(false)
                         })}>
@@ -132,7 +155,7 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                         </div>
                     </section>
                     <div className='mt-5'>
-                        {topics.map((topic, index) => {
+                        {forum?.topics?.map((topic: any, index) => {
                             return (
                                 <div key={index} className='mb-6 rounded-lg border-[1px] border-[#ececec] p-4 flex w-full'>
                                     <div className='flex w-full'>
@@ -177,7 +200,43 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                         })}
 
                     </div>
-
+                    <div className="flex justify-center items-center pt-20 pb-5">
+                        <nav aria-label="Page navigation example">
+                            <ul className="flex items-center -space-x-px h-8 text-sm">
+                                <li>
+                                    <a href="#" className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                                        <span className="sr-only">Previous</span>
+                                        <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 1 1 5l4 4" />
+                                        </svg>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">1</a>
+                                </li>
+                                <li>
+                                    <a href="#" className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">2</a>
+                                </li>
+                                <li>
+                                    <a href="#" aria-current="page" className="z-10 flex items-center justify-center px-3 h-8 leading-tight text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">3</a>
+                                </li>
+                                <li>
+                                    <a href="#" className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">4</a>
+                                </li>
+                                <li>
+                                    <a href="#" className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">5</a>
+                                </li>
+                                <li>
+                                    <a href="#" className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                                        <span className="sr-only">Next</span>
+                                        <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m1 9 4-4-4-4" />
+                                        </svg>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
             </div >
         </div>

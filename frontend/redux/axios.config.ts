@@ -31,13 +31,14 @@ instance.interceptors.request.use(
                 config.baseURL = 'http://localhost:4001/api/v1';
             }
 
-            // if (
-            //     config.url.indexOf('/images') >= 0 ||
-            //     config.url.indexOf('/courses') >= 0
-            // ) {
-            //     config.baseURL = 'http://localhost:4001/api/v1';
-            //     // config.headers['Content-Type'] = 'multipart/form-data';
-            // }
+            if (
+                config.url.indexOf('/images') >= 0 ||
+                config.url.indexOf('/topicsforum') >= 0
+            ) {
+                config.baseURL = 'http://localhost:4001/api/v1';
+                config.headers['Content-Type'] = 'multipart/form-data';
+                config.headers['Accept'] = 'multipart/form-data';
+            }
         }
 
         let accessToken = localStorage.getItem('accessToken');

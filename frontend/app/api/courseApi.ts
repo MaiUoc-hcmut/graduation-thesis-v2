@@ -82,6 +82,26 @@ const courseApi = {
         const url = `/progresses/increase`;
         return axiosConfig.post(url, data);
     },
+
+    createTopicForum: (data: object) => {
+        const url = `/topicsforum`;
+        return axiosConfig.post(url, data);
+    },
+
+    createAnswerOfTopic: (data: object) => {
+        const url = `/answers`;
+        return axiosConfig.post(url, data);
+    },
+
+    getForumOfCourse: (id_course: string, page: number) => {
+        const url = `/forums/${id_course}/page/${page}`;
+        return axiosConfig.get(url);
+    },
+    getTopicForum: (id_topic: string, page: number) => {
+        const url = `/topicsforum/${id_topic}/page/${page}`;
+        return axiosConfig.get(url);
+    },
+
 }
 
 export default courseApi;

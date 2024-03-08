@@ -1,6 +1,6 @@
 const Forum = require('../../db/models/forum');
 const TopicForum = require('../../db/models/topicforum');
-const Answer = require('../../db/models/answer'); 
+const Answer = require('../../db/models/answer');
 
 const FileUpload = require('../../config/firebase/fileUpload');
 
@@ -15,7 +15,7 @@ class TopicForumController {
     getDetailTopicById = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_topic = req.params.topicId;
-            
+
             const currentPage: number = +req.params.page;
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
@@ -51,6 +51,7 @@ class TopicForumController {
     // [POST] /topicsforum
     createTopic = async (req: Request, res: Response, _next: NextFunction) => {
         let body = req.body.data;
+
         if (typeof body === "string") {
             body = JSON.parse(body);
         }

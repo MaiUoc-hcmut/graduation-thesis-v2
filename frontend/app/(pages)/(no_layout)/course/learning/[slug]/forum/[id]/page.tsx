@@ -15,10 +15,22 @@ type TopicData = {
     file: File
 }
 
-export default function TopicPage({ params }: { params: { slug: string } }) {
-    const [topics, setTopics] = useState([1, 2, 3, 4])
+export default function TopicPage({ params }: { params: { id: string } }) {
+    const [topics, setTopics] = useState<any>()
     const [toggle, setToggle] = useState<any>({})
-    const [files, setFiles] = useState([])
+
+    useEffect(() => {
+        async function fetchData() {
+            await courseApi.getTopicForum(params.id, 1).then((data: any) => {
+                setTopics(data.data)
+            }
+            )
+
+        }
+        fetchData()
+
+
+    }, [params.slug]);
 
     const {
         register,
@@ -35,7 +47,7 @@ export default function TopicPage({ params }: { params: { slug: string } }) {
                         <span className='mt-2 text-[#818894] text-sm'>By <span className='font-bold'>Cameron Schofield</span> in 22 Jun 2022 | 00:47</span>
                     </section>
                     <div className='mt-5'>
-                        {topics.map((topic, index) => {
+                        {topics?.answers?.map((topic, index) => {
                             return (
                                 <div key={index} className='mb-6 rounded-lg border-[1px] border-[#ececec] p-4'>
                                     <div className=' flex w-full border-b-[1px] border-[#ececec] pb-4'>
