@@ -29,6 +29,11 @@ Question.init({
         defaultValue: 0,
         allowNull: false,
     },
+    multi_choice: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        allowNull: false
+    }
 }, {
     sequelize,
     tableName: 'question',
