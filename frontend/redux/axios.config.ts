@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
 const instance = axios.create({
-    baseURL: 'http://localhost:4000/api/v1',
+    baseURL: 'http://localhost:4001/api/v1',
     headers: {
         'Content-Type': 'application/json',
     },
@@ -23,14 +23,10 @@ instance.interceptors.request.use(
 
             // Request to course service
             if (
-                config.url.indexOf('/document') >= 0 ||
                 config.url.indexOf('/reviews') >= 0 ||
-                config.url.indexOf('/folder') >= 0 ||
-                config.url.indexOf('/images') >= 0 ||
                 config.url.indexOf('/comments') >= 0 ||
                 config.url.indexOf('/courses') >= 0 ||
-                config.url.indexOf('/progresses') >= 0 ||
-                config.url.indexOf('/documents') >= 0
+                config.url.indexOf('/progresses') >= 0
             ) {
                 config.baseURL = 'http://localhost:4001/api/v1';
             }

@@ -122,7 +122,7 @@ class CourseController {
         const index = client.initIndex(process.env.ALGOLIA_INDEX_NAME);
         try {
             const currentPage: number = +req.params.page;
-            
+
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const query = req.body.data.query;
@@ -215,9 +215,9 @@ class CourseController {
     getCourseFilterByCategory = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const categories = Object.values(req.query);
-            
+
             const currentPage: number = +req.params.page;
-            
+
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const count = await Course.count({
@@ -235,7 +235,7 @@ class CourseController {
                     },
                 ],
                 group: ['Course.id'],
-                having: sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`),
+                having: sequelize.literal("COUNT(DISTINCT " + `Categories` + "." + `id` + `) = ${categories.length}`),
                 raw: true
             });
 
@@ -255,7 +255,7 @@ class CourseController {
                     },
                 ],
                 group: ['Course.id'],
-                having: sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`),
+                having: sequelize.literal("COUNT(DISTINCT " + `Categories` + "." + `id` + `) = ${categories.length}`),
                 limit: pageSize,
                 offset: pageSize * (currentPage - 1),
                 subQuery: false
@@ -274,7 +274,7 @@ class CourseController {
         try {
             const id_teacher = req.params.teacherId;
             const currentPage: number = +req.params.page;
-            
+
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
             // Count all the record that match the condition

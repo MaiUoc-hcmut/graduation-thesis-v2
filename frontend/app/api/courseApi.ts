@@ -2,7 +2,7 @@ import axiosConfig from "@/redux/axios.config"
 
 const courseApi = {
     getAllByTeacher: (id_teacher: string) => {
-        const url = `/courses/teacher/${id_teacher}`;
+        const url = `/courses/teacher/${id_teacher}/page/1`;
         return axiosConfig.get(url);
     },
 
@@ -14,6 +14,12 @@ const courseApi = {
     get: async (id: string) => {
         const url = `/courses/full/${id}`;
         return await axiosConfig.get(url);
+    },
+
+    search: async (data: object) => {
+
+        const url = `courses/search/page/1`;
+        return await axiosConfig.post(url, data);
     },
 
     getProgress: async (id_student: string, id_course: string) => {
