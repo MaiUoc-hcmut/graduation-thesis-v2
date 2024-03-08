@@ -67,7 +67,7 @@ class AnswerController {
         }
     }
 
-    uploadFileOfAnswer = async (req: Request, res: Response, next: NextFunction) => {
+    uploadFile = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const file = req.file;
 
