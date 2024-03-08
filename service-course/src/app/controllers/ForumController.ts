@@ -43,7 +43,7 @@ class ForumController {
                     {
                         model: TopicForum,
                         as: 'topics',
-                        attributes: ['id', 'title', 'createdAt', 'total_answer', 'id_user'],
+                        attributes: ['id', 'title', 'createdAt', 'total_answer', 'id_user', 'description'],
                         through: {
                             attributes: []
                         },
