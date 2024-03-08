@@ -391,7 +391,7 @@ class CourseController {
                 transaction: t
             });
 
-            await Forum.create({ id_course: newCourse.id }, { transaction: t });
+            const newForum = await Forum.create({ id_course: newCourse.id }, { transaction: t });
 
             if (categories === undefined) {
                 throw new Error("Categories missed!");
@@ -509,7 +509,10 @@ class CourseController {
             // Save data to algolia
             index.saveObject(algoliaDataSave);
 
-            res.status(201).json(newCourse);
+            res.status(201).json({
+                ...newCourse,
+                id_forum: newForum.id
+            });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
@@ -1043,13 +1046,25 @@ class CourseController {
         }
     }
 
-    // [DELETE] /courses/:id
+    // [DELETE] /courses/:courseId
     deleteCourse = async (req: Request, res: Response, _next: NextFunction) => {
         const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);
         const index = client.initIndex(process.env.ALGOLIA_INDEX_NAME);
+
+        const t = await sequelize.transaction();
         try {
+            const id_course = req.params.courseId;
+
             await Course.destroy({
-                where: { id: req.params.courseId }
+                where: { id: id_course }
+            }, {
+                transaction: t
+            });
+
+            await Forum.destroy({
+                where: { id_course }
+            }, {
+                transaction: t
             });
 
             index.deleteObject(req.params.courseId);

@@ -4,8 +4,9 @@ const courseController = require("../app/controllers/CourseController");
 const chaptersRouter = require("./chapters");
 
 const fileUpload = require('../config/firebase/fileUpload');
-
 const Authorize = require('../app/middleware/authorize');
+const CheckingCourse = require('../app/middleware/course');
+
 ///route chapter
 router.use("/chapters", chaptersRouter)
 
@@ -23,8 +24,8 @@ router.route('/search/page/:page')
 
 router.route('/:courseId')
     .get(courseController.getCourseById)
-    .put(Authorize.authorizeTeacher, courseController.updateCourse)
-    .delete(Authorize.authorizeTeacher, courseController.deleteCourse);
+    .put(Authorize.authorizeTeacher, CheckingCourse.checkModifyCourse, courseController.updateCourse)
+    .delete(Authorize.authorizeTeacher, CheckingCourse.checkModifyCourse, courseController.deleteCourse);
 
 router.route('/full/:courseId')
     .get(courseController.getAllDetailCourse);

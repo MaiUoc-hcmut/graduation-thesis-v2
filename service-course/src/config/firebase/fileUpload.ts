@@ -10,6 +10,8 @@ class FileUpload {
     uploadVideo = multer({ storage: multer.memoryStorage() }).single('video');
 
     uploadImage = multer({ storage: multer.memoryStorage() }).single('image');
+
+    uploadFile = multer({ storage: multer.memoryStorage() }).single('file');
     
     giveCurrentDateTime = () => {
         const today = new Date();

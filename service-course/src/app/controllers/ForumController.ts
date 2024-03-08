@@ -3,6 +3,8 @@ const TopicForum = require('../../db/models/topicforum');
 
 import { Request, Response, NextFunction } from 'express';
 
+const axios = require('axios');
+
 require('dotenv').config();
 
 class ForumController {
@@ -50,6 +52,20 @@ class ForumController {
                     }
                 ]
             });
+
+            for (const topic of forum.topics) {
+                if (topic.role === "student") {
+                    const user = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${topic.id_user}`);
+
+                    topic.dataValues.user = { avatar: user.data.avatar, name: user.data.name, role: topic.role };
+                    delete topic.dataValues.role;
+                } else if (topic.role === "teacher") {
+                    const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${topic.id_user}`);
+
+                    topic.dataValues.user = { avatar: user.data.avatar, name: user.data.name, role: topic.role };
+                    delete topic.dataValues.role;
+                }
+            }
 
             res.status(200).json(forum);
         } catch (error: any) {
