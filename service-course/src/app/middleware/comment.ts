@@ -5,9 +5,13 @@ import { Request, Response, NextFunction } from "express";
 const createError = require('http-errors');
 
 class CheckingComment {
-    checkParentCreateComment = async (req: Request, res: Response, next: NextFunction) => {
+    checkParentCreateComment = async (req: Request, _res: Response, next: NextFunction) => {
+        let body = req.body.data;
+        if (typeof body === "string") {
+            body = JSON.parse(body);
+        }
         try {
-            const { id_parent, id_topic } = req.body.data;
+            const { id_parent, id_topic } = body;
             const topic = await Topic.findByPk(id_topic);
             if (!topic) return next(createError.NotFound("Topic does not exist"));
             if (id_parent) {

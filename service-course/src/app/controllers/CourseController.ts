@@ -6,6 +6,7 @@ const Review = require('../../db/models/review');
 const ParentCategory = require('../../db/models/parent-category');
 const CourseDraft = require('../../db/models/course_draft');
 const Document = require('../../db/models/document');
+const Forum = require('../../db/models/forum');
 
 require('dotenv').config();
 
@@ -390,6 +391,8 @@ class CourseController {
                 transaction: t
             });
 
+            await Forum.create({ id_course: newCourse.id }, { transaction: t });
+
             if (categories === undefined) {
                 throw new Error("Categories missed!");
             }
@@ -494,8 +497,10 @@ class CourseController {
             const Categories = categoriesInstances.map(({ id, name }) => ({ id, name }));
             const user = { id: id_teacher, name: req.teacher?.data.name };
 
+            const dataValues = newCourse.dataValues;
+
             const algoliaDataSave = {
-                ...newCourse,
+                ...dataValues,
                 objectID: newCourse.id,
                 Categories,
                 user
