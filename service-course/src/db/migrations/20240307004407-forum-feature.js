@@ -40,6 +40,12 @@ module.exports = {
         onDelete: "CASCADE",
         onUpdate: "CASCADE"
       },
+      id_user: {
+        type: Sequelize.UUID,
+      },
+      role: {
+        type: Sequelize.STRING,
+      },
       title: {
         type: Sequelize.STRING(100),
       },
@@ -77,6 +83,9 @@ module.exports = {
         },
         onDelete: "CASCADE",
         onUpdate: "CASCADE"
+      },
+      id_user: {
+        type: Sequelize.UUID
       },
       content: {
         type: Sequelize.STRING(600),

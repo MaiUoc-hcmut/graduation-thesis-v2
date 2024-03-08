@@ -19,6 +19,9 @@ TopicForum.init({
         type: DataTypes.UUID,
         allowNull: false,
     },
+    id_user: {
+        type: DataTypes.UUID
+    },
     title: {
         type: DataTypes.STRING(100),
         allowNull: false,

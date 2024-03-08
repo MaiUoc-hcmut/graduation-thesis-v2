@@ -10,6 +10,9 @@ const reviewRouter = require('./review');
 const imageRouter = require('./image');
 const videoRouter = require('./video');
 const progressRouter = require('./progress');
+const forumRouter = require('./forum');
+const topicForumRouter = require('./topicforum');
+const answerRouter = require('./answer');
 const testRouter = require('./test');
 
 function route(app: any) {
@@ -25,6 +28,9 @@ function route(app: any) {
     app.use('/api/v1/images', imageRouter);
     app.use('/api/v1/videos', videoRouter);
     app.use('/api/v1/progresses', progressRouter);
+    app.use('/api/v1/forums', forumRouter);
+    app.use('/api/v1/topicsforum', topicForumRouter);
+    app.use('/api/v1/answers', answerRouter);
     app.use('/api/v1/test', testRouter);
 }
 

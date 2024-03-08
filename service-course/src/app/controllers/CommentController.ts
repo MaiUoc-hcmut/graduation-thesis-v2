@@ -14,6 +14,8 @@ const {
 } = require('firebase/storage');
 const { initializeApp } = require('firebase/app');
 
+const { sequelize } = require('../../config/db/index');
+
 initializeApp(firebaseConfig);
 const storage = getStorage();
 
@@ -122,6 +124,7 @@ class CommentController {
 
     // [POST] /comments/create
     createComment = async (req: Request, res: Response, _next: NextFunction) => {
+        const t = await sequelize.transaction();
         try {
             const data = req.body.data;
 
@@ -131,13 +134,20 @@ class CommentController {
             const newComment = await Comment.create({
                 id_user,
                 ...data,
-                role
+                role,
+                image: req.ImageUrl
+            }, {
+                transaction: t
             });
+
+            await t.commit();
             
             res.status(201).json(newComment);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
+
+            await t.rollback();
         }
     }
 

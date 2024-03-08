@@ -1,8 +1,5 @@
 const { sequelize } = require('../../config/db');
-import { Model, DataTypes, CreationOptional } from 'sequelize';
-const Chapter = require('./chapter');
-const Topic = require('./topic');
-const Category = require('./category');
+import { Model, DataTypes, CreationOptional, UUID } from 'sequelize';
 
 class Answer extends Model {
   declare createdAt: CreationOptional<Date>;
@@ -20,7 +17,11 @@ Answer.init({
         allowNull: false,
     },
     id_parent: {
-        type: DataTypes.UUID
+        type: DataTypes.UUID,
+    },
+    id_user: {
+        type: DataTypes.UUID,
+        allowNull: false,
     },
     content: {
         type: DataTypes.STRING(600),
@@ -36,6 +37,12 @@ Answer.init({
 }, {
     tableName: 'answer',
     sequelize
+});
+
+Answer.hasMany(Answer, {
+    as: 'replies',
+    foreignKey: 'id_parent',
+    sourceKey: 'id'
 });
 
 module.exports = Answer;
