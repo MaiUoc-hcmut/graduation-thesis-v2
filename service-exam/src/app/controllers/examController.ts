@@ -194,6 +194,12 @@ class ExamController {
 
             for (const question of questions) {
                 const { question_categories, knowledges, answers, ...questionBody } = question;
+                
+                if (answers === undefined || answers.length === 0) {
+                    return res.status(400).json({
+                        message: "Question must have its own answers!"
+                    });
+                }
 
                 const questionDraft = await ExamDraft.findOne({
                     where: { id_question: questionBody.id }
@@ -204,6 +210,7 @@ class ExamController {
                 // If draft exist, means image of question has been uploaded
                 if (questionDraft) {
                     content_image = questionDraft.url;
+                    await questionDraft.destroy({ transaction: t });
                 }
 
                 const newQuestion = await Question.create({
@@ -226,13 +233,18 @@ class ExamController {
                     newQuestion.addCategories(questionCategoryInstances, { transaction: t });
                 }
 
-                if (answers === undefined || answers.length === 0) {
-                    return res.status(400).json({
-                        message: "Question must have its own answers!"
-                    });
-                }
-
                 for (const answer of answers) {
+                    let answer_image = "";
+
+                    const answerDraft = await ExamDraft.findOne({
+                        where: { id_answer: answer.id, type: "answer" }
+                    });
+
+                    if (answerDraft) {
+                        answer_image = answerDraft.url;
+                        await answerDraft.destroy({ transaction: t });
+                    }
+
                     await Answer.create({
                         id_question: newQuestion.id,
                         ...answer

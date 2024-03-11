@@ -18,6 +18,12 @@ ExamDraft.init({
     id_question: {
         type: DataTypes.UUID
     },
+    id_answer: {
+        type: DataTypes.UUID
+    },
+    type: {
+        type: DataTypes.STRING
+    },
     order: {
         type: DataTypes.INTEGER
     },
