@@ -141,6 +141,15 @@ class Test {
             res.status(500).json(error);
         }
     }
+
+    testLogHeader = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            res.json(req.headers);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json(error);
+        }
+    }
 }
 
 module.exports = new Test();

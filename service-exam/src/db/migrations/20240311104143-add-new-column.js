@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.addColumn('exam', 'pass_core', {
+    await queryInterface.addColumn('exam', 'pass_score', {
       type: Sequelize.FLOAT,
     })
   },

@@ -424,6 +424,33 @@ class CourseController {
                         totalLecture += chapters[i].topics.filter((topic: any) => topic.type === "lecture").length;
                         totalExam += chapters[i].topics.filter((topic: any) => topic.type === "exam").length;
                         for (let j = 0; j < chapters[i].topics.length; j++) {
+                            // If topic is an exam
+                            if (chapters[i].topics[j].type === "exam") {
+                                const headers = {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': req.headers.authorization
+                                }
+                                const exam = await axios.post(
+                                    `${process.env.BASE_URL_EXAM_LOCAL}/exams`,
+                                    chapters[i].topics[j].exam,
+                                    { headers }
+                                );
+
+                                await Topic.create({
+                                    id_chapter: newChapter.id,
+                                    id_exam: exam.data.id,
+                                    name: chapters[i].topics[j].name,
+                                    description: chapters[i].topics[j].description,
+                                    order: j + 1,
+                                    status: chapters[i].topics[j].status,
+                                    type: "exam",
+                                }, {
+                                    transaction: t
+                                });
+
+                                continue;
+                            }
+
                             let topicVideoURL = "";
                             let topicVideoDuration = 0;
         
@@ -451,17 +478,6 @@ class CourseController {
                                 }
                             });
 
-                            
-                            let documentInstances = [];
-
-                            if (documentsDraft.length > 0) {
-                                for (const docDraft of documentsDraft) {
-                                    const document = await Document.findByPk(docDraft.id_document);
-                                    documentInstances.push(document);
-                                    await docDraft.destroy({ transaction: t });
-                                }
-                            }
-                            
                             const newTopic = await Topic.create({
                                 id_chapter: newChapter.id,
                                 video: topicVideoURL,
@@ -470,11 +486,24 @@ class CourseController {
                                 order: j + 1,
                                 status: chapters[i].topics[j].status,
                                 duration: topicVideoDuration,
-                                type: chapters[i].topics[j].type,
+                                type: "lecture",
                             }, {
                                 transaction: t
                             });
-                            await newTopic.addDocuments(documentInstances, { transaction: t });
+
+                            if (documentsDraft.length > 0) {
+                                let documentInstances = [];
+                                for (const docDraft of documentsDraft) {
+                                    const document = await Document.findByPk(docDraft.id_document);
+                                    documentInstances.push(document);
+                                    await docDraft.destroy({ transaction: t });
+                                }
+
+                                if (documentInstances.length > 0) {
+                                    await newTopic.addDocuments(documentInstances, { transaction: t });
+                                }
+                            }
+                            
                             totalDuration += topicVideoDuration;
                         }
                     }
@@ -504,13 +533,12 @@ class CourseController {
                 user
             }
 
+            newCourse.dataValues.id_forum = newForum.id;
+
             // Save data to algolia
             await index.saveObject(algoliaDataSave);
 
-            res.status(201).json({
-                ...newCourse,
-                id_forum: newForum.id
-            });
+            res.status(201).json(newCourse);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
