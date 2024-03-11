@@ -5,7 +5,10 @@ const Category = require('../../db/model/category');
 const ExamDraft = require('../../db/model/exam_draft');
 const { Op } = require("sequelize");
 
+const algoliasearch = require('algoliasearch');
+
 const { sequelize } = require('../../config/db/index');
+const axios = require('axios');
 
 import { Request, Response, NextFunction } from "express";
 
@@ -26,7 +29,23 @@ class ExamController {
     // [GET] /api/v1/exam
     getAllExams = async (_req: Request, res: Response, _next: NextFunction) => {
         try {
-            const exams = await Exam.findAll();
+            const exams = await Exam.findAll({
+                include: [
+                    {
+                        model: Category,
+                        attributes: ['name', 'id'],
+                        through: {
+                            attributes: []
+                        }
+                    }
+                ]
+            });
+
+            for (const exam of exams) {
+                const user = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/teacher/get-teacher-by-id/${exam.id_teacher}`);
+                exam.dataValues.user = { id: user.data.id, name: user.data.name };
+            }
+
             res.status(200).json(exams);
         } catch (error: any) {
             console.log(error.message);
@@ -97,6 +116,31 @@ class ExamController {
             });
 
             res.status(200).json(exam);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    // [GET] /api/v1/exams/search/page/:page
+    searchExam = async (req: Request, res: Response, _next: NextFunction) => {
+        const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);
+        const index = client.initIndex(process.env.ALGOLIA_INDEX_NAME);
+        try {
+            const currentPage: number = +req.params.page;
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+
+            const { query } = req.query;
+
+            const result = await index.search(query, {
+                hitsPerPage: pageSize,
+                page: currentPage - 1
+            });
+
+            res.status(200).json({
+                result: result.hits,
+                total: result.nbHits
+            })
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
