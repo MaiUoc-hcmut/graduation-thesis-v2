@@ -136,6 +136,7 @@ class VideoController {
                 })
             }
 
+            // Check type of file
             if (!video.mimetype.startsWith('video/')) {
                 return res.status(400).json({
                     message: "Invalid mimetype for video topic!"

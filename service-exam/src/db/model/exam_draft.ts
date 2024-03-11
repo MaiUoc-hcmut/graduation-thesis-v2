@@ -1,28 +1,33 @@
 const { sequelize } = require('../../config/db');
 import { Model, DataTypes, CreationOptional } from 'sequelize';
 
-class DetailQuestion extends Model {
+class ExamDraft extends Model {
     declare createdAt: CreationOptional<Date>;
     declare updatedAt: CreationOptional<Date>;
 }
 
-DetailQuestion.init({
+ExamDraft.init({
     id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
     },
-    id_assignment: {
-        type: DataTypes.UUID,
-        allowNull: false,
+    id_exam: {
+        type: DataTypes.UUID
     },
     id_question: {
-        type: DataTypes.UUID,
-        allowNull: false,
+        type: DataTypes.UUID
+    },
+    order: {
+        type: DataTypes.INTEGER
+    },
+    url: {
+        type: DataTypes.TEXT
     },
 }, {
-    sequelize,
-    tableName: 'detail_question',
+    tableName: 'exam_draft',
+    sequelize
 });
 
-module.exports = DetailQuestion;
+
+module.exports = ExamDraft;

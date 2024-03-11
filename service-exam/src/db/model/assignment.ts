@@ -15,10 +15,6 @@ Assignment.init({
     id_exam: {
         type: DataTypes.UUID,
         allowNull: false,
-        references: {
-            model: 'exam',
-            key: 'id'
-        }
     },
     id_student: {
         type: DataTypes.UUID,
@@ -39,9 +35,7 @@ Assignment.init({
 }, {
     sequelize,
     tableName: 'assignment',
-    timestamps: false,
 });
-
 
 
 module.exports = Assignment;

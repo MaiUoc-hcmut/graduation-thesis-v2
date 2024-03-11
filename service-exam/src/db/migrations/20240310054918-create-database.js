@@ -9,7 +9,7 @@ module.exports = {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
       },
       name: {
         allowNull: false,
@@ -28,11 +28,11 @@ module.exports = {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
       },
       id_par_category: {
         allowNull: false,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
         references: {
           model: 'Par_category',
           key: 'id',
@@ -57,15 +57,14 @@ module.exports = {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
       },
       id_teacher: {
         allowNull: false,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
       },
       id_course: {
-        allowNull: false,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
       },
       title: {
         allowNull: false,
@@ -82,12 +81,8 @@ module.exports = {
       quantity_assignment: {
         type: Sequelize.SMALLINT,
       },
-      quantity_download: {
-        type: Sequelize.SMALLINT,
-      },
       status: {
-        defaultValue: true,
-        type: Sequelize.BOOLEAN,
+        type: Sequelize.STRING,
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -102,11 +97,20 @@ module.exports = {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
+      },
+      id_exam: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'Exam',
+          key: 'id',
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
       },
       id_teacher: {
         allowNull: false,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
       },
       content_text: {
         allowNull: false,
@@ -118,35 +122,8 @@ module.exports = {
       total_report: {
         type: Sequelize.INTEGER,
       },
-      createdAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-    });
-    await queryInterface.createTable('exam-question', {
-      id_exam: {
-        allowNull: false,
-        type: Sequelize.STRING(36),
-        references: {
-          model: 'Exam',
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
-      },
-      id_question: {
-        allowNull: false,
-        type: Sequelize.STRING(36),
-        references: {
-          model: 'Question',
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
+      multi_choice: {
+        type: Sequelize.BOOLEAN,
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -158,19 +135,13 @@ module.exports = {
       },
     });
     await queryInterface.createTable('save_question', {
-      id_exam: {
+      id_student: {
         allowNull: false,
-        type: Sequelize.STRING(36),
-        references: {
-          model: 'Exam',
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
+        type: Sequelize.UUID,
       },
       id_question: {
         allowNull: false,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
         references: {
           model: 'Question',
           key: 'id',
@@ -191,15 +162,15 @@ module.exports = {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
       },
       id_student: {
         allowNull: false,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
       },
       id_exam: {
         allowNull: false,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
         references: {
           model: 'Exam',
           key: 'id',
@@ -228,16 +199,15 @@ module.exports = {
         allowNull: false,
       },
     });
-
     await queryInterface.createTable('answer', {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
       },
       id_question: {
         allowNull: false,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
         references: {
           model: 'Question',
           key: 'id',
@@ -265,11 +235,14 @@ module.exports = {
         allowNull: false,
       },
     });
-
     await queryInterface.createTable('detail_question', {
+      id: {
+        type: Sequelize.UUID,
+        primaryKey: true,
+      },
       id_assignment: {
         allowNull: false,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
         references: {
           model: 'Assignment',
           key: 'id',
@@ -279,19 +252,9 @@ module.exports = {
       },
       id_question: {
         allowNull: false,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
         references: {
           model: 'Question',
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
-      },
-      id_selected_answer: {
-        allowNull: false,
-        type: Sequelize.STRING(36),
-        references: {
-          model: 'Answer',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -306,15 +269,14 @@ module.exports = {
         allowNull: false,
       },
     });
-
     await queryInterface.createTable('q&a', {
       id_student: {
         allowNull: false,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
       },
       id_question: {
         allowNull: false,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
         references: {
           model: 'Question',
           key: 'id',
@@ -342,7 +304,7 @@ module.exports = {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
       },
       name: {
         allowNull: false,
@@ -361,15 +323,15 @@ module.exports = {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
       },
       id_student: {
         allowNull: false,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
       },
       id_question: {
         allowNull: false,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
         references: {
           model: 'Question',
           key: 'id',
@@ -379,7 +341,7 @@ module.exports = {
       },
       id_error: {
         allowNull: false,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
         references: {
           model: 'Error',
           key: 'id',
@@ -403,7 +365,7 @@ module.exports = {
     await queryInterface.createTable('category-exam', {
       id_exam: {
         allowNull: false,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
         references: {
           model: 'Exam',
           key: 'id',
@@ -413,7 +375,7 @@ module.exports = {
       },
       id_category: {
         allowNull: false,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
         references: {
           model: 'Category',
           key: 'id',
@@ -433,7 +395,7 @@ module.exports = {
     await queryInterface.createTable('category-question', {
       id_question: {
         allowNull: false,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
         references: {
           model: 'Question',
           key: 'id',
@@ -443,7 +405,7 @@ module.exports = {
       },
       id_category: {
         allowNull: false,
-        type: Sequelize.STRING(36),
+        type: Sequelize.UUID,
         references: {
           model: 'Category',
           key: 'id',
@@ -463,19 +425,18 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable('category-exam');
+    await queryInterface.dropTable('category-question');
+    await queryInterface.dropTable('category');
+    await queryInterface.dropTable('par_category');
     await queryInterface.dropTable('detail_question');
-    await queryInterface.dropTable('exam-question');
     await queryInterface.dropTable('save_question');
-    await queryInterface.dropTable('answer');
     await queryInterface.dropTable('q&a');
     await queryInterface.dropTable('report_error');
     await queryInterface.dropTable('error');
-    await queryInterface.dropTable('category-exam');
-    await queryInterface.dropTable('category-question');
     await queryInterface.dropTable('assignment');
-    await queryInterface.dropTable('exam');
+    await queryInterface.dropTable('answer');
     await queryInterface.dropTable('question');
-    await queryInterface.dropTable('category');
-    await queryInterface.dropTable('par_category');
+    await queryInterface.dropTable('exam');
   },
 };

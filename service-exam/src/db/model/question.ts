@@ -1,6 +1,9 @@
 const { sequelize } = require('../../config/db');
 import { Model, DataTypes, CreationOptional } from 'sequelize';
 
+const Category = require('./category');
+const Answer = require('./answer');
+
 class Question extends Model {
     declare createdAt: CreationOptional<Date>;
     declare updatedAt: CreationOptional<Date>;
@@ -15,6 +18,9 @@ Question.init({
     id_teacher: {
         type: DataTypes.UUID,
         allowNull: false,
+    },
+    id_exam: {
+        type: DataTypes.UUID,
     },
     content_text: {
         type: DataTypes.TEXT,
@@ -37,6 +43,21 @@ Question.init({
 }, {
     sequelize,
     tableName: 'question',
+});
+
+Question.hasMany(Answer, { foreignKey: 'id_question', as: 'answers' });
+Answer.belongsTo(Question, { foreignKey: 'id_question' });
+
+Question.belongsToMany(Category, {
+    through: 'category-question',
+    foreignKey: 'id_question',
+    otherKey: 'id_category'
+});
+
+Category.belongsToMany(Question, {
+    through: 'category-question',
+    foreignKey: 'id_category',
+    otherKey: 'id_question'
 });
 
 module.exports = Question;

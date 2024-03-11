@@ -1,11 +1,10 @@
 const express = require('express');
 const db = require('./config/db')
+const route = require('./routes');
 const bodyParser = require('body-parser')
 const passport = require('passport');
 const cors = require('cors');
 const createError = require('http-errors');
-
-const examRouter = require('./route/exam');
 
 require('dotenv').config()
 
@@ -23,8 +22,7 @@ app.use(
 app.use(passport.initialize());
 app.use(express.json());
 
-// All route
-app.use('/api/v1/exam', examRouter);
+route(app);
 
 
 // wrong api
@@ -54,3 +52,6 @@ app.use(
 app.listen(4002, () => {
     console.log('Listenning on port 4002');
 });
+
+
+export {};

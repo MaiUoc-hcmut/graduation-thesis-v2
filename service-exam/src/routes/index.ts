@@ -1,8 +1,9 @@
-const examController = require("../app/controllers/examController");
+const examRouter = require('./exam');
+const imageRouter = require('./image');
 
 function route(app: any) {
-    app.get("/api/v1/exam/studentGetExam", examController.studentGetExam);
-    app.post("/api/v1/exam/studentSubmitExam", examController.studentSubmitExam);
+    app.use('/api/v1/exams', examRouter);
+    app.use('/api/v1/images', imageRouter);
 }
 
 module.exports = route;
