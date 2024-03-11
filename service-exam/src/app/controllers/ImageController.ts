@@ -33,7 +33,7 @@ class ImageController {
         try {
             const image = req.file;
             
-            const { type, ...id } = body;
+            const { type, id_question, id_answer } = body;
 
             if (!image) {
                 return res.status(400).json({
@@ -73,13 +73,15 @@ class ImageController {
             const downloadURL = await getDownloadURL(snapshot.ref);
             resUrl = downloadURL;
 
+
             if (type === "question") {
-                const question = await Question.findByPk(...id);
+                console.log(type, resUrl)
+                const question = await Question.findByPk(id_question);
             
                 // If exam did not created yet, create a draft. Else, update the existed exam
                 if (!question) {
                     await ExamDraft.create({
-                        ...id,
+                        id_question,
                         type: "question",
                         url: resUrl,
                     });
@@ -87,18 +89,18 @@ class ImageController {
                     await Question.update({
                         content_image: resUrl
                     }, {
-                        where: { id: id.id_question }
+                        where: { id: id_question }
                     }, {
                         transaction: t
                     });
                 }
             } else {
-                const answer = await Answer.findByPk(...id);
+                const answer = await Answer.findByPk(id_answer);
             
                 // If exam did not created yet, create a draft. Else, update the existed exam
                 if (!answer) {
                     await ExamDraft.create({
-                        ...id,
+                        id_answer,
                         type: "answer",
                         url: resUrl,
                     });
@@ -106,7 +108,7 @@ class ImageController {
                     await Answer.update({
                         content_image: resUrl
                     }, {
-                        where: { id: id.id_answer }
+                        where: { id: id_answer }
                     }, {
                         transaction: t
                     });
@@ -117,7 +119,8 @@ class ImageController {
 
             res.status(200).json({
                 message: "Image has been uploaded cloud!",
-                url: resUrl
+                url: resUrl,
+                type
             })
         } catch (error: any) {
             console.log(error.message);
