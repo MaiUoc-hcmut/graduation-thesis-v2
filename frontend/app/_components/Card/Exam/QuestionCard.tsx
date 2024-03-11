@@ -46,61 +46,59 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
                                             required: "Tiêu đề câu hỏi không thể thiếu."
                                         })}
                                     />
-                                    <div className="mb-10 w-1/2">
-                                        <label
-                                            className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
-                                            htmlFor="thumbnail"
-                                        >
-                                            Ảnh đại diện
-                                        </label>
 
-                                        <FilePond
-                                            files={files}
-                                            onupdatefiles={() => setFiles}
-                                            acceptedFileTypes={['image/*']}
-                                            server={{
-                                                process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
-                                                    const formData = new FormData();
-                                                    formData.append(fieldName, file, file.name);
-                                                    // formData.append('data', JSON.stringify({
-                                                    //     id_course: id_course,
-                                                    //     type: "thumbnail"
-                                                    // }));
-
-
-                                                    const request = new XMLHttpRequest();
-                                                    request.open('POST', 'http://localhost:4001/api/v1/images')
-
-
-
-                                                    request.upload.onprogress = (e) => {
-                                                        progress(e.lengthComputable, e.loaded, e.total);
-                                                    };
-
-                                                    request.onload = function () {
-                                                        if (request.status >= 200 && request.status < 300) {
-                                                            // the load method accepts either a string (id) or an object
-                                                            load(request.responseText);
-                                                        } else {
-                                                            // Can call the error method if something is wrong, should exit after
-                                                            error('oh no');
-                                                        }
-                                                    };
-                                                    request.send(formData)
-
-                                                    // courseApi.uploadVideo(formData)
-                                                }
-                                            }
-                                            }
-
-                                            name="image"
-                                            labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
-                                        />
-
-                                    </div>
                                     <div className="mt-2 text-sm text-red-600 dark:text-red-500">
                                         {errors.questions?.[indexQuestion]?.content_text?.message}
                                     </div>
+                                </div>
+                                <div className="mb-10 ">
+                                    <div className="mb-2 block">
+                                        <Label htmlFor="email" value="Ảnh (tùy chọn)" />
+                                    </div>
+
+                                    <FilePond
+                                        files={files}
+                                        onupdatefiles={() => setFiles}
+                                        acceptedFileTypes={['image/*']}
+                                        server={{
+                                            process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
+                                                const formData = new FormData();
+                                                formData.append(fieldName, file, file.name);
+                                                formData.append('data', JSON.stringify({
+                                                    id_question: question.id,
+                                                    type: "question"
+                                                }));
+
+
+                                                const request = new XMLHttpRequest();
+                                                request.open('POST', 'http://localhost:4002/api/v1/images')
+
+
+
+                                                request.upload.onprogress = (e) => {
+                                                    progress(e.lengthComputable, e.loaded, e.total);
+                                                };
+
+                                                request.onload = function () {
+                                                    if (request.status >= 200 && request.status < 300) {
+                                                        // the load method accepts either a string (id) or an object
+                                                        load(request.responseText);
+                                                    } else {
+                                                        // Can call the error method if something is wrong, should exit after
+                                                        error('oh no');
+                                                    }
+                                                };
+                                                request.send(formData)
+
+                                                // courseApi.uploadVideo(formData)
+                                            }
+                                        }
+                                        }
+
+                                        name="image"
+                                        labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
+                                    />
+
                                 </div>
                                 <AnswerCard hanldeForm={hanldeForm} indexQuestion={indexQuestion} />
                             </div>

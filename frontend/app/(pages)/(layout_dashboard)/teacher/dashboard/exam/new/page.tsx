@@ -25,6 +25,7 @@ import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orien
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
+import { log } from "console"
 
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
 
@@ -75,6 +76,8 @@ export default function CreateExam() {
     const [files, setFiles] = useState([])
     const [modal, setModal] = useState<any>({})
     const [questions, setQuestions] = useState([])
+    const [image, setImage] = useState<any>({})
+
 
     const [category, setCategory] = useState<Category>(initCategory)
     const handleForm = useForm<ExamData>(
@@ -161,12 +164,14 @@ export default function CreateExam() {
                                                 files={files}
                                                 onupdatefiles={() => setFiles}
                                                 acceptedFileTypes={['image/*']}
+
                                                 server={{
                                                     process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                                                         const formData = new FormData();
                                                         formData.append(fieldName, file, file.name);
                                                         formData.append('data', JSON.stringify({
                                                             id_question: getValues().questions[indexQuestion].id,
+                                                            type: "question"
                                                         }));
 
 
@@ -179,9 +184,12 @@ export default function CreateExam() {
                                                             progress(e.lengthComputable, e.loaded, e.total);
                                                         };
 
-                                                        request.onload = function () {
+                                                        request.onload = function (res: any) {
+
                                                             if (request.status >= 200 && request.status < 300) {
                                                                 // the load method accepts either a string (id) or an object
+                                                                setImage({ ...image, [`${getValues().questions[indexQuestion].id}`]: JSON.parse(request.response).url });
+
                                                                 load(request.responseText);
                                                             } else {
                                                                 // Can call the error method if something is wrong, should exit after
@@ -191,13 +199,27 @@ export default function CreateExam() {
                                                         request.send(formData)
 
                                                         // courseApi.uploadVideo(formData)
-                                                    }
+                                                    },
+
                                                 }
                                                 }
 
                                                 name="image"
                                                 labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
                                             />
+                                            {
+                                                image[`${getValues().questions[indexQuestion].id}`] ? <div className="w-full h-[240px] relative">
+                                                    <Image
+                                                        src={`${image[`${getValues().questions[indexQuestion].id}`]}`}
+                                                        fill={true}
+                                                        className='w-full h-full absolute top-0 left-0 overflow-hidden object-cover object-center'
+                                                        alt="logo"
+                                                    />
+                                                </div> : null
+                                            }
+                                            <div>
+
+                                            </div>
 
                                         </div>
                                         <AnswerCard hanldeForm={handleForm} indexQuestion={indexQuestion} setModal={setModal} modal={modal} />

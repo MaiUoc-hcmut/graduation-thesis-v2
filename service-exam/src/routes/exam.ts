@@ -13,6 +13,9 @@ router.route('/:examId')
     .get(ExamController.getExamById)
     .delete(CheckingExam.checkDeleteExam, ExamController.deleteExam);
 
+router.route('/search/page/:page')
+    .get(ExamController.searchExam);
+
 router.route('/full/:examId')
     .get(ExamController.getDetailExam);
 
