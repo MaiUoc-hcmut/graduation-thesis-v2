@@ -1,10 +1,12 @@
 const { sequelize } = require('../../config/db');
 import { Model, DataTypes, CreationOptional } from 'sequelize';
 const Question = require('./question');
+const Category = require('./category');
+const Assignment = require('./assignment');
 
 class Exam extends Model {
-    // declare createdAt: CreationOptional<Date>;
-    // declare updatedAt: CreationOptional<Date>;
+    declare createdAt: CreationOptional<Date>;
+    declare updatedAt: CreationOptional<Date>;
 }
 
 Exam.init({
@@ -21,7 +23,7 @@ Exam.init({
         type: DataTypes.UUID,
     },
     title: {
-        type: DataTypes.STRING(30),
+        type: DataTypes.STRING(100),
         allowNull: false,
     },
     period: {
@@ -33,9 +35,9 @@ Exam.init({
         allowNull: false,
     },
     status: {
-        type: DataTypes.BOOLEAN,
+        type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: true,
+        defaultValue: "public",
     },
     quantity_assignment: {
         type: DataTypes.INTEGER,
@@ -47,10 +49,13 @@ Exam.init({
     tableName: 'exam',
 });
 
+Exam.hasMany(Question, { foreignKey: 'id_exam', as: 'questions' });
+Question.belongsTo(Exam, { foreignKey: 'id_exam' });
+
+Exam.belongsToMany(Category, { through: 'category-exam', foreignKey: 'id_exam', otherKey: 'id_category' });
+Category.belongsToMany(Exam, { through: 'category-exam', foreignKey: 'id_category', otherKey: 'id_exam' });
+
+Exam.hasMany(Assignment, { foreignKey: 'id_exam', as: 'assignments' });
+Assignment.belongsTo(Exam, { foreignKey: 'id_exam' });
+
 module.exports = Exam;
-
-Exam.belongsToMany(Question, { through: 'exam-question' });
-Question.belongsToMany(Exam, { through: 'exam-question' });
-
-Exam.sync();
-Question.sync()

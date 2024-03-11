@@ -20,7 +20,12 @@ TopicForum.init({
         allowNull: false,
     },
     id_user: {
-        type: DataTypes.UUID
+        type: DataTypes.UUID,
+        allowNull: false,
+    },
+    role: {
+        type: DataTypes.UUID,
+        allowNull: false
     },
     title: {
         type: DataTypes.STRING(100),

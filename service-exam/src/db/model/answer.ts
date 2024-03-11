@@ -15,10 +15,6 @@ Answer.init({
     },
     id_question: {
         type: DataTypes.UUID,
-        references: {
-            model: 'question',
-            key: 'id',
-        }
     },
     is_correct: {
         type: DataTypes.BOOLEAN,
@@ -34,13 +30,9 @@ Answer.init({
 }, {
     sequelize,
     tableName: 'answer',
-    timestamps: false
 });
 
 module.exports = Answer;
 
-Answer.belongsToMany(DetailQuestion, { through: 'select_answer' });
-DetailQuestion.belongsToMany(Answer, { through: 'select_answer' });
-
-Answer.sync();
-DetailQuestion.sync();
+Answer.belongsToMany(DetailQuestion, { through: 'selected-answer' });
+DetailQuestion.belongsToMany(Answer, { through: 'selected-answer' });
