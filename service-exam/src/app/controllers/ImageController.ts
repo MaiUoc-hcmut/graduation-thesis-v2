@@ -22,7 +22,7 @@ const storage = getStorage();
 
 
 class ImageController {
-    uploadSingleImage = async (req: Request, res: Response, next: NextFunction) => {
+    uploadSingleImage = async (req: Request, res: Response, _next: NextFunction) => {
         let body = req.body.data;
 
         if (typeof body === "string") {

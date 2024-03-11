@@ -11,7 +11,8 @@ router.route('/')
 
 router.route('/:examId')
     .get(ExamController.getExamById)
-    .delete(CheckingExam.checkDeleteExam, ExamController.deleteExam);
+    .put(Authorize.authorizeTeacher, CheckingExam.checkModifyExam, ExamController.updateExam)
+    .delete(Authorize.authorizeTeacher, CheckingExam.checkModifyExam, ExamController.deleteExam);
 
 router.route('/search/page/:page')
     .get(ExamController.searchExam);

@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from "express";
 const createError = require('http-errors');
 
 class CheckingExam {
-    checkDeleteExam = async (req: Request, _res: Response, next: NextFunction) => {
+    checkModifyExam = async (req: Request, _res: Response, next: NextFunction) => {
         try {
             const id_teacher = req.teacher?.data.id;
             const id_exam = req.params.examId;
