@@ -33,6 +33,7 @@ instance.interceptors.request.use(
 
             if (
                 config.url.indexOf('/images') >= 0 ||
+                config.url.indexOf('/answers') >= 0 ||
                 config.url.indexOf('/topicsforum') >= 0
             ) {
                 config.baseURL = 'http://localhost:4001/api/v1';

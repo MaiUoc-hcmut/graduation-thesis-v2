@@ -15,6 +15,7 @@ export default function LearninngLayout({
                 <Suspense fallback={<p>Loading data...</p>}>
                     {children}
                 </Suspense>
+
             </div>
         </section>
     )

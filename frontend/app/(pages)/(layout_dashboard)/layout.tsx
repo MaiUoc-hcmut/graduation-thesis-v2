@@ -1,18 +1,16 @@
 import Sidebar from '@/app/_components/Sidebar/Sidebar'
 import { Suspense } from 'react'
 import 'react-toastify/dist/ReactToastify.css';
-import HeaderStudent from '@/app/_components/Header/Header'
+import Header from '@/app/_components/Header/Header'
 import FlowbiteClient from '@/app/_components/Flowbite/FlowbiteClient';
 
-export default function TeacherLayout({
+export default function DashboardLayout({
   children,
-}: {
-  children: React.ReactNode
-}) {
+}: any) {
 
   return (
     <section className="">
-      <HeaderStudent />
+      <Header />
       <div className='flex justify-end mt-[70px] '>
         <Sidebar />
         <div className="px-4 py-7 w-[calc(100%-254px)] min-h-svh bg-[#fbfbfd] pb-5">

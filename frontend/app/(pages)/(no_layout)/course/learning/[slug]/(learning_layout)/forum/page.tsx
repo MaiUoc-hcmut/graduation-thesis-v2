@@ -7,7 +7,8 @@ import { useForm } from "react-hook-form"
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import { Label, Modal, TextInput, Textarea } from 'flowbite-react';
 import courseApi from '@/app/api/courseApi';
-
+import parse from 'html-react-parser';
+import { formatDateTime } from '@/app/helper/FormatFunction';
 
 type TopicData = {
     title: string,
@@ -53,8 +54,8 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                     id_forum: 'aab6580a-4ed3-46d9-a56c-0234968bdd00',
                                     title: data.title,
                                     description: data.description,
-                                    file: data.file[0]
-                                }
+                                },
+                                file: data.file[0]
                             }
                             await courseApi.createTopicForum(formData)
                             reset()
@@ -82,7 +83,7 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                 </div>
                                 <Textarea rows={4} {...register('description')} />
                             </div>
-                            <div className='mt-2'>
+                            <div className='mt-2 '>
                                 <div className="mb-2 block">
                                     <Label htmlFor="file" value="Gắn kèm file (tùy chọn)" />
                                 </div>
@@ -130,10 +131,10 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                             <div className='flex items-center px-4 bg-[#f7fafd] rounded-lg'>
                                 <div className='w-2/5  p-3 rounded-lg'>
                                     <h3 className='font-bold text-[#171347]'>
-                                        Course Forum
+                                        Thảo luận khóa học
                                     </h3>
                                     <span className='text-[#818894] font-bold mt-2 text-xs'>
-                                        Communicate others and ask your questions!
+                                        Hãy đặt những câu hỏi về khóa học ở đây!
                                     </span>
                                 </div>
                                 <div className='w-2/5 flex justify-center'>
@@ -155,9 +156,9 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                         </div>
                     </section>
                     <div className='mt-5'>
-                        {forum?.topics?.map((topic: any, index) => {
+                        {forum?.topics?.map((topic: any, index: any) => {
                             return (
-                                <div key={index} className='mb-6 rounded-lg border-[1px] border-[#ececec] p-4 flex w-full'>
+                                <div key={topic.id} className='mb-6 rounded-lg border-[1px] border-[#ececec] p-4 flex w-full'>
                                     <div className='flex w-full'>
                                         <div className='flex-1 bg-[#f7fafd] p-4 rounded-lg'>
                                             <div className=' flex-1 flex flex-col justify-center items-center p-2 pt-0'>
@@ -179,17 +180,14 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                             </div>
                                         </div>
                                         <div className='ml-5 w-4/6 '>
-                                            <Link href={`/course/learning/${params.slug}/forum/123`}>
-                                                <h3 className='text-[#171347] font-bold'>I need help !!!</h3>
+                                            <Link href={`/course/learning/${params.slug}/forum/${topic.id}`}>
+                                                <h3 className='text-[#171347] font-bold'>{topic.title}</h3>
                                             </Link>
-                                            <p className='mt-2 text-[#818894] text-sm'>Hi,
-                                                I need help to complete final part.
-                                                I attached the error screenshot.
-                                                Regards.</p>
+                                            <p className='mt-2 text-[#818894] text-sm'>{parse(topic.description)}</p>
                                         </div>
                                         <div className='w-1/6 flex flex-col justify-between items-end'>
-                                            <div className='text-[#818894]  text-sm'>22 Jun 2022 | 03:20</div>
-                                            <div className='text-[#818894] text-sm'>Số câu trả lời : 20</div>
+                                            <div className='text-[#818894]  text-sm'>{formatDateTime(topic.createdAt)}</div>
+                                            <div className='text-[#818894] text-sm'>Số câu trả lời : {topic.total_answer}</div>
                                         </div>
                                     </div>
                                     <div>

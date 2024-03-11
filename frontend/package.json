@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@flmngr/flmngr-react": "^2.0.4",
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
     "@fortawesome/free-brands-svg-icons": "^6.5.1",
     "@fortawesome/free-regular-svg-icons": "^6.5.1",
@@ -17,8 +16,11 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.1.1",
+    "@mantine/core": "^6.0.21",
+    "@mantine/dates": "^6.0.21",
+    "@mantine/hooks": "^6.0.21",
     "@reduxjs/toolkit": "^2.1.0",
-    "@syncfusion/ej2-react-filemanager": "^24.2.7",
+    "@tanstack/react-query": "^5.25.0",
     "axios": "^1.6.5",
     "filepond": "^4.30.6",
     "filepond-plugin-file-validate-type": "^1.2.9",
@@ -31,6 +33,7 @@
     "html-react-parser": "^5.1.7",
     "js-file-downloader": "^1.1.25",
     "jwt-decode": "^4.0.0",
+    "material-react-table": "^2.12.1",
     "next": "14.0.4",
     "query-string": "^8.1.0",
     "react": "^18",

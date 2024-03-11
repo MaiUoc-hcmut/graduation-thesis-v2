@@ -9,10 +9,6 @@ import { BasicInfomationForm } from "@/app/_components/Form/CreateCourse/BasicIn
 import { ContentForm } from "@/app/_components/Form/CreateCourse/ContentForm"
 import { useForm } from "react-hook-form"
 import courseApi from "@/app/api/courseApi"
-// import { DetailsView, FileManagerComponent, NavigationPane, Toolbar, Inject } from '@syncfusion/ej2-react-filemanager';
-// import { registerLicense } from '@syncfusion/ej2-base';
-// registerLicense('Ngo9BigBOggjHTQxAR8/V1NAaF1cXmhLYVF/WmFZfVpgdV9CaVZVQmYuP1ZhSXxXdkdhW39fdH1RQGVdUkI=');
-// import Flmngr from "@flmngr/flmngr-react";
 import uuid from 'react-uuid';
 
 const id_course: string = uuid()
@@ -131,29 +127,6 @@ export default function CreateCourse() {
                     </div>
                 </div>
             </form>
-
-            {/* <FileManagerComponent id="file" view="LargeIcons" ={fileManagerSettinsettingsgs}>
-                <Inject services={[NavigationPane, DetailsView, Toolbar]} />
-            </FileManagerComponent> */}
-
-            {/* <button
-                onClick={() => {
-
-                    Flmngr.open({
-                        apiKey: "1eZGiCrt",                                  // default free key
-                        urlFileManager: 'https://fm.flmngr.com/fileManager', // demo server
-                        urlFiles: `http://localhost:4001/api/v1/teacher/`,             // demo file storage
-                        isMultiple: false,                                   // let selecting a single file
-                        acceptExtensions: ["png", "jpg", "jpeg", "gif", "webp"],
-                        onFinish: (files) => {
-                            console.log("User picked:");
-                            console.log(files);
-                        }
-                    });
-                }}
-            >
-                Open file manager
-            </button> */}
 
             <div className="flex flex-col ">
                 <form onSubmit={
