@@ -1,14 +1,14 @@
 'use client'
 
-import courseApi from "@/app/api/courseApi";
+import examApi from "@/app/api/examApi";
 import { useEffect, useState } from "react";
 import Edit from './edit'
 
-export default function EditCourse({ params }: { params: { slug: string } }) {
+export default function EditExam({ params }: { params: { slug: string } }) {
     const [data, setData] = useState<any>()
     useEffect(() => {
         async function fetchData() {
-            await courseApi.get(params.slug).then((data: any) => setData(data.data))
+            await examApi.get(params.slug).then((data: any) => setData(data.data))
         }
         fetchData()
     }, []);
@@ -25,7 +25,7 @@ export default function EditCourse({ params }: { params: { slug: string } }) {
             }
         })
         return (
-            <Edit id={params.slug} course={data} />
+            <Edit id={params.slug} exam={data} />
         )
     }
     else {

@@ -194,7 +194,7 @@ class ExamController {
 
             for (const question of questions) {
                 const { question_categories, knowledges, answers, ...questionBody } = question;
-                
+
                 if (answers === undefined || answers.length === 0) {
                     return res.status(400).json({
                         message: "Question must have its own answers!"
@@ -249,7 +249,8 @@ class ExamController {
 
                     await Answer.create({
                         id_question: newQuestion.id,
-                        ...answer
+                        ...answer,
+                        content_image: answer_image
                     }, {
                         transaction: t
                     });

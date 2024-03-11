@@ -12,7 +12,7 @@ const examApi = {
     },
 
     get: async (id: string) => {
-        const url = `/courses/full/${id}`;
+        const url = `/exams/full/${id}`;
         return await axiosConfig.get(url);
     },
 

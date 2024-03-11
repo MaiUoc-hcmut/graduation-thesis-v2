@@ -30,7 +30,6 @@ import { log } from "console"
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
 
 type ExamData = {
-    id: string,
     title: string
     period: number,
     status: string,
@@ -77,14 +76,14 @@ export default function CreateExam() {
     const [modal, setModal] = useState<any>({})
     const [questions, setQuestions] = useState([])
     const [image, setImage] = useState<any>({})
+    const [submit, setSubmit] = useState(false)
+
 
 
     const [category, setCategory] = useState<Category>(initCategory)
     const handleForm = useForm<ExamData>(
         {
-            defaultValues: {
-                id: uuid()
-            }
+
         }
     )
     const {
@@ -257,6 +256,7 @@ export default function CreateExam() {
             <div className="flex flex-col ">
                 <form onSubmit={
                     handleSubmit(async (dataForm: any) => {
+                        if (!(Object.entries(errors).length === 0)) return
                         console.log(dataForm);
                         const { thumbnail, cover, ...data1 } = dataForm
                         data1.categories = []
@@ -265,7 +265,9 @@ export default function CreateExam() {
                         data1.categories.push(dataForm.subject)
                         data1.categories.push(dataForm.level)
                         setExamData(dataForm)
-                        await examApi.create({ data: data1 })
+                        if (submit) {
+                            await examApi.create({ data: data1 })
+                        }
 
                     })
                 }>
@@ -489,7 +491,7 @@ export default function CreateExam() {
                                                                         (provided) => (
 
                                                                             <QuestionCard
-                                                                                hanldeForm={handleForm} indexQuestion={indexQuestion} provided={provided} question={question} removeQuestion={removeQuestion} modal={modal} setModal={setModal} />
+                                                                                hanldeForm={handleForm} indexQuestion={indexQuestion} provided={provided} question={question} removeQuestion={removeQuestion} modal={modal} setModal={setModal} image={image} setImage={setImage} />
                                                                         )
                                                                     }
                                                                 </Draggable>
@@ -513,7 +515,7 @@ export default function CreateExam() {
                     </div>
 
                     <div className="flex flex-row justify-between mt-5 pt-4 border-t-[1px] border-[#ececec]">
-                        <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover">Hoàn thành</button>
+                        <button onClick={() => setSubmit(true)} type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover">Hoàn thành</button>
                     </div>
                 </form>
             </div >

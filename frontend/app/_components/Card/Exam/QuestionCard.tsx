@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-undef */
 import { ArrowsPointingOutIcon, EllipsisVerticalIcon, XMarkIcon } from "@heroicons/react/24/outline"
 import { Label, TextInput, Modal } from 'flowbite-react';
 import { useFieldArray, useForm } from 'react-hook-form';
@@ -11,15 +12,17 @@ import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import { useState } from "react";
+import Image from "next/image";
 
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
 
-export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, removeQuestion, modal, setModal }: any) => {
+export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, removeQuestion, modal, setModal, image, setImage }: any) => {
     const {
         register,
         handleSubmit,
         formState: { errors },
     } = hanldeForm
+
     const [files, setFiles] = useState([])
     return (
         <div className='mb-5 border-[1px] border-[#ececec] bg-white p-5 rounded-xl flex justify-between items-center' ref={provided.innerRef} {...provided.draggableProps}>
@@ -60,6 +63,7 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
                                         files={files}
                                         onupdatefiles={() => setFiles}
                                         acceptedFileTypes={['image/*']}
+
                                         server={{
                                             process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                                                 const formData = new FormData();
@@ -79,9 +83,12 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
                                                     progress(e.lengthComputable, e.loaded, e.total);
                                                 };
 
-                                                request.onload = function () {
+                                                request.onload = function (res: any) {
+
                                                     if (request.status >= 200 && request.status < 300) {
                                                         // the load method accepts either a string (id) or an object
+                                                        setImage({ ...image, [question.id]: JSON.parse(request.response).url });
+
                                                         load(request.responseText);
                                                     } else {
                                                         // Can call the error method if something is wrong, should exit after
@@ -91,16 +98,31 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
                                                 request.send(formData)
 
                                                 // courseApi.uploadVideo(formData)
-                                            }
+                                            },
+
                                         }
                                         }
 
                                         name="image"
                                         labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
                                     />
+                                    {
+                                        image[question.id] || question.content_image ? <div className="w-full h-[240px] relative">
+                                            <Image
+                                                src={`${image[question.id] || question.content_image}`}
+                                                fill={true}
+                                                className='w-full h-full absolute top-0 left-0 overflow-hidden object-cover object-center'
+                                                alt="logo"
+                                            />
+                                        </div>
+                                            : null
+                                    }
+                                    <div>
+
+                                    </div>
 
                                 </div>
-                                <AnswerCard hanldeForm={hanldeForm} indexQuestion={indexQuestion} />
+                                <AnswerCard hanldeForm={hanldeForm} question={question} indexQuestion={indexQuestion} image={image} setImage={setImage} />
                             </div>
 
                             <div className="mt-6 flex justify-end">
