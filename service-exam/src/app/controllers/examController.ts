@@ -85,9 +85,29 @@ class ExamController {
 
             const exams = await Exam.findAll({
                 where: { id_teacher: teacherId },
+                include: [
+                    {
+                        model: Category,
+                        attributes: ['name', 'id_par_category'],
+                        through: {
+                            attributes: []
+                        }
+                    },
+                ],
                 limit: pageSize,
                 offset: pageSize * (currentPage - 1)
             });
+
+            for (const exam of exams) {
+                // Format category before response
+                for (const category of exam.Categories) {
+                    const parCategory = await ParentCategory.findByPk(category.id_par_category);
+                    category.dataValues[`${parCategory.name}`] = category.name;
+
+                    delete category.dataValues.name;
+                    delete category.dataValues.id_par_category;
+                }
+            }
 
             res.status(200).json({ count, exams });
         } catch (error: any) {
@@ -115,7 +135,6 @@ class ExamController {
                     },
                     {
                         model: Category,
-                        as: 'categories',
                         attributes: ['id', 'name', 'id_par_category'],
                         through: {
                             attributes: []
@@ -315,7 +334,7 @@ class ExamController {
                 body = JSON.parse(body);
             }
 
-            let { categories, questions, examBody } = body;
+            let { categories, questions, ...examBody } = body;
             const examId = req.params.examId;
             const exam = await Exam.findByPk(examId);
             let quantity_question = exam.quantity_question;
