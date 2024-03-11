@@ -1,5 +1,5 @@
-const Exam = require('../../db/model/exam');
 const Question = require('../../db/model/question');
+const Answer = require('../../db/model/answer');
 const ExamDraft = require('../../db/model/exam_draft');
 
 const { sequelize } = require('../../config/db/index');
@@ -33,7 +33,7 @@ class ImageController {
         try {
             const image = req.file;
             
-            const { id_question } = body;
+            const { type, ...id } = body;
 
             if (!image) {
                 return res.status(400).json({
@@ -54,7 +54,7 @@ class ImageController {
 
             const storageRef = ref(
                 storage,
-                `image exam/${image?.originalname + '       ' + dateTime}`
+                `image ${type}/${image?.originalname + '       ' + dateTime}`
             );
 
             // Create file metadata including the content type
@@ -73,22 +73,44 @@ class ImageController {
             const downloadURL = await getDownloadURL(snapshot.ref);
             resUrl = downloadURL;
 
-            const question = await Question.findByPk(id_question);
+            if (type === "question") {
+                const question = await Question.findByPk(...id);
             
-            // If exam did not created yet, create a draft. Else, update the existed exam
-            if (!question) {
-                await ExamDraft.create({
-                    id_question,
-                    url: resUrl,
-                });
+                // If exam did not created yet, create a draft. Else, update the existed exam
+                if (!question) {
+                    await ExamDraft.create({
+                        ...id,
+                        type: "question",
+                        url: resUrl,
+                    });
+                } else {
+                    await Question.update({
+                        content_image: resUrl
+                    }, {
+                        where: { id: id.id_question }
+                    }, {
+                        transaction: t
+                    });
+                }
             } else {
-                await Question.update({
-                    content_image: resUrl
-                }, {
-                    where: { id: id_question }
-                }, {
-                    transaction: t
-                });
+                const answer = await Answer.findByPk(...id);
+            
+                // If exam did not created yet, create a draft. Else, update the existed exam
+                if (!answer) {
+                    await ExamDraft.create({
+                        ...id,
+                        type: "answer",
+                        url: resUrl,
+                    });
+                } else {
+                    await Answer.update({
+                        content_image: resUrl
+                    }, {
+                        where: { id: id.id_answer }
+                    }, {
+                        transaction: t
+                    });
+                }
             }
 
             await t.commit();
