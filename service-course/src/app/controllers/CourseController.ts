@@ -505,7 +505,7 @@ class CourseController {
             }
 
             // Save data to algolia
-            index.saveObject(algoliaDataSave);
+            await index.saveObject(algoliaDataSave);
 
             res.status(201).json({
                 ...newCourse,
@@ -1065,6 +1065,8 @@ class CourseController {
                 transaction: t
             });
 
+            await t.commit();
+
             index.deleteObject(req.params.courseId);
 
             res.status(200).json({
@@ -1074,6 +1076,8 @@ class CourseController {
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
+
+            await t.rollback();
         }
     }
 

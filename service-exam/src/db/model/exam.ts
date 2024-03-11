@@ -34,6 +34,10 @@ Exam.init({
         type: DataTypes.INTEGER,
         allowNull: false,
     },
+    pass_score: {
+        type: DataTypes.FLOAT,
+        defaultValue: 0,
+    },
     status: {
         type: DataTypes.STRING,
         allowNull: false,
