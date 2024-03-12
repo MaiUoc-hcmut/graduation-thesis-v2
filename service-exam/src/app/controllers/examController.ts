@@ -2,6 +2,7 @@ const Exam = require('../../db/model/exam');
 const Question = require('../../db/model/question');
 const Answer = require('../../db/model/answer');
 const Category = require('../../db/model/category');
+const ParentCategory = require('../../db/model/par_category');
 const ExamDraft = require('../../db/model/exam_draft');
 const { Op } = require("sequelize");
 
@@ -111,9 +112,26 @@ class ExamController {
                                 as: 'answers'
                             }
                         ]
+                    },
+                    {
+                        model: Category,
+                        as: 'categories',
+                        attributes: ['id', 'name', 'id_par_category'],
+                        through: {
+                            attributes: []
+                        }
                     }
                 ]
             });
+
+            if (!exam) return res.status(404).json({ message: "Exam does not exist" });
+
+            for (const category of exam.Categories) {
+                const parCategory = await ParentCategory.findByPk(category.id_par_category);
+                category.dataValues[`${parCategory.name}`] = category.name;
+                delete category.dataValues.name;
+                delete category.dataValues.id_par_category;
+            }
 
             res.status(200).json(exam);
         } catch (error: any) {
@@ -154,6 +172,9 @@ class ExamController {
         if (typeof body === "string") {
             body = JSON.parse(body);
         }
+
+        const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);
+        const index = client.initIndex(process.env.ALGOLIA_INDEX_NAME);
 
         const t = await sequelize.transaction();
         try {
@@ -259,12 +280,37 @@ class ExamController {
 
             await t.commit();
 
+            const Categories = categoryInstances.map(({ id, name }) => ({ id, name }));
+            const user = { id: id_teacher, name: req.teacher?.data.name };
+
+            const dataValues = newExam.dataValues;
+
+            const algoliaDataSave = {
+                ...dataValues,
+                objectID: newExam.id,
+                Categories,
+                user
+            }
+
+            // Save data to algolia
+            await index.saveObject(algoliaDataSave);
+
             res.status(201).json(newExam);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
 
             await t.rollback();
+        }
+    }
+
+    // [PUT] /api/v1/exams/:examId
+    updateExam = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error });
         }
     }
 
@@ -283,6 +329,9 @@ class ExamController {
     // Delete an exam
     // [DELETE] /api/v1/exams/:examId
     deleteExam = async (req: Request, res: Response, _next: NextFunction) => {
+        const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);
+        const index = client.initIndex(process.env.ALGOLIA_INDEX_NAME);
+
         const t = await sequelize.transaction();
         try {
             const examId = req.params.examId;
@@ -293,6 +342,10 @@ class ExamController {
                 transaction: t
             });
 
+            await t.commit();
+
+            index.deleteObject(examId);
+
             res.status(200).json({
                 examId,
                 message: "Exam has been deleted",
@@ -300,6 +353,8 @@ class ExamController {
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
+
+            await t.rollback();
         }
     }
 }
