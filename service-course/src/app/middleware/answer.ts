@@ -22,7 +22,6 @@ class CheckingAnswer {
                 if (!answer) return next(createError.BadRequest("Parent answer does not exist"));
 
                 if (answer.id_parent !== null && answer.id_parent !== "") {
-                    console.log(answer.id_parent);
                     let error = "Your parent answer is a child of another answer, means the answer you want to create cannot be a child of this answer";
                     return next(createError.BadRequest(error));
                 }

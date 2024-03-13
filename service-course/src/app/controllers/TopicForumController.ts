@@ -35,7 +35,7 @@ class TopicForumController {
             const topic = await TopicForum.findByPk(id_topic, {
                 include: [
                     {
-                        where: { id_parent: null },
+                        where: { id_parent: [null, ""] },
                         model: Answer,
                         as: 'answers',
                         limit: pageSize,

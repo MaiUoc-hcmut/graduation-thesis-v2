@@ -56,5 +56,10 @@ Comment.init(
   },
 );
 
+Comment.hasMany(Comment, {
+  as: 'replies',
+  foreignKey: 'id_parent',
+  sourceKey: 'id'
+});
 
 module.exports = Comment

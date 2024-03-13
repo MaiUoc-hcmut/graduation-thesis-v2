@@ -49,7 +49,7 @@ class Authorize {
             } = {};
             
             try {
-                const student = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${id}`);
+                const student = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/student/${id}`);
                 user.user = student;
                 user.role = "student";
                 req.user = user;
@@ -58,7 +58,7 @@ class Authorize {
                 if (error.response && error.response.status === 404) {
                     // If student does not exist, try to find teacher
                     try {
-                        const teacher = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${id}`);
+                        const teacher = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/teacher/get-teacher-by-id/${id}`);
                         user.user = teacher;
                         user.role = "teacher";
                         req.user = user;
@@ -82,7 +82,7 @@ class Authorize {
                 return next(createError.Unauthorized(info?.message ? info.message : err))
             }
             try {
-                const student = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${id}`);
+                const student = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/student/${id}`);
                 req.student = student;
                 next();
             } catch (error: any) {

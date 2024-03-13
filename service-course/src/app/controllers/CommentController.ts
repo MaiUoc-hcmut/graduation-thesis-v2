@@ -70,9 +70,19 @@ class CommentController {
             });
 
             const comments = await Comment.findAll({
-                where: { id_topic },
+                where: { id_topic, id_parent: [null, ""] },
                 limit: pageSize,
-                offset: pageSize * (currentPage - 1)
+                offset: pageSize * (currentPage - 1),
+                include: [
+                    // Include replies (answers) of each answer
+                    {
+                        model: Comment,
+                        as: 'replies',
+                        separate: true, // Ensure that replies are loaded separately
+                        // limit: pageSize, // Limit the number of replies for each comment
+                        order: [['createdAt', 'ASC']] // You can adjust the ordering as needed
+                    }
+                ]
             });
 
             for (const comment of comments) {

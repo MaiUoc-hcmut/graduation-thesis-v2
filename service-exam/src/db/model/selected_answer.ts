@@ -1,34 +1,34 @@
 const { sequelize } = require('../../config/db');
 import { Model, DataTypes, CreationOptional } from 'sequelize';
 
-class Answer extends Model {
+class SelectedAnswer extends Model {
     declare createdAt: CreationOptional<Date>;
     declare updatedAt: CreationOptional<Date>;
 }
 
-Answer.init({
+
+SelectedAnswer.init({
     id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
     },
-    id_question: {
+    id_detail_question: {
         type: DataTypes.UUID,
+        allowNull: false
     },
-    is_correct: {
+    id_answer: {
+        type: DataTypes.UUID,
+        allowNull: false
+    },
+    is_selected: {
         type: DataTypes.BOOLEAN,
-        defaultValue: false,
-    },
-    content_text: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    content_image: {
-        type: DataTypes.STRING,
+        allowNull: false
     }
 }, {
     sequelize,
-    tableName: 'answer',
+    tableName: 'selected_answer',
+    timestamps: false
 });
 
-module.exports = Answer;
+module.exports = SelectedAnswer;
