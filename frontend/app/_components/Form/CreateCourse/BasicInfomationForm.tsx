@@ -301,7 +301,7 @@ export function BasicInfomationForm({
                     labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
                 />
             </div>
-            <div className="mb-16">
+            {/* <div className="mb-16">
                 <label
                     className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
                 >
@@ -337,7 +337,7 @@ export function BasicInfomationForm({
                     Yêu cầu
                 </label>
                 <ReactQuillEditor setValue={setValue} field={"requirement"} value={getValues().requirement} />
-            </div>
+            </div> */}
         </>
     )
 }

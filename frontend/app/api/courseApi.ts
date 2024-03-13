@@ -1,8 +1,9 @@
 import axiosConfig from "@/redux/axios.config"
 
 const courseApi = {
-    getAllByTeacher: (id_teacher: string) => {
-        const url = `/courses/teacher/${id_teacher}/page/1`;
+    getAllByTeacher: (id_teacher: string, page: string) => {
+        if (page == null) page = '1'
+        const url = `/courses/teacher/${id_teacher}/page/${page}`;
         return axiosConfig.get(url);
     },
 
@@ -17,7 +18,6 @@ const courseApi = {
     },
 
     search: async (data: object) => {
-
         const url = `courses/search/page/1`;
         return await axiosConfig.post(url, data);
     },

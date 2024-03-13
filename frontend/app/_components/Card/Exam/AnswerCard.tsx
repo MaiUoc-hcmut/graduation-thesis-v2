@@ -18,6 +18,7 @@ export const AnswerCard = ({ hanldeForm, question, indexQuestion, image, setImag
         register,
         getValues,
         control,
+        setValue,
         formState: { errors },
     } = hanldeForm
 
@@ -25,6 +26,7 @@ export const AnswerCard = ({ hanldeForm, question, indexQuestion, image, setImag
         control,
         name: `questions.${indexQuestion}.answers`
     });
+    console.log(question);
 
     return (
         <div className='mt-5'>
@@ -34,6 +36,7 @@ export const AnswerCard = ({ hanldeForm, question, indexQuestion, image, setImag
                     id: uuid(),
                     content_text: "",
                     isCorrect: false,
+                    answerModify: "create"
                 })
 
             }}
@@ -42,6 +45,7 @@ export const AnswerCard = ({ hanldeForm, question, indexQuestion, image, setImag
             </button>
             <div className='mt-8'>
                 {fieldsAnswer?.map((field: any, indexAnswer: any) => {
+
                     return (
                         <div key={field.id} className='relative border-[1px] border-[#ececec] p-3 rounded-[10px] mb-10'>
                             <div className='mb-5'>
@@ -50,8 +54,17 @@ export const AnswerCard = ({ hanldeForm, question, indexQuestion, image, setImag
                                 </div>
                                 <TextInput
                                     type="text"
+
                                     {...register(`questions.${indexQuestion}.answers.${indexAnswer}.content_text`, {
-                                        required: `Tiêu đề câu trả lời không thể thiếu.`
+                                        required: `Tiêu đề câu trả lời không thể thiếu.`,
+                                        onChange: () => {
+                                            if (getValues().questions[indexQuestion]?.modify != "create") {
+                                                if (getValues().questions[indexQuestion]?.answers[indexAnswer]?.modify != "create")
+                                                    setValue(`questions.${indexQuestion}.answers.${indexAnswer}.modify`, "change")
+                                                setValue(`questions.${indexQuestion}..modify`, "change")
+                                            }
+
+                                        }
                                     })}
                                 />
                                 <div className="mt-2 text-sm text-red-600 dark:text-red-500">
@@ -107,7 +120,7 @@ export const AnswerCard = ({ hanldeForm, question, indexQuestion, image, setImag
                                     labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
                                 />
                                 {
-                                    getValues().questions[indexQuestion]?.answers[indexAnswer].content_image || image[`${getValues().questions[indexQuestion]?.answers[indexAnswer]?.id}`] ? <div className="w-full h-[240px] relative">
+                                    getValues().questions[indexQuestion]?.answers[indexAnswer].content_image || image?.[`${getValues().questions[indexQuestion]?.answers[indexAnswer]?.id}`] ? <div className="w-full h-[240px] relative">
                                         <Image
                                             src={`${image[`${getValues().questions[indexQuestion]?.answers[indexAnswer]?.id}`] || getValues().questions[indexQuestion]?.answers[indexAnswer].content_image} `}
                                             fill={true}
@@ -121,11 +134,21 @@ export const AnswerCard = ({ hanldeForm, question, indexQuestion, image, setImag
 
                             <div className=' mb-2'>
                                 <div className="flex-1 flex items-center ">
-                                    <input  {...register(`questions.${indexQuestion}.answers.${indexAnswer}.isCorrect`)} id="default-checkbox" type="checkbox" className="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                                    <input {...register(`questions.${indexQuestion}.answers.${indexAnswer}.isCorrect`)} id="default-checkbox" type="checkbox" className="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
                                     <label htmlFor="default-checkbox" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300 mr-2">Câu trả lời đúng</label>
                                 </div>
                             </div>
-                            <button onClick={() => removeAnswer(indexAnswer)} className='w-8 h-8 flex justify-center items-center rounded-full bg-[#f63c3c] absolute right-2 top-[-16px]'>
+                            <button onClick={() => {
+                                if (getValues().questions[indexQuestion]?.modify != "create" || getValues().questions[indexQuestion]?.answers[indexAnswer].modify == "create") {
+                                    removeAnswer(indexAnswer)
+                                }
+                                else {
+                                    setValue(`questions.${indexQuestion}.answers.${indexAnswer}.modify
+                                    `, "delete")
+                                    setValue(`questions.${indexQuestion}..modify`, "change")
+                                }
+
+                            }} className='w-8 h-8 flex justify-center items-center rounded-full bg-[#f63c3c] absolute right-2 top-[-16px]'>
                                 <XMarkIcon className='w-5 h-5 text-white' />
                             </button>
                         </div>

@@ -44,12 +44,14 @@ type QuestionData = {
     content_text: string
     multi_choice: boolean
     answers: Array<AnswerData>
+    modify: string
 }
 
 type AnswerData = {
     id: string
     content_text: string
     id_correct: boolean
+    answerModify: string
 }
 
 type Category = {
@@ -77,14 +79,15 @@ export default function EditExam({ id, exam }: any) {
     const [questions, setQuestions] = useState(exam.questions)
     const [image, setImage] = useState<any>({})
     const [submit, setSubmit] = useState(false)
+    const [change, setChange] = useState(false)
 
 
 
     const [category, setCategory] = useState<Category>(initCategory)
     const handleForm = useForm<ExamData>(
         {
-            defaultValues: exam
-        }
+            defaultValues: exam,
+        },
     )
     const {
         handleSubmit,
@@ -96,8 +99,8 @@ export default function EditExam({ id, exam }: any) {
     } = handleForm
 
     useEffect(() => {
-        setExamData(examData)
-    }, [examData]);
+        setQuestions(getValues().questions.filter((question) => question.modify != "delete"))
+    }, [change, getValues]);
 
     useEffect(() => {
         async function fetchCategory() {
@@ -118,10 +121,9 @@ export default function EditExam({ id, exam }: any) {
         return result;
     };
 
-
+    console.log(questions);
 
     const router = useRouter()
-    console.log(questions);
 
     return (
         < div className="" >
@@ -260,15 +262,15 @@ export default function EditExam({ id, exam }: any) {
                     handleSubmit(async (dataForm: any) => {
                         if (!(Object.entries(errors).length === 0)) return
                         console.log(dataForm);
-                        const { thumbnail, cover, ...data1 } = dataForm
-                        data1.categories = []
-
-                        data1.categories.push(dataForm.grade)
-                        data1.categories.push(dataForm.subject)
-                        data1.categories.push(dataForm.level)
-                        setExamData(dataForm)
+                        setChange(!change)
                         if (submit) {
-                            await examApi.create({ data: data1 })
+                            const { thumbnail, cover, ...data1 } = dataForm
+                            data1.categories = []
+
+                            data1.categories.push(dataForm.grade)
+                            data1.categories.push(dataForm.subject)
+                            data1.categories.push(dataForm.level)
+                            await examApi.update(id, { data: data1 })
                         }
 
                     })
@@ -466,6 +468,7 @@ export default function EditExam({ id, exam }: any) {
                                         content_text: "",
                                         multi_choice: false,
                                         answers: [],
+                                        modify: "create"
                                     })
                                 }}
                                     className="mt-3 bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover">
@@ -493,7 +496,7 @@ export default function EditExam({ id, exam }: any) {
                                                                         (provided) => (
 
                                                                             <QuestionCard
-                                                                                hanldeForm={handleForm} indexQuestion={indexQuestion} provided={provided} question={question} removeQuestion={removeQuestion} modal={modal} setModal={setModal} image={image} setImage={setImage} />
+                                                                                hanldeForm={handleForm} indexQuestion={indexQuestion} provided={provided} question={question} removeQuestion={removeQuestion} modal={modal} setModal={setModal} image={image} setImage={setImage} change={change} setChange={setChange} />
                                                                         )
                                                                     }
                                                                 </Draggable>

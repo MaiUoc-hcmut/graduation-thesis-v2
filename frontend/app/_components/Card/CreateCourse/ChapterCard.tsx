@@ -83,7 +83,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
 
         return result;
     };
-    console.log(errors);
+    console.log(errors, getValues());
 
     return (
         <div ref={innerRef}  {...provided.draggableProps}  >
@@ -267,10 +267,10 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                     appendTopic({
                                         key: `exam_${topicsData.length}`,
                                         title: "",
-                                        name: "a",
-                                        duration: 0,
+                                        duration: "",
                                         status: "public",
-                                        type: "exam"
+                                        type: "exam",
+                                        name: "ads"
                                     })
                                     setToggle({ ...toggle, [`add_exam_${chapter.key}`]: true, [`open_chapter_${chapter.key}`]: true })
                                 }}>Thêm bài tập</Dropdown.Item>
@@ -667,8 +667,8 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                         </StrictModeDroppable>
                     </DragDropContext>
                 </div>
-            </li>
-        </div>
+            </li >
+        </div >
 
     )
 }

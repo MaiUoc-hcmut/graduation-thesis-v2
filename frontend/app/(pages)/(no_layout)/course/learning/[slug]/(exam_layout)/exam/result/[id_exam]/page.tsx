@@ -295,11 +295,11 @@ export default function Exam({ state }: any) {
             <div className='mx-3 '>
                 <div className="flex flex-row">
                     <div
-                        className={`px-2 ${openSidebar ? "w-[74%]" : "flex-1 px-10 mr-12 ml-10"}  `}
+                        className={`px-2 ${openSidebar ? "w-[74%]" : "flex-1 px-10 mr-12 ml-10"} bg-white `}
 
                     >
                         <div
-                            className={`bg-white rounded-lg mt-16 p-4 flex items-center`}
+                            className={`bg-white rounded-lg mt-16 p-4 flex items-center mx-5`}
                             style={{
                                 boxShadow: '0px 0px 4px 0px #00000040',
                             }}
@@ -329,11 +329,80 @@ export default function Exam({ state }: any) {
                                     <div className="py-1 text-[#000]">0</div>
                                 </div>
                             </div>
+
                         </div>
+
+                        <div className='mt-5 mx-5'>
+                            <h3 className='font-semibold text-lg'>Phân tích chi tiết</h3>
+                            <div className="mt-5 overflow-x-auto shadow-md sm:rounded-lg">
+                                <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                        <tr>
+                                            <th scope="col" className="px-6 py-3">
+                                                Chuyên đề
+                                            </th>
+                                            <th scope="col" className="px-6 py-3">
+                                                Số câu đúng
+                                            </th>
+                                            <th scope="col" className="px-6 py-3">
+                                                Số câu sai
+                                            </th>
+                                            <th scope="col" className="px-6 py-3">
+                                                Số câu bỏ qua
+                                            </th>
+                                            <th scope="col" className="px-6 py-3">
+                                                Phàn trăm
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
+                                            <th
+                                                scope="row"
+                                                className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                                            >
+                                                Apple MacBook Pro 17
+                                            </th>
+                                            <td className="px-6 py-4">Silver</td>
+                                            <td className="px-6 py-4">Laptop</td>
+                                            <td className="px-6 py-4">$2999</td>
+                                            <td className="px-6 py-4">
+                                                <a
+                                                    href="#"
+                                                    className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                                >
+                                                    Edit
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
+                                            <th
+                                                scope="row"
+                                                className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                                            >
+                                                Microsoft Surface Pro
+                                            </th>
+                                            <td className="px-6 py-4">White</td>
+                                            <td className="px-6 py-4">Laptop PC</td>
+                                            <td className="px-6 py-4">$1999</td>
+                                            <td className="px-6 py-4">
+                                                <a
+                                                    href="#"
+                                                    className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                                >
+                                                    Edit
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
                         <div className='bg-white rounded-xl py-3 px-6 mt-4' style={{
                             boxShadow: '0px 0px 4px 0px #00000040 mt-10',
                         }}>
-                            <div className="font-medium text-xl text-[#000]">Đáp án</div>
+                            <div className="text-lg text-[#000] font-semibold">Đáp án</div>
                             <div className="mt-2">{listQuestion}</div>
                         </div>
                     </div>

@@ -11,7 +11,7 @@ import { formatCash } from "@/app/helper/FormatFunction"
 import { Dropdown } from 'flowbite-react';
 import { ExclamationCircleIcon, EllipsisVerticalIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline"
 import { Button, Modal } from 'flowbite-react';
-
+import { useSearchParams } from 'next/navigation'
 type CourseData = {
     id: string
     name: string
@@ -32,6 +32,12 @@ export default function CourseDashboard() {
     const [courses, setCourses] = useState<[CourseData]>()
     const [modal, setModal] = useState<any>({})
     const [change, setChange] = useState<boolean>(false)
+    const [paginate, setPaginate] = useState(1)
+    const list: [any] = []
+    const searchParams = useSearchParams()
+    const page = searchParams.get('page')
+    const search = searchParams.get('search')
+    const [searchInput, setSearchInput] = useState('')
 
     const renderStars = (rating: number) => {
         const stars = [];
@@ -48,34 +54,42 @@ export default function CourseDashboard() {
 
     useEffect(() => {
         async function fetchData() {
-            await courseApi.getAllByTeacher(`${authUser.id}`).then((data: any) => setCourses(data.data.courses))
+            await courseApi.getAllByTeacher(`${authUser.id}`, page || '1').then((data: any) => {
+                setCourses(data.data.courses)
+                setPaginate(Math.ceil(data.data.count / 10))
+
+
+            })
         }
         fetchData()
-    }, [change]);
+    }, [authUser.id, change, page]);
+
+    for (let i = 1; i <= paginate; i++) {
+        list.push(i)
+    }
+
+    console.log(courses);
 
     return (
         <div className="">
             <div className="">
                 <div className="font-bold text-[#171347] text-lg">Khóa học của tôi</div>
                 <div className="flex justify-between items-center mt-10 mb-10 w-full ">
-                    <form className="flex items-center w-1/3">
+                    <form className="flex items-center w-1/3" onSubmit={(e: any) => {
+                        e.preventDefault()
+                        courseApi.search({ data: { query: searchInput } }).then((data: any) => {
+                            setCourses(data.data.result)
+                        })
+
+                    }}>
                         <label htmlFor="simple-search" className="sr-only">Search</label>
                         <div className="relative w-full">
-                            <input type="text" id="simple-search" className="w-full text-sm text-[#343434]  rounded-md border-[1px] border-[#ececec] focus:ring-0 focus:border-primary_border" placeholder="Tìm kiếm trong khóa học" required />
+                            <input onChange={(e: any) => setSearchInput(e.target.value)} type="text" id="simple-search" className="w-full text-sm text-[#343434]  rounded-md border-[1px] border-[#ececec] focus:ring-0 focus:border-primary_border" placeholder="Tìm kiếm trong khóa học" required />
                         </div>
                         <button type="submit" className="ml-2 bg-primary p-2.5 rounded-md shadow-primary_btn_shadow border-primary text-white hover:bg-primary_hover">
                             <MagnifyingGlassIcon className='w-4 h-4' />
                             <span className="sr-only">Search</span>
                         </button>
-                    </form>
-                    <form className="flex ">
-                        <select id="small" className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                            <option selected>Sắp xếp</option>
-                            <option value="US">United States</option>
-                            <option value="CA">Canada</option>
-                            <option value="FR">France</option>
-                            <option value="DE">Germany</option>
-                        </select>
                     </form>
                 </div>
 
@@ -135,7 +149,7 @@ export default function CourseDashboard() {
                                             <Dropdown.Item onClick={() => {
 
                                             }}>
-                                                <Link href={`/dashboard/course/edit/${course.id}`} >
+                                                <Link href={`course/edit/${course.id}`} >
                                                     Sửa khóa học
                                                 </Link>
                                             </Dropdown.Item>
@@ -144,9 +158,9 @@ export default function CourseDashboard() {
                                     </div>
                                     <div className="flex items-center mt-4">
                                         {
-                                            renderStars(Math.floor(course.averageRating || 0))
+                                            renderStars(Math.floor(course?.average_rating || 0))
                                         }
-                                        <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{course.averageRating.toFixed(1)}</span>
+                                        <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{course.average_rating.toFixed(1)}</span>
                                     </div>
                                     <div className="mt-4">
                                         <span className="text-[20px] font-bold text-primary">{formatCash(`${course.price}`)} VNĐ</span>
@@ -193,43 +207,47 @@ export default function CourseDashboard() {
                     })
                 }
             </div>
-            <div className="flex justify-center items-center pt-20">
-                <nav aria-label="Page navigation example">
-                    <ul className="flex items-center -space-x-px h-8 text-sm">
-                        <li>
-                            <a href="#" className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                                <span className="sr-only">Previous</span>
-                                <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 1 1 5l4 4" />
-                                </svg>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">1</a>
-                        </li>
-                        <li>
-                            <a href="#" className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">2</a>
-                        </li>
-                        <li>
-                            <a href="#" aria-current="page" className="z-10 flex items-center justify-center px-3 h-8 leading-tight text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">3</a>
-                        </li>
-                        <li>
-                            <a href="#" className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">4</a>
-                        </li>
-                        <li>
-                            <a href="#" className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">5</a>
-                        </li>
-                        <li>
-                            <a href="#" className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                                <span className="sr-only">Next</span>
-                                <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m1 9 4-4-4-4" />
-                                </svg>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
+            {
+                paginate > 1 ?
+                    <div className="flex justify-center items-center pt-20">
+                        <nav aria-label="Page navigation example">
+                            <ul className="flex items-center -space-x-px h-8 text-sm">
+                                <li>
+                                    <a href="#" className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                                        <span className="sr-only">Previous</span>
+                                        <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 1 1 5l4 4" />
+                                        </svg>
+                                    </a>
+                                </li>
+                                {
+                                    list.map((l: number) => {
+                                        return (
+                                            <div key={l} onClick={() => setChange(!change)}>
+                                                <li>
+                                                    <Link href={`course?page=${l}`} className={`flex items-center justify-center px-3 h-8 leading-tight ${search == `${l}` ? 'text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'} `}>{l}</Link>
+                                                </li>
+
+                                            </div>
+                                        )
+                                    })
+                                }
+
+
+
+                                <li>
+                                    <a href="#" className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                                        <span className="sr-only">Next</span>
+                                        <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m1 9 4-4-4-4" />
+                                        </svg>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div> : null
+            }
+
         </div>
     )
 }

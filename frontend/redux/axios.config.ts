@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
 const instance = axios.create({
-    baseURL: 'http://localhost:4000/api/v1',
+    baseURL: 'http://localhost:4001/api/v1',
     headers: {
         'Content-Type': 'application/json',
     },

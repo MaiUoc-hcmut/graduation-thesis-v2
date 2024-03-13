@@ -4,7 +4,7 @@ import { Label, TextInput, Modal } from 'flowbite-react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { Dropdown } from 'flowbite-react';
 import { AnswerCard } from "./AnswerCard";
-
+import CustomCKEditor from "@/app/_components/Editor/CKEditor"
 import { FilePond, registerPlugin } from 'react-filepond'
 import 'filepond/dist/filepond.min.css'
 import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation'
@@ -13,13 +13,17 @@ import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import { useState } from "react";
 import Image from "next/image";
+import parse from 'html-react-parser';
+
 
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
 
-export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, removeQuestion, modal, setModal, image, setImage }: any) => {
+export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, removeQuestion, modal, setModal, image, setImage, change, setChange }: any) => {
     const {
         register,
         handleSubmit,
+        setValue,
+        getValues,
         formState: { errors },
     } = hanldeForm
 
@@ -30,12 +34,17 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
                 <Modal show={modal[`edit_question_${question.id}`]} size="3xl" onClose={() => setModal({ ...modal, [`edit_question_${question.id}`]: false })} popup>
                     <Modal.Header />
                     <Modal.Body>
-                        <form className="space-y-6" onSubmit={handleSubmit(async (data1: any) => {
+                        <form className="space-y-6" onSubmit={handleSubmit((data: any) => {
                             if (!(Object.entries(errors).length === 0)) return
+                            if (data.questions[indexQuestion].modify != "create") {
+                                setValue(`questions.${indexQuestion}.modify`, "change")
+                            }
+                            setChange(!change)
+                            setValue(`questions.${indexQuestion}.modify`, "change")
                             setModal({ ...modal, [`edit_question_${question.id}`]: false })
                         })}>
 
-                            <h3 className="text-xl font-medium text-gray-900 dark:text-white">Thêm câu hỏi</h3>
+                            <h3 className="text-xl font-medium text-gray-900 dark:text-white">Sửa câu hỏi</h3>
 
 
                             <div>
@@ -43,13 +52,13 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
                                     <div className="mb-2 block">
                                         <Label htmlFor="email" value="Tiêu đề câu hỏi" />
                                     </div>
-                                    <TextInput
+                                    {/* <TextInput
                                         type="text"
                                         {...register(`questions.${indexQuestion}.content_text`, {
                                             required: "Tiêu đề câu hỏi không thể thiếu."
                                         })}
-                                    />
-
+                                    /> */}
+                                    <CustomCKEditor className="h-30" setValue={setValue} value={`${getValues().questions[indexQuestion].content_text}`} position={`questions.${indexQuestion}.content_text`} />
                                     <div className="mt-2 text-sm text-red-600 dark:text-red-500">
                                         {errors.questions?.[indexQuestion]?.content_text?.message}
                                     </div>
@@ -122,7 +131,7 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
                                     </div>
 
                                 </div>
-                                <AnswerCard hanldeForm={hanldeForm} question={question} indexQuestion={indexQuestion} image={image} setImage={setImage} />
+                                <AnswerCard hanldeForm={hanldeForm} question={question} indexQuestion={indexQuestion} image={image} setImage={setImage} change={change} setChange={setChange} />
                             </div>
 
                             <div className="mt-6 flex justify-end">
@@ -151,7 +160,7 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
             </>
 
             <h4 className='text-[#171347] font-semibold'>
-                {question.content_text}
+                {parse(question.content_text)}
             </h4>
             <div className='flex'>
                 <div className='flex justify-center items-center'  {...provided.dragHandleProps} >
@@ -169,7 +178,14 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
                         </p>
                     </Dropdown.Item>
                     <Dropdown.Item><p className="text-red-600" onClick={() => {
-                        removeQuestion(indexQuestion)
+                        if (question.mofify == "create") {
+                            removeQuestion(indexQuestion)
+                        }
+                        else {
+
+                            setValue(`questions.${indexQuestion}.modify`, "delete")
+                        }
+                        setChange(!change)
                     }}>Xóa</p></Dropdown.Item>
                 </Dropdown>
 

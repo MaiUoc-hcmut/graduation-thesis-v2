@@ -25,9 +25,11 @@ import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orien
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
-import { log } from "console"
+import CustomCKEditor from "@/app/_components/Editor/CKEditor"
 
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
+
+
 
 type ExamData = {
     title: string
@@ -77,6 +79,7 @@ export default function CreateExam() {
     const [questions, setQuestions] = useState([])
     const [image, setImage] = useState<any>({})
     const [submit, setSubmit] = useState(false)
+    const [change, setChange] = useState(false)
 
 
 
@@ -108,6 +111,7 @@ export default function CreateExam() {
         name: `questions`
     });
 
+
     const reorder = (list: Array<any>, startIndex: any, endIndex: any) => {
         const result = Array.from(list);
         const [removed] = result.splice(startIndex, 1);
@@ -119,7 +123,7 @@ export default function CreateExam() {
 
 
     const router = useRouter()
-    console.log(questions);
+    console.log(getValues(), errors);
 
     return (
         < div className="" >
@@ -144,12 +148,14 @@ export default function CreateExam() {
                                             <div className="mb-2 block">
                                                 <Label htmlFor="email" value="Tiêu đề câu hỏi" />
                                             </div>
-                                            <TextInput
+                                            {/* <TextInput
                                                 type="text"
                                                 {...register(`questions.${indexQuestion}.content_text`, {
                                                     required: "Tiêu đề câu hỏi không thể thiếu."
                                                 })}
-                                            />
+                                            /> */}
+                                            <CustomCKEditor className="h-50" setValue={setValue} value="" position={`questions.${indexQuestion}.content_text`} />
+
                                             <div className="mt-2 text-sm text-red-600 dark:text-red-500">
                                                 {errors?.questions?.[indexQuestion]?.content_text?.message}
                                             </div>
@@ -287,7 +293,6 @@ export default function CreateExam() {
                                         type="text"
                                         className={`bg-white border-[1px] border-[#ececec] text-[#343434] text-sm focus: ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
                                     />
-
                                     <p className="mt-2 text-sm text-red-600 dark:text-red-500">
                                         {errors.title?.message}
                                     </p>
@@ -491,7 +496,7 @@ export default function CreateExam() {
                                                                         (provided) => (
 
                                                                             <QuestionCard
-                                                                                hanldeForm={handleForm} indexQuestion={indexQuestion} provided={provided} question={question} removeQuestion={removeQuestion} modal={modal} setModal={setModal} image={image} setImage={setImage} />
+                                                                                hanldeForm={handleForm} indexQuestion={indexQuestion} provided={provided} question={question} removeQuestion={removeQuestion} modal={modal} setModal={setModal} image={image} setImage={setImage} change={change} setChange={setChange} />
                                                                         )
                                                                     }
                                                                 </Draggable>

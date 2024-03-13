@@ -106,7 +106,7 @@ export default function CreateCourse() {
                             />
                         </button>
                         <div className="ml-[10px]">
-                            <span className="text-[0.875rem] text-[#818894]">Bước 1/8</span>
+                            <span className="text-[0.875rem] text-[#818894]">Bước 1/2</span>
                             <h4 className="text-secondary font-bold">Thông tin cơ bản</h4>
                         </div>
                     </div>
@@ -121,7 +121,7 @@ export default function CreateCourse() {
                             />
                         </button>
                         <div className="ml-[10px]">
-                            <span className="text-[0.875rem] text-[#818894]">Bước 2/8</span>
+                            <span className="text-[0.875rem] text-[#818894]">Bước 2/2</span>
                             <h4 className="text-secondary font-bold">Nội dung khóa học</h4>
                         </div>
                     </div>
@@ -131,22 +131,10 @@ export default function CreateCourse() {
             <div className="flex flex-col ">
                 <form onSubmit={
                     handleSubmit(async (dataForm: any) => {
-                        console.log(errors, 111);
 
                         if (!(Object.entries(errors).length === 0)) return
                         setToggle({ ...toggle, [`${typeSubmit}`]: false })
                         setData(dataForm)
-
-                        const { thumbnail, cover, ...data1 } = dataForm
-                        data1.categories = []
-
-                        data1.categories.push(dataForm.grade)
-                        data1.categories.push(dataForm.subject)
-                        data1.categories.push(dataForm.level)
-                        data1.id = id_course
-
-
-                        console.log('submit', dataForm, data, typeSubmit);
 
 
 
@@ -156,14 +144,45 @@ export default function CreateCourse() {
                         if (typeSubmit === "submit") {
                             const formData = new FormData();
 
-                            formData.append("data", JSON.stringify(data1))
+                            const { thumbnail, cover, subject, grade, level, ...data1 } = dataForm
+                            data1.categories = []
+
+                            data1.categories.push(dataForm.grade)
+                            data1.categories.push(dataForm.subject)
+                            data1.categories.push(dataForm.level)
+                            data1.id = id_course
+
+                            data1.chapters.map((chapter: any, indexChapter: any) => {
+                                chapter.topics.map((topic: any, indexTopic: any) => {
+                                    if (topic.type == "exam") {
+                                        data1.chapters[indexChapter].topics[indexTopic] = {
+                                            name: "test",
+                                            type: "exam",
+                                            exam: {
+                                                data: {
+                                                    title: topic.title,
+                                                    period: topic.duration,
+                                                    questions: topic.questions,
+                                                    status: topic.status
+                                                }
+                                            }
+                                        }
+                                    }
+                                })
+                            })
+
+                            console.log(data1);
+
+                            // formData.append("data", JSON.stringify(data1))
                             formData.append("thumbnail", dataForm.thumbnail[0])
                             formData.append("cover", dataForm.cover[0])
 
-                            courseApi.create(formData).then(() => {
-                                router.push("/dashboard/course")
-                            })
-
+                            courseApi.create({ data: data1 }).then(() => {
+                                router.push("course")
+                            }).catch(() => {
+                                setTypeSubmit("")
+                            }
+                            )
                         }
                     })
                 }>
