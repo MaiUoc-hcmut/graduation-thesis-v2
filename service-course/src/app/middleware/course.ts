@@ -26,6 +26,24 @@ class CheckingCourse {
             next(createError.InternalServerError(error.message));
         }
     }
+
+    checkSearchCourseOfTeacher = async (req: Request, _res: Response, next: NextFunction) => {
+        try {
+            const id_teacher = req.params.teacherId;
+
+            const id_user = req.user?.user?.data.id;
+            const role = req.user?.role;
+
+            if (role !== "admin" && id_user !== id_teacher) {
+                let error = "You do not have permission to get the course";
+                return next(createError.Unauthorized(error));
+            }
+            next();
+        } catch (error: any) {
+            console.log(error.message);
+            next(createError.InternalServerError(error.message));
+        }
+    }
 }
 
 module.exports = new CheckingCourse();

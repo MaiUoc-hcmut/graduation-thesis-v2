@@ -9,5 +9,6 @@ router.post('/', fileUpload.uploadVideo, testControler.testUploadFile);
 router.get('/search', testControler.testSearchEngineAlgolia);
 router.post('/update', testControler.testSaveObjectAlgolia);
 router.get('/get-header', testControler.testLogHeader);
+router.get('/search/course/teacher/:teacherId', testControler.testSearchCourseOfTeacher);
 
 module.exports = router;

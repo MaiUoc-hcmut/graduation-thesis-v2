@@ -11,10 +11,17 @@ router.route('/')
         FileUpload.uploadFile, 
         CheckingTopic.checkCreateTopic,
         TopicForumController.uploadFile, 
-        TopicForumController.createTopic);
+        TopicForumController.createTopic
+    );
+
+router.route('/')
+    .get(TopicForumController.getAllTopics);
 
 router.route('/:topicId/page/:page')
     .get(TopicForumController.getDetailTopicById);
+
+router.route('/search/:forumId/page/:page')
+    .get(TopicForumController.searchTopicInForum);
 
 router.route('/:topicId')
     .delete(

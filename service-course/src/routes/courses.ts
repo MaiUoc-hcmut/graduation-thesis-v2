@@ -22,6 +22,9 @@ router.route('/filter/page/:page')
 router.route('/search/page/:page')
     .get(courseController.searchCourse);
 
+router.route('/search/teacher/:teacherId/page/:page')
+    .get(Authorize.verifyUser, CheckingCourse.checkSearchCourseOfTeacher, courseController.searchCourseOfTeacher);
+
 router.route('/:courseId')
     .get(courseController.getCourseById)
     .put(Authorize.authorizeTeacher, CheckingCourse.checkModifyCourse, courseController.updateCourse)
