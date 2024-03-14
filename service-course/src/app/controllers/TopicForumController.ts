@@ -8,6 +8,7 @@ import { Request, Response, NextFunction } from 'express';
 
 const { sequelize } = require('../../config/db/index');
 
+const algoliasearch = require('algoliasearch');
 const axios = require('axios');
 
 require('dotenv').config();
@@ -24,6 +25,19 @@ initializeApp(firebaseConfig);
 const storage = getStorage();
 
 class TopicForumController {
+
+    // [GET] /topicforums/page/:page
+    getAllTopics = async (_req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const topics = await TopicForum.findAll();
+
+            res.status(200).json(topics);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error });
+        }
+    }
+
     // [GET] /topicsforum/:topicId/page/:page
     getDetailTopicById = async (req: Request, res: Response, _next: NextFunction) => {
         try {
@@ -88,6 +102,34 @@ class TopicForumController {
         }
     }
 
+    // [GET] /topicsforum/search/:forumId/page/:page
+    searchTopicInForum = async (req: Request, res: Response, _next: NextFunction) => {
+        const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);
+        const index = client.initIndex(process.env.ALGOLIA_INDEX_TOPIC_NAME);
+        try {
+            const currentPage: number = +req.params.page;
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+
+            const query = req.query.query;
+
+            const filters = `id_forum:${req.params.forumId}`;
+
+            const result = await index.search(query, {
+                filters,
+                hitsPerPage: pageSize,
+                page: currentPage - 1
+            });
+
+            res.status(200).json({
+                total: result.nbHits,
+                result: result.hits
+            });
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error });
+        }
+    }
+
     // [POST] /topicsforum
     createTopic = async (req: Request, res: Response, _next: NextFunction) => {
         let body = req.body.data;
@@ -95,6 +137,9 @@ class TopicForumController {
         if (typeof body === "string") {
             body = JSON.parse(body);
         }
+
+        const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);
+        const index = client.initIndex(process.env.ALGOLIA_INDEX_TOPIC_NAME);
 
         const t = await sequelize.transaction();
 
@@ -117,7 +162,18 @@ class TopicForumController {
 
             await forum.update({ total_topic }, { transaction: t });
 
-            await t.commit()
+
+            await t.commit();
+            
+            const dataValues = topic.dataValues;
+
+            const algoliaDataSave = {
+                ...dataValues,
+                objectID: topic.id,
+                author: req.user?.user?.data.name
+            }
+
+            await index.saveObject(algoliaDataSave);
 
             res.status(201).json(topic);
         } catch (error: any) {
@@ -167,6 +223,9 @@ class TopicForumController {
 
     // [DELETE] /topicsforum/:topicId
     deleteTopic = async (req: Request, res: Response, _next: NextFunction) => {
+        const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);
+        const index = client.initIndex(process.env.ALGOLIA_INDEX_TOPIC_NAME);
+
         const t = await sequelize.transaction();
         try {
             const id_topic = req.params.topicId;
@@ -182,6 +241,8 @@ class TopicForumController {
             await topic.destroy({ transaction: t });
 
             await t.commit()
+
+            await index.deleteObject(id_topic);
 
             res.status(200).json({
                 message: "Topic has been deleted",

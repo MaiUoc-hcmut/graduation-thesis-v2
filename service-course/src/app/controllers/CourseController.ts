@@ -126,7 +126,7 @@ class CourseController {
 
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
-            const query = req.body.data.query;
+            const query = req.query.query;
 
             const result = await index.search(query, {
                 hitsPerPage: pageSize,
@@ -136,6 +136,35 @@ class CourseController {
             res.status(200).json({
                 result: result.hits,
                 total: result.nbHits
+            })
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error });
+        }
+    }
+
+    // [GET] /courses/search/teacher/:teacherId/page/:page
+    searchCourseOfTeacher = async (req: Request, res: Response, _next: NextFunction) => {
+        const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);
+        const index = client.initIndex(process.env.ALGOLIA_INDEX_NAME);
+        try {
+            const id_teacher = req.params.teacherId;
+            const query = req.query.query;
+
+            const currentPage: number = +req.params.page;
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+
+            const filters = `id_teacher:${id_teacher}`;
+
+            const result = await index.search(query, {
+                filters,
+                hitsPerPage: pageSize,
+                page: currentPage - 1
+            });
+
+            res.status(200).json({
+                total: result.nbHits,
+                result: result.hits
             })
         } catch (error: any) {
             console.log(error.message);

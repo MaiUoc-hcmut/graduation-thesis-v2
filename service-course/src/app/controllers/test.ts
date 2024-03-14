@@ -150,6 +150,24 @@ class Test {
             res.status(500).json(error);
         }
     }
+
+    testSearchCourseOfTeacher = async (req: Request, res: Response, _next: NextFunction) => {
+        const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);
+        const index = client.initIndex(process.env.ALGOLIA_INDEX_NAME);
+        try {
+            const filters = `id_teacher:${req.params.teacherId}`;
+            const result = await index.search(req.query.query, {
+                hitsPerPage: 10,
+                page: 0,
+                filters
+            });
+
+            res.status(200).json(result.hits);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json(error);
+        }
+    }
 }
 
 module.exports = new Test();
