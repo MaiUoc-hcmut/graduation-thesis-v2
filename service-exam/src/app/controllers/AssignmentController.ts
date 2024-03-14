@@ -1,6 +1,7 @@
 const Assignment = require('../../db/model/assignment');
 const DetailQuestion = require('../../db/model/detail_question');
 const Exam = require('../../db/model/exam');
+const Question = require('../../db/model/question');
 const Answer = require('../../db/model/answer');
 const SelectedAnswer = require('../../db/model/selected_answer');
 
@@ -101,6 +102,7 @@ class AssignmentController {
                         include: [
                             {
                                 model: Answer,
+                                attributes: ['id', 'is_correct', 'content_text', 'content_image'],
                                 through: {
                                     attributes: ['is_selected']
                                 },
@@ -109,6 +111,25 @@ class AssignmentController {
                     }
                 ]
             });
+
+            for (let question of assignment.details) {
+                const q = await Question.findByPk(question.id_question);
+
+                if (!q) {
+                    return res.status(500).json({
+                        message: "For some reason, question has been deleted or did not exist!"
+                    });
+                }
+                let is_correct = true;
+                for (let answer of question.Answers) {
+                    if (answer.is_correct && answer.selected_answer.is_selected) is_correct = false;
+                }
+
+                question.dataValues.content_text = q.content_text;
+                question.dataValues.content_image = q.content_image;
+                question.dataValues.multi_choice = q.multi_choice;
+                question.dataValues.is_correct = is_correct;
+            }
 
             res.status(200).json(assignment);
         } catch (error: any) {
