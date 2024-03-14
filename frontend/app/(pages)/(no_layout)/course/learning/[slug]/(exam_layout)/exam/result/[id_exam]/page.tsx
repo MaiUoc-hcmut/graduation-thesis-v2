@@ -5,82 +5,28 @@ import { Dialog, Transition } from '@headlessui/react';
 import parse from 'html-react-parser';
 import Link from 'next/link';
 import { XMarkIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
+import examApi from '@/app/api/examApi';
 
-export default function Exam({ state }: any) {
-    const [formData, setFormData] = useState<any>({});
-    const [exam, setExam] = useState<any>([
-        {
-            id: 1,
-            title: "À",
-            description: "Adf",
-            answers: [
-                {
-                    answerId: "dà",
-                    description: "Đáp án 1"
-                },
-                {
-                    answerId: "dà",
-                    description: "Đáp án 2"
-                },
-                {
-                    answerId: "dà",
-                    description: "Đáp án 3"
-                },
-                {
-                    answerId: "dà",
-                    description: "Đáp án 4"
-                }
-            ]
-        },
-        {
-            id: 1,
-            title: "À",
-            description: "Adf",
-            answers: [
-                {
-                    answerId: "dà",
-                    description: "Đáp án 1"
-                },
-                {
-                    answerId: "dà",
-                    description: "Đáp án 2"
-                },
-                {
-                    answerId: "dà",
-                    description: "Đáp án 3"
-                },
-                {
-                    answerId: "dà",
-                    description: "Đáp án 4"
-                }
-            ]
-        },
-
-    ]);
+export default function ResultExam({ params }: { params: { slug: string, id_exam: string } }) {
     const [open, setOpen] = useState(false);
+    const [assignment, setAssignment] = useState<any>()
     const [openSidebar, setOpenSideBar] = useState(true);
     const alphabet = ['A', 'B', 'C', 'D', 'E', 'F'];
 
     useEffect(() => {
-        // const getExam = async () => {
-        //     try {
-        //         const response = await axios.get(
-        //             `http://localhost:4001/test/studentGetTestQuestion?classId=${state.currentTest.classId}&testId=${state.currentTest.id}`,
-        //         );
-        //         setExam(response.data);
-        //     } catch (error) {
-        //         console.error('Error fetching data:', error);
-        //     }
-        // };
-
-        // getExam();
+        async function fetchData() {
+            examApi.getDetailAssigmnent(params.id_exam).then((data) => {
+                setAssignment(data.data)
+            })
+        }
+        fetchData()
     }, []);
 
 
     let listQuestion;
     let listNumber;
-    if (exam) {
-        listQuestion = exam.map((question: any, index: number) => {
+    if (assignment) {
+        listQuestion = assignment.details.map((question: any, index: number) => {
             if (question.multipleAnswer) {
                 return (
                     <div id={`question${index + 1}`} key={index} className="mt-5">
@@ -169,7 +115,7 @@ export default function Exam({ state }: any) {
                         <div className="flex justify-between items-center">
                             <div className="text-lg  font-normal text-[#000]">
                                 <span className="font-medium text-[#153462]">Câu {index + 1}: </span>
-                                {parse(question.description)}
+                                {parse(question.content_text || '')}
                             </div>
                             {question.isCorrect ? (
                                 <span
@@ -189,12 +135,12 @@ export default function Exam({ state }: any) {
                         </div>
                         <div>
                             <ul className="mt-2 text-base text-gray-900 rounded-lg dark:bg-gray-700 dark:text-white ">
-                                {question.answers.map((answer: any, index: number) => {
+                                {question.Answers.map((answer: any, index: number) => {
                                     return (
                                         <li key={index} className="flex items-center mb-2 ">
                                             <div className="flex items-center mb-2">
-                                                <input id="default-radio-1" type="radio" value="" name="default-radio" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-                                                <label htmlFor="default-radio-1" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Default radio</label>
+                                                <input id="default-radio-1" disabled defaultChecked={answer.selected_answer.is_selected} type="radio" value="" name="default-radio" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                                                <label htmlFor="default-radio-1" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{answer.content_text}</label>
                                             </div>
 
                                         </li>
@@ -239,7 +185,7 @@ export default function Exam({ state }: any) {
                                 })}
                             </ul>
                             <div className="font-medium ml-4">
-                                {question.answers.map((answer: any, index: number) => {
+                                {question.Answers.map((answer: any, index: number) => {
                                     if (answer.isCorrect) {
                                         return <div key={index}>Đáp án: {alphabet[index]}</div>;
                                     }
@@ -250,38 +196,38 @@ export default function Exam({ state }: any) {
                 );
             }
         });
-        listNumber = exam.map((question: any, index: number) => {
-            if (!formData.hasOwnProperty(question.questionId)) {
-                return (
-                    <Link
-                        href={`#question${index + 1}`}
-                        key={index}
-                        className="bg-[#f0efef] p-2 w-9 h-9 rounded-xl flex justify-center items-center font-normal"
-                        style={{
-                            boxShadow: '0px 1px 4px 0px #00000033 -1px -1px 4px 0px #00000026 inset 1px 1px 4px 0px #0000001A inset',
-                            textDecoration: 'none',
-                        }}
-                    >
-                        {index + 1}
-                    </Link>
-                );
-            } else {
-                return (
-                    <a
-                        href={`#question${index + 1}`}
-                        key={index}
-                        className="p-2 w-10 h-10 rounded-xl flex justify-center items-center font-normal text-[#2FD790]"
-                        style={{
-                            background: 'rgba(47, 215, 144, 0.15)',
-                            boxShadow: '1px 1px 2px 0px #2FD79040 1px 1px 3px 0px #2FD7905C inset -1px -1px 2px 0px #2FD79052 inset',
-                            textDecoration: 'none',
-                        }}
-                    >
-                        {index + 1}
-                    </a>
-                );
-            }
-        });
+        // listNumber = assignment.details.map((question: any, index: number) => {
+        //     if (!formData.hasOwnProperty(question.questionId)) {
+        //         return (
+        //             <Link
+        //                 href={`#question${index + 1}`}
+        //                 key={index}
+        //                 className="bg-[#f0efef] p-2 w-9 h-9 rounded-xl flex justify-center items-center font-normal"
+        //                 style={{
+        //                     boxShadow: '0px 1px 4px 0px #00000033 -1px -1px 4px 0px #00000026 inset 1px 1px 4px 0px #0000001A inset',
+        //                     textDecoration: 'none',
+        //                 }}
+        //             >
+        //                 {index + 1}
+        //             </Link>
+        //         );
+        //     } else {
+        //         return (
+        //             <a
+        //                 href={`#question${index + 1}`}
+        //                 key={index}
+        //                 className="p-2 w-10 h-10 rounded-xl flex justify-center items-center font-normal text-[#2FD790]"
+        //                 style={{
+        //                     background: 'rgba(47, 215, 144, 0.15)',
+        //                     boxShadow: '1px 1px 2px 0px #2FD79040 1px 1px 3px 0px #2FD7905C inset -1px -1px 2px 0px #2FD79052 inset',
+        //                     textDecoration: 'none',
+        //                 }}
+        //             >
+        //                 {index + 1}
+        //             </a>
+        //         );
+        //     }
+        // });
     }
 
     return (
@@ -311,22 +257,22 @@ export default function Exam({ state }: any) {
                                     boxShadow: '1px 2px 4px 0px #00000040 -1px -2px 4px 0px #00000040 inset',
                                 }}
                             >
-                                {0}
+                                {assignment?.score.toFixed(1)}
                             </div>
                             <div className="flex">
                                 <div className="flex flex-col justify-between mr-4">
                                     <div className="py-1 text-[#757575]">Bài kiểm tra:</div>
                                     <div className="py-1 text-[#757575]">Thời gian làm bài:</div>
-                                    <div className="py-1 text-[#757575]">Số câu đã làm</div>
+                                    <div className="py-1 text-[#757575]">Số câu bỏ trống</div>
                                     <div className="py-1 text-[#757575]">Số câu trả lời đúng:</div>
                                     <div className="py-1 text-[#757575]">Số câu trả lời sai:</div>
                                 </div>
                                 <div className="flex flex-col justify-between">
                                     <div className="py-1 text-[#000]">0</div>
                                     <div className="py-1 text-[#000]">0</div>
-                                    <div className="py-1 text-[#000]">0</div>
-                                    <div className="py-1 text-[#000]">0</div>
-                                    <div className="py-1 text-[#000]">0</div>
+                                    <div className="py-1 text-[#000]">{assignment?.empty_question}</div>
+                                    <div className="py-1 text-[#000]">{assignment?.right_question}</div>
+                                    <div className="py-1 text-[#000]">{assignment?.wrong_question}</div>
                                 </div>
                             </div>
 

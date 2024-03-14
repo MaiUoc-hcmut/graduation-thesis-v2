@@ -16,6 +16,18 @@ const examApi = {
         return await axiosConfig.get(url);
     },
 
+    getAssigmnentByExamId: async (id_student: string, id_exam: string) => {
+        const url = `/assignments/student/${id_student}/page/1`;
+        return await axiosConfig.get(url);
+    },
+
+    getDetailAssigmnent: async (id_assignment: string) => {
+        const url = `/assignments/full/${id_assignment}`;
+        return await axiosConfig.get(url);
+    },
+
+
+
     update: (id: string, data: object) => {
         const url = `/exams/${id}`;
         return axiosConfig.put(url, data);
@@ -23,6 +35,11 @@ const examApi = {
 
     create: async (data: object) => {
         const url = `/exams`;
+        return axiosConfig.post(url, data);
+
+    },
+    submitExam: async (data: object) => {
+        const url = `/assignments`;
         return axiosConfig.post(url, data);
 
     },

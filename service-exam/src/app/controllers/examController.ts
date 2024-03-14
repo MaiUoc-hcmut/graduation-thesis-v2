@@ -269,7 +269,6 @@ class ExamController {
                     transaction: t
                 });
 
-
                 if (question_categories !== undefined && question_categories.length !== 0) {
                     let questionCategoryInstances: any[] = [];
                     for (const id of question_categories) {
@@ -392,7 +391,12 @@ class ExamController {
                             questionUrl = questionDraft.url;
                             await questionDraft.destroy({ transaction: t });
                         }
-                        await Question.create({ ...questionBody, id_teacher: exam.id_teacher, id_exam: examId, content_image: questionUrl }, { transaction: t });
+                        await Question.create({
+                            ...questionBody,
+                            id_exam: examId,
+                            content_image: questionUrl,
+                            id_teacher: exam.id_teacher
+                        }, { transaction: t });
                         quantity_question++;
 
                         // Create new answers for question

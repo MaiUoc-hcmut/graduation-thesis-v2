@@ -6,6 +6,8 @@ import parse from 'html-react-parser';
 import Link from 'next/link';
 import { XMarkIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
 import examApi from '@/app/api/examApi';
+import Image from 'next/image';
+import { useForm } from 'react-hook-form';
 
 export default function AttempExam({ params, exam }: { params: { slug: string, id_exam: string }, exam: any }) {
     const [formData, setFormData] = useState<any>({});
@@ -13,7 +15,15 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
     const [openSidebar, setOpenSideBar] = useState(true);
     const intervalRef = useRef<any>(null);
     const alphabet = ['A', 'B', 'C', 'D', 'E', 'F'];
-    const COUNTER_KEY = 123;
+    const COUNTER_KEY = 'countdown';
+    const {
+        register,
+        getValues,
+        handleSubmit,
+        reset,
+        formState: { errors },
+    } = useForm()
+
     function handlerInput(id_question: string, answer: string) {
         setFormData({ ...formData, [id_question]: [answer] });
     }
@@ -69,7 +79,8 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
 
     useEffect(() => {
         if (exam?.period) {
-            countDown(exam?.period * 60, function () {
+            var countDownTime = Number(window.localStorage.getItem(COUNTER_KEY)) || exam?.period * 60;
+            countDown(countDownTime, function () {
                 alert('Hết giờ làm bài!!!');
                 // submitTest(convertTime(state.currentTest.period));
             });
@@ -79,7 +90,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
 
     async function submitTest(time: string) {
         let data: any = {
-            id_exam: params.slug,
+            id_exam: params.id_exam,
             time_start: "2024-03-12 16:38:55",
             time_end: "2024-03-12 17:36:55",
             assignment: []
@@ -96,10 +107,9 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
 
             })
         })
-        console.log(data);
 
         const submitAnswer = async () => {
-
+            examApi.submitExam({ data })
         };
 
         try {
@@ -111,7 +121,8 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
             console.error('Error submitting answer:', error);
         }
     }
-    console.log(formData, exam);
+    // console.log(formData, exam);
+    // console.log(errors);
 
     let listQuestion;
     let listNumber;
@@ -151,31 +162,51 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
             } else {
                 return (
                     <div id={`question${index + 1}`} key={index} className="mb-4">
-                        <p className="text-lg  mb-[-10px] font-normal text-[#000]">
+                        <div className="text-lg  mb-[-10px] font-normal text-[#000]">
                             <span className="font-semibold text-[#153462] flex">Câu {index + 1}: {parse(question.content_text)}</span>
-
-                        </p>
+                            {/* <div className='relative w-1/2 h-64 mt-2 z-0'>
+                                <Image
+                                    src="/images/course-cover-1.jpg"
+                                    fill
+                                    className='w-full h-full overflow-hidden object-cover object-center'
+                                    alt="logo"
+                                />
+                            </div> */}
+                        </div >
                         <div>
                             <ul
                                 className="mt-6 text-base text-gray-900 rounded-lg dark:bg-gray-700 dark:text-white"
-                                onChange={(e: any) => {
-                                    handlerInput(question.id, e.target.id);
-                                }}
+                            // onChange={(e: any) => {
+                            //     handlerInput(question.id, e.target.id);
+                            // }}
+
                             >
                                 {question.answers.map((answer: any, index: number) => {
                                     return (
-                                        <li key={index} className="flex items-center mb-2">
+                                        <li key={index} className=" mb-5">
                                             <div className="flex items-center mb-2">
-                                                <input id={answer.id} type="radio" value={answer.id} name="default-radio" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-                                                <label htmlFor="default-radio-1" className="ms-2 font-medium text-gray-900 dark:text-gray-300">{answer.content_text}</label>
-                                            </div>
+                                                <input  {...register(`${question.id}`, { required: "Câu hỏi chưa hoàn thành." })} id={answer.id} type="radio" value={answer.id} name={question.id} className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                                                <p className='ml-2 mr-1'>{alphabet[index]}.</p>
 
+                                                <label htmlFor="default-radio-1" className="font-medium text-gray-900 dark:text-gray-300">{answer.content_text}</label>
+                                            </div>
+                                            {/* <div className='relative w-1/2 h-64 mt-3 z-0'>
+                                                <Image
+                                                    src="/images/course-cover-1.jpg"
+                                                    fill
+                                                    className='w-full h-full overflow-hidden object-cover object-center'
+                                                    alt="logo"
+                                                />
+                                            </div> */}
                                         </li>
                                     );
                                 })}
+                                {errors?.[question.id]?.message && (
+                                    <p className='text-sm text-red-400'>{`${errors?.[question.id]?.message}`}</p>
+                                )}
                             </ul>
                         </div>
-                    </div>
+                    </div >
                 );
             }
         });
@@ -215,8 +246,12 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
 
 
     return (
-        <div className="bg-[#FBFAF9] relative py-10">
-            <div className="px-10 py-5 bg-[#153462] fixed w-full top-0 left-0">
+        <form onSubmit={handleSubmit((data) => {
+            console.log(data, 1);
+
+
+        })} className="bg-[#FBFAF9] relative py-10">
+            <div className="px-10 py-5 bg-[#153462] fixed w-full top-0 left-0 z-10">
                 <div className="flex justify-between h-full items-center">
                     <div className="text-[#fff] text-[22px] font-medium text-center ">{exam?.title}</div>
                     <div className="text-white text-[22px] font-medium" id="displayDiv"></div>
@@ -246,11 +281,11 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                         <div className="text-center mt-10 mb-2">
                             <button
                                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                onClick={() => {
-                                    setOpen(true);
-                                    submitTest('10')
-                                }}
-
+                                // onClick={() => {
+                                //     setOpen(true);
+                                //     submitTest('10')
+                                // }}
+                                type='submit'
                             >
                                 Nộp bài
                             </button>
@@ -263,7 +298,6 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                     </button>
                 </div>
             </div>
-
-        </div>
+        </form>
     );
 }

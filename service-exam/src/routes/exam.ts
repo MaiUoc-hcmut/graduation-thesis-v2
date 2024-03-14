@@ -24,3 +24,4 @@ router.route('/teacher/:teacherId/page/:page')
     .get(ExamController.getExamCreatedByTeacher);
 
 module.exports = router;
+export {}

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { DocumentIcon } from '@heroicons/react/24/outline';
 import React, { useEffect, useState, useRef } from 'react';
-import courseApi from "@/app/api/courseApi"
+import examApi from '@/app/api/examApi';
 import { useForm, SubmitHandler, Controller } from "react-hook-form"
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import { formatDateTime } from '@/app/helper/FormatFunction';
@@ -15,15 +15,16 @@ type AnswerData = {
     file: File
 }
 export default function TopicPage({ params }: { params: { slug: string, id_exam: string } }) {
-    const [topic, setTopic] = useState<any>()
+    const [assignments, setAssignments] = useState<any>()
     const [toggle, setToggle] = useState<any>({})
     const { user } = useAppSelector(state => state.authReducer);
 
 
     useEffect(() => {
         async function fetchData() {
-
-
+            examApi.getAssigmnentByExamId(`${user.id}`, '1').then((data) => {
+                setAssignments(data.data.assignments)
+            })
         }
         fetchData()
 
@@ -76,17 +77,24 @@ export default function TopicPage({ params }: { params: { slug: string, id_exam:
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                                                <th
-                                                    scope="row"
-                                                    className="px-6 py-4 w-1/6 text-center font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                                                >
-                                                    1
-                                                </th>
-                                                <td className="w-1/2 px-6 py-4">Silver</td>
-                                                <td className="w/1/6 px-6 py-4 text-center">10</td>
-                                                <td className="w/1/6 px-6 py-4 text-center"><Link href='#' className='underline text-blue-500'>Xem lại</Link></td>
-                                            </tr>
+                                            {
+                                                assignments?.map((assignment: any, index: number) => {
+                                                    return (
+                                                        <tr key={assignment.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                                            <th
+                                                                scope="row"
+                                                                className="px-6 py-4 w-1/6 text-center font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                                                            >
+                                                                {index + 1}
+                                                            </th>
+                                                            <td className="w-1/2 px-6 py-4">{assignment.time_start}</td>
+                                                            <td className="w/1/6 px-6 py-4 text-center">{assignment.score}</td>
+                                                            <td className="w/1/6 px-6 py-4 text-center"><Link href={`result/${assignment.id}`} className='underline text-blue-500'>Xem lại</Link></td>
+                                                        </tr>
+                                                    )
+                                                })
+                                            }
+
 
                                         </tbody>
                                     </table>
