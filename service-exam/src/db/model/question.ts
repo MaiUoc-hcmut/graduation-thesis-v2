@@ -40,6 +40,11 @@ Question.init({
         type: DataTypes.BOOLEAN,
         defaultValue: false,
         allowNull: false
+    },
+    status: {
+        type: DataTypes.STRING,
+        defaultValue: 'public',
+        allowNull: false
     }
 }, {
     sequelize,

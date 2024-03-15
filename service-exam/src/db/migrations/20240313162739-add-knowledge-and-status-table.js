@@ -16,12 +16,11 @@ module.exports = {
     await queryInterface.createTable('knowledge', {
       id: {
         type: Sequelize.UUID,
-        primaryKey: true,
+        primaryKey: true
       },
       name: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
+        type: Sequelize.STRING
+      }
     });
     await queryInterface.createTable('category-knowledge', {
       id_category: {
@@ -66,10 +65,19 @@ module.exports = {
       },
       createdAt: Sequelize.DATE,
       updatedAt: Sequelize.DATE,
-    })
+    });
+    await queryInterface.addColumn('question', 'status', {
+      type: Sequelize.STRING,
+    });
+    await queryInterface.addColumn('answer', 'status', {
+      type: Sequelize.STRING
+    });
   },
 
   async down (queryInterface, Sequelize) {
+    await queryInterface.removeColumn('answer', 'status');
+    await queryInterface.removeColumn('question', 'status');
+    await queryInterface.dropTable('knowledge-question');
     await queryInterface.dropTable('category-knowledge');
     await queryInterface.dropTable('knowledge');
     await queryInterface.dropTable('status');
