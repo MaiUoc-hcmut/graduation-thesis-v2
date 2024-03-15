@@ -4,6 +4,7 @@ const Answer = require('../../db/model/answer');
 const Category = require('../../db/model/category');
 const ParentCategory = require('../../db/model/par_category');
 const ExamDraft = require('../../db/model/exam_draft');
+const Knowledge = require('../../db/model/knowledge');
 const { Op } = require("sequelize");
 
 const algoliasearch = require('algoliasearch');
@@ -270,6 +271,20 @@ class ExamController {
                     }
 
                     newQuestion.addCategories(questionCategoryInstances, { transaction: t });
+                }
+
+                if (knowledges !== undefined && knowledges.length !== 0) {
+                    for (const id of knowledges) {
+                        const knowledge = await Knowledge.findByPk(id);
+
+                        if (!knowledge) {
+                            return res.status(400).json({
+                                message: "Knowledge does not exist!",
+                                knowledge: id
+                            });
+                        }
+                        await newQuestion.addKnowledge(knowledge, { transaction: t });
+                    }
                 }
 
                 for (const answer of answers) {

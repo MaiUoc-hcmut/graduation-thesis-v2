@@ -291,7 +291,7 @@ class CourseController {
                 subQuery: false
             });
 
-            res.status(200).json({ count: count.length, courses });
+            res.status(200).json({ count, courses });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });

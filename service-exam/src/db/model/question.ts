@@ -3,6 +3,7 @@ import { Model, DataTypes, CreationOptional } from 'sequelize';
 
 const Category = require('./category');
 const Answer = require('./answer');
+const Knowledge = require('./knowledge');
 
 class Question extends Model {
     declare createdAt: CreationOptional<Date>;
@@ -57,6 +58,19 @@ Question.belongsToMany(Category, {
 Category.belongsToMany(Question, {
     through: 'category-question',
     foreignKey: 'id_category',
+    otherKey: 'id_question'
+});
+
+
+Question.belongsToMany(Knowledge, {
+    through: 'knowledge-question',
+    foreignKey: 'id_question',
+    otherKey: 'id_knowledge'
+});
+
+Knowledge.belongsToMany(Question, {
+    through: 'knowledge-question',
+    foreignKey: 'id_knowledge',
     otherKey: 'id_question'
 });
 

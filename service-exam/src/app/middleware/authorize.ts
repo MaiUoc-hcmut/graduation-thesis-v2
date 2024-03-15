@@ -13,6 +13,7 @@ declare global {
         interface Request {
             teacher?: any;
             student?: any;
+            admin?: any;
             user?: USER;
         }
     }
@@ -84,6 +85,22 @@ class Authorize {
             try {
                 const student = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/student/${id}`);
                 req.student = student;
+                next();
+            } catch (error: any) {
+                console.log(error.message);
+                next(error);
+            }
+        })(req, res, next);
+    }
+
+    verifyAdmin = (req: Request, res: Response, next: NextFunction) => {
+        passport.authenticate('user-jwt', { session: false }, async (err: any, id: string, info: any) => {
+            if (err) {
+                return next(createError.Unauthorized(info?.message ? info.message : err))
+            }
+            try {
+                const admin = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/admin/${id}`);
+                req.admin = admin;
                 next();
             } catch (error: any) {
                 console.log(error.message);
