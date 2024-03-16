@@ -48,7 +48,12 @@ class TopicForumController {
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const count = await Answer.count({
-                where: { id_topic_forum: id_topic }
+                where: { 
+                    id_topic_forum: id_topic,
+                    id_parent: {
+                        [Op.or]: [null, ""]
+                    }
+                }
             });
 
             const topic = await TopicForum.findByPk(id_topic, {
