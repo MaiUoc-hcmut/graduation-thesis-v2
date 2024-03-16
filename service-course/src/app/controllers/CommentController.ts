@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { Op } from 'sequelize';
 const Comment = require('../../db/models/comment');
 const axios = require('axios');
 
@@ -66,11 +67,21 @@ class CommentController {
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const count = await Comment.count({
-                where: { id_topic }
+                where: { 
+                    id_topic, 
+                    id_parent: {
+                        [Op.or]: [null, ""]
+                    } 
+                }
             });
 
             const comments = await Comment.findAll({
-                where: { id_topic, id_parent: [null, ""] },
+                where: { 
+                    id_topic, 
+                    id_parent: {
+                        [Op.or]: [null, ""]
+                    }
+                },
                 limit: pageSize,
                 offset: pageSize * (currentPage - 1),
                 include: [
