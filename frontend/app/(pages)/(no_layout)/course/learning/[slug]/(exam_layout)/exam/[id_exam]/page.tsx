@@ -49,7 +49,7 @@ export default function TopicPage({ params }: { params: { slug: string, id_exam:
 
                             </div>
                             <div className='h-1/2'>
-                                <button type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Làm bài</button>
+                                <Link href={`attemp/${params.id_exam}`} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Làm bài</Link>
                             </div>
 
                         </section>
@@ -66,7 +66,7 @@ export default function TopicPage({ params }: { params: { slug: string, id_exam:
                                                     Làm bài
                                                 </th>
                                                 <th scope="col" className="w-1/2 px-6 py-3">
-                                                    Thời gian
+                                                    Thời gian hoàn thành
                                                 </th>
                                                 <th scope="col" className="w-1/6 px-6 py-3 text-center">
                                                     Điểm
@@ -87,7 +87,7 @@ export default function TopicPage({ params }: { params: { slug: string, id_exam:
                                                             >
                                                                 {index + 1}
                                                             </th>
-                                                            <td className="w-1/2 px-6 py-4">{assignment.time_start}</td>
+                                                            <td className="w-1/2 px-6 py-4">{assignment.time_end}</td>
                                                             <td className="w/1/6 px-6 py-4 text-center">{assignment.score}</td>
                                                             <td className="w/1/6 px-6 py-4 text-center"><Link href={`result/${assignment.id}`} className='underline text-blue-500'>Xem lại</Link></td>
                                                         </tr>

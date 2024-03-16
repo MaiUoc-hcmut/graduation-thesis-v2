@@ -1,13 +1,17 @@
 import { XMarkIcon } from "@heroicons/react/24/outline"
 import { Label, TextInput } from 'flowbite-react';
 import { useFieldArray, useForm } from 'react-hook-form';
+import uuid from "react-uuid";
+import CustomCKEditor from "../../Editor/CKEditor";
 
 
-export const AnswerCard = ({ indexChapter, indexTopic, hanldeForm, indexQuestion, setModal, modal, topic }: any) => {
+export const AnswerCard = ({ indexChapter, indexTopic, hanldeForm, indexQuestion, setModal, modal, topic, quesiton }: any) => {
 
     const {
         register,
         control,
+        setValue,
+        getValues,
         formState: { errors },
     } = hanldeForm
 
@@ -23,8 +27,9 @@ export const AnswerCard = ({ indexChapter, indexTopic, hanldeForm, indexQuestion
                 setModal({ ...modal, [`add_question_${topic.key}`]: true })
 
                 appendAnswer({
-                    title: "",
-                    isCorrect: false,
+                    id: uuid(),
+                    content_text: "",
+                    is_correct: false,
                 })
 
             }}
@@ -37,16 +42,11 @@ export const AnswerCard = ({ indexChapter, indexTopic, hanldeForm, indexQuestion
                         <div key={field.id} className='relative border-[1px] border-[#ececec] p-3 rounded-[10px] mb-10'>
                             <div className='mb-5'>
                                 <div className="mb-2 block">
-                                    <Label htmlFor="title" value="Tiêu đề câu trả lời" />
+                                    <Label htmlFor="title" value="Nội dung câu trả lời" />
                                 </div>
-                                <TextInput
-                                    type="text"
-                                    {...register(`chapters.${indexChapter}.topics.${indexTopic}.questions.${indexQuestion}.answers.${indexAnswer}.title`, {
-                                        required: `Tiêu đề câu trả lời không thể thiếu.`
-                                    })}
-                                />
+                                <CustomCKEditor className="h-50" setValue={setValue} value={getValues().chapters[indexChapter].topics[indexTopic].questions[indexQuestion].answers[indexAnswer].content_text} position={`chapters.${indexChapter}.topics.${indexTopic}.questions.${indexQuestion}.answers.${indexAnswer}.content_text`} />
                                 <div className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                    {errors?.chapters?.[indexChapter]?.topics?.[indexTopic]?.questions?.[indexQuestion]?.answers?.[indexAnswer]?.title?.message}
+                                    {errors?.chapters?.[indexChapter]?.topics?.[indexTopic]?.questions?.[indexQuestion]?.answers?.[indexAnswer]?.content_text?.message}
                                 </div>
                             </div>
                             <div className='flex justify-between items-end mb-2'>

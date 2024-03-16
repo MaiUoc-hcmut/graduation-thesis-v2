@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^41.2.0",
+    "@ckeditor/ckeditor5-easy-image": "^41.2.0",
     "@ckeditor/ckeditor5-react": "^6.2.0",
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
     "@fortawesome/free-brands-svg-icons": "^6.5.1",
@@ -23,7 +24,9 @@
     "@mantine/hooks": "^6.0.21",
     "@reduxjs/toolkit": "^2.1.0",
     "@tanstack/react-query": "^5.25.0",
+    "@tinymce/tinymce-react": "^4.3.2",
     "@wiris/mathtype-ckeditor5": "^8.8.2",
+    "@wiris/mathtype-tinymce6": "^8.8.2",
     "axios": "^1.6.5",
     "ckeditor5-build-classic-mathtype": "^1.0.0",
     "filepond": "^4.30.6",
@@ -51,6 +54,7 @@
     "react-toastify": "^10.0.1",
     "react-uuid": "^2.0.0",
     "redux-persist": "^6.0.0",
+    "tinymce": "^5.10.9",
     "yup": "^1.4.0"
   },
   "devDependencies": {

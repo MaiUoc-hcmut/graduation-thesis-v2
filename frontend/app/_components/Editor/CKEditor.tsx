@@ -2,11 +2,11 @@
 
 import React, { Component } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from 'ckeditor5-build-classic-mathtype';
-import { Controller } from 'react-hook-form';
+import ClassicEditor from 'ckeditor5-build-classic-mathtype'
 const editorConfiguration = {
     toolbar: [
         'Mathtype',
+        'ChemType',
         'heading',
         '|',
         'bold',
@@ -18,10 +18,8 @@ const editorConfiguration = {
         'outdent',
         'indent',
         '|',
-        'imageUpload',
         'blockQuote',
         'insertTable',
-        'mediaEmbed',
     ]
 };
 
@@ -42,4 +40,5 @@ export default function CustomCKEditor({ setValue, value, position }: any) {
 
     )
 }
+
 

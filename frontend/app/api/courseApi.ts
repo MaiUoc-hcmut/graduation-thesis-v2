@@ -64,7 +64,7 @@ const courseApi = {
     },
 
     getCommentByTopic: (id: string) => {
-        const url = `/comments/topic/${id}`;
+        const url = `/comments/topic/${id}/page/1`;
         return axiosConfig.get(url);
     },
 

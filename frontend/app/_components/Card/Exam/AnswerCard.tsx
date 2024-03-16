@@ -10,6 +10,7 @@ import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import { useState } from "react";
 import Image from "next/image";
+import CustomCKEditor from "../../Editor/CKEditor";
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
 
 export const AnswerCard = ({ hanldeForm, question, indexQuestion, image, setImage }: any) => {
@@ -52,7 +53,7 @@ export const AnswerCard = ({ hanldeForm, question, indexQuestion, image, setImag
                                 <div className="mb-2 block">
                                     <Label htmlFor="title" value="Tiêu đề câu trả lời" />
                                 </div>
-                                <TextInput
+                                {/* <TextInput
                                     type="text"
 
                                     {...register(`questions.${indexQuestion}.answers.${indexAnswer}.content_text`, {
@@ -66,7 +67,9 @@ export const AnswerCard = ({ hanldeForm, question, indexQuestion, image, setImag
 
                                         }
                                     })}
-                                />
+                                /> */}
+
+                                <CustomCKEditor className="h-30" setValue={setValue} value={`${getValues().questions[indexQuestion].answers[indexAnswer].content_text}`} position={`questions.${indexQuestion}.answers.${indexAnswer}.content_text`} />
                                 <div className="mt-2 text-sm text-red-600 dark:text-red-500">
                                     {errors?.questions?.[indexQuestion]?.answers?.[indexAnswer]?.content_text?.message}
                                 </div>

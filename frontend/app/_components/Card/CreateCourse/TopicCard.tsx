@@ -20,6 +20,7 @@ import { AnswerCard } from './AnswerCard';
 import { DragDropContext, Draggable } from 'react-beautiful-dnd';
 import { StrictModeDroppable } from '../../React_Beautiful_Dnd/StrictModeDroppable';
 import { QuestionCard } from './QuestionCard';
+import CustomCKEditor from '../../Editor/CKEditor';
 
 export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm, innerRef, provided, data, setData,
     removeTopic, fieldsTopic, setTypeSubmit, id_course }: any) => {
@@ -119,12 +120,13 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                             <div className="mb-2 block">
                                                 <Label htmlFor="email" value="Tiêu đề câu hỏi" />
                                             </div>
-                                            <TextInput
+                                            {/* <TextInput
                                                 type="text"
                                                 {...register(`chapters.${indexChapter}.topics.${indexTopic}.questions.${indexQuestion}.title`, {
                                                     required: "Tiêu đề câu hỏi không thể thiếu."
                                                 })}
-                                            />
+                                            /> */}
+                                            <CustomCKEditor className="h-50" setValue={setValue} value="" position={`chapters.${indexChapter}.topics.${indexTopic}.questions.${indexQuestion}.content_text`} />
                                             <div className="mt-2 text-sm text-red-600 dark:text-red-500">
                                                 {errors?.chapters?.[indexChapter]?.topics?.[indexTopic]?.questions?.[indexQuestion]?.title?.message}
                                             </div>
@@ -490,8 +492,9 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                     <button type="button" onClick={() => {
                                         setModal({ ...modal, [`add_question_${topic.key}`]: true })
                                         appendQuestion({
-                                            key: uuid(),
-                                            title: ""
+                                            id: uuid(),
+                                            content_text: "",
+                                            multi_choice: false
                                         })
                                     }}
                                         className="mt-3 bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover">

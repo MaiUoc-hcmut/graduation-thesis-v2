@@ -1,10 +1,11 @@
+"use client"
+
 /* eslint-disable react/jsx-no-undef */
 import { ArrowsPointingOutIcon, EllipsisVerticalIcon, XMarkIcon } from "@heroicons/react/24/outline"
 import { Label, TextInput, Modal } from 'flowbite-react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { Dropdown } from 'flowbite-react';
 import { AnswerCard } from "./AnswerCard";
-import CustomCKEditor from "@/app/_components/Editor/CKEditor"
 import { FilePond, registerPlugin } from 'react-filepond'
 import 'filepond/dist/filepond.min.css'
 import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation'
@@ -14,7 +15,7 @@ import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import { useState } from "react";
 import Image from "next/image";
 import parse from 'html-react-parser';
-
+import CustomCKEditor from "../../Editor/CKEditor";
 
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
 
@@ -26,7 +27,6 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
         getValues,
         formState: { errors },
     } = hanldeForm
-
     const [files, setFiles] = useState([])
     return (
         <div className='mb-5 border-[1px] border-[#ececec] bg-white p-5 rounded-xl flex justify-between items-center' ref={provided.innerRef} {...provided.draggableProps}>
@@ -52,12 +52,6 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
                                     <div className="mb-2 block">
                                         <Label htmlFor="email" value="Tiêu đề câu hỏi" />
                                     </div>
-                                    {/* <TextInput
-                                        type="text"
-                                        {...register(`questions.${indexQuestion}.content_text`, {
-                                            required: "Tiêu đề câu hỏi không thể thiếu."
-                                        })}
-                                    /> */}
                                     <CustomCKEditor className="h-30" setValue={setValue} value={`${getValues().questions[indexQuestion].content_text}`} position={`questions.${indexQuestion}.content_text`} />
                                     <div className="mt-2 text-sm text-red-600 dark:text-red-500">
                                         {errors.questions?.[indexQuestion]?.content_text?.message}
@@ -84,7 +78,7 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
 
 
                                                 const request = new XMLHttpRequest();
-                                                request.open('POST', 'http://localhost:4002/api/v1/images')
+                                                request.open('POST', '  ')
 
 
 

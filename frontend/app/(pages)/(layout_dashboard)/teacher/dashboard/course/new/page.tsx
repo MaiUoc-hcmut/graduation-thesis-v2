@@ -178,7 +178,7 @@ export default function CreateCourse() {
                             formData.append("cover", dataForm.cover[0])
 
                             courseApi.create({ data: data1 }).then(() => {
-                                router.push("course")
+                                router.push("/teacher/dashboard/course")
                             }).catch(() => {
                                 setTypeSubmit("")
                             }
