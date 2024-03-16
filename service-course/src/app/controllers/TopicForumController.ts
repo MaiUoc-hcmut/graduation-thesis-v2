@@ -47,6 +47,10 @@ class TopicForumController {
             const currentPage: number = +req.params.page;
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
+            const count = await Answer.count({
+                where: { id_topic_forum: id_topic }
+            });
+
             const topic = await TopicForum.findByPk(id_topic, {
                 include: [
                     {
@@ -100,7 +104,10 @@ class TopicForumController {
                 }
             }
 
-            res.status(200).json(topic);
+            res.status(200).json({
+                count,
+                topic
+            });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
