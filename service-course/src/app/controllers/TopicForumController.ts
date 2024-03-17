@@ -5,6 +5,7 @@ const Answer = require('../../db/models/answer');
 const FileUpload = require('../../config/firebase/fileUpload');
 
 import { Request, Response, NextFunction } from 'express';
+import { Op } from 'sequelize';
 
 const { sequelize } = require('../../config/db/index');
 
@@ -46,10 +47,23 @@ class TopicForumController {
             const currentPage: number = +req.params.page;
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
+            const count = await Answer.count({
+                where: { 
+                    id_topic_forum: id_topic,
+                    id_parent: {
+                        [Op.or]: [null, ""]
+                    }
+                }
+            });
+
             const topic = await TopicForum.findByPk(id_topic, {
                 include: [
                     {
-                        where: { id_parent: [null, ""] },
+                        where: { 
+                            id_parent: {
+                                [Op.or]: [null, ""]
+                            }
+                        },
                         model: Answer,
                         as: 'answers',
                         limit: pageSize,
@@ -95,7 +109,10 @@ class TopicForumController {
                 }
             }
 
-            res.status(200).json(topic);
+            res.status(200).json({
+                count,
+                topic
+            });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });

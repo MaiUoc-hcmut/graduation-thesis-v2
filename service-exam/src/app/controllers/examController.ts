@@ -143,6 +143,13 @@ class ExamController {
                             {
                                 model: Answer,
                                 as: 'answers'
+                            },
+                            {
+                                model: Knowledge,
+                                attributes: ['name'],
+                                through: {
+                                    attributes: []
+                                }
                             }
                         ]
                     },
@@ -156,12 +163,45 @@ class ExamController {
                 ]
             });
 
+            let knowledges: {
+                name: string,
+                questions: string[]
+            }[] = [];
+            for (const question of exam.questions) {
+                if (question.Knowledge.length === 0) {
+                    const foundObject = knowledges.find(o => o.name === "other");
+                    if (!foundObject) {
+                        knowledges.push({
+                            name: "other",
+                            questions: [question.id]
+                        });
+                    } else {
+                        foundObject.questions.push(question.id);
+                    }
+                    continue;
+                }
+
+                for (const knowledge of question.Knowledge) {
+                    const foundObject = knowledges.find(o => o.name === knowledge.name);
+                    if (!foundObject) {
+                        knowledges.push({
+                            name: question.Knowledge.name,
+                            questions: [question.id]
+                        });
+                    } else {
+                        foundObject.questions.push(question.id);
+                    }
+                }
+            }
+
             for (const category of exam.Categories) {
                 const parCategory = await ParentCategory.findByPk(category.id_par_category);
                 category.dataValues[`${parCategory.name}`] = category.name;
                 delete category.dataValues.name;
                 delete category.dataValues.id_par_category;
             }
+
+            exam.dataValues.classification = knowledges;
 
             res.status(200).json(exam);
         } catch (error: any) {
@@ -180,15 +220,35 @@ class ExamController {
 
             const { query } = req.query;
 
+            const filters = `id_course:${null}`;
+
             const result = await index.search(query, {
                 hitsPerPage: pageSize,
-                page: currentPage - 1
+                page: currentPage - 1,
+                filters
             });
 
             res.status(200).json({
                 result: result.hits,
                 total: result.nbHits
             })
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    // [GET] /api/v1/exams/search/teacher/:teacherId/page/:page
+    searchExamOfTeacher = async (req: Request, res: Response, _next: NextFunction) => {
+        const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);
+        const index = client.initIndex(process.env.ALGOLIA_INDEX_NAME);
+        try {
+            const currentPage: number = +req.params.page;
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+
+            const { query } = req.query;
+
+            
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });

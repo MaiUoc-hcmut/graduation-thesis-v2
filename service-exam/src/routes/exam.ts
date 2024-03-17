@@ -17,6 +17,9 @@ router.route('/:examId')
 router.route('/search/page/:page')
     .get(ExamController.searchExam);
 
+router.route('/search/teacher/:teacherId/page/:page')
+    .get(Authorize.verifyUser, CheckingExam.checkSearchExamOfTeacher, ExamController.searchExamOfTeacher);
+
 router.route('/full/:examId')
     .get(ExamController.getDetailExam);
 
