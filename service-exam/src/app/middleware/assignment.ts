@@ -7,7 +7,7 @@ import { Request, Response, NextFunction } from "express";
 
 require('dotenv').config();
 
-class ChekingAssignment {
+class CheckingAssignment {
     checkSubmitAssignment = async (req: Request, _res: Response, next: NextFunction) => {
         try {
             
@@ -20,17 +20,20 @@ class ChekingAssignment {
     checkGetAssignmentsOfStudent = async (req: Request, _res: Response, next: NextFunction) => {
         try {
             const id_student = req.params.studentId;
-            const id_assignment = req.params.id_assignment;
+            const id_assignment = req.params.assignmentId;
 
             const id_user = req.user?.user?.data.id;
             const role = req.user?.role;
 
+            // For API get list assignment of student
             if (id_student) {
                 if (role !== "admin" && id_user !== id_student) {
                     let error = "You do not have permission to get this data!";
                     return next(createError.Unauthorized(error));
                 }
             }
+
+            // For API get detaill of single assignment
             if (id_assignment) {
                 const assignment = await Assignment.findByPk(id_assignment);
                 const exam = await Exam.findByPk(assignment.id_exam);
@@ -76,4 +79,4 @@ class ChekingAssignment {
     }
 }
 
-module.exports = new ChekingAssignment();
+module.exports = new CheckingAssignment();

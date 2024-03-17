@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { ReactQuillEditor } from "../../Editor/ReactQuillEditor";
+import CustomCKEditor from "../../Editor/CKEditor";
 import categoryApi from "@/app/api/category";
 
 

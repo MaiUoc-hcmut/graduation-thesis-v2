@@ -61,6 +61,41 @@ class AssignmentController {
         }
     }
 
+    // [GET] /assignments/student/:studentId/exam/:examId/page/:page
+    getAssignmentsOfStudentOfExam = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const id_student = req.params.studentId;
+            const id_exam = req.params.examId;
+
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+            const currentPage: number = +req.params.page;
+
+            const count = await Assignment.count({
+                where: {
+                    id_student,
+                    id_exam
+                }
+            });
+
+            const assignment = await Assignment.findAll({
+                where: {
+                    id_exam,
+                    id_student
+                },
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1)
+            });
+
+            res.status(200).json({
+                count,
+                assignment
+            })
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
     // [GET] /assignments/exam/:examId/page/:page
     getAssignmentsOfExam = async (req: Request, res: Response, _next: NextFunction) => {
         try {

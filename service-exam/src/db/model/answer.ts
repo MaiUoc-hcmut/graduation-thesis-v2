@@ -25,6 +25,11 @@ Answer.init({
     },
     content_image: {
         type: DataTypes.STRING,
+    },
+    status: {
+        type: DataTypes.STRING,
+        defaultValue: 'public',
+        allowNull: false
     }
 }, {
     sequelize,

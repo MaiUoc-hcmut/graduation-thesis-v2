@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { ReactQuillEditor } from "../../Editor/ReactQuillEditor";
+import CustomCKEditor from "../../Editor/CKEditor";
 import categoryApi from "@/app/api/category";
 
 import Image from 'next/image';
@@ -329,8 +329,8 @@ export function BasicInfomationForm({
                 >
                     Mô tả
                 </label>
-                <ReactQuillEditor
-                    setValue={setValue} field={"description"} value={getValues().description}
+                <CustomCKEditor
+                    setValue={setValue} postion={"description"} value={getValues().description}
                 />
                 <p className="mt-12 text-sm text-red-600 dark:text-red-500">
                     {errors?.description?.message}
@@ -342,7 +342,7 @@ export function BasicInfomationForm({
                 >
                     Mục tiêu
                 </label>
-                <ReactQuillEditor setValue={setValue} field={"goal"} value={getValues().goal} />
+                <CustomCKEditor setValue={setValue} postion={"goal"} value={getValues().goal} />
             </div>
             <div className="mb-16">
                 <label
@@ -350,7 +350,7 @@ export function BasicInfomationForm({
                 >
                     Đối tượng
                 </label>
-                <ReactQuillEditor setValue={setValue} field={"object"} value={getValues().object} />
+                <CustomCKEditor setValue={setValue} postion={"object"} value={getValues().object} />
             </div>
             <div className="mb-16">
                 <label
@@ -358,7 +358,7 @@ export function BasicInfomationForm({
                 >
                     Yêu cầu
                 </label>
-                <ReactQuillEditor setValue={setValue} field={"requirement"} value={getValues().requirement} />
+                <CustomCKEditor setValue={setValue} postion={"requirement"} value={getValues().requirement} />
             </div>
         </>
     )

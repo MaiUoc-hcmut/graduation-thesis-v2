@@ -18,8 +18,13 @@ const courseApi = {
     },
 
     search: async (data: object) => {
-        const url = `courses/search/page/1`;
+        const url = `/courses/search/page/1`;
         return await axiosConfig.post(url, data);
+    },
+
+    searchForum: async (id_forum: string, params: object) => {
+        const url = `/topicsforum/search/${id_forum}/page/1`;
+        return await axiosConfig.get(url, { params });
     },
 
     getProgress: async (id_student: string, id_course: string) => {
@@ -59,7 +64,7 @@ const courseApi = {
     },
 
     getReview: (id: string) => {
-        const url = `/reviews/course/${id}`;
+        const url = `/reviews/course/${id}/page/1`;
         return axiosConfig.get(url);
     },
 

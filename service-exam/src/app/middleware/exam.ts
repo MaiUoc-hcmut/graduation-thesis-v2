@@ -4,6 +4,23 @@ import { Request, Response, NextFunction } from "express";
 const createError = require('http-errors');
 
 class CheckingExam {
+    checkGetSingleExam = async (req: Request, _res: Response, next: NextFunction) => {
+        try {
+            const id_exam = req.params.examId;
+
+            const exam = await Exam.findByPk(id_exam);
+
+            if (!exam) {
+                let error = "Exam does not exist!";
+                return next(createError.BadRequest(error));
+            }
+            next();
+        } catch (error: any) {
+            console.log(error.message);
+            next(createError.InternalServerError(error.message));
+        }
+    }
+
     checkModifyExam = async (req: Request, _res: Response, next: NextFunction) => {
         try {
             const id_teacher = req.teacher?.data.id;

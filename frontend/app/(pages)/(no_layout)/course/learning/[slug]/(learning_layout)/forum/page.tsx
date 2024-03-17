@@ -18,8 +18,10 @@ type TopicData = {
 
 export default function ForumPage({ params }: { params: { slug: string } }) {
     const [forum, setForum] = useState<any>()
+    const [topics, setTopics] = useState<any>()
     const [modal, setModal] = useState(false)
-    const [files, setFiles] = useState([])
+    const [course, setCourse] = useState()
+    const [content, setContent] = useState<any>('')
 
     const {
         register,
@@ -30,8 +32,13 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
 
     useEffect(() => {
         async function fetchData() {
+            await courseApi.get(params.slug).then((data: any) => {
+                setCourse(data.data)
+            }
+            )
             await courseApi.getForumOfCourse(params.slug, 1).then((data: any) => {
                 setForum(data.data)
+                setTopics(data.data.topics)
             }
             )
 
@@ -40,6 +47,9 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
 
 
     }, [params.slug]);
+
+    console.log(topics);
+
 
     return (
         <div>
@@ -51,7 +61,7 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                             if (!(Object.entries(errors).length === 0)) return
                             const formData = {
                                 data: {
-                                    id_forum: 'aab6580a-4ed3-46d9-a56c-0234968bdd00',
+                                    id_forum: forum.id,
                                     title: data.title,
                                     description: data.description,
                                 },
@@ -138,10 +148,29 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                     </span>
                                 </div>
                                 <div className='w-2/5 flex justify-center'>
-                                    <form className="flex items-center max-w-sm mx-auto w-full">
+                                    <form className="flex items-center max-w-sm mx-auto w-full" onSubmit={async (e) => {
+                                        e.preventDefault()
+
+                                    }}>
                                         <label htmlFor="simple-search" className="sr-only">Search</label>
                                         <div className="relative w-full">
-                                            <input type="text" id="simple-search" className="w-full text-sm text-[#343434]  rounded-md border-[1px] border-[#ececec] focus:ring-0 focus:border-primary_border" placeholder="Tìm trong phần thảo luận này" required />
+                                            <input onChange={async (e) => {
+                                                setContent(e.target.value)
+
+                                                console.log(e.target.value);
+
+                                                if (e.target.value != '') {
+                                                    await courseApi.searchForum(forum?.id, {
+                                                        query: e.target.value
+                                                    }).then((data: any) => {
+                                                        setTopics(data.data.result)
+                                                    }
+                                                    )
+                                                }
+                                                else {
+                                                    setTopics(forum?.topics)
+                                                }
+                                            }} type="text" id="simple-search" className="w-full text-sm text-[#343434]  rounded-md border-[1px] border-[#ececec] focus:ring-0 focus:border-primary_border" placeholder="Tìm trong phần thảo luận này" required />
                                         </div>
                                         <button type="submit" className="ml-2 bg-primary p-2.5 rounded-md shadow-primary_btn_shadow border-primary text-white hover:bg-primary_hover">
                                             <MagnifyingGlassIcon className='w-4 h-4' />
@@ -156,7 +185,7 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                         </div>
                     </section>
                     <div className='mt-5'>
-                        {forum?.topics?.map((topic: any, index: any) => {
+                        {topics?.map((topic: any, index: any) => {
                             return (
                                 <div key={topic.id} className='mb-6 rounded-lg border-[1px] border-[#ececec] p-4 flex w-full'>
                                     <div className='flex w-full'>

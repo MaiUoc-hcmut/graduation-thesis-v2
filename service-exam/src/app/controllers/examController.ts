@@ -4,6 +4,7 @@ const Answer = require('../../db/model/answer');
 const Category = require('../../db/model/category');
 const ParentCategory = require('../../db/model/par_category');
 const ExamDraft = require('../../db/model/exam_draft');
+const Knowledge = require('../../db/model/knowledge');
 const { Op } = require("sequelize");
 
 const algoliasearch = require('algoliasearch');
@@ -122,10 +123,21 @@ class ExamController {
         try {
             const id_exam = req.params.examId;
 
+            const isAll = req.query.all;
+            let option = "delete";
+            if (isAll !== undefined && isAll === "1") {
+                option = ""
+            }
+
             const exam = await Exam.findByPk(id_exam, {
                 include: [
                     {
                         model: Question,
+                        where: {
+                            status: {
+                                [Op.ne]: `${option}`
+                            }
+                        },
                         as: 'questions',
                         include: [
                             {
@@ -143,8 +155,6 @@ class ExamController {
                     }
                 ]
             });
-
-            if (!exam) return res.status(404).json({ message: "Exam does not exist" });
 
             for (const category of exam.Categories) {
                 const parCategory = await ParentCategory.findByPk(category.id_par_category);
@@ -279,6 +289,20 @@ class ExamController {
                     newQuestion.addCategories(questionCategoryInstances, { transaction: t });
                 }
 
+                if (knowledges !== undefined && knowledges.length !== 0) {
+                    for (const id of knowledges) {
+                        const knowledge = await Knowledge.findByPk(id);
+
+                        if (!knowledge) {
+                            return res.status(400).json({
+                                message: "Knowledge does not exist!",
+                                knowledge: id
+                            });
+                        }
+                        await newQuestion.addKnowledge(knowledge, { transaction: t });
+                    }
+                }
+
                 for (const answer of answers) {
                     let answer_image = "";
 
@@ -372,7 +396,13 @@ class ExamController {
                         const questionToDelete = await Question.findByPk(question.id);
 
                         if (!questionToDelete) throw new Error(`question with id ${question.id} does not exist`);
-                        await questionToDelete.destroy({ transaction: t });
+
+                        // Update status of this question to delete
+                        await questionToDelete.update({
+                            status: "delete"
+                        }, {
+                            transaction: t
+                        });
                         quantity_question--;
                     }
 
@@ -430,63 +460,55 @@ class ExamController {
                             await questionDraft.destroy({ transaction: t });
                         }
 
-                        await questionToUpdate.update({ content_image: questionUrl, ...questionBody }, { transaction: t });
+                        questionBody.content_image = questionUrl;
+                        if (questionBody.id !== undefined) {
+                            delete questionBody.id;
+                        }
 
-                        // Update answers
+                        // create new question with the same data as old question
+                        const newQuestion = await Question.create({
+                            ...questionBody
+                        }, {
+                            transaction: t
+                        });
+
+                        // Update status of old question to delete
+                        await questionToUpdate.update({ status: "delete" }, { transaction: t });
+
+                        // create new answers with the same data as old answers
                         for (const answer of answers) {
                             const { answerModify, ...answerBody } = answer;
 
-                            // If modify is undefined, means this answer oes not need to update
-                            if (answerModify === undefined) {
+                            // If answerModify state is delete, skip this answer
+                            if (answerModify === "delete") {
                                 continue;
                             }
 
-                            // If modify state is delete, means this answer will be delete
-                            else if (answerModify === "delete") {
-                                await Answer.destroy({
-                                    where: { id: answer.id }
-                                }, {
-                                    transaction: t
-                                });
+                            let answerUrl = "";
+                            const answerDraft = await ExamDraft.findOne({
+                                where: { id_answer: answer.id, type: "answer" }
+                            });
+
+                            if (answerDraft) {
+                                answerUrl = answerDraft.url;
+                                await answerDraft.destroy({ transaction: t });
                             }
 
-                            // If modify state is create, means this question need to add new answer
-                            else if (answerModify === "create") {
-                                let answerUrl = "";
-                                const answerDraft = await ExamDraft.findOne({
-                                    where: { id_answer: answer.id, type: "answer" }
-                                });
-
-                                if (answerDraft) {
-                                    answerUrl = answerDraft.url;
-                                    await answerDraft.destroy({ transaction: t });
-                                }
-
-                                await Answer.create({
-                                    ...answerBody,
-                                    id_question: question.id,
-                                    content_image: answerUrl
-                                }, {
-                                    transaction: t
-                                });
+                            if (answerBody.id_question !== undefined) {
+                                delete answerBody.id_question;
                             }
 
-                            // The last state of modify is change, means answers need to be update
-                            else {
-                                const answerToUpdate = await Answer.findByPk(answer.id)
-                                let answerUrl = answerToUpdate.content_image;
-
-                                const answerDraft = await ExamDraft.findOne({
-                                    where: { id_answer: answer.id, type: "answer" }
-                                });
-
-                                if (answerDraft) {
-                                    answerUrl = answerDraft.url;
-                                    await answerDraft.destroy({ transaction: t });
-                                }
-
-                                await answerToUpdate.update({ content_image: answerUrl, ...answerBody }, { transaction: t });
+                            if (answerBody.id !== undefined) {
+                                delete answerBody.id;
                             }
+
+                            await Answer.create({
+                                ...answerBody,
+                                id_question: newQuestion.id,
+                                content_image: answerUrl
+                            }, {
+                                transaction: t
+                            });
                         }
                     }
                 }
@@ -506,7 +528,7 @@ class ExamController {
             res.status(200).json(exam);
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error });
+            res.status(500).json({ error, message: error.message });
 
             await t.rollback();
         }
