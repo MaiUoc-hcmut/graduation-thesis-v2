@@ -47,6 +47,7 @@ class ForumController {
                         through: {
                             attributes: []
                         },
+                        order: [['createdAt', 'DESC']],
                         limit: pageSize,
                         offset: pageSize * (currentPage - 1)
                     }
