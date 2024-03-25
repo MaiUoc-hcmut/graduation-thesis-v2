@@ -130,6 +130,7 @@ class Auth {
 
   refreshToken = async (req, res, next) => {
     try {
+      console.log(123);
       const { parsedRefreshToken } = req.body;
       if (!parsedRefreshToken)
         return next(createError.BadRequest('Refresh token are required'));

@@ -550,12 +550,13 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                 <button
                                     onClick={() => {
                                         removeTopic(indexTopic)
-                                        setToggle({ ...toggle, [`add_exam_${chapter.key}`]: false })
+                                        setToggle({ ...toggle, [`edit_exam_${topic.key}`]: false })
 
                                     }} type="button" className="mr-4 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Huỷ</button>
                                 <button type="submit"
                                     onClick={() => {
-                                        setTypeSubmit(`add_exam_${chapter.key}`)
+                                        setToggle({ ...toggle, [`edit_exam_${topic.key}`]: false })
+                                        setTypeSubmit(`edit_exam_${topic.key}`)
                                     }}
                                     className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mt-3">Lưu</button>
                             </div>

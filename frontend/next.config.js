@@ -11,6 +11,7 @@ const nextConfig = {
       },
     ],
   },
+  reactStrictMode: false,
 };
 
 // const withVideos = require('next-videos');

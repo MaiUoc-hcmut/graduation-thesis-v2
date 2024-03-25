@@ -15,13 +15,7 @@ module.exports = {
       boxShadow: {
         header_teacher: '0 3px 10px 0 rgba(0, 0, 0, 0.03)',
         sidebar_teacher: '18px 0 35px 0 rgba(0, 0, 0, 0.02);',
-        progress_bar_course: "0px 12px 23px 0px rgba(62, 73, 84, 0.04)",
-        card_course: '0 5px 12px 0 rgba(0, 0, 0, 0.1)',
-        primary_btn_shadow: '0 3px 6px 0 rgb(64 213 125 / 30%)',
-        primary_btn_shadow_hover: '0 3px 8px 0 rgb(64 213 125 / 30%)',
-        secondary_btn_shadow: '0 3px 6px 0 rgb(64 213 125 / 30%)',
-        secondary_btn_shadow_hover: '0 3px 8px 0 rgb(64 213 125 / 30%)',
-
+        progress_bar_course: "0px 12px 23px 0px rgba(62, 73, 84, 0.04)"
       },
       colors: {
         gray_dark: '#343a40',
@@ -40,11 +34,15 @@ module.exports = {
         primary_hover: '#1FB354',
         primary_border: '#43d477',
         primary_border_hover: '#2aba5e',
+        primary_btn_shadow: '0 3px 6px 0 rgb(64 213 125 / 30%)',
+        primary_btn_shadow_hover: '0 3px 8px 0 rgb(64 213 125 / 30%)',
         primary_btn_color: '#ffffff',
         primary_btn_color_hover: '#ffffff',
         secondary_hover: '#162a47',
         secondary_border: '#162a47',
         secondary_border_hover: '#13243d',
+        secondary_btn_shadow: '0 3px 6px 0 rgb(64 213 125 / 30%)',
+        secondary_btn_shadow_hover: '0 3px 8px 0 rgb(64 213 125 / 30%)',
         secondary_btn_color: '#ffffff',
         secondary_btn_color_hover: '#ffffff',
       },

@@ -3,31 +3,10 @@
 /* eslint-disable react/jsx-no-undef */
 import Link from 'next/link';
 import Image from 'next/image';
-import { AppDispatch, useAppSelector } from "@/redux/store";
-import { useEffect, useState } from 'react';
-import courseApi from '@/app/api/courseApi';
-
-export function HeaderLearning({ params }: { params: { slug: string } }) {
-    const [course, setCourse] = useState<any>()
-    const [progress, setProgress] = useState<any>()
-    const { user } = useAppSelector(state => state.authReducer);
-
-    useEffect(() => {
-        async function fetchData() {
-            await courseApi.get(params.slug).then((data: any) => {
-                setCourse(data.data)
-            }
-            )
-
-            await courseApi.getProgress(`${user?.id}`, params.slug).then((data: any) => {
-                setProgress(data.data)
-            }
-            )
-        }
-        fetchData()
 
 
-    }, [params.slug]);
+export function HeaderLearning({ course, progress, params }: any) {
+
     return (
         <div className="fixed top-0 left-0 h-24 w-full flex z-10 bg-white items-center justify-between px-9 py-4 shadow-sm">
             <div className="flex items-center">

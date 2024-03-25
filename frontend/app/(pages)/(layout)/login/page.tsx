@@ -15,6 +15,7 @@ import Link from 'next/link';
 
 export default function Login() {
     const [tab, setTab] = useState("student")
+    const [error, setError] = useState<any>()
     const { isSuccess, isFailed, message } = useAppSelector(state => state.authReducer);
     const dispatch = useDispatch<AppDispatch>();
     const {
@@ -43,13 +44,16 @@ export default function Login() {
             if (tab == "student")
                 redirect('/')
             else
-                redirect('/dashboard')
+                redirect('/teacher/dashboard')
         }
         if (isFailed) {
+            console.log(message);
             dispatch(reset());
             redirect('/login');
         }
     }, [dispatch, isSuccess]);
+
+
 
     return (
         <div className="container px-4 w-full mx-auto flex justify-center">
@@ -131,7 +135,7 @@ export default function Login() {
                                         className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                         placeholder="test@gmail.com"
                                     />
-                                    {errors.email?.message && (
+                                    {message?.message && (
                                         <p className='mt-2 text-sm text-red-400'>{errors.email?.message}</p>
                                     )}
                                 </div>
@@ -149,7 +153,7 @@ export default function Login() {
                                         placeholder="••••••••"
                                         className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     />
-                                    {errors.password?.message && (
+                                    {error?.message && (
                                         <p className='mt-2 text-sm text-red-400'>{errors.password?.message}</p>
                                     )}
                                 </div>

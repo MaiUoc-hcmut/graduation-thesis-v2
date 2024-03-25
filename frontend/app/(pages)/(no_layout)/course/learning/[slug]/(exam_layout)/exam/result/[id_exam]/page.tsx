@@ -261,15 +261,15 @@ export default function ResultExam({ params }: { params: { slug: string, id_exam
                             </div>
                             <div className="flex">
                                 <div className="flex flex-col justify-between mr-4">
-                                    <div className="py-1 text-[#757575]">Bài kiểm tra:</div>
-                                    <div className="py-1 text-[#757575]">Thời gian làm bài:</div>
+                                    {/* <div className="py-1 text-[#757575]">Bài kiểm tra:</div>
+                                    <div className="py-1 text-[#757575]">Thời gian làm bài:</div> */}
                                     <div className="py-1 text-[#757575]">Số câu bỏ trống</div>
                                     <div className="py-1 text-[#757575]">Số câu trả lời đúng:</div>
                                     <div className="py-1 text-[#757575]">Số câu trả lời sai:</div>
                                 </div>
                                 <div className="flex flex-col justify-between">
-                                    <div className="py-1 text-[#000]">0</div>
-                                    <div className="py-1 text-[#000]">0</div>
+                                    {/* <div className="py-1 text-[#000]">0</div>
+                                    <div className="py-1 text-[#000]">0</div> */}
                                     <div className="py-1 text-[#000]">{assignment?.empty_question}</div>
                                     <div className="py-1 text-[#000]">{assignment?.right_question}</div>
                                     <div className="py-1 text-[#000]">{assignment?.wrong_question}</div>
@@ -278,7 +278,7 @@ export default function ResultExam({ params }: { params: { slug: string, id_exam
 
                         </div>
 
-                        <div className='mt-5 mx-5'>
+                        {/* <div className='mt-5 mx-5'>
                             <h3 className='font-semibold text-lg'>Phân tích chi tiết</h3>
                             <div className="mt-5 overflow-x-auto shadow-md sm:rounded-lg">
                                 <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
@@ -343,7 +343,7 @@ export default function ResultExam({ params }: { params: { slug: string, id_exam
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
+                        </div> */}
 
                         <div className='bg-white rounded-xl py-3 px-6 mt-4' style={{
                             boxShadow: '0px 0px 4px 0px #00000040 mt-10',

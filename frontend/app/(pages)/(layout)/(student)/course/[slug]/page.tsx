@@ -9,7 +9,7 @@ import courseApi from '@/app/api/courseApi';
 import { useForm, SubmitHandler } from "react-hook-form"
 import parse from 'html-react-parser';
 import { formatCash, convertTime, formatDateTime } from '@/app/helper/FormatFunction';
-
+import { useSession } from 'next-auth/react';
 type Review = {
     content: string
     rating: number
@@ -26,7 +26,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
     const [avgReview, setAvgReview] = useState(0);
     const [starDetails, setStarDetails] = useState<any>();
     const [hoverRating, setHoverRating] = useState(0);
-
+    // const { data: session, status } = useSession();
     const {
         register,
         handleSubmit,
@@ -74,6 +74,10 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
         return stars;
     };
 
+    // if (session) {
+    //     console.log(123);
+
+    // }
     return (
         <div className="">
             <div className="relative h-[530px] block overflow-hidden">

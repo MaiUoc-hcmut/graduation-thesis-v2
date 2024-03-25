@@ -3,10 +3,9 @@
 /* eslint-disable react/jsx-no-undef */
 import Image from 'next/image';
 import Link from 'next/link';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircle } from '@fortawesome/free-regular-svg-icons/faCircle';
-
+import { useAppSelector } from "@/redux/store";
 export default function Sidebar() {
+    const { user } = useAppSelector(state => state.authReducer);
     return (
         <div className=''>
             <aside
@@ -18,7 +17,7 @@ export default function Sidebar() {
                     <div className='flex flex-row items-end justify-center'>
                         <Link href="#">
                             <Image
-                                src="/images/avatar-teacher.png"
+                                src={`${user.avatar ? user.avatar : '/images/avatar-teacher.png'} `}
                                 width={100}
                                 height={100}
                                 alt="avatar"
@@ -29,7 +28,7 @@ export default function Sidebar() {
                     <div className='flex flex-row items-end justify-center mt-4 font-semibold'>
                         <Link href="#">
                             <h3 className='text-[1.25rem]'>
-                                Lê Quang Việt
+                                {user.name}
                             </h3>
                         </Link>
                     </div>
@@ -50,7 +49,7 @@ export default function Sidebar() {
                         <ul className="space-y-2 font-medium absolute top-0 left-0 w-full h-[1000px]">
                             <li>
                                 <Link
-                                    href="#"
+                                    href="/teacher/dashboard"
                                     className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
                                 >
                                     <svg
@@ -107,7 +106,6 @@ export default function Sidebar() {
                                             href="/teacher/dashboard/course/new"
                                             className="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                                         >
-                                            <FontAwesomeIcon icon={faCircle} className='text-[6px] mt-[2px]' />
                                             <div className='ml-2'>
                                                 Tạo mới
                                             </div>
@@ -119,7 +117,6 @@ export default function Sidebar() {
                                             href="/teacher/dashboard/course"
                                             className="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                                         >
-                                            <FontAwesomeIcon icon={faCircle} className='text-[6px] mt-[2px]' />
                                             <div className='ml-2'>
                                                 Khóa học của tôi
                                             </div>
@@ -169,7 +166,6 @@ export default function Sidebar() {
                                             href="/teacher/dashboard/exam/new"
                                             className="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                                         >
-                                            <FontAwesomeIcon icon={faCircle} className='text-[6px] mt-[2px]' />
                                             <div className='ml-2'>
                                                 Tạo mới
                                             </div>
@@ -181,7 +177,6 @@ export default function Sidebar() {
                                             href="/teacher/dashboard/exam"
                                             className="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                                         >
-                                            <FontAwesomeIcon icon={faCircle} className='text-[6px] mt-[2px]' />
                                             <div className='ml-2'>
                                                 Đề thi của tôi
                                             </div>
@@ -192,7 +187,7 @@ export default function Sidebar() {
                             </li>
                             <li>
                                 <Link
-                                    href="#"
+                                    href="/teacher/dashboard"
                                     className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
                                 >
                                     <svg

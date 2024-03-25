@@ -67,6 +67,7 @@ instance.interceptors.request.use(
         // If the access token has expire, send request to refresh the access token
         // if (expire < new Date().getTime() / 1000) {
         //     const refreshToken = localStorage.getItem('refreshToken');
+
         //     if (refreshToken) {
         //         const parsedRefreshToken = JSON.parse(refreshToken);
         //         let decodedRefToken = jwtDecode(parsedRefreshToken) as { [key: string]: any }
@@ -77,7 +78,7 @@ instance.interceptors.request.use(
         //             window.location.href = '/login';
         //         }
         //         instance
-        //             .post('auth/refresh-token', { parsedRefreshToken })
+        //             .post('auth-teacher/refresh-token', { parsedRefreshToken })
         //             .then(response => {
         //                 if (response.data.accessToken) localStorage.setItem('accessToken', JSON.stringify(response.data.accessToken));
         //                 if (response.data.refreshToken) localStorage.setItem('accessToken', JSON.stringify(response.data.refreshToken));

@@ -1,6 +1,5 @@
 "use client"
-import axios from 'axios';
-import { Fragment, useRef, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import examApi from '@/app/api/examApi';
 import AttempExam from './attemp';
 
@@ -12,7 +11,6 @@ export default function Exam({ params }: { params: { slug: string, id_exam: stri
         const getExam = async () => {
             await examApi.get(params.id_exam).then((data) => {
                 setExam(data.data)
-
             })
         };
         getExam()

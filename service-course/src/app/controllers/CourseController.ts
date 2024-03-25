@@ -463,6 +463,8 @@ class CourseController {
                                 }
                                 chapters[i].topics[j].exam.data.categories = categories;
                                 chapters[i].topics[j].exam.data.id_course = newCourse.id;
+                                chapters[i].topics[j].exam.data.title = chapters[i].topics[j].name;
+
                                 const exam = await axios.post(
                                     `${process.env.BASE_URL_EXAM_LOCAL}/exams`,
                                     chapters[i].topics[j].exam,

@@ -17,9 +17,9 @@ const courseApi = {
         return await axiosConfig.get(url);
     },
 
-    search: async (data: object) => {
-        const url = `/courses/search/page/1`;
-        return await axiosConfig.post(url, data);
+    search: async (id_teacher: string, params: object) => {
+        const url = `/courses/search/teacher/${id_teacher}/page/1`;
+        return await axiosConfig.get(url, { params });
     },
 
     searchForum: async (id_forum: string, params: object) => {

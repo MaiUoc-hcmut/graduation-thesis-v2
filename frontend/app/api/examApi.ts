@@ -17,7 +17,7 @@ const examApi = {
     },
 
     getAssigmnentByExamId: async (id_student: string, id_exam: string) => {
-        const url = `/assignments/student/${id_student}/page/1`;
+        const url = `/assignments/student/${id_student}/exam/${id_exam}page/1`;
         return await axiosConfig.get(url);
     },
 

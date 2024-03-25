@@ -1,18 +1,14 @@
-/* eslint-disable @next/next/no-sync-scripts */
+
 import type { Metadata } from 'next'
 import './globals.css'
 import FlowbiteClient from './_components/Flowbite/FlowbiteClient'
 import { Suspense } from 'react'
-// import { library } from '@fortawesome/fontawesome-svg-core'
-// import { fab } from '@fortawesome/free-brands-svg-icons'
-// import { fas } from '@fortawesome/free-solid-svg-icons'
-// import { far } from '@fortawesome/free-regular-svg-icons'
 
 import { ReduxProvider } from '@/redux/provider';
-// import GlobalError from './global-error';
-import Error from './Error';
-import { ErrorBoundary } from 'next/dist/client/components/error-boundary';
 
+// import GlobalError from './global-error';
+// import Error from './Error';
+// import { ErrorBoundary } from 'next/dist/client/components/error-boundary';
 import '@/node_modules/react-multi-carousel/lib/styles.css'
 
 export const metadata: Metadata = {
@@ -21,21 +17,18 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({
-  children,
+  children
 }: {
   children: React.ReactNode
 }) {
-
   return (
     <html lang="en">
       <head>
       </head>
-      <body className="">
+      <body >
         <Suspense fallback={<p>Loading data...</p>}>
           <ReduxProvider>
-            <ErrorBoundary fallback={<p>Something went wrong</p>}>
-              {children}
-            </ErrorBoundary>
+            {children}
           </ReduxProvider>
         </Suspense>
         <FlowbiteClient />
@@ -44,5 +37,3 @@ export default function RootLayout({
     </html>
   )
 }
-
-// library.add(fab, fas, far)

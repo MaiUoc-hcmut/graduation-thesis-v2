@@ -20,7 +20,7 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
     const [forum, setForum] = useState<any>()
     const [topics, setTopics] = useState<any>()
     const [modal, setModal] = useState(false)
-    const [course, setCourse] = useState()
+    const [change, setChange] = useState(false)
     const [content, setContent] = useState<any>('')
 
     const {
@@ -32,10 +32,6 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
 
     useEffect(() => {
         async function fetchData() {
-            await courseApi.get(params.slug).then((data: any) => {
-                setCourse(data.data)
-            }
-            )
             await courseApi.getForumOfCourse(params.slug, 1).then((data: any) => {
                 setForum(data.data)
                 setTopics(data.data.topics)
@@ -46,13 +42,13 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
         fetchData()
 
 
-    }, [params.slug]);
+    }, [params.slug, change]);
 
     console.log(topics);
 
 
     return (
-        <div>
+        <div className='w-full'>
             <>
                 <Modal show={modal} size="xl" onClose={() => setModal(false)} popup>
                     <Modal.Header />
@@ -68,6 +64,7 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                 file: data.file[0]
                             }
                             await courseApi.createTopicForum(formData)
+                            setChange(!change)
                             reset()
                             setModal(false)
                         })}>

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 
-export default function CustomTinyMceEditor({ setValue, value, position }: any) {
+export default function TinyMceEditorComment({ setValue, value, position }: any) {
     const handleEditorChange = (content: any, editor: any) => {
-        setValue(content)
+        setValue(position, content)
     };
 
     const handleImageUpload: any = (blobInfo: any, success: any, failure: any) => {

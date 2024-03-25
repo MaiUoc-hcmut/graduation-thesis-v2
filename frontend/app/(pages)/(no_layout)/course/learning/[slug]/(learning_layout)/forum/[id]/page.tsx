@@ -17,11 +17,13 @@ type AnswerData = {
 export default function TopicPage({ params }: { params: { id: string } }) {
     const [topic, setTopic] = useState<any>()
     const [toggle, setToggle] = useState<any>({})
+    const [change, setChange] = useState(false)
     const { user } = useAppSelector(state => state.authReducer);
     const {
         register,
         reset,
         getValues,
+        setValue,
         handleSubmit,
         formState: { errors },
     } = useForm<AnswerData>()
@@ -29,7 +31,7 @@ export default function TopicPage({ params }: { params: { id: string } }) {
     useEffect(() => {
         async function fetchData() {
             await courseApi.getTopicForum(params.id, 1).then((data: any) => {
-                setTopic(data.data)
+                setTopic(data.data.topic)
             }
             )
 
@@ -37,7 +39,8 @@ export default function TopicPage({ params }: { params: { id: string } }) {
         fetchData()
 
 
-    }, [params.id]);
+    }, [params.id, change]);
+
 
     return (
         <div className=''>
@@ -149,7 +152,7 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                                                     <div className='w-1/6 flex flex-col justify-between items-end'>
                                                         <div className='text-[#818894] text-sm'>{formatDateTime(answer.createdAt)}</div>
                                                         <div className='flex text-sm'>
-                                                            <span className='mr-4 text-[#818894] underline cursor-pointer' onClick={() => setToggle({ ...toggle, [`reply-${answer.id}`]: true })}>{answer.replies?.lenght} phản hồi</span>
+                                                            <span className='mr-4 text-[#818894] underline cursor-pointer' onClick={() => setToggle({ ...toggle, [`reply-${answer.id}`]: true })}>{answer.replies?.length} phản hồi</span>
                                                             <button className='text-blue-500' onClick={() => setToggle({ ...toggle, [`reply-${answer.id}`]: true })}>Phản hồi</button>
                                                         </div>
 
@@ -186,18 +189,20 @@ export default function TopicPage({ params }: { params: { id: string } }) {
 
                                                                         const formData = {
                                                                             data: {
-                                                                                id_topic_forum: topic?.id,
+                                                                                id_topic_forum: params.id,
                                                                                 id_parent: answer.id,
-                                                                                content: data.content,
+                                                                                content: data[`content-${index}`],
                                                                             },
-                                                                            file: data.file[0]
+                                                                            file: data[`file-${index}`][0]
                                                                         }
                                                                         await courseApi.createAnswerOfTopic(formData)
+                                                                        setChange(!change)
                                                                         reset()
+                                                                        setValue(`content-${index}`, '')
                                                                     })}>
                                                                         <textarea
                                                                             placeholder="Nhập phản hồi của bạn..."
-                                                                            {...register(`content`)}
+                                                                            {...register(`content-${index}`)}
                                                                             className="w-full p-2 border rounded focus:ring-0 focus:border-primary_border"
                                                                             rows={2}
                                                                         ></textarea>
@@ -208,7 +213,7 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                                                                             <div className="mb-2 block">
                                                                                 {/* <Label htmlFor="file" value="Gắn kèm file (tùy chọn)" /> */}
                                                                             </div>
-                                                                            <input  {...register('file')} className="block w-full mb-5 text-xs text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="file" type="file" />
+                                                                            <input  {...register(`file-${index}`)} className="block w-full mb-5 text-xs text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="file" type="file" />
                                                                         </div>
                                                                         <div className='flex justify-end mt-4'>
                                                                             <button type='submit' className='h-[36px] px-[22px] bg-primary shadow-primary_btn_shadow border-primary text-white rounded-md hover:bg-primary_hover'>Đăng</button>
@@ -266,7 +271,7 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                                                         })
                                                     }
                                                     <div className='flex justify-end'>
-                                                        <button className='h-[36px] px-[22px] bg-primary shadow-primary_btn_shadow border-primary text-white rounded-md hover:bg-primary_hover' onClick={() => setToggle({ ...toggle, [`edit-cmt`]: false })}>Đóng</button>
+                                                        <button className='h-[36px] px-[22px] bg-primary shadow-primary_btn_shadow border-primary text-white rounded-md hover:bg-primary_hover' onClick={() => setToggle({ ...toggle, [`reply-${answer.id}`]: false })}>Đóng</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -317,16 +322,16 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                                 <div className='ml-7 w-5/6 flex flex-col'>
                                     <form onSubmit={handleSubmit(async (data: any) => {
                                         console.log(data, errors);
-
                                         const formData = {
                                             data: {
-                                                id_topic_forum: topic?.id,
+                                                id_topic_forum: params.id,
                                                 content: data.content,
 
                                             },
                                             file: data.file[0]
                                         }
                                         await courseApi.createAnswerOfTopic(formData)
+                                        setChange(!change)
                                         reset()
                                     })}>
                                         <textarea

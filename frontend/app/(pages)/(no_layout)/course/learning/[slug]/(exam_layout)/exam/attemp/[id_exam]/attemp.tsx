@@ -1,17 +1,14 @@
 "use client"
-import axios from 'axios';
 import { Fragment, useRef, useState, useEffect } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
 import parse from 'html-react-parser';
 import Link from 'next/link';
 import { XMarkIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
 import examApi from '@/app/api/examApi';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
-
+import { useRouter } from 'next/navigation'
 export default function AttempExam({ params, exam }: { params: { slug: string, id_exam: string }, exam: any }) {
-    // const [formData, setFormData] = useState<any>({});
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(true);
     const [openSidebar, setOpenSideBar] = useState(true);
     const intervalRef = useRef<any>(null);
     const alphabet = ['A', 'B', 'C', 'D', 'E', 'F'];
@@ -23,27 +20,6 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
         reset,
         formState: { errors },
     } = useForm()
-
-    // function handlerInput(id_question: string, answer: string) {
-    //     setFormData({ ...formData, [id_question]: [answer] });
-    // }
-    // function handlerInputMultiChoice(id_question: string, answer: string, isChecked: boolean) {
-    //     let res = [];
-    //     if (formData[id_question]) {
-    //         res = formData[id_question];
-    //         if (isChecked) {
-    //             res.push(answer);
-    //         } else {
-    //             res = res.filter(function (anw: string) {
-    //                 return anw !== answer;
-    //             });
-    //         }
-    //     } else {
-    //         res = [answer];
-    //     }
-
-    //     setFormData({ ...formData, [id_question]: res });
-    // }
 
     function convertTime(i: number) {
         let hours = parseInt(`${i / 3600}`, 10);
@@ -109,7 +85,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
         })
 
         const submitAnswer = async () => {
-            examApi.submitExam({ data })
+            await examApi.submitExam({ data })
         };
         console.log(data);
 
@@ -220,47 +196,48 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                 );
             }
         });
-        // listNumber = exam?.questions?.map((question: any, index: number) => {
-        //     if (!formData.hasOwnProperty(question.questionId)) {
-        //         return (
-        //             <Link
-        //                 href={`#question${index + 1}`}
-        //                 key={index}
-        //                 className="bg-[#f0efef] p-2 w-9 h-9 rounded-xl flex justify-center items-center font-normal"
-        //                 style={{
-        //                     boxShadow: '0px 1px 4px 0px #00000033 -1px -1px 4px 0px #00000026 inset 1px 1px 4px 0px #0000001A inset',
-        //                     textDecoration: 'none',
-        //                 }}
-        //             >
-        //                 {index + 1}
-        //             </Link>
-        //         );
-        //     } else {
-        //         return (
-        //             <a
-        //                 href={`#question${index + 1}`}
-        //                 key={index}
-        //                 className="p-2 w-10 h-10 rounded-xl flex justify-center items-center font-normal text-[#2FD790]"
-        //                 style={{
-        //                     background: 'rgba(47, 215, 144, 0.15)',
-        //                     boxShadow: '1px 1px 2px 0px #2FD79040 1px 1px 3px 0px #2FD7905C inset -1px -1px 2px 0px #2FD79052 inset',
-        //                     textDecoration: 'none',
-        //                 }}
-        //             >
-        //                 {index + 1}
-        //             </a>
-        //         );
-        //     }
-        // });
+        listNumber = exam?.questions?.map((question: any, index: number) => {
+            if (!getValues().hasOwnProperty(question.questionId)) {
+                return (
+                    <Link
+                        href={`#question${index + 1}`}
+                        key={index}
+                        className="bg-[#f0efef] p-2 w-9 h-9 rounded-xl flex justify-center items-center font-normal"
+                        style={{
+                            boxShadow: '0px 1px 4px 0px #00000033 -1px -1px 4px 0px #00000026 inset 1px 1px 4px 0px #0000001A inset',
+                            textDecoration: 'none',
+                        }}
+                    >
+                        {index + 1}
+                    </Link>
+                );
+            } else {
+                return (
+                    <a
+                        href={`#question${index + 1}`}
+                        key={index}
+                        className="p-2 w-10 h-10 rounded-xl flex justify-center items-center font-normal text-[#2FD790]"
+                        style={{
+                            background: 'rgba(47, 215, 144, 0.15)',
+                            boxShadow: '1px 1px 2px 0px #2FD79040 1px 1px 3px 0px #2FD7905C inset -1px -1px 2px 0px #2FD79052 inset',
+                            textDecoration: 'none',
+                        }}
+                    >
+                        {index + 1}
+                    </a>
+                );
+            }
+        });
     }
-
+    const router = useRouter()
 
     return (
         <form onSubmit={handleSubmit((data) => {
             console.log(data, 1);
             submitTest('1', data)
+            router.push(`/course/learning/${params.slug}/exam/${params.id_exam}`)
 
-        })} className="bg-[#FBFAF9] relative py-10">
+        })} className="bg-[#FBFAF9] relative py-10 min-h-screen">
             <div className="px-10 py-5 bg-[#153462] fixed w-full top-0 left-0 z-10">
                 <div className="flex justify-between h-full items-center">
                     <div className="text-[#fff] text-[22px] font-medium text-center ">{exam?.title}</div>
@@ -282,7 +259,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                     className={`${openSidebar ? "" : "hidden"} ml-5 bg-white p-4 min-h-svh h-auto top-[75px] fixed right-0 w-1/4 shadow-lg`}
 
                 >
-                    <button onClick={() => setOpenSideBar(false)}>
+                    <button type='button' onClick={() => setOpenSideBar(false)}>
                         <XMarkIcon className='w-5 h-5 absolute top-3 right-3 font-bold' />
                     </button>
                     <div className="border-[1px] border-[#ececec] shadow-sm rounded-xl p-3 mt-4">
@@ -291,10 +268,9 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                         <div className="text-center mt-10 mb-2">
                             <button
                                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                // onClick={() => {
-                                //     setOpen(true);
-                                //     submitTest('10')
-                                // }}
+                                onClick={() => {
+                                    setOpen(true);
+                                }}
                                 type='submit'
                             >
                                 Nộp bài
@@ -303,7 +279,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                     </div>
                 </div>
                 <div className={`${openSidebar ? "hidden" : ""}  top-[85px] fixed right-2`}>
-                    <button className='p-2 bg-white flex shadow-md items-center justify-center rounded-lg' onClick={() => setOpenSideBar(true)}>
+                    <button type="button" className='p-2 bg-white flex shadow-md items-center justify-center rounded-lg' onClick={() => setOpenSideBar(true)}>
                         <ChevronLeftIcon className='w-5 h-5 font-bold ' />
                     </button>
                 </div>

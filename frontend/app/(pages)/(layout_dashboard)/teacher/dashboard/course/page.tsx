@@ -29,15 +29,16 @@ type CourseData = {
 
 export default function CourseDashboard() {
     const authUser = useAppSelector(state => state.authReducer.user);
-    const [courses, setCourses] = useState<[CourseData]>()
+    const [courses, setCourses] = useState<any>()
     const [modal, setModal] = useState<any>({})
     const [change, setChange] = useState<boolean>(false)
     const [paginate, setPaginate] = useState(1)
-    const list: [any] = []
+    const list: any = []
     const searchParams = useSearchParams()
     const page = searchParams.get('page')
     const search = searchParams.get('search')
     const [searchInput, setSearchInput] = useState('')
+    const { user } = useAppSelector(state => state.authReducer);
 
     const renderStars = (rating: number) => {
         const stars = [];
@@ -68,8 +69,6 @@ export default function CourseDashboard() {
         list.push(i)
     }
 
-    console.log(courses);
-
     return (
         <div className="">
             <div className="">
@@ -77,14 +76,19 @@ export default function CourseDashboard() {
                 <div className="flex justify-between items-center mt-10 mb-10 w-full ">
                     <form className="flex items-center w-1/3" onSubmit={(e: any) => {
                         e.preventDefault()
-                        courseApi.search({ data: { query: searchInput } }).then((data: any) => {
+                        courseApi.search(`${user.id}`, { query: searchInput }).then((data: any) => {
                             setCourses(data.data.result)
                         })
 
                     }}>
                         <label htmlFor="simple-search" className="sr-only">Search</label>
                         <div className="relative w-full">
-                            <input onChange={(e: any) => setSearchInput(e.target.value)} type="text" id="simple-search" className="w-full text-sm text-[#343434]  rounded-md border-[1px] border-[#ececec] focus:ring-0 focus:border-primary_border" placeholder="Tìm kiếm trong khóa học" required />
+                            <input onChange={(e: any) => {
+                                courseApi.search(`${user.id}`, { query: e.target.value }).then((data: any) => {
+                                    setCourses(data.data.result)
+                                })
+                                setSearchInput(e.target.value)
+                            }} type="text" id="simple-search" className="w-full text-sm text-[#343434]  rounded-md border-[1px] border-[#ececec] focus:ring-0 focus:border-primary_border" placeholder="Tìm kiếm trong khóa học" required />
                         </div>
                         <button type="submit" className="ml-2 bg-primary p-2.5 rounded-md shadow-primary_btn_shadow border-primary text-white hover:bg-primary_hover">
                             <MagnifyingGlassIcon className='w-4 h-4' />
@@ -96,7 +100,7 @@ export default function CourseDashboard() {
             </div>
             <div className="mt-8">
                 {
-                    courses?.map((course) => {
+                    courses?.map((course: any) => {
                         return (
                             <div key={course.id} className="relative rounded-[10px] flex bg-white mb-8">
                                 <>
@@ -130,7 +134,7 @@ export default function CourseDashboard() {
 
                                 <div className="h-[200px] w-[300px] relative">
                                     <Image
-                                        src={`${course.thumbnail ? course.thumbnail : '/'}`}
+                                        src={`${course.thumbnail ? course.thumbnail : '/images/cousre-thumnail-1.jpg'}`}
                                         fill
                                         alt="logo"
                                         className="rounded-l-[10px] h-full w-full overflow-hidden object-center object-cover"
@@ -209,7 +213,7 @@ export default function CourseDashboard() {
             </div>
             {
                 paginate > 1 ?
-                    <div className="flex justify-center items-center pt-20">
+                    <div className="flex justify-center items-center pt-10 pb-5">
                         <nav aria-label="Page navigation example">
                             <ul className="flex items-center -space-x-px h-8 text-sm">
                                 <li>
@@ -225,16 +229,13 @@ export default function CourseDashboard() {
                                         return (
                                             <div key={l} onClick={() => setChange(!change)}>
                                                 <li>
-                                                    <Link href={`course?page=${l}`} className={`flex items-center justify-center px-3 h-8 leading-tight ${search == `${l}` ? 'text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'} `}>{l}</Link>
+                                                    <Link href={`course?page=${l}`} className={`flex items-center justify-center px-3 h-8 leading-tight ${page == `${l}` ? 'text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'} `}>{l}</Link>
                                                 </li>
 
                                             </div>
                                         )
                                     })
                                 }
-
-
-
                                 <li>
                                     <a href="#" className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                                         <span className="sr-only">Next</span>
