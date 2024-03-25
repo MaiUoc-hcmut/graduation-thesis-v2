@@ -44,6 +44,27 @@ class CheckingCourse {
             next(createError.InternalServerError(error.message));
         }
     }
+
+    checkExistedCourse = async (req: Request, _res: Response, next: NextFunction) => {
+        try {
+            const id_course = req.params.courseId;
+
+            const course = await Course.findByPk(id_course);
+
+            if (!course) {
+                let error = "Course does not exist!";
+                return next(createError.BadRequest(error));
+            }
+            next();
+        } catch (error: any) {
+            console.log(error.message);
+            next(createError.InternalServerError(error.message));
+        }
+    }
+
+    checkGetCourseStudentPaid = async (req: Request, _res: Response, next: NextFunction) => {
+        
+    }
 }
 
 module.exports = new CheckingCourse();
