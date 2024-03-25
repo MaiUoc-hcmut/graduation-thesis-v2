@@ -445,6 +445,15 @@ class CourseController {
         try {
             const id_teacher = req.teacher.data.id;
             
+            // check if there are no start and end time
+            if (!courseBody.start_time || !courseBody.end_time) {
+                throw new Error("Time landmark missed!");
+            }
+
+            if (!categories) {
+                throw new Error("Categories missed!");
+            }
+
             let thumbnail = "";
             let cover_image = "";
             
@@ -489,10 +498,6 @@ class CourseController {
             });
 
             const newForum = await Forum.create({ id_course: newCourse.id }, { transaction: t });
-
-            if (categories === undefined) {
-                throw new Error("Categories missed!");
-            }
 
             const categoriesInstances = [];
 

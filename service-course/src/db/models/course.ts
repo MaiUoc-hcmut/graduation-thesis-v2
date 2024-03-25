@@ -78,6 +78,14 @@ Course.init(
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
+    start_time: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
+    end_time: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,

@@ -279,9 +279,12 @@ class ExamController {
                 return res.status(400).json({ message: "Information missed!" });
             }
                 
-            
             if (categories === undefined || categories.length === 0) {
-                return res.status(400).json({ message: "Category missed!" })
+                return res.status(400).json({ message: "Category missed!" });
+            }
+
+            if (questions === undefined || questions.length === 0) {
+                return res.status(400).json({ message: "Questions missed!" });
             }
 
             let categoryInstances: any[] = [];
