@@ -8,17 +8,13 @@ import { useForm, SubmitHandler, Controller } from "react-hook-form"
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import { formatDateTime } from '@/app/helper/FormatFunction';
 
-
-
-type AnswerData = {
-    content: [string],
-    file: File
-}
 export default function TopicPage({ params }: { params: { id: string } }) {
     const [topic, setTopic] = useState<any>()
     const [toggle, setToggle] = useState<any>({})
     const [change, setChange] = useState(false)
     const { user } = useAppSelector(state => state.authReducer);
+    console.log(user);
+
     const {
         register,
         reset,
@@ -26,7 +22,7 @@ export default function TopicPage({ params }: { params: { id: string } }) {
         setValue,
         handleSubmit,
         formState: { errors },
-    } = useForm<AnswerData>()
+    } = useForm()
 
     useEffect(() => {
         async function fetchData() {
@@ -43,7 +39,7 @@ export default function TopicPage({ params }: { params: { id: string } }) {
 
 
     return (
-        <div className=''>
+        <div className='w-full'>
             <div className='bg-[#f7fafd] p-4' >
                 <div className='bg-white rounded-[10px] p-4'>
                     <section className='rounded-lg border-[1px] border-[#ececec] p-3 flex flex-col justify-center'>
@@ -138,7 +134,7 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div className='ml-7 w-4/6 '>
+                                                    <div className='ml-7 w-3/6 '>
                                                         <p className='text-[#818894] text-sm'>{answer.content}</p>
                                                         {
                                                             answer.file ?
@@ -149,7 +145,7 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                                                         }
 
                                                     </div>
-                                                    <div className='w-1/6 flex flex-col justify-between items-end'>
+                                                    <div className='w-1/3 flex flex-col justify-between items-end'>
                                                         <div className='text-[#818894] text-sm'>{formatDateTime(answer.createdAt)}</div>
                                                         <div className='flex text-sm'>
                                                             <span className='mr-4 text-[#818894] underline cursor-pointer' onClick={() => setToggle({ ...toggle, [`reply-${answer.id}`]: true })}>{answer.replies?.length} phản hồi</span>
@@ -206,12 +202,11 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                                                                             className="w-full p-2 border rounded focus:ring-0 focus:border-primary_border"
                                                                             rows={2}
                                                                         ></textarea>
-                                                                        <div className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                                                            {errors?.content?.message}
-                                                                        </div>
+                                                                        {/* <div className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                                                            {errors?.`content-${index}`.message}
+                                                                        </div> */}
                                                                         <div className='mt-2 w-1/3'>
                                                                             <div className="mb-2 block">
-                                                                                {/* <Label htmlFor="file" value="Gắn kèm file (tùy chọn)" /> */}
                                                                             </div>
                                                                             <input  {...register(`file-${index}`)} className="block w-full mb-5 text-xs text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="file" type="file" />
                                                                         </div>
@@ -289,25 +284,17 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                         <h3 className='text-secondary font-bold text-xl'>Phản hồi</h3>
                         <div className='mt-6 rounded-lg border-[1px] border-[#ececec] p-4 flex w-full'>
                             <div className='flex w-full'>
-                                <div className='flex-1 bg-[#f7fafd] p-4 rounded-lg flex justify-center items-center'>
+                                <div className='flex-1 h-auto bg-[#f7fafd] p-4 rounded-lg flex justify-center items-center'>
                                     <div className=' flex-1 flex flex-col justify-center items-center p-2 pt-0'>
                                         <div className='p-[6px] bg-white rounded-full'>
                                             {
-                                                user.avatar ?
-                                                    <Image
-                                                        src={`${user.avatar}`}
-                                                        width={80}
-                                                        height={80}
-                                                        className='rounded-full'
-                                                        alt="logo"
-                                                    /> :
-                                                    <Image
-                                                        src='/images/avatar.png'
-                                                        width={80}
-                                                        height={80}
-                                                        className='rounded-full'
-                                                        alt="logo"
-                                                    />
+                                                <Image
+                                                    src={`${user?.avatar ? user?.avatar : '/images/avatar.png'}`}
+                                                    width={80}
+                                                    height={80}
+                                                    className='rounded-full'
+                                                    alt="logo"
+                                                />
                                             }
 
                                         </div>
@@ -319,9 +306,8 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                                         </div>
                                     </div>
                                 </div>
-                                <div className='ml-7 w-5/6 flex flex-col'>
+                                <div className='ml-7 w-3/4 flex flex-col'>
                                     <form onSubmit={handleSubmit(async (data: any) => {
-                                        console.log(data, errors);
                                         const formData = {
                                             data: {
                                                 id_topic_forum: params.id,
@@ -340,17 +326,14 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                                             className="w-full p-2 border rounded focus:ring-0 focus:border-primary_border"
                                             rows={4}
                                         ></textarea>
-                                        <div className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                        {/* <div className="mt-2 text-sm text-red-600 dark:text-red-500">
                                             {errors?.content?.message}
-                                        </div>
-                                        <div className='mt-2 w-1/3'>
-                                            <div className="mb-2 block">
-                                                {/* <Label htmlFor="file" value="Gắn kèm file (tùy chọn)" /> */}
+                                        </div> */}
+                                        <div className='mt-2 w-full flex justify-between items-center'>
+                                            <input  {...register('file')} className="block w-1/2 text-xs text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="file" type="file" />
+                                            <div className='flex justify-end'>
+                                                <button type='submit' className='h-[36px] px-[22px] bg-primary shadow-primary_btn_shadow border-primary text-white rounded-md hover:bg-primary_hover'>Đăng</button>
                                             </div>
-                                            <input  {...register('file')} className="block w-full mb-5 text-xs text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="file" type="file" />
-                                        </div>
-                                        <div className='flex justify-end mt-4'>
-                                            <button type='submit' className='h-[36px] px-[22px] bg-primary shadow-primary_btn_shadow border-primary text-white rounded-md hover:bg-primary_hover'>Đăng</button>
                                         </div>
                                     </form>
                                 </div>

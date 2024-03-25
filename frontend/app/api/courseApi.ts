@@ -17,7 +17,7 @@ const courseApi = {
         return await axiosConfig.get(url);
     },
 
-    search: async (id_teacher: string, params: object) => {
+    searchCourseByCreateTeacher: async (id_teacher: string, params: object) => {
         const url = `/courses/search/teacher/${id_teacher}/page/1`;
         return await axiosConfig.get(url, { params });
     },
@@ -33,7 +33,7 @@ const courseApi = {
     },
 
     filter: (filterString: string) => {
-        const url = `/courses/filter?${filterString}`;
+        const url = `/courses/filter/page/1?${filterString}`;
         return axiosConfig.get(url);
     },
 
@@ -68,8 +68,8 @@ const courseApi = {
         return axiosConfig.get(url);
     },
 
-    getCommentByTopic: (id: string) => {
-        const url = `/comments/topic/${id}/page/1`;
+    getCommentByTopic: (id: string, page: number) => {
+        const url = `/comments/topic/${id}/page/${page}`;
         return axiosConfig.get(url);
     },
 

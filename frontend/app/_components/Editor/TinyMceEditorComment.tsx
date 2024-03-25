@@ -9,25 +9,10 @@ export default function TinyMceEditorComment({ setValue, value, position }: any)
     const handleImageUpload: any = (blobInfo: any, success: any, failure: any) => {
         return new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
-            xhr.open("POST", "http://localhost:4002/api/v1/images", true);
+            xhr.open("POST", "http://localhost:4001/api/v1/images/single", true);
 
             const formData = new FormData();
             formData.append("image", blobInfo.blob(), blobInfo.filename());
-
-            formData.append('data', JSON.stringify({
-                data: {
-                    id_question: 'd747c310-3ab5-fb9f-5ff1-e2ab53e807c9',
-                    type: "question"
-                }
-            }))
-
-            // xhr.upload.onprogress = (e) => {
-            //     progress((e.loaded / e.total) * 100);
-            //     if (progress && typeof progress === "function") {
-            //         const percent = 0;
-            //         progress(percent);
-            //     }
-            // };
 
             xhr.onload = () => {
                 if (xhr.status === 403) {
@@ -41,12 +26,6 @@ export default function TinyMceEditorComment({ setValue, value, position }: any)
                 }
 
                 const json = JSON.parse(xhr.responseText);
-                console.log(json.url);
-
-                // if (!json || typeof json.location != "string") {
-                //     reject("Invalid JSON: " + xhr.responseText);
-                //     return;
-                // }
 
                 resolve(json.url);
             };
@@ -65,7 +44,8 @@ export default function TinyMceEditorComment({ setValue, value, position }: any)
     return (
         <Editor
             apiKey='3wrf8xthqaxg88pboqgmvyterhthdjvpae4bjj2k0jml5dvs'
-            initialValue={value}
+            initialValue={value || ''}
+
             init={{
                 height: 200,
                 plugins: [
@@ -88,7 +68,7 @@ export default function TinyMceEditorComment({ setValue, value, position }: any)
                     help: { title: 'Help', items: 'help' }
                 },
                 images_upload_handler: handleImageUpload,
-                images_upload_url: "http://localhost:4002/api/v1/images",
+                images_upload_url: "http://localhost:4001/api/v1/images/single",
                 image_title: true,
                 file_picker_types: 'image',
             }}

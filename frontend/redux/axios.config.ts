@@ -112,7 +112,6 @@ instance.interceptors.request.use(
 
 export const setAuthToken = async (token: string) => {
     if (token) {
-        console.log('setAuthToken');
         instance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     }
 };

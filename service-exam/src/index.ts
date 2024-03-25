@@ -6,6 +6,8 @@ const passport = require('passport');
 const cors = require('cors');
 const createError = require('http-errors');
 
+import { Request, Response, NextFunction } from "express";
+
 require('dotenv').config()
 
 db.connect()

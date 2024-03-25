@@ -74,17 +74,19 @@ export default function CourseDashboard() {
             <div className="">
                 <div className="font-bold text-[#171347] text-lg">Khóa học của tôi</div>
                 <div className="flex justify-between items-center mt-10 mb-10 w-full ">
-                    <form className="flex items-center w-1/3" onSubmit={(e: any) => {
-                        e.preventDefault()
-                        courseApi.search(`${user.id}`, { query: searchInput }).then((data: any) => {
-                            setCourses(data.data.result)
-                        })
+                    <form className="flex items-center w-1/3"
+                    // onSubmit={(e: any) => {
+                    //     e.preventDefault()
+                    //     courseApi.searchCourseByCreateTeacher(`${user.id}`, { query: searchInput }).then((data: any) => {
+                    //         setCourses(data.data.result)
+                    //     })
 
-                    }}>
+                    // }}
+                    >
                         <label htmlFor="simple-search" className="sr-only">Search</label>
                         <div className="relative w-full">
                             <input onChange={(e: any) => {
-                                courseApi.search(`${user.id}`, { query: e.target.value }).then((data: any) => {
+                                courseApi.searchCourseByCreateTeacher(`${user.id}`, { query: e.target.value }).then((data: any) => {
                                     setCourses(data.data.result)
                                 })
                                 setSearchInput(e.target.value)
@@ -145,7 +147,6 @@ export default function CourseDashboard() {
                                         <Link href="#" >
                                             <h3 className="text-[#171347] font-bold text-lg">
                                                 {course.name}
-                                                {/* <span className="ml-3 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border-[1px] border-green-500">Cơ bản</span> */}
                                             </h3>
                                         </Link>
 
@@ -157,7 +158,8 @@ export default function CourseDashboard() {
                                                     Sửa khóa học
                                                 </Link>
                                             </Dropdown.Item>
-                                            <Dropdown.Item><p className="text-red-600" onClick={() => setModal({ ...modal, [`delete-course${course.id}`]: true })}>Xóa khóa học</p></Dropdown.Item>
+                                            <Dropdown.Item><Link href={`/course/learning/${course.id}`}>Đến trang học</Link></Dropdown.Item>
+                                            <Dropdown.Item><button type="button" className="text-red-600" onClick={() => setModal({ ...modal, [`delete-course${course.id}`]: true })}>Xóa khóa học</button></Dropdown.Item>
                                         </Dropdown>
                                     </div>
                                     <div className="flex items-center mt-4">

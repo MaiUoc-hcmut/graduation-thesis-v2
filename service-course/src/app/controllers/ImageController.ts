@@ -17,7 +17,7 @@ const storage = getStorage();
 class ImageController {
 
     // [POST] /images
-    uploadSingleImage = async (req: Request, res: Response, next: NextFunction) => {
+    uploadImageWithBody = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const file = req.file;
 
@@ -71,6 +71,46 @@ class ImageController {
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
+        }
+    }
+
+    // [POST] /images/single
+    uploadSingleImage = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const file = req.file;
+
+            if (!file) {
+                return res.status(400).json({
+                    message: "Can not find file!"
+                });
+            }
+
+            const dateTime = fileUpload.giveCurrentDateTime();
+
+            const storageRef = ref(
+                storage,
+                `images/${file?.originalname + '       ' + dateTime}`
+            );
+
+            // Create file metadata including the content type
+            const metadata = {
+                contentType: file?.mimetype,
+            };
+
+            // Upload the file in the bucket storage
+            const snapshot = await uploadBytesResumable(
+                storageRef,
+                file?.buffer,
+                metadata
+            );
+
+            // Grab the public url
+            const downloadURL = await getDownloadURL(snapshot.ref);
+
+            res.status(200).json({ url: downloadURL });
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error, message: error.message });
         }
     }
 }

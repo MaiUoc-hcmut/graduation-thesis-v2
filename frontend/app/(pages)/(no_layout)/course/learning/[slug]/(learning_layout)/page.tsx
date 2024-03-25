@@ -22,6 +22,10 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
     const [topic, setTopic] = useState<any>()
     const [comments, setComments] = useState<any>()
     const [change, setChange] = useState(false)
+    const [paginate, setPaginate] = useState(0)
+    const [currentPageComment, setCurrentPageComment] = useState(1)
+    const list = []
+    const { user } = useAppSelector(state => state.authReducer);
     const {
         register,
         reset,
@@ -31,9 +35,12 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
         formState: { errors },
     } = useForm()
 
-    const { user } = useAppSelector(state => state.authReducer);
 
-    const topicId = searchParams.get('lecture');
+    const topicId = searchParams.get('lecture') || topic?.id;
+    for (let i = 1; i <= paginate; i++) {
+        list.push(i)
+    }
+
 
     useEffect(() => {
         async function fetchData() {
@@ -47,12 +54,14 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
 
 
     }, [params.slug]);
+    console.log(getValues());
 
     useEffect(() => {
         async function fetchData() {
             if (topicId)
-                await courseApi.getCommentByTopic(topicId).then((data: any) => {
-                    setComments(data.data.comments)
+                await courseApi.getCommentByTopic(topicId, currentPageComment).then((data: any) => {
+                    setComments(data.data)
+                    setPaginate(Math.ceil(data.data.count / 10))
                 }
                 )
         }
@@ -77,6 +86,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                 id_topic: topicId
                                             }
                                         }
+
                                         courseApi.createProgress(formData)
 
                                     }} width='100%' height='100%' controls={true} url={`${topic.video ? topic.video : '/'}`} />
@@ -125,32 +135,31 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                         <Image
                                             width={45}
                                             height={45}
-                                            src="/images/avatar.png"
+                                            src={`${user?.avatar ? user?.avatar : '/images/avatar.png'}`}
                                             alt="avatar"
                                         />
                                     </div>
                                     <div className='flex-1'>
-                                        <form onSubmit={async (e) => {
-                                            e.preventDefault()
-                                            if (content != '') {
+                                        <form onSubmit={handleSubmit(async (data) => {
+                                            if (data['content'] != '') {
                                                 const formData = {
                                                     data: {
                                                         id_topic: topicId,
-                                                        content: content,
+                                                        content: data['content'],
                                                     }
                                                 }
                                                 await courseApi.createComment(formData)
+                                                reset()
                                                 setChange(!change)
                                             }
-                                            setContent('')
-                                        }}>
+                                        })}>
                                             <div className={`${toggle[`edit-cmt`] ? 'hidden' : ''}`}>
                                                 <input onFocus={() => {
                                                     setToggle({ ...toggle, [`edit-cmt`]: !toggle[`edit-cmt`] })
                                                 }} type="text" className="bg-gray-50 border-b border-[#ccc] mb-2 text-gray-900 text-sm rounded-lg block w-full p-2.5" placeholder="Bạn có thắc mắc gì trong bài học này?" />
                                             </div>
                                             <div className={`${toggle[`edit-cmt`] ? '' : 'hidden'}`}>
-                                                <TinyMceEditorComment value={content} setValue={setValue} />
+                                                <TinyMceEditorComment value={content} setValue={setValue} position={'content'} />
                                             </div>
                                             <div className='flex justify-end mt-4'>
                                                 <button type="button" className="py-2.5 px-5 mr-2 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-gray-200" onClick={() => (setToggle({ ...toggle, [`edit-cmt`]: false }))}>Hủy</button>
@@ -162,10 +171,10 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                 </div>
                             </div>
                             <div className='mt-10  '>
-                                <p className='font-medium text-lg mb-10'>{comments?.length} bình luận</p>
+                                <p className='font-medium text-lg mb-10'>{comments?.count} bình luận</p>
 
                                 {
-                                    comments?.map((cmt: any) => {
+                                    comments?.comments?.map((cmt: any) => {
                                         return (
                                             <div key={cmt.id} className='mt-5' >
                                                 <div className='flex mb-2'>
@@ -173,7 +182,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                         <Image
                                                             width={50}
                                                             height={50}
-                                                            src="/images/avatar.png"
+                                                            src={`${cmt.user.avatar ? cmt.user.avatar : '/images/avatar.png'}`}
                                                             alt="avatar"
                                                             className='rounded-full'
                                                         />
@@ -182,12 +191,18 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                         <div className='w-full'>
                                                             <div className='bg-[#f2f3f5] rounded-xl'>
                                                                 <div className='p-3'>
-                                                                    <div className='flex items-center'>
-                                                                        <p className='mr-2 text-[#184983] font-medium'>Mai Nguyện Ước:</p>
+                                                                    <div className='flex items-center justify-between'>
+                                                                        <div className='flex items-center justify-center'>
+                                                                            <p className='mr-2 text-[#184983] font-medium'>{cmt.user.name}</p>
+                                                                            {
+                                                                                cmt.user.role == "teacher" ? <span className="bg-indigo-100 text-indigo-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-indigo-900 dark:text-indigo-300">Giáo viên</span> : null
+                                                                            }
+                                                                        </div>
+
                                                                         <p className='text-[#828282] text-sm'>{formatDateTime(cmt.createdAt)}</p>
                                                                     </div>
                                                                     <div>
-                                                                        <div className='mt-2 max-w-3xl min-w-75'>{parse(cmt.content)}</div>
+                                                                        <div className='mt-2 max-w-3xl min-w-80'>{parse(cmt.content)}</div>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -221,10 +236,82 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                             <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-2 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Bình luận</button>
                                                         </div>
                                                     </form>
+                                                    <div className='mt-5'>
+                                                        {
+                                                            cmt.replies.map((reply: any) => {
+                                                                return (
+                                                                    <div key={reply.id} className='mt-5' >
+                                                                        <div className='flex mb-2'>
+                                                                            <div className=''>
+                                                                                <Image
+                                                                                    width={50}
+                                                                                    height={50}
+                                                                                    src={`${cmt.user.avatar ? cmt.user.avatar : '/images/avatar.png'}`}
+                                                                                    alt="avatar"
+                                                                                    className='rounded-full'
+                                                                                />
+                                                                            </div>
+                                                                            <div className='mx-2'>
+                                                                                <div className='w-full'>
+                                                                                    <div className='bg-[#f2f3f5] rounded-xl'>
+                                                                                        <div className='p-3'>
+                                                                                            <div className='flex items-center'>
+                                                                                                <p className='mr-2 text-[#184983] font-medium'>{cmt.user.name}</p>
+                                                                                                <p className='text-[#828282] text-sm'>{formatDateTime(reply.createdAt)}</p>
+                                                                                            </div>
+                                                                                            <div>
+                                                                                                <div className='mt-2 max-w-3xl min-w-80'>{parse(reply.content)}</div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                )
+                                                            })
+                                                        }
+                                                    </div>
                                                 </div>
                                             </div>
                                         )
                                     })
+                                }
+
+                                {
+                                    paginate > 1 ?
+                                        <div className="flex justify-center items-center pt-10 pb-5">
+                                            <nav aria-label="Page navigation example">
+                                                <ul className="flex items-center -space-x-px h-8 text-sm">
+                                                    <li>
+                                                        <button disabled className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                                                            <span className="sr-only">Previous</span>
+                                                            <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 1 1 5l4 4" />
+                                                            </svg>
+                                                        </button>
+                                                    </li>
+                                                    {
+                                                        list.map((l: number) => {
+                                                            return (
+                                                                <div key={l} onClick={() => setChange(!change)}>
+                                                                    <button onClick={() => setCurrentPageComment(l)} className={`flex items-center justify-center px-3 h-8 leading-tight ${currentPageComment == l ? 'text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'} `}>{l}</button>
+                                                                </div>
+                                                            )
+                                                        })
+                                                    }
+                                                    <li>
+                                                        <button disabled className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                                                            <span className="sr-only">Next</span>
+                                                            <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m1 9 4-4-4-4" />
+                                                            </svg>
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </nav>
+                                        </div> : null
                                 }
                             </div>
 

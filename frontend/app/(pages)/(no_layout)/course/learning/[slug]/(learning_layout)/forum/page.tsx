@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import React, { useEffect, useState, useRef } from 'react';
 import { useForm } from "react-hook-form"
-import { AppDispatch, useAppSelector } from "@/redux/store";
 import { Label, Modal, TextInput, Textarea } from 'flowbite-react';
 import courseApi from '@/app/api/courseApi';
 import parse from 'html-react-parser';
@@ -184,42 +183,44 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                     <div className='mt-5'>
                         {topics?.map((topic: any, index: any) => {
                             return (
-                                <div key={topic.id} className='mb-6 rounded-lg border-[1px] border-[#ececec] p-4 flex w-full'>
-                                    <div className='flex w-full'>
-                                        <div className='flex-1 bg-[#f7fafd] p-4 rounded-lg'>
-                                            <div className=' flex-1 flex flex-col justify-center items-center p-2 pt-0'>
-                                                <div className='p-[6px] bg-white rounded-full'>
-                                                    <Image
-                                                        src="/images/avatar-teacher.png"
-                                                        width={80}
-                                                        height={80}
-                                                        className='rounded-full'
-                                                        alt="logo"
-                                                    />
-                                                </div>
-                                                <div className='text-center mt-4 flex flex-col items-center'>
-                                                    <span className=' text-secondary font-bold'>
-                                                        Việt Lê
-                                                    </span>
-                                                    <span className='text-[#818894] text-[0.75rem] mt-2]'>Học sinh</span>
+                                <Link key={topic.id} href={`/course/learning/${params.slug}/forum/${topic.id}`}>
+                                    <div className='mb-6 rounded-lg border-[1px] border-[#ececec] p-4 flex w-full'>
+                                        <div className='flex w-full'>
+                                            <div className='flex-1 bg-[#f7fafd] p-4 rounded-lg'>
+                                                <div className=' flex-1 flex flex-col justify-center items-center p-2 pt-0'>
+                                                    <div className='p-[6px] bg-white rounded-full'>
+                                                        <Image
+                                                            src="/images/avatar-teacher.png"
+                                                            width={80}
+                                                            height={80}
+                                                            className='rounded-full'
+                                                            alt="logo"
+                                                        />
+                                                    </div>
+                                                    <div className='text-center mt-4 flex flex-col items-center'>
+                                                        <span className=' text-secondary font-bold'>
+                                                            Việt Lê
+                                                        </span>
+                                                        <span className='text-[#818894] text-[0.75rem] mt-2]'>Học sinh</span>
+                                                    </div>
                                                 </div>
                                             </div>
+                                            <div className='ml-5 w-4/6 '>
+                                                <Link href={`/course/learning/${params.slug}/forum/${topic.id}`}>
+                                                    <h3 className='text-[#171347] font-bold'>{topic.title}</h3>
+                                                </Link>
+                                                <p className='mt-2 text-[#818894] text-sm'>{parse(topic.description)}</p>
+                                            </div>
+                                            <div className='w-1/6 flex flex-col justify-between items-end'>
+                                                <div className='text-[#818894]  text-sm'>{formatDateTime(topic.createdAt)}</div>
+                                                <div className='text-[#818894] text-sm'>Số câu trả lời : {topic.total_answer}</div>
+                                            </div>
                                         </div>
-                                        <div className='ml-5 w-4/6 '>
-                                            <Link href={`/course/learning/${params.slug}/forum/${topic.id}`}>
-                                                <h3 className='text-[#171347] font-bold'>{topic.title}</h3>
-                                            </Link>
-                                            <p className='mt-2 text-[#818894] text-sm'>{parse(topic.description)}</p>
-                                        </div>
-                                        <div className='w-1/6 flex flex-col justify-between items-end'>
-                                            <div className='text-[#818894]  text-sm'>{formatDateTime(topic.createdAt)}</div>
-                                            <div className='text-[#818894] text-sm'>Số câu trả lời : {topic.total_answer}</div>
-                                        </div>
-                                    </div>
-                                    <div>
+                                        <div>
 
+                                        </div>
                                     </div>
-                                </div>
+                                </Link>
                             )
                         })}
 

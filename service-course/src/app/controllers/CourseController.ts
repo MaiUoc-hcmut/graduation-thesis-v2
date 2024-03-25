@@ -8,6 +8,8 @@ const CourseDraft = require('../../db/models/course_draft');
 const Document = require('../../db/models/document');
 const Forum = require('../../db/models/forum');
 
+const StudentCourse = require('../../db/models/student-course');
+
 require('dotenv').config();
 
 const { Op } = require('sequelize');
@@ -49,6 +51,7 @@ declare global {
         interface Request {
             URL: ImageURL;
             teacher?: any;
+            student?: any;
             topicURL: ResponseVideoFile[];
         }
 
@@ -303,8 +306,8 @@ class CourseController {
     getCourseCreatedByTeacher = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_teacher = req.params.teacherId;
-            const currentPage: number = +req.params.page;
 
+            const currentPage: number = +req.params.page;
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
             // Count all the record that match the condition
@@ -356,6 +359,68 @@ class CourseController {
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
+        }
+    }
+
+    // [GET] /courses/student/:studentId/page/:page
+    getCourseStudentPaid = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const id_student = req.params.studentId;
+
+            const currentPage: number = +req.params.page;
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+
+            const count = await StudentCourse.count({
+                where: { id_student }
+            });
+
+            const courses = await StudentCourse.findAll({
+                where: { id_student },
+                attributes: ['createdAt'],
+                through: {
+                    attributes: []
+                },
+                include: [
+                    {
+                        model: Course
+                    }
+                ],
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1)
+            });
+
+            res.status(200).json({ count, courses });
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error, message: error.message });
+        }
+    }
+
+    // [POST] /courses/:courseId
+    studentBuyACourse = async (req: Request, res: Response, _next: NextFunction) => {
+        const t = await sequelize.transaction();
+        try {
+            const id_student = req.student.data.id;
+            const id_course = req.params.courseId;
+
+            await StudentCourse.create({
+                id_student,
+                id_course
+            }, {
+                transaction: t
+            });
+
+            await t.commit();
+
+            res.status(201).json({
+                message: "Student has been bought the course!"
+            });
+
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error, message: error.message });
+
+            await t.rollback();
         }
     }
 
@@ -464,7 +529,6 @@ class CourseController {
                                 chapters[i].topics[j].exam.data.categories = categories;
                                 chapters[i].topics[j].exam.data.id_course = newCourse.id;
                                 chapters[i].topics[j].exam.data.title = chapters[i].topics[j].name;
-
                                 const exam = await axios.post(
                                     `${process.env.BASE_URL_EXAM_LOCAL}/exams`,
                                     chapters[i].topics[j].exam,
