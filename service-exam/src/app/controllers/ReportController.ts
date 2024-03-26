@@ -63,7 +63,7 @@ class ReportController {
                 id_user: question.id_teacher 
             }
 
-            const response = await axios.get(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/report-error`, { data });
+            const response = await axios.post(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/report-error`, { data });
 
             await t.commit();
 

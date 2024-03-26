@@ -55,7 +55,7 @@ class NotificationController {
         }
     }
 
-    // [GET] /notification/report-error
+    // [POST] /notification/report-error
     notifyReportErrorOfQuestion = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const { id_user, id_question, id_exam } = req.body;
@@ -81,6 +81,37 @@ class NotificationController {
                 message: "Notification has been sent to user!",
                 notification: newNoti
             });
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ message: error.message, error });
+        }
+    }
+
+    // [POST] /notification/create-topic
+    notifyCreateTopic = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const { id_forum } = req.body;
+
+            const io = socketInstance.getIoInstance();
+
+            io.to(`${id_forum}`).emit("created_topic", {
+                message: "A user had have created a topic in forum",
+                id_forum
+            });
+
+            res.status(200).json({
+                message: "Notification has been sent to user!",
+            })
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ message: error.message, error });
+        }
+    }
+
+    // [POST] /notification/teacher-send
+    teacherSendNotification = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ message: error.message, error });

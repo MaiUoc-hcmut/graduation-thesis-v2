@@ -10,7 +10,7 @@ router.route('/create-exam')
     .get(NotificationController.notifyCreateExam);
 
 router.route('/report-error')
-    .get(NotificationController.notifyReportErrorOfQuestion);
+    .post(NotificationController.notifyReportErrorOfQuestion);
 
 module.exports = router;
 
