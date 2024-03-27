@@ -16,6 +16,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
     const searchParams = useSearchParams();
     const [course, setCourse] = useState<any>()
     const initToggle: any = {}
+    const playRef = useRef<any>()
     const [toggle, setToggle] = useState(initToggle)
     const [tab, setTab] = useState(0)
     const [content, setContent] = useState('')
@@ -69,6 +70,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
     }, [topicId, change]);
     // comments?.sort(function (a: any, b: any) { return Date.parse(b.createdAt) - Date.parse(a.createdAt) })
 
+    console.log(user);
 
     return (
         <div className='flex relative h-[calc(100vh-85px)] w-full'>
@@ -89,7 +91,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
 
                                         courseApi.createProgress(formData)
 
-                                    }} width='100%' height='100%' controls={true} url={`${topic.video ? topic.video : '/'}`} />
+                                    }} width='100%' height='100%' ref={playRef} controls={true} url={`${topic.video ? topic.video : '/'}`} />
                                     : null
                             }
 
@@ -97,11 +99,11 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                     </div>
                 </div>
                 <div className=' overflow-auto'>
-                    {/* <button onClick={() => {
-                                                    playerRef.current.seekTo(50)
-                                                }}>
-                    
-                                                </button> */}
+                    <button onClick={() => {
+                        playRef?.current?.seekTo(50)
+                    }}>
+                        dfs
+                    </button>
                     <div className='px-10 mt-5'>
                         <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400">
                             <li className="me-2">
@@ -193,7 +195,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                                 <div className='p-3'>
                                                                     <div className='flex items-center justify-between'>
                                                                         <div className='flex items-center justify-center'>
-                                                                            <p className='mr-2 text-[#184983] font-medium'>{cmt.user.name}</p>
+                                                                            <p className='mr-2 text-[#184983] font-medium'>{cmt.id_user === user.id ? 'Tôi' : cmt.user.name}</p>
                                                                             {
                                                                                 cmt.user.role == "teacher" ? <span className="bg-indigo-100 text-indigo-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-indigo-900 dark:text-indigo-300">Giáo viên</span> : null
                                                                             }

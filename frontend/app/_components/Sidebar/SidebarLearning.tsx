@@ -77,7 +77,7 @@ export default function SidebarLearning({ course, id_course, progress }: any) {
                                                                             {progress?.progress.map((pro: any) => {
                                                                                 if (pro.id_topic === topic.id) {
                                                                                     return (
-                                                                                        <div key={topic.id} className='ml-2'>
+                                                                                        <div key={`${topic.id}-progress`} className='ml-2'>
                                                                                             <span className='bg-white w-6 h-6 rounded-full flex justify-center items-center'>
 
                                                                                                 <CheckIcon className='w-5 h-4 text-primary' />

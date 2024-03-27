@@ -82,6 +82,7 @@ class CommentController {
                         [Op.or]: [null, ""]
                     }
                 },
+                order: [['createdAt', 'DESC']],
                 limit: pageSize,
                 offset: pageSize * (currentPage - 1),
                 include: [
@@ -132,6 +133,7 @@ class CommentController {
 
             const comments = await Comment.findAll({
                 where: { id_student },
+                order: [['createdAt', 'DESC']],
                 limit: pageSize,
                 offset: pageSize * (currentPage - 1)
             });

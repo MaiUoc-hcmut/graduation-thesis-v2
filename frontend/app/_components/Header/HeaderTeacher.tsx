@@ -10,13 +10,12 @@ import { useRouter } from 'next/navigation'
 import { BellIcon } from "@heroicons/react/24/solid"
 import { InformationCircleIcon } from "@heroicons/react/24/outline"
 
-export default function Header() {
+export default function HeaderTeacher() {
     const dispatch = useDispatch<AppDispatch>();
     const router = useRouter()
     const authReducer = JSON.parse(localStorage.getItem('persist:authReducer') || '{}')
     const isAuth = (authReducer?.isAuth == "true" || authReducer?.isAuthTeacher == "true") ? true : false
     const { user } = useAppSelector(state => state.authReducer);
-
 
     return (
         <header className="antialiased fixed top-0 left-0 w-full z-50 shadow- border-b-[1px] border-b-[#ececec] shadow-header_teacher">
@@ -52,7 +51,7 @@ export default function Header() {
                         </div>
                     </div>
                     {
-                        isAuth ?
+                        isAuth && user ?
                             <div className="flex items-center lg:order-2">
 
                                 <div className='mr-3'>
@@ -184,7 +183,7 @@ export default function Header() {
                                             <button
                                                 onClick={() => {
                                                     dispatch(signout())
-                                                    router.push('/')
+                                                    router.push('/login')
                                                 }}
                                                 className="w-full text-left block py-2 px-4 text-sm text-[#f63c3c] hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                                             >

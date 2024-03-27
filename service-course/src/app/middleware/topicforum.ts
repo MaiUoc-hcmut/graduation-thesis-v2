@@ -48,6 +48,28 @@ class CheckingTopic {
             next(createError.InternalServerError(error.message));
         }
     }
+
+    checkUpdateTopic = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const id_topic = req.params.topicId;
+            const id_user = req.user?.user.data.id;
+
+            const topic = await TopicForum.findByPk(id_topic);
+            if (!topic) {
+                let error = "Topic does not exist!";
+                return next(createError.BadRequest(error));
+            }
+
+            if (id_user !== topic.id_user) {
+                let error = "You do not have permission to delete this topic";
+                return next(createError.Unauthorized(error));
+            }
+            next();
+        } catch (error: any) {
+            console.log(error.message);
+            next(createError.InternalServerError(error.message));
+        }
+    }
 }
 
 module.exports = new CheckingTopic();

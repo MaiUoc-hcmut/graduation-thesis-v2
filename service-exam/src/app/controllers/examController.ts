@@ -252,7 +252,7 @@ class ExamController {
 
             const { query } = req.query;
 
-            
+
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
@@ -280,6 +280,14 @@ class ExamController {
 
             if (!title || !period) {
                 return res.status(400).json({ message: "Information missed!" });
+            }
+
+            if (categories === undefined || categories.length === 0) {
+                return res.status(400).json({ message: "Category missed!" });
+            }
+
+            if (questions === undefined || questions.length === 0) {
+                return res.status(400).json({ message: "Questions missed!" });
             }
 
 

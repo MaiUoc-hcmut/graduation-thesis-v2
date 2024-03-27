@@ -17,6 +17,7 @@ class CheckingCourse {
             }
 
             if (role !== "admin" && id_user !== course.id_teacher) {
+                console.log(id_user, course.id_teacher);
                 let error = "You does not have permission to do this action!";
                 return next(createError.Unauthorized(error));
             }

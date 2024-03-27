@@ -25,7 +25,6 @@ function classNames(...classes: any) {
 }
 
 export default function CourseList() {
-    const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
     const [courses, setCourses] = useState<any>()
     const [category, setCategory] = useState<any>()
     const searchParams = useSearchParams()
@@ -70,17 +69,23 @@ export default function CourseList() {
                     {
                         id: "subject",
                         name: "Môn học",
-                        options: data.Subject
+                        options: data.Subject.map((subject: any) => {
+                            return { ...subject, checked: subjectFilters.includes(subject.id) }
+                        })
                     },
                     {
                         id: "level",
                         name: "Mức độ",
-                        options: data.Level
+                        options: data.Level.map((level: any) => {
+                            return { ...level, checked: levelFilters.includes(level.id) }
+                        })
                     },
                     {
                         id: "class",
                         name: "Lớp",
-                        options: data.Class
+                        options: data.Class.map((grade: any) => {
+                            return { ...grade, checked: classFilters.includes(grade.id) }
+                        })
                     },
 
                 ])
@@ -89,8 +94,6 @@ export default function CourseList() {
         }
         fetchData()
     }, [])
-
-    console.log(category, courses);
 
 
     return (
@@ -148,7 +151,6 @@ export default function CourseList() {
                             <button
                                 type="button"
                                 className="-m-2 ml-4 p-2 text-gray-400 hover:text-gray-500 sm:ml-6 lg:hidden"
-                                onClick={() => setMobileFiltersOpen(true)}
                             >
                                 <span className="sr-only">Filters</span>
                                 <FunnelIcon className="h-5 w-5" aria-hidden="true" />
@@ -166,9 +168,10 @@ export default function CourseList() {
                                 <h3 className="sr-only">Categories</h3>
 
                                 {category?.map((section: any) => (
-                                    <Disclosure as="div" key={section.id} className="border-b border-gray-200 py-6">
+                                    <Disclosure as="div" key={section.id} className="border-b border-gray-200 py-6" defaultOpen>
                                         {({ open }) => (
                                             <>
+
                                                 <h3 className="-my-3 flow-root">
                                                     <Disclosure.Button className="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
                                                         <span className="font-medium text-gray-900">{section.name}</span>
@@ -181,7 +184,7 @@ export default function CourseList() {
                                                         </span>
                                                     </Disclosure.Button>
                                                 </h3>
-                                                <Disclosure.Panel className="pt-6">
+                                                <Disclosure.Panel className={`pt-6`}>
                                                     <div className="space-y-4">
                                                         {section.options.map((option: any, optionIdx: any) => (
                                                             <div key={option.id} className="flex items-center">
@@ -190,6 +193,7 @@ export default function CourseList() {
                                                                     name={`${section.id}`}
                                                                     defaultValue={option.id}
                                                                     type="checkbox"
+                                                                    defaultChecked={option.checked}
                                                                     className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                                                 />
                                                                 <label
@@ -235,7 +239,7 @@ export default function CourseList() {
                                                                     />
                                                                 </div>
                                                                 <div>
-                                                                    <Link href="" className='font-medium text-[#818894]'>Việt Lê</Link>
+                                                                    <p className='font-medium text-[#818894]'>Việt Lê</p>
                                                                 </div>
                                                             </div>
                                                             <h3 className="overflow-hidden text-[#17134] mt-4 h-8 font-bold">

@@ -45,6 +45,9 @@ Question.init({
         type: DataTypes.STRING,
         defaultValue: 'public',
         allowNull: false
+    },
+    explain: {
+        type: DataTypes.TEXT
     }
 }, {
     sequelize,

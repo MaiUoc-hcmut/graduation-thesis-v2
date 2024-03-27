@@ -28,7 +28,7 @@ router.route('/search/teacher/:teacherId/page/:page')
 router.route('/:courseId')
     .get(courseController.getCourseById)
     .post(Authorize.verifyStudent, CheckingCourse.checkExistedCourse, courseController.studentBuyACourse)
-    .put(Authorize.verifyUser, CheckingCourse.checkModifyCourse, courseController.updateCourse)
+    .put(Authorize.authorizeTeacher, CheckingCourse.checkModifyCourse, courseController.updateCourse)
     .delete(Authorize.verifyUser, CheckingCourse.checkModifyCourse, courseController.deleteCourse);
 
 router.route('/student/:studentId/page/:page')

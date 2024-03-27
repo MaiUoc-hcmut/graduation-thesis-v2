@@ -24,6 +24,11 @@ router.route('/search/:forumId/page/:page')
     .get(TopicForumController.searchTopicInForum);
 
 router.route('/:topicId')
+    .put(
+        Authorize.verifyUser,
+        CheckingTopic.checkUpdateTopic,
+        TopicForumController.updateTopic
+    )
     .delete(
         Authorize.verifyUser,
         CheckingTopic.checkDeleteTopic,

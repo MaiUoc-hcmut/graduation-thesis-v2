@@ -289,12 +289,13 @@ class CourseController {
                 ],
                 group: ['Course.id'],
                 having: sequelize.literal("COUNT(DISTINCT " + `Categories` + "." + `id` + `) = ${categories.length}`),
+                order: [['createdAt', 'DESC']],
                 limit: pageSize,
                 offset: pageSize * (currentPage - 1),
                 subQuery: false
             });
 
-            res.status(200).json({ count, courses });
+            res.status(200).json({ count: count.length, courses });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
@@ -327,6 +328,7 @@ class CourseController {
                         }
                     },
                 ],
+                order: [['createdAt', 'DESC']],
                 limit: pageSize,
                 offset: pageSize * (currentPage - 1)
             });
@@ -385,6 +387,7 @@ class CourseController {
                         model: Course
                     }
                 ],
+                order: [['createdAt', 'DESC']],
                 limit: pageSize,
                 offset: pageSize * (currentPage - 1)
             });
@@ -442,6 +445,15 @@ class CourseController {
         try {
             const id_teacher = req.teacher.data.id;
 
+            // check if there are no start and end time
+            if (!courseBody.start_time || !courseBody.end_time) {
+                throw new Error("Time landmark missed!");
+            }
+
+            if (!categories) {
+                throw new Error("Categories missed!");
+            }
+
             let thumbnail = "";
             let cover_image = "";
 
@@ -486,10 +498,6 @@ class CourseController {
             });
 
             const newForum = await Forum.create({ id_course: newCourse.id }, { transaction: t });
-
-            if (categories === undefined) {
-                throw new Error("Categories missed!");
-            }
 
             const categoriesInstances = [];
 
@@ -1140,34 +1148,18 @@ class CourseController {
                 });
             }
 
-            t.commit();
+            await t.commit();
             const dataToUpdate = {
                 ...courseBody,
                 objectID: courseId,
                 Categories
             }
-            index.partialUpdateObject(dataToUpdate);
+            await index.partialUpdateObject(dataToUpdate);
             res.status(200).json(course);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
-            t.rollback();
-
-            // if (req.topicURL !== undefined && req.topicURL.length > 0) {
-            //     const deletePromises = req.topicURL.map(async (topic) => {
-            //         const videoRef = ref(topic.url);
-            //         await deleteObject(videoRef);
-            //     });
-            //     await Promise.all(deletePromises);
-            // }
-
-            // if (req.URL !== undefined) {
-            //     const thumbnailRef = ref(req.URL.thumbnail);
-            //     const coverRef = ref(req.URL.cover);
-
-            //     await deleteObject(thumbnailRef);
-            //     await deleteObject(coverRef);
-            // }
+            await t.rollback();
         }
     }
 

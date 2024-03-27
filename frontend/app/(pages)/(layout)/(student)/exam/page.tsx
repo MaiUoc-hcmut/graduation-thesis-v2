@@ -25,9 +25,8 @@ function classNames(...classes: any) {
 }
 
 export default function CourseList() {
-    const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
-    const [courses, setCourses] = useState<any>([])
-    const [category, setCategory] = useState<[any]>([])
+    const [courses, setCourses] = useState<any>()
+    const [category, setCategory] = useState<any>()
     const searchParams = useSearchParams()
     const subjectFilters = searchParams.getAll('subject')
     const levelFilters = searchParams.getAll('level')
@@ -49,13 +48,13 @@ export default function CourseList() {
     useEffect(() => {
         async function fetchData() {
             let filterString = ''
-            subjectFilters.map((s) => { filterString += `subject=${s}&` })
-            levelFilters.map((l) => { filterString += `subject=${l}&` })
-            classFilters.map((c) => { filterString += `subject=${c}&` })
+            subjectFilters.map((s) => { filterString += `subject=${s}` })
+            levelFilters.map((l) => { filterString += `&level=${l}` })
+            classFilters.map((c) => { filterString += `&class=${c}` })
 
             if (subjectFilters.length != 0 || levelFilters.length != 0 || classFilters.length != 0) {
                 await courseApi.filter(filterString).then((data: any) => {
-                    setCourses(data.data)
+                    setCourses(data.data.courses)
                 }
                 )
             }
@@ -70,17 +69,23 @@ export default function CourseList() {
                     {
                         id: "subject",
                         name: "Môn học",
-                        options: data.Subject
+                        options: data.Subject.map((subject: any) => {
+                            return { ...subject, checked: subjectFilters.includes(subject.id) }
+                        })
                     },
                     {
                         id: "level",
                         name: "Mức độ",
-                        options: data.Level
+                        options: data.Level.map((level: any) => {
+                            return { ...level, checked: levelFilters.includes(level.id) }
+                        })
                     },
                     {
                         id: "class",
                         name: "Lớp",
-                        options: data.Class
+                        options: data.Class.map((grade: any) => {
+                            return { ...grade, checked: classFilters.includes(grade.id) }
+                        })
                     },
 
                 ])
@@ -90,110 +95,13 @@ export default function CourseList() {
         fetchData()
     }, [])
 
-    console.log(category, courses);
-
 
     return (
         <div className="bg-white container mx-auto">
             <div>
-                {/* Mobile filter dialog */}
-                <Transition.Root show={mobileFiltersOpen} as={Fragment}>
-                    <Dialog as="div" className="relative z-40 lg:hidden" onClose={setMobileFiltersOpen}>
-                        <Transition.Child
-                            as={Fragment}
-                            enter="transition-opacity ease-linear duration-300"
-                            enterFrom="opacity-0"
-                            enterTo="opacity-100"
-                            leave="transition-opacity ease-linear duration-300"
-                            leaveFrom="opacity-100"
-                            leaveTo="opacity-0"
-                        >
-                            <div className="fixed inset-0 bg-black bg-opacity-25" />
-                        </Transition.Child>
-
-                        <div className="fixed inset-0 z-40 flex">
-                            <Transition.Child
-                                as={Fragment}
-                                enter="transition ease-in-out duration-300 transform"
-                                enterFrom="translate-x-full"
-                                enterTo="translate-x-0"
-                                leave="transition ease-in-out duration-300 transform"
-                                leaveFrom="translate-x-0"
-                                leaveTo="translate-x-full"
-                            >
-                                <Dialog.Panel className="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto bg-white py-4 pb-12 shadow-xl">
-                                    <div className="flex items-center justify-between px-4">
-                                        <h2 className="text-lg font-medium text-gray-900">Filters</h2>
-                                        <button
-                                            type="button"
-                                            className="-mr-2 flex h-10 w-10 items-center justify-center rounded-md bg-white p-2 text-gray-400"
-                                            onClick={() => setMobileFiltersOpen(false)}
-                                        >
-                                            <span className="sr-only">Close menu</span>
-                                            <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-                                        </button>
-                                    </div>
-
-                                    {/* Filters */}
-                                    <form className="mt-4 border-t border-gray-200">
-                                        <h3 className="sr-only">Categories</h3>
-
-                                        {category.map((section) => (
-                                            <Disclosure as="div" key={section.id} className="border-t border-gray-200 px-4 py-6">
-                                                {({ open }) => (
-                                                    <>
-                                                        <h3 className="-mx-2 -my-3 flow-root">
-                                                            <Disclosure.Button className="flex w-full items-center justify-between bg-white px-2 py-3 text-gray-400 hover:text-gray-500">
-                                                                <span className="font-medium text-gray-900">{section.name}</span>
-                                                                <span className="ml-6 flex items-center">
-                                                                    {open ? (
-                                                                        <MinusIcon className="h-5 w-5" aria-hidden="true" />
-                                                                    ) : (
-                                                                        <PlusIcon className="h-5 w-5" aria-hidden="true" />
-                                                                    )}
-                                                                </span>
-                                                            </Disclosure.Button>
-                                                        </h3>
-                                                        <Disclosure.Panel className="pt-6">
-                                                            <div className="space-y-6">
-                                                                {section.options.map((option: any, optionIdx: any) => (
-                                                                    <div key={option.value} className="flex items-center">
-                                                                        <input
-                                                                            id={`filter-mobile-${section.id}-${optionIdx}`}
-                                                                            name={`${section.id}[]`}
-                                                                            defaultValue={option.name}
-                                                                            type="checkbox"
-                                                                            defaultChecked={option.checked}
-                                                                            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                                                        />
-
-                                                                        <label
-                                                                            htmlFor={`filter-mobile-${section.id}-${optionIdx}`}
-                                                                            className="ml-3 min-w-0 flex-1 text-gray-500"
-                                                                        >
-                                                                            {option.name}
-                                                                        </label>
-                                                                    </div>
-                                                                ))}
-
-                                                            </div>
-                                                        </Disclosure.Panel>
-                                                    </>
-                                                )}
-                                            </Disclosure>
-                                        ))}
-
-
-                                    </form>
-                                </Dialog.Panel>
-                            </Transition.Child>
-                        </div>
-                    </Dialog>
-                </Transition.Root>
-
                 <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-6">
-                        <h1 className="text-4xl font-bold tracking-tight text-gray-900">Khóa học</h1>
+                        <h1 className="text-4xl font-bold tracking-tight text-gray-900">Đề thi</h1>
 
                         <div className="flex items-center">
                             <Menu as="div" className="relative inline-block text-left">
@@ -243,7 +151,6 @@ export default function CourseList() {
                             <button
                                 type="button"
                                 className="-m-2 ml-4 p-2 text-gray-400 hover:text-gray-500 sm:ml-6 lg:hidden"
-                                onClick={() => setMobileFiltersOpen(true)}
                             >
                                 <span className="sr-only">Filters</span>
                                 <FunnelIcon className="h-5 w-5" aria-hidden="true" />
@@ -260,10 +167,11 @@ export default function CourseList() {
                             <form className="hidden lg:block w-1/4 mr-10">
                                 <h3 className="sr-only">Categories</h3>
 
-                                {category.map((section) => (
-                                    <Disclosure as="div" key={section.id} className="border-b border-gray-200 py-6">
+                                {category?.map((section: any) => (
+                                    <Disclosure as="div" key={section.id} className="border-b border-gray-200 py-6" defaultOpen>
                                         {({ open }) => (
                                             <>
+
                                                 <h3 className="-my-3 flow-root">
                                                     <Disclosure.Button className="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
                                                         <span className="font-medium text-gray-900">{section.name}</span>
@@ -276,7 +184,7 @@ export default function CourseList() {
                                                         </span>
                                                     </Disclosure.Button>
                                                 </h3>
-                                                <Disclosure.Panel className="pt-6">
+                                                <Disclosure.Panel className={`pt-6`}>
                                                     <div className="space-y-4">
                                                         {section.options.map((option: any, optionIdx: any) => (
                                                             <div key={option.id} className="flex items-center">
@@ -285,6 +193,7 @@ export default function CourseList() {
                                                                     name={`${section.id}`}
                                                                     defaultValue={option.id}
                                                                     type="checkbox"
+                                                                    defaultChecked={option.checked}
                                                                     className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                                                 />
                                                                 <label
@@ -307,134 +216,70 @@ export default function CourseList() {
                             <div className="lg:col-span-3 flex-1">
                                 <div className='grid grid-cols-2 gap-x-8 gap-y-8 mt-2'>
                                     {
-                                        courses.map((course: any) => {
+                                        courses?.map((course: any) => {
                                             return (
-                                                <div key={course.id} className='bg-white shadow-card_course rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300'>
-                                                    <div className='relative w-full h-60'>
-                                                        <Link href={`course/${course.id}`} className=''>
+                                                <Link key={course.id} href={`course/${course.id}`} className=''>
+                                                    <div className='bg-white shadow-card_course rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300'>
+                                                        <div className='relative w-full h-60'>
                                                             <Image
                                                                 src={`${course.thumbnail}`}
                                                                 fill
                                                                 className='rounded-tl-2xl rounded-tr-2xl overflow-hidden object-cover object-center'
                                                                 alt="logo"
                                                             />
-                                                        </Link>
+                                                        </div>
+                                                        <div className='px-3 py-4'>
+                                                            <div className='flex items-center'>
+                                                                <div className='mr-2 w-10 h-10 max-h-10 max-w-10 rounded-full relative'>
+                                                                    <Image
+                                                                        src='/images/avatar-teacher.png'
+                                                                        fill
+                                                                        className='rounded-full overflow-hidden object-cover object-center'
+                                                                        alt="logo"
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <p className='font-medium text-[#818894]'>Việt Lê</p>
+                                                                </div>
+                                                            </div>
+                                                            <h3 className="overflow-hidden text-[#17134] mt-4 h-8 font-bold">
+                                                                {course.name}
+                                                            </h3>
+
+
+                                                            <div className="flex items-center mt-4">
+                                                                {renderStars(Math.floor(course?.average_rating))}
+                                                                <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{course?.average_rating.toFixed(1)}</span>
+                                                            </div>
+                                                            <div className='mt-4 grid grid-cols-2 gap-2'>
+                                                                <div className='flex items-center'>
+                                                                    <ClockIcon className='w-5 h-5 text-secondary font-medium mr-1' />
+                                                                    <span className='text-[#171347] font-medium text-sm'>{convertTime(course?.total_duration)} giờ</span>
+                                                                </div>
+                                                                <div className='flex items-center'>
+                                                                    <Squares2X2Icon className='w-5 h-5 text-secondary font-medium mr-1' />
+                                                                    <span className='text-[#171347] font-medium text-sm'>{course?.total_chapter} chương</span>
+                                                                </div>
+                                                                <div className='flex items-center'>
+                                                                    <FilmIcon className='w-5 h-5 text-secondary font-medium mr-1' />
+                                                                    <span className='text-[#171347] font-medium text-sm'>{course?.total_lecture} bài giảng</span>
+                                                                </div>
+                                                                <div className='flex items-center'>
+                                                                    <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />
+                                                                    <span className='text-[#171347] font-medium text-sm'>{course?.total_exam} đề thi</span>
+                                                                </div>
+
+                                                            </div>
+                                                            <div className='mt-6'>
+                                                                <span className='text-xl text-primary font-extrabold'>{formatCash(`${course.price}`)} VNĐ</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div className='px-3 py-4'>
-                                                        <div className='flex items-center'>
-                                                            <div className='mr-2 w-10 h-10 max-h-10 max-w-10 rounded-full relative'>
-                                                                <Image
-                                                                    src='/images/avatar-teacher.png'
-                                                                    fill
-                                                                    className='rounded-full overflow-hidden object-cover object-center'
-                                                                    alt="logo"
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <Link href="" className='font-medium text-[#818894]'>Việt Lê</Link>
-                                                            </div>
-                                                        </div>
-                                                        <h3 className="overflow-hidden text-[#17134] mt-4 h-8 font-bold">
-                                                            {course.name}
-                                                        </h3>
-
-
-                                                        <div className="flex items-center mt-4">
-                                                            {renderStars(Math.floor(course?.average_rating))}
-                                                            <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{course?.average_rating.toFixed(1)}</span>
-                                                        </div>
-                                                        <div className='mt-4 grid grid-cols-2 gap-2'>
-                                                            <div className='flex items-center'>
-                                                                <ClockIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                <span className='text-[#171347] font-medium text-sm'>{convertTime(course?.total_duration)} giờ</span>
-                                                            </div>
-                                                            <div className='flex items-center'>
-                                                                <Squares2X2Icon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                <span className='text-[#171347] font-medium text-sm'>{course?.total_chapter} chương</span>
-                                                            </div>
-                                                            <div className='flex items-center'>
-                                                                <FilmIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                <span className='text-[#171347] font-medium text-sm'>{course?.total_lecture} bài giảng</span>
-                                                            </div>
-                                                            <div className='flex items-center'>
-                                                                <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                <span className='text-[#171347] font-medium text-sm'>{course?.total_exam} đề thi</span>
-                                                            </div>
-
-                                                        </div>
-                                                        <div className='mt-6'>
-                                                            <span className='text-xl text-primary font-extrabold'>{formatCash(`${course.price}`)} VNĐ</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                </Link>
                                             )
                                         })
                                     }
                                 </div>
-                                <div className='mt-20 flex justify-center'>
-                                    <nav aria-label="Page navigation example">
-                                        <ul className="inline-flex -space-x-px text-base h-10">
-                                            <li>
-                                                <Link
-                                                    href="#"
-                                                    className="flex items-center justify-center px-4 h-10 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                                                >
-                                                    Trước
-                                                </Link>
-                                            </li>
-                                            <li>
-                                                <Link
-                                                    href="#"
-                                                    className="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                                                >
-                                                    1
-                                                </Link>
-                                            </li>
-                                            <li>
-                                                <Link
-                                                    href="#"
-                                                    className="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                                                >
-                                                    2
-                                                </Link>
-                                            </li>
-                                            <li>
-                                                <Link
-                                                    href="#"
-                                                    aria-current="page"
-                                                    className="flex items-center justify-center px-4 h-10 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-                                                >
-                                                    3
-                                                </Link>
-                                            </li>
-                                            <li>
-                                                <Link
-                                                    href="#"
-                                                    className="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                                                >
-                                                    4
-                                                </Link>
-                                            </li>
-                                            <li>
-                                                <Link
-                                                    href="#"
-                                                    className="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                                                >
-                                                    5
-                                                </Link>
-                                            </li>
-                                            <li>
-                                                <Link
-                                                    href="#"
-                                                    className="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                                                >
-                                                    Sau
-                                                </Link>
-                                            </li>
-                                        </ul>
-                                    </nav>
-                                </div>
-
                             </div>
                         </div>
                     </section>

@@ -1,4 +1,5 @@
 const ReportError = require('../../db/model/report_error');
+const Question = require('../../db/model/question');
 
 const { sequelize } = require('../../config/db/index');
 const axios = require('axios');
@@ -33,6 +34,8 @@ class ReportController {
             const id_student = req.student?.data.id;
             const id_question = req.params.questionId;
 
+            const question = await Question.findByPk(id_question);
+
             let body = req.body.data;
             if (typeof body === "string") {
                 body = JSON.parse(body);
@@ -49,6 +52,10 @@ class ReportController {
                 });
                 reportList.push(report);
             }
+
+            const total_report = question.total_report + body.length;
+
+            await question.update({ total_report }, { transaction: t });
 
             await t.commit();
 

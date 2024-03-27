@@ -66,6 +66,7 @@ class TopicForumController {
                         },
                         model: Answer,
                         as: 'answers',
+                        order: [['createdAt', 'DESC']],
                         limit: pageSize,
                         offset: pageSize * (currentPage - 1),
                         include: [
@@ -238,6 +239,41 @@ class TopicForumController {
         }
     }
 
+    // [PUT] /topicsforum/:topicId
+    updateTopic = async (req: Request, res: Response, _next: NextFunction) => {
+        const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);
+        const index = client.initIndex(process.env.ALGOLIA_INDEX_TOPIC_NAME);
+
+        const t = await sequelize.transaction();
+        try {
+            let body = req.body.data;
+            if (typeof body === "string") {
+                body = JSON.parse(body);
+            }
+
+            const id_topic = req.params.topicId
+            const topic = await TopicForum.findByPk(id_topic);
+
+            await topic.update({ ...body }, { transaction: t });
+
+            await t.commit();
+
+            const dataToUpdate = {
+                objectID: id_topic,
+                ...body
+            }
+
+            await index.partialUpdateObject(dataToUpdate);
+
+            res.status(200).json(topic);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error });
+
+            await t.rollback();
+        }
+    }
+
     // [DELETE] /topicsforum/:topicId
     deleteTopic = async (req: Request, res: Response, _next: NextFunction) => {
         const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);
@@ -248,8 +284,6 @@ class TopicForumController {
             const id_topic = req.params.topicId;
 
             const topic = await TopicForum.findByPk(id_topic);
-
-            console.log(topic);
 
             const forum = await Forum.findByPk(topic.id_forum);
             const total_topic = forum.total_topic - 1;
