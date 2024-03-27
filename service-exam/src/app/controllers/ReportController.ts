@@ -57,6 +57,14 @@ class ReportController {
 
             await question.update({ total_report }, { transaction: t });
 
+            const data = {
+                id_exam: question.id,
+                id_question,
+                id_user: question.id_teacher 
+            }
+
+            const response = await axios.post(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/report-error`, { data });
+
             await t.commit();
 
             res.status(201).json(reportList);

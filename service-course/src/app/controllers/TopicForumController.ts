@@ -180,6 +180,11 @@ class TopicForumController {
 
             await forum.update({ total_topic }, { transaction: t });
 
+            const data = {
+                id_forum: forum.id
+            }
+
+            const response = await axios.post(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/norification/create-topic`, { data });
 
             await t.commit();
             

@@ -487,6 +487,9 @@ class CourseController {
             let totalChapter = 0;
             let totalDuration = 0;
 
+            courseBody.start_time = new Date(courseBody.start_time);
+            courseBody.end_time = new Date(courseBody.end_time);
+
             const newCourse = await Course.create({
                 id,
                 thumbnail,
@@ -625,6 +628,14 @@ class CourseController {
             }, {
                 transaction: t
             });
+
+            
+            const data = {
+                id_user: id_teacher,
+                id_course: newCourse.id
+            }
+
+            const response = await axios.get(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/create-course`, { data });
 
             await t.commit();
 

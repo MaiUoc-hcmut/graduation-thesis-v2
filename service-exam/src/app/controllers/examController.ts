@@ -397,6 +397,13 @@ class ExamController {
                 }
             }
 
+            const data = {
+                id_user: id_teacher,
+                id_exam: newExam.id
+            }
+
+            const response = await axios.get(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/create-exam`, { data });
+
             await t.commit();
 
             // const Categories = categoryInstances.map(({ id, name }) => ({ id, name }));
