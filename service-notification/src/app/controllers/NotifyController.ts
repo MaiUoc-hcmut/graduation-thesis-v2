@@ -65,7 +65,7 @@ class NotificationController {
 
             const findUser = clientConnected.find(obj => obj.user === id_user);
             if (findUser) {
-                io.to(findUser.socket).emit("created_exam", {
+                io.to(findUser.socket).emit("reported_error", {
                     message: "You have a report about the question!",
                     question: id_question,
                     exam: id_exam
@@ -96,7 +96,7 @@ class NotificationController {
 
             io.to(`${id_forum}`).emit("created_topic", {
                 message: "A user had have created a topic in forum",
-                id_forum
+                forum: id_forum
             });
 
             res.status(200).json({
