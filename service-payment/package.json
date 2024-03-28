@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon src/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -18,5 +18,8 @@
     "https": "^1.0.0",
     "nodemon": "^3.1.0",
     "sequelize": "^6.37.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30"
   }
 }
