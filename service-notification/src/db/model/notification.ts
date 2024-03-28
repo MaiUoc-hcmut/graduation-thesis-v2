@@ -17,6 +17,11 @@ NotificationModel.init({
     },
     content: {
         type: DataTypes.STRING
+    },
+    read: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        allowNull: false
     }
 }, {
     sequelize,

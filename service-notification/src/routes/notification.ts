@@ -12,6 +12,12 @@ router.route('/create-exam')
 router.route('/report-error')
     .post(NotificationController.notifyReportErrorOfQuestion);
 
+router.route('/upload-video')
+    .get(NotificationController.notifyUploadVideo);
+
+router.route('/read-noti')
+    .put(NotificationController.readNotification);
+
 module.exports = router;
 
 export {}

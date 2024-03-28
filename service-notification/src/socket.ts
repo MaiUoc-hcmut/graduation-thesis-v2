@@ -23,6 +23,7 @@ export class SOCKETIO {
     private setupSocketEvents() {
         this.io.on("connection", (socket: Socket) => {
             console.log(`New user connected: ${socket.id}`)
+            
             socket.on("new_user_online", async (userId) => {
                 this.clientConnected.push({
                     user: userId,

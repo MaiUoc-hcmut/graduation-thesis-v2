@@ -387,7 +387,8 @@ class ExamController {
 
             const data = {
                 id_user: id_teacher,
-                id_exam: newExam.id
+                id_exam: newExam.id,
+                name: newExam.title
             }
 
             const response = await axios.get(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/create-exam`, { data });

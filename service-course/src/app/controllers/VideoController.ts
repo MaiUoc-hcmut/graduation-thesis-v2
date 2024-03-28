@@ -2,6 +2,7 @@ const CourseDraft = require('../../db/models/course_draft');
 const Course = require('../../db/models/course');
 const Chapter = require('../../db/models/chapter');
 const Topic = require('../../db/models/topic');
+import axios from 'axios';
 import { Request, Response, NextFunction } from 'express';
 
 const { getVideoDurationInSeconds } = require('get-video-duration');
@@ -21,12 +22,15 @@ const { initializeApp } = require('firebase/app');
 initializeApp(firebaseConfig);
 const storage = getStorage();
 
+require('dotenv').config();
+
 class VideoController {
 
     // [POST] /videos
     uploadSingleLectureVideo = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
+            const id_user = req.teacher.data.id;
             const video = req.file;
 
             if (!video) {
@@ -109,6 +113,14 @@ class VideoController {
             }, {
                 transaction: t
             });
+
+            const data = {
+                id_user,
+                url,
+                name: originalFileName
+            }
+
+            const response = await axios.get(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/upload-video`, { data });
 
             await t.commit();
 
