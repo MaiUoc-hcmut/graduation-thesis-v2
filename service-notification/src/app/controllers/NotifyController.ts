@@ -4,10 +4,14 @@ const RoomSocket = require('../../db/model/room');
 import { Request, Response, NextFunction } from "express";
 import { socketInstance } from "../..";
 
+
+const { sequelize } = require('../../config/db/index');
+
 class NotificationController {
 
     // [GET] /notification/create-course
     notifyCreateCourse = async (req: Request, res: Response, _next: NextFunction) => {
+        const t = await sequelize.transaction();
         try {
             const { id_user, id_course, name } = req.body;
 
@@ -23,8 +27,16 @@ class NotificationController {
                 });
             }
 
+            const newNoti = await NotificationModel.create({
+                id_user,
+                content: "Khóa học được tạo thành công"
+            }, {
+                transaction: t
+            });
+
             res.status(200).json({
-                message: "Notification has been sent to user!"
+                message: "Notification has been sent to user!",
+                newNoti
             });
         } catch (error: any) {
             console.log(error.message);
@@ -34,6 +46,7 @@ class NotificationController {
 
     // [GET] /notification/create-exam
     notifyCreateExam = async (req: Request, res: Response, _next: NextFunction) => {
+        const t = await sequelize.transaction();
         try {
             const { id_user, id_exam, name } = req.body;
 
@@ -49,8 +62,16 @@ class NotificationController {
                 });
             }
 
+            const newNoti = await NotificationModel.create({
+                id_user,
+                content: "Đề thi được tạo thành công"
+            }, {
+                transaction: t
+            });
+
             res.status(200).json({
-                message: "Notification has been sent to user!"
+                message: "Notification has been sent to user!",
+                newNoti
             });
         } catch (error: any) {
             console.log(error.message);
