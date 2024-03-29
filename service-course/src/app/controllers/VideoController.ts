@@ -127,7 +127,7 @@ class VideoController {
                 name: originalFileName
             }
 
-            const response = await axios.get(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/upload-video`, { data });
+            // const response = await axios.get(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/upload-video`, { data });
 
             await t.commit();
 

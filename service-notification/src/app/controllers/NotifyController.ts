@@ -13,14 +13,14 @@ class NotificationController {
     notifyCreateCourse = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
-            const { id_user, id_course, name } = req.body;
+            const { id_user, id_course, id_forum, name } = req.body;
 
             const io = socketInstance.getIoInstance();
             const clientConnected = socketInstance.getClientConnected();
 
             const findUser = clientConnected.find(obj => obj.user === id_user);
             if (findUser) {
-                io.to(findUser.socket).emit("created_course", {
+                io.to(`${findUser.socket}`).emit("created_course", {
                     message: "Course has been created!",
                     course: id_course,
                     name
@@ -33,6 +33,17 @@ class NotificationController {
             }, {
                 transaction: t
             });
+
+            const userInRoom = await RoomSocket.findOne({
+                where: { id_user, room: id_forum }
+            });
+
+            if (!userInRoom) {
+                await RoomSocket.create({
+                    id_user,
+                    room: id_forum
+                });
+            }
 
             await t.commit();
 
@@ -123,7 +134,7 @@ class NotificationController {
     notifyCreateTopic = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
-            const { id_forum } = req.body;
+            const { id_forum } = req.body.data;
 
             const io = socketInstance.getIoInstance();
 
@@ -137,7 +148,7 @@ class NotificationController {
             });
 
             const dataToCreate = usersInRoom.map((user: any) => ({
-                id_user: usersInRoom.id_user,
+                id_user: user.id_user,
                 content: "Có người vừa tạo topic mới ở trong forum"
             }));
 
@@ -149,6 +160,51 @@ class NotificationController {
                 message: "Notification has been sent to user!",
                 notifications
             });
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ message: error.message, error });
+
+            await t.rollback();
+        }
+    }
+
+    // [POST] /notification/student-buy-course
+    notifyStudentBuyCourse = async (req: Request, res: Response, _next: NextFunction) => {
+        const t = await sequelize.transaction();
+        try {
+            const { course, name, id_user, id_forum } = req.body.data;
+
+            const io = socketInstance.getIoInstance();
+            const clientConnected = socketInstance.getClientConnected();
+
+            const findUser = clientConnected.find(obj => obj.user === id_user);
+            if (findUser) {
+                io.to(findUser.socket).emit("student_buy_course", {
+                    message: "Một học sinh đã mua khóa học",
+                    course,
+                    name
+                });
+            }
+
+            const newNoti = await NotificationModel.create({
+                id_user,
+                content: "Một học sinh đã mua khóa học"
+            });
+
+            const userInRoom = await RoomSocket.findOne({
+                where: { id_user, room: id_forum }
+            });
+
+            if (!userInRoom) {
+                await RoomSocket.create({
+                    id_user,
+                    room: id_forum
+                });
+            }
+
+            await t.commit();
+
+            res.status(201).json(newNoti);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ message: error.message, error });

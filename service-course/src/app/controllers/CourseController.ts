@@ -413,6 +413,22 @@ class CourseController {
                 transaction: t
             });
 
+            const course = await Course.findByPk(id_course);
+            const forum = await Course.findOne({
+                where: { id_course }
+            })
+
+            const data = {
+                course: id_course,
+                id_user: course.id_teacher,
+                name: course.name,
+                id_forum: forum.id
+            }
+
+            const response = await axios.post(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/student-buy-course`, {
+                data
+            });
+
             await t.commit();
 
             res.status(201).json({
@@ -633,6 +649,7 @@ class CourseController {
             const data = {
                 id_user: id_teacher,
                 id_course: newCourse.id,
+                id_forum: newForum.id,
                 name: newCourse.name
             }
 
