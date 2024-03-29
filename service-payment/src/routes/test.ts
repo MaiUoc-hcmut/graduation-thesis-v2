@@ -10,3 +10,5 @@ router.route('/manual')
     .get(PaymentController.testPaymentManual);
 
 module.exports = router;
+
+export {}

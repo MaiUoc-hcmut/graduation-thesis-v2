@@ -201,6 +201,22 @@ class PaymentController {
             })
         }
     }
+
+    // [POST] /payment/receive-ipn 
+    receiveInstantPaymentNotification = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const body = req.body;
+            console.log(body);
+
+            res.status(200).json(body);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({
+                error,
+                message: error.message
+            });
+        }
+    }
 }
 
 module.exports = new PaymentController();
