@@ -9,6 +9,9 @@ router.route('/create-course')
 router.route('/create-exam')
     .get(NotificationController.notifyCreateExam);
 
+router.route('/create-topic')
+    .post(NotificationController.notifyCreateTopic);
+
 router.route('/report-error')
     .post(NotificationController.notifyReportErrorOfQuestion);
 

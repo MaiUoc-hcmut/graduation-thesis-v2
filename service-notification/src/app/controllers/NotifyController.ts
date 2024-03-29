@@ -20,7 +20,7 @@ class NotificationController {
 
             const findUser = clientConnected.find(obj => obj.user === id_user);
             if (findUser) {
-                io.to(findUser.socket).emit("created_course", {
+                io.to(`${findUser.socket}`).emit("created_course", {
                     message: "Course has been created!",
                     course: id_course,
                     name
@@ -123,7 +123,7 @@ class NotificationController {
     notifyCreateTopic = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
-            const { id_forum } = req.body;
+            const { id_forum } = req.body.data;
 
             const io = socketInstance.getIoInstance();
 
@@ -137,7 +137,7 @@ class NotificationController {
             });
 
             const dataToCreate = usersInRoom.map((user: any) => ({
-                id_user: usersInRoom.id_user,
+                id_user: user.id_user,
                 content: "Có người vừa tạo topic mới ở trong forum"
             }));
 
