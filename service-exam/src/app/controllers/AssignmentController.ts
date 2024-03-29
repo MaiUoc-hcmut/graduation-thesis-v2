@@ -185,7 +185,7 @@ class AssignmentController {
         try {
             const id_student = req.student?.data.id;
 
-            const { id_exam, time_start, time_end, assignment } = body;
+            const { id_exam, time_start, time_end, assignment, id_topic } = body;
 
             if (
                 id_exam === undefined ||
@@ -278,6 +278,16 @@ class AssignmentController {
             passed = score >= exam.pass_score ? true : false;
 
             await newAssignment.update({ score, passed, right_question, wrong_question, empty_question }, { transaction: t });
+
+            if (passed && exam.id_course) {
+                await axios.post(`${process.env.BASE_URL_COURSE_LOCAL}/progresses/increase`, {
+                    data: {
+                        id_student,
+                        id_course: exam.id_course,
+                        id_topic
+                    }
+                });
+            }
 
             await t.commit();
 
