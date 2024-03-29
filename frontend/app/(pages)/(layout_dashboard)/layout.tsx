@@ -1,5 +1,5 @@
 import Sidebar from '@/app/_components/Sidebar/Sidebar'
-import { Suspense } from 'react'
+import { Suspense, useEffect } from 'react'
 import 'react-toastify/dist/ReactToastify.css';
 import HeaderTeacher from '@/app/_components/Header/HeaderTeacher'
 import FlowbiteClient from '@/app/_components/Flowbite/FlowbiteClient';
@@ -9,6 +9,7 @@ import Loading from './loading';
 export default function DashboardLayout({
   children,
 }: any) {
+
 
   return (
     <section className="">

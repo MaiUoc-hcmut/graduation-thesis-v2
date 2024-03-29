@@ -51,6 +51,11 @@ instance.interceptors.request.use(
             ) {
                 config.baseURL = 'http://localhost:4002/api/v1';
             }
+            if (
+                config.url.indexOf('/notification') >= 0
+            ) {
+                config.baseURL = 'http://localhost:4003/api/v1';
+            }
         }
 
         let accessToken = localStorage.getItem('accessToken');
