@@ -18,6 +18,9 @@ router.route('/report-error')
 router.route('/upload-video')
     .get(NotificationController.notifyUploadVideo);
 
+router.route('/student-buy-course')
+    .post(NotificationController.notifyStudentBuyCourse);
+
 router.route('/read-noti')
     .put(NotificationController.readNotification);
 
@@ -25,7 +28,7 @@ router.route('/get-noti/:userId')
     .get(NotificationController.getNotificationOfUser);
 
 router.post('/teacher-send')
-    .post(NotificationController.teacherSendNotification)
+    .post(NotificationController.teacherSendNotification);
 
 router.route('/payment')
     .get(NotificationController.notifyPayment);
