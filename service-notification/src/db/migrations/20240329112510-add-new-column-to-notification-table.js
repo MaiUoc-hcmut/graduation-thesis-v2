@@ -2,13 +2,13 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    await queryInterface.addcolumn('notification', 'read', {
-      type: Sequelize.BOOLEAN
+  async up(queryInterface, Sequelize) {
+    await queryInterface.addColumn('notification', 'read', {
+      type: Sequelize.BOOLEAN,
     });
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     await queryInterface.removeColumn('notification', 'read');
-  }
+  },
 };
