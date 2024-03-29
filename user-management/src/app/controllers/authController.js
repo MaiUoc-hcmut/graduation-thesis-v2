@@ -88,7 +88,7 @@ class Auth {
             const accessToken = SignToken.signAccessToken(req.student.id);
             const refreshToken = SignToken.signRefreshToken(req.student.id);
 
-            const student = req.student;
+            const student = req.student.dataValues;
             const user = {
                 ...student,
                 role: "student"
@@ -110,7 +110,8 @@ class Auth {
             const accessToken = SignToken.signAccessToken(req.teacher.id);
             const refreshToken = SignToken.signRefreshToken(req.teacher.id);
 
-            const teacher = req.teacher;
+            const teacher = req.teacher.dataValues;
+            console.log(req.teacher);
             const user = {
                 ...teacher,
                 role: "teacher"

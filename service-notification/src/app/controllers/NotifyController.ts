@@ -121,6 +121,7 @@ class NotificationController {
 
     // [POST] /notification/create-topic
     notifyCreateTopic = async (req: Request, res: Response, _next: NextFunction) => {
+        const t = await sequelize.transaction();
         try {
             const { id_forum } = req.body;
 
@@ -131,12 +132,28 @@ class NotificationController {
                 forum: id_forum
             });
 
+            const usersInRoom = await RoomSocket.findAll({
+                where: { room: id_forum }
+            });
+
+            const dataToCreate = usersInRoom.map((user: any) => ({
+                id_user: usersInRoom.id_user,
+                content: "Có người vừa tạo topic mới ở trong forum"
+            }));
+
+            const notifications = await NotificationModel.bulkCreate(dataToCreate);
+
+            await t.commit();
+
             res.status(200).json({
                 message: "Notification has been sent to user!",
+                notifications
             });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ message: error.message, error });
+
+            await t.rollback();
         }
     }
 
@@ -237,7 +254,7 @@ class NotificationController {
             });
 
             const dataToCreate = usersInRoom.map((user: any) => ({
-                id_user: usersInRoom.id_user,
+                id_user: user.id_user,
                 content: message.message
             }));
 
