@@ -18,6 +18,9 @@ router.route('/upload-video')
 router.route('/read-noti')
     .put(NotificationController.readNotification);
 
+router.post('/teacher-send')
+    .post(NotificationController.teacherSendNotification)
+
 module.exports = router;
 
 export {}

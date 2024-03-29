@@ -1,4 +1,5 @@
 const NotificationModel = require('../../db/model/notification');
+const RoomSocket = require('../../db/model/room');
 
 import { Request, Response, NextFunction } from "express";
 import { socketInstance } from "../..";
@@ -173,7 +174,31 @@ class NotificationController {
     // [POST] /notification/teacher-send
     teacherSendNotification = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            
+            let body = req.body.data;
+            if (typeof body === "string") {
+                body = JSON.parse(body);
+            }
+
+            const { room, ...message } = body;
+
+            const io = socketInstance.getIoInstance();
+
+            io.to(`${room}`).emit("teacher_send_notification", {
+                ...message
+            });
+
+            const usersInRoom = await RoomSocket.findAll({
+                where: { room }
+            });
+
+            const dataToCreate = usersInRoom.map((user: any) => ({
+                id_user: usersInRoom.id_user,
+                content: message.message
+            }));
+
+            const notifications = await NotificationModel.bulkCreate(dataToCreate);
+
+            res.status(201).json(notifications);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ message: error.message, error });
