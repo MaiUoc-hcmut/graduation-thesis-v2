@@ -59,9 +59,9 @@ const courseApi = {
 
     },
 
-    studentBuyCourse: async (id_course: string, data: object) => {
+    studentBuyCourse: async (id_course: string) => {
         const url = `/courses/${id_course}`;
-        return axiosConfig.post(url, data);
+        return axiosConfig.post(url);
 
     },
 

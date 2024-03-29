@@ -53,8 +53,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
         }
         fetchData()
     }, [changeData])
-    reviews?.sort(function (a: any, b: any) { return Date.parse(b.createdAt) - Date.parse(a.createdAt) })
-    console.log(course, reviews, avgReview, starDetails);
+    // reviews?.sort(function (a: any, b: any) { return Date.parse(b.createdAt) - Date.parse(a.createdAt) })
 
 
     const handleHover = (hoverRating: any) => {
@@ -438,7 +437,9 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                     <span className='text-3xl text-primary font-bold'>{formatCash(`${course?.price}`)} VNĐ</span>
                                 </div>
                                 <div className='mt-5 flex flex-col'>
-                                    <Link href={`/course/learning/${params.slug}`} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Trang học</Link>
+                                    <button onClick={() => {
+                                        courseApi.studentBuyCourse(params.slug)
+                                    }} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Mua</button>
                                 </div>
                                 <div className='mt-9'>
                                     <strong className='text-[#343434]'>Khóa học này bao gồm</strong>
