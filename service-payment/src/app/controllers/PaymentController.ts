@@ -13,8 +13,8 @@ class PaymentController {
             var requestId = partnerCode + new Date().getTime();
             var orderId = requestId;
             var orderInfo = "pay with MoMo";
-            var redirectUrl = "https://momo.vn/return";
-            var ipnUrl = "https://callback.url/notify";
+            var redirectUrl = "https://www.facebook.com/";
+            var ipnUrl = "http://localhost:4004/api/v1/payment/receive-ipn";
             // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
             var amount = "50000";
             var requestType = "captureWallet"

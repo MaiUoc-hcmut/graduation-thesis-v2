@@ -159,6 +159,22 @@ class NotificationController {
         }
     }
 
+    // [GET] /notification/get-noti/:userId
+    getNotificationOfUser = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const id_user = req.params.userId;
+
+            const notifications = await NotificationModel.findAll({
+                where: { id_user }
+            });
+
+            res.status(200).json(notifications);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ message: error.message, error });
+        }
+    }
+
     // [POST] /notification/create-answer/:topicId
     notifyCreateAnswer = async (req: Request, res: Response, _next: NextFunction) => {
         try {
@@ -199,6 +215,28 @@ class NotificationController {
             const notifications = await NotificationModel.bulkCreate(dataToCreate);
 
             res.status(201).json(notifications);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ message: error.message, error });
+        }
+    }
+
+    // [GET] /notification/payment
+    notifyPayment = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const body = req.body;
+
+            console.log(body);
+
+            const io = socketInstance.getIoInstance();
+
+            io.to(body.user).emit("payment_done", {
+                body
+            });
+
+            res.status(200).json({
+                mesasge: "Notification has been sent to user!"
+            });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ message: error.message, error });
