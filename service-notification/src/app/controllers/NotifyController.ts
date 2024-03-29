@@ -34,6 +34,8 @@ class NotificationController {
                 transaction: t
             });
 
+            await t.commit();
+
             res.status(200).json({
                 message: "Notification has been sent to user!",
                 newNoti
@@ -41,6 +43,8 @@ class NotificationController {
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ message: error.message, error });
+
+            await t.rollback();
         }
     }
 
@@ -69,6 +73,8 @@ class NotificationController {
                 transaction: t
             });
 
+            await t.commit();
+
             res.status(200).json({
                 message: "Notification has been sent to user!",
                 newNoti
@@ -76,6 +82,8 @@ class NotificationController {
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ message: error.message, error });
+
+            await t.rollback();
         }
     }
 
