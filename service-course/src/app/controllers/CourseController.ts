@@ -632,7 +632,8 @@ class CourseController {
             
             const data = {
                 id_user: id_teacher,
-                id_course: newCourse.id
+                id_course: newCourse.id,
+                name: newCourse.name
             }
 
             const response = await axios.get(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/create-course`, { data });
