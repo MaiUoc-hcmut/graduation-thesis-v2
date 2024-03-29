@@ -18,8 +18,14 @@ router.route('/upload-video')
 router.route('/read-noti')
     .put(NotificationController.readNotification);
 
+router.route('/get-noti/:userId')
+    .get(NotificationController.getNotificationOfUser);
+
 router.post('/teacher-send')
     .post(NotificationController.teacherSendNotification)
+
+router.route('/payment')
+    .get(NotificationController.notifyPayment);
 
 module.exports = router;
 

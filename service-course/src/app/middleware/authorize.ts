@@ -33,10 +33,10 @@ class Authorize {
             if (err || !teacher) {
                 return next(createError.Unauthorized(info?.message ? info.message : err));
             }
-            if (!req.params.teacherId && req.params.teacherId !== teacher.data.id) {
+            if (req.params.teacherId && req.params.teacherId !== teacher.data.id) {
                 return next(createError.Unauthorized("You do not have permission to get the courses"))
             }
-            if (!req.params.courseId) {
+            if (req.params.courseId) {
                 const course = await Course.findByPk(req.params.courseId);
                 if (!course) return next(createError.NotFound("Course does not exist"));
                 if (teacher.data.id !== course.id_teacher) {
