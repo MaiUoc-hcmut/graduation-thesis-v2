@@ -64,6 +64,11 @@ const courseApi = {
         return axiosConfig.post(url);
 
     },
+    studentGetCourse: async (id_user: string) => {
+        const url = `/courses/student/${id_user}/page/1`;
+        return axiosConfig.get(url);
+
+    },
 
     delete: (id: string) => {
         const url = `/courses/${id}`;

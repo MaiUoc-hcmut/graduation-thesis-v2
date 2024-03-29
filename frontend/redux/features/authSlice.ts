@@ -102,6 +102,7 @@ type InitialState = {
 };
 
 type UserState = {
+    role: string;
     id: number,
     name: string,
     email: string,

@@ -9,13 +9,35 @@ import { useDispatch } from "react-redux";
 import { useRouter } from 'next/navigation'
 import { BellIcon } from "@heroicons/react/24/solid"
 import { InformationCircleIcon } from "@heroicons/react/24/outline"
+import io from "socket.io-client";
+import { useEffect, useState } from 'react';
+import courseApi from '@/app/api/courseApi';
 
-export default function HeaderStudent() {
+export default function HeaderTeacher() {
     const dispatch = useDispatch<AppDispatch>();
     const router = useRouter()
     const authReducer = JSON.parse(localStorage.getItem('persist:authReducer') || '{}')
     const isAuth = (authReducer?.isAuth == "true" || authReducer?.isAuthTeacher == "true") ? true : false
     const { user } = useAppSelector(state => state.authReducer);
+    const [notifycations, setNotifycations] = useState<any>([])
+
+    useEffect(() => {
+        async function fetchCategory() {
+            if (user) {
+                const socket = io("http://localhost:4003", { transports: ["websocket"] });
+                socket.emit("new_user_online", user.id);
+                await courseApi.getNotify(`${user.id}`).then((data) => {
+                    setNotifycations(data.data)
+                })
+                socket.on("created_topic", (data) => {
+                });
+            }
+        }
+        fetchCategory()
+
+
+    }, [user]);
+    console.log(notifycations);
 
     return (
         <header className="antialiased fixed top-0 left-0 w-full z-50 shadow- border-b-[1px] border-b-[#ececec] shadow-header_teacher">
@@ -74,30 +96,40 @@ export default function HeaderStudent() {
                                             Thông báo
                                         </div>
                                         <div className="divide-y divide-gray-100 dark:divide-gray-700">
-                                            <Link
-                                                href="#"
-                                                className="flex p-3 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                            >
+                                            {
+                                                notifycations?.map((notify: any, index: any) => {
+                                                    return (
+                                                        <Link key={index}
+                                                            href="#"
+                                                            className="flex p-3 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                        >
+                                                            <div className='flex'>
+                                                                <div className="w-full flex">
+                                                                    <div className='w-1/6 flex justify-center items-center mr-2'>
+                                                                        <InformationCircleIcon className='w-8 h-8 text-slate-500' />
+                                                                    </div>
+                                                                    <div>
+                                                                        <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
+                                                                            Thông báo mới từ {" "}
+                                                                            <span className="font-semibold text-gray-900 dark:text-white">
+                                                                                Hệ thống
+                                                                            </span>
+                                                                            {": "}
+                                                                            {notify.content}
 
-                                                <div className="w-full flex">
-                                                    <div className='w-1/6 flex justify-center items-center mr-2'>
-                                                        <InformationCircleIcon className='w-8 h-8 text-slate-500' />
-                                                    </div>
-                                                    <div>
-                                                        <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
-                                                            Thông báo mới từ {" "}
-                                                            <span className="font-semibold text-gray-900 dark:text-white">
-                                                                Lê Quang Việt
-                                                            </span>
-                                                            {": "}
-                                                            Khóa học đã được tạo thành công
-                                                        </div>
-                                                        <div className="text-xs text-blue-600 dark:text-blue-500">
-                                                            1 tháng trước
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </Link>
+                                                                        </div>
+                                                                        {/* Khóa học đã được tạo thành công */}
+                                                                        <div className="text-xs text-blue-600 dark:text-blue-500">
+                                                                            1 tháng trước
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </Link>
+                                                    )
+                                                })
+                                            }
+
 
                                         </div>
                                         <Link
@@ -159,20 +191,20 @@ export default function HeaderStudent() {
                                     >
                                         <li>
                                             <Link
-                                                href="/teacher/dashboard/course"
+                                                href="/student/dashboard"
                                                 className="block py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-400 dark:hover:text-white"
                                             >
                                                 Quản lý tài khoản
                                             </Link>
                                         </li>
-                                        <li>
+                                        {/* <li>
                                             <Link
                                                 href="#"
                                                 className="block py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-400 dark:hover:text-white"
                                             >
                                                 Thông tin của tôi
                                             </Link>
-                                        </li>
+                                        </li> */}
                                     </ul>
 
                                     <ul

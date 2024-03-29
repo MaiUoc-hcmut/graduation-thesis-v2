@@ -99,11 +99,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                     </div>
                 </div>
                 <div className=' overflow-auto'>
-                    <button onClick={() => {
-                        playRef?.current?.seekTo(50)
-                    }}>
-                        dfs
-                    </button>
+
                     <div className='px-10 mt-5'>
                         <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400">
                             <li className="me-2">

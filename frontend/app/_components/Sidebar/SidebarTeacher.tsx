@@ -4,7 +4,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAppSelector } from "@/redux/store";
-export default function Sidebar() {
+export default function SidebarTeacher() {
     const { user } = useAppSelector(state => state.authReducer);
     return (
         <div className=''>

@@ -76,6 +76,9 @@ class Auth {
         biostory: '',
         degree: 'bachelor',
       });
+
+      console.log(newTeacher.id);
+
       const accessToken = SignToken.signAccessToken(newTeacher.id);
       const refreshToken = SignToken.signRefreshToken(newTeacher.id);
 
@@ -98,7 +101,7 @@ class Auth {
       const accessToken = SignToken.signAccessToken(req.student.id);
       const refreshToken = SignToken.signRefreshToken(req.student.id);
 
-      const student = req.student;
+      const student = req.student.dataValues;
       const user = {
         ...student,
         role: 'student',
@@ -114,12 +117,14 @@ class Auth {
       console.log(error?.message);
     }
   };
+
   loginTeacher = async (req, res, next) => {
     try {
       const accessToken = SignToken.signAccessToken(req.teacher.id);
       const refreshToken = SignToken.signRefreshToken(req.teacher.id);
 
-      const teacher = req.teacher;
+      const teacher = req.teacher.dataValues;
+      console.log(req.teacher);
       const user = {
         ...teacher,
         role: 'teacher',
@@ -139,7 +144,6 @@ class Auth {
 
   refreshToken = async (req, res, next) => {
     try {
-      console.log(123);
       const { parsedRefreshToken } = req.body;
       if (!parsedRefreshToken)
         return next(createError.BadRequest('Refresh token are required'));
