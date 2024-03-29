@@ -93,6 +93,13 @@ class VideoController {
             }
 
             // If course has been created, then update
+            const total_duration = course.total_duration + duration
+            await course.update({
+                total_duration
+            }, {
+                transaction: t
+            });
+
             const chapter = await Chapter.findOne({
                 where: { 
                     id_course: body.id_course,
