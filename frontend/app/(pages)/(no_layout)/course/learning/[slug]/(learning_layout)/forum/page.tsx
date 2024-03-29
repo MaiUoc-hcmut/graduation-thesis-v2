@@ -190,7 +190,7 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                                 <div className=' flex-1 flex flex-col justify-center items-center p-2 pt-0'>
                                                     <div className='p-[6px] bg-white rounded-full'>
                                                         <Image
-                                                            src="/images/avatar-teacher.png"
+                                                            src={`${topic.user?.avatar ? topic.user?.avatar : '/images/avatar.png'}`}
                                                             width={80}
                                                             height={80}
                                                             className='rounded-full'
@@ -199,9 +199,9 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                                     </div>
                                                     <div className='text-center mt-4 flex flex-col items-center'>
                                                         <span className=' text-secondary font-bold'>
-                                                            Việt Lê
+                                                            {topic.user.name}
                                                         </span>
-                                                        <span className='text-[#818894] text-[0.75rem] mt-2]'>Học sinh</span>
+                                                        <span className='text-[#818894] text-[0.75rem] mt-2]'>{topic.user?.role == "teacher" ? "Giáo viên" : "Học sinh"}</span>
                                                     </div>
                                                 </div>
                                             </div>

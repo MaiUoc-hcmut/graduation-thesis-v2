@@ -98,29 +98,38 @@ class Auth {
       const accessToken = SignToken.signAccessToken(req.student.id);
       const refreshToken = SignToken.signRefreshToken(req.student.id);
 
+      const student = req.student;
+      const user = {
+        ...student,
+        role: 'student',
+      };
+
       res.status(200).json({
         success: true,
         accessToken,
         refreshToken,
-        user: req.student,
-        role: 'student',
+        user,
       });
     } catch (error) {
       console.log(error?.message);
     }
   };
-
   loginTeacher = async (req, res, next) => {
     try {
       const accessToken = SignToken.signAccessToken(req.teacher.id);
       const refreshToken = SignToken.signRefreshToken(req.teacher.id);
 
+      const teacher = req.teacher;
+      const user = {
+        ...teacher,
+        role: 'teacher',
+      };
+
       res.status(200).json({
         success: true,
         accessToken,
         refreshToken,
-        user: req.teacher,
-        role: 'teacher',
+        user,
       });
     } catch (error) {
       console.log(error?.message);

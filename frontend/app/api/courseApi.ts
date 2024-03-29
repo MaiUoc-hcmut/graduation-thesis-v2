@@ -18,6 +18,8 @@ const courseApi = {
     },
 
 
+
+
     getNotify: async (id_user: string) => {
         const url = `/notification/get-noti/${id_user}`;
         return await axiosConfig.get(url);
@@ -53,6 +55,12 @@ const courseApi = {
 
     create: async (data: object) => {
         const url = `/courses`;
+        return axiosConfig.post(url, data);
+
+    },
+
+    studentBuyCourse: async (id_course: string, data: object) => {
+        const url = `/courses/${id_course}`;
         return axiosConfig.post(url, data);
 
     },

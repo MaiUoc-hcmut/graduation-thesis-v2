@@ -115,23 +115,25 @@ export default function HeaderTeacher() {
                                                             href="#"
                                                             className="flex p-3 hover:bg-gray-100 dark:hover:bg-gray-700"
                                                         >
-
-                                                            <div className="w-full flex">
-                                                                <div className='w-1/6 flex justify-center items-center mr-2'>
-                                                                    <InformationCircleIcon className='w-8 h-8 text-slate-500' />
-                                                                </div>
-                                                                <div>
-                                                                    <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
-                                                                        Thông báo mới từ {" "}
-                                                                        <span className="font-semibold text-gray-900 dark:text-white">
-                                                                            Lê Quang Việt
-                                                                        </span>
-                                                                        {": "}
-                                                                        {notify.message}
-                                                                        {/* Khóa học đã được tạo thành công */}
+                                                            <div className='flex'>
+                                                                <div className="w-full flex">
+                                                                    <div className='w-1/6 flex justify-center items-center mr-2'>
+                                                                        <InformationCircleIcon className='w-8 h-8 text-slate-500' />
                                                                     </div>
-                                                                    <div className="text-xs text-blue-600 dark:text-blue-500">
-                                                                        1 tháng trước
+                                                                    <div>
+                                                                        <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
+                                                                            Thông báo mới từ {" "}
+                                                                            <span className="font-semibold text-gray-900 dark:text-white">
+                                                                                Hệ thống
+                                                                            </span>
+                                                                            {": "}
+                                                                            {notify.content}
+
+                                                                        </div>
+                                                                        {/* Khóa học đã được tạo thành công */}
+                                                                        <div className="text-xs text-blue-600 dark:text-blue-500">
+                                                                            1 tháng trước
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
