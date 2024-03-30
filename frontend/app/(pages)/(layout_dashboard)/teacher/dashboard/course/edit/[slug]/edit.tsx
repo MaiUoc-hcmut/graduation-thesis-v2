@@ -90,7 +90,7 @@ export default function Edit({ id, course }: any) {
                             />
                         </button>
                         <div className="ml-[10px]">
-                            <span className="text-[0.875rem] text-[#818894]">Bước 1/8</span>
+                            <span className="text-[0.875rem] text-[#818894]">Bước 1/2</span>
                             <h4 className="text-secondary font-bold">Thông tin cơ bản</h4>
                         </div>
                     </div>
@@ -105,7 +105,7 @@ export default function Edit({ id, course }: any) {
                             />
                         </button>
                         <div className="ml-[10px]">
-                            <span className="text-[0.875rem] text-[#818894]">Bước 2/8</span>
+                            <span className="text-[0.875rem] text-[#818894]">Bước 2/2</span>
                             <h4 className="text-secondary font-bold">Nội dung khóa học</h4>
                         </div>
                     </div>

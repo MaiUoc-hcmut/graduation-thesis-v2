@@ -556,7 +556,24 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                         {errors.chapters?.[indexChapter]?.topics?.[indexFieldTopic]?.duration?.message}
                                     </p>
                                 </div>
+                                <div className="mb-5 w-1/3">
+                                    <label
+                                        className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                    >
+                                        Điểm hoàn thành
+                                    </label>
+                                    <input
+                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.pass_score`, {
+                                            required: "Điểm hoàn thành không thể thiếu",
+                                        })}
+                                        type="number"
+                                        className={`bg-white border-[1px] border-[#ececec] text-[#343434] text-sm focus: ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
+                                    />
 
+                                    <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                        {errors.chapters?.[indexChapter]?.topics?.[indexFieldTopic]?.pass_score?.message}
+                                    </p>
+                                </div>
                                 <div className="mb-5 w-full">
                                     <div
                                         className="block mr-2 text-sm font-semibold text-[14px] text-[#171347] "

@@ -3,7 +3,6 @@
 import SidebarTeacher from '@/app/_components/Sidebar/SidebarTeacher'
 import SidebarStudent from '@/app/_components/Sidebar/SidebarStudent';
 import { Suspense, useEffect } from 'react'
-import 'react-toastify/dist/ReactToastify.css';
 import HeaderTeacher from '@/app/_components/Header/HeaderTeacher'
 import HeaderStudent from '@/app/_components/Header/HeaderStudent';
 import FlowbiteClient from '@/app/_components/Flowbite/FlowbiteClient';

@@ -34,15 +34,15 @@ export default function SidebarTeacher() {
                     </div>
                     <div className='flex mt-5  justify-center'>
                         <div className='flex flex-col justify-center'>
-                            <strong className='text-center text-[1.25rem]'>2</strong>
+                            <strong className='text-center text-[1.25rem]'>0</strong>
                             <span className='text-[0.75rem]'>Khóa học</span>
                         </div>
                         <div className='border-[1px] border-[#ececec] mx-6'>
 
                         </div>
                         <div className='flex flex-col'>
-                            <strong className='text-center text-[1.25rem]'>2</strong>
-                            <span className='text-[0.75rem]'>Khóa học</span>
+                            <strong className='text-center text-[1.25rem]'>0</strong>
+                            <span className='text-[0.75rem]'>Đề thi</span>
                         </div>
                     </div>
                     <div className='relative mt-6 overflow-y-scroll mb-6 h-[calc(100%-270px)] sidebar'>

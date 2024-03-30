@@ -32,7 +32,7 @@ export default function TopicPage({ params }: { params: { slug: string, id_exam:
                                 </div>
                                 <div>
                                     <div className='text-[#818894] text-sm'>BÀI KIỂM TRA</div>
-                                    <h3 className='text-xl text-secondary font-bold'>Bộ đề thi Công chức Thuế 2023 - KV miền bắc</h3>
+                                    {/* <h3 className='text-xl text-secondary font-bold'>{topic.name}</h3> */}
                                 </div>
 
                             </div>

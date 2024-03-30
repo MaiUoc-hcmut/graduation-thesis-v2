@@ -10,6 +10,7 @@ import { useForm, SubmitHandler } from "react-hook-form"
 import parse from 'html-react-parser';
 import { formatCash, convertTime, formatDateTime } from '@/app/helper/FormatFunction';
 import { useSession } from 'next-auth/react';
+import { ToastContainer, toast } from 'react-toastify';
 type Review = {
     content: string
     rating: number
@@ -437,8 +438,18 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                     <span className='text-3xl text-primary font-bold'>{formatCash(`${course?.price}`)} VNĐ</span>
                                 </div>
                                 <div className='mt-5 flex flex-col'>
-                                    <button onClick={() => {
-                                        courseApi.studentBuyCourse(params.slug)
+                                    <button onClick={async () => {
+                                        await courseApi.studentBuyCourse(params.slug)
+                                        toast.success('Mua khóa học thành công', {
+                                            position: "bottom-right",
+                                            autoClose: 800,
+                                            hideProgressBar: false,
+                                            closeOnClick: true,
+                                            pauseOnHover: true,
+                                            draggable: true,
+                                            progress: undefined,
+                                            theme: "colored",
+                                        });
                                     }} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Mua</button>
                                 </div>
                                 <div className='mt-9'>

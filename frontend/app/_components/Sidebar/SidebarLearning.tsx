@@ -92,13 +92,13 @@ export default function SidebarLearning({ course, id_course, progress }: any) {
                                                                     )
                                                                 else
                                                                     return (
-                                                                        <Link href={`/course/learning/${id_course}/exam/${topic.id}`} key={topic.id} className={`${topicId == topic.id ? 'bg-[#f1f1f1]' : 'bg-white'} px-2 py-2 mb-1 cursor-pointer flex items-center`}>
+                                                                        <Link href={`/course/learning/${id_course}/exam/${topic.id_exam}`} key={topic.id} className={`${topicId == topic.id ? 'bg-[#f1f1f1]' : 'bg-white'} px-2 py-2 mb-1 cursor-pointer flex items-center`}>
                                                                             <span className='mr-3 bg-[#ececec] w-10 h-10 rounded-full flex justify-center items-center'>
                                                                                 <DocumentIcon className='w-4 h-4' />
                                                                             </span>
                                                                             <div className='flex flex-col w-2/3'>
                                                                                 <span className='font-medium text-[#171347] text-ellipsis overflow-hidden whitespace-nowrap'>{topic.name}</span>
-                                                                                <span className='text-[#818894] text-xs'>{convertTime(topic.duration)}</span>
+                                                                                {/* <span className='text-[#818894] text-xs'>{convertTime(topic.duration)}</span> */}
                                                                             </div>
 
                                                                         </Link>

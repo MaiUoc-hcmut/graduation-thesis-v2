@@ -75,12 +75,12 @@ export default function HeaderTeacher() {
                                 <li>
                                     <Link href="#" className='text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500'>Giáo viên</Link>
                                 </li>
-                                <li>
+                                {/* <li>
                                     <Link href="#" className='text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500'>Cửa hàng</Link>
                                 </li>
                                 <li>
                                     <Link href="#" className='text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500'>Diễn đàn</Link>
-                                </li>
+                                </li> */}
                             </ul>
                         </div>
                     </div>
@@ -107,12 +107,12 @@ export default function HeaderTeacher() {
                                         <div className="block px-4 py-2 font-medium text-center text-gray-700 rounded-t-lg bg-gray-50 dark:bg-gray-800 dark:text-white">
                                             Thông báo
                                         </div>
-                                        <div className="divide-y divide-gray-100 dark:divide-gray-700">
+                                        <div className="divide-y divide-gray-100 overflow-y-scroll h-[300px]">
                                             {
                                                 notifycations?.map((notify: any, index: any) => {
                                                     return (
                                                         <Link key={index}
-                                                            href="#"
+                                                            href="/teacher/dashboard/course"
                                                             className="flex p-3 hover:bg-gray-100 dark:hover:bg-gray-700"
                                                         >
                                                             <div className='flex'>
@@ -130,10 +130,9 @@ export default function HeaderTeacher() {
                                                                             {notify.content}
 
                                                                         </div>
-                                                                        {/* Khóa học đã được tạo thành công */}
-                                                                        <div className="text-xs text-blue-600 dark:text-blue-500">
+                                                                        {/* <div className="text-xs text-blue-600 dark:text-blue-500">
                                                                             1 tháng trước
-                                                                        </div>
+                                                                        </div> */}
                                                                     </div>
                                                                 </div>
                                                             </div>

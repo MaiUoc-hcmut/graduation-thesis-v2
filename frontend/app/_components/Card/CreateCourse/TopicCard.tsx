@@ -116,21 +116,33 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
 
                                 indexQuestion == fieldsQuestion?.length - 1 ?
                                     <div key={field.id}>
-                                        <div>
+                                        <div className='mb-5'>
                                             <div className="mb-2 block">
                                                 <Label htmlFor="email" value="Tiêu đề câu hỏi" />
                                             </div>
-                                            {/* <TextInput
-                                                type="text"
-                                                {...register(`chapters.${indexChapter}.topics.${indexTopic}.questions.${indexQuestion}.title`, {
-                                                    required: "Tiêu đề câu hỏi không thể thiếu."
-                                                })}
-                                            /> */}
                                             <CustomCKEditor className="h-50" setValue={setValue} value="" position={`chapters.${indexChapter}.topics.${indexTopic}.questions.${indexQuestion}.content_text`} />
                                             <div className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                                {errors?.chapters?.[indexChapter]?.topics?.[indexTopic]?.questions?.[indexQuestion]?.title?.message}
+                                                {errors?.chapters?.[indexChapter]?.topics?.[indexTopic]?.questions?.[indexQuestion]?.content_text?.message}
                                             </div>
                                         </div>
+                                        <div className="mb-5">
+                                            <div className="mb-2 block">
+                                                <Label htmlFor="email" value="Giải thích" />
+                                            </div>
+
+                                            <CustomCKEditor className="h-50" setValue={setValue} value="" position={`chapters.${indexChapter}.topics.${indexTopic}.questions.${indexQuestion}.explain`} />
+                                            <div className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                                {errors?.chapters?.[indexChapter]?.topics?.[indexTopic]?.questions?.[indexQuestion]?.content_text?.explain}
+                                            </div>
+                                        </div>
+                                        <div className="mb-5">
+                                            <div className="flex-1 flex items-center justify-end">
+                                                <label htmlFor="default-checkbox" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300 mr-2">Câu hỏi có nhiều đáp án đúng</label>
+                                                <input  {...register(`chapters.${indexChapter}.topics.${indexTopic}.questions.${indexQuestion}.multi_choice`)} id="default-checkbox" type="checkbox" className="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                                            </div>
+
+                                        </div>
+
                                         <AnswerCard indexChapter={indexChapter} indexTopic={indexTopic} hanldeForm={hanldeForm} indexQuestion={indexQuestion} setModal={setModal} modal={modal} topic={topic} />
                                     </div>
                                     : null
@@ -439,6 +451,24 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
 
                                 <p className="mt-2 text-sm text-red-600 dark:text-red-500">
                                     {errors.chapters?.[indexChapter]?.topics?.[indexTopic]?.duration?.message}
+                                </p>
+                            </div>
+                            <div className="mb-5 w-1/3">
+                                <label
+                                    className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                >
+                                    Điểm hoàn thành
+                                </label>
+                                <input
+                                    {...register(`chapters.${indexChapter}.topics.${indexTopic}.pass_score`, {
+                                        required: "Điểm hoàn thành không thể thiếu",
+                                    })}
+                                    type="number"
+                                    className={`bg-white border-[1px] border-[#ececec] text-[#343434] text-sm focus: ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
+                                />
+
+                                <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                    {errors.chapters?.[indexChapter]?.topics?.[indexTopic]?.pass_score?.message}
                                 </p>
                             </div>
 

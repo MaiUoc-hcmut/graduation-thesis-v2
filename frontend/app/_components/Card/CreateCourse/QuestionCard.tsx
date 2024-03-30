@@ -28,7 +28,7 @@ export const QuestionCard = ({ indexChapter, indexTopic, hanldeForm, indexQuesti
 
 
                             <div>
-                                <div>
+                                <div className="mb-5">
                                     <div className="mb-2 block">
                                         <Label htmlFor="email" value="Nội dung câu hỏi" />
                                     </div>

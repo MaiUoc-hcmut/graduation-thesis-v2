@@ -30,14 +30,12 @@ export default function HeaderTeacher() {
                     setNotifycations(data.data)
                 })
                 socket.on("created_topic", (data) => {
+                    console.log(data);
                 });
             }
         }
         fetchCategory()
-
-
     }, [user]);
-    console.log(notifycations);
 
     return (
         <header className="antialiased fixed top-0 left-0 w-full z-50 shadow- border-b-[1px] border-b-[#ececec] shadow-header_teacher">
@@ -63,12 +61,12 @@ export default function HeaderTeacher() {
                                 <li>
                                     <Link href="#" className='text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500'>Giáo viên</Link>
                                 </li>
-                                <li>
+                                {/* <li>
                                     <Link href="#" className='text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500'>Cửa hàng</Link>
                                 </li>
                                 <li>
                                     <Link href="#" className='text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500'>Diễn đàn</Link>
-                                </li>
+                                </li> */}
                             </ul>
                         </div>
                     </div>
