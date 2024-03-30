@@ -189,7 +189,7 @@ class ExamController {
                     const foundObject = knowledges.find(o => o.name === knowledge.name);
                     if (!foundObject) {
                         knowledges.push({
-                            name: question.Knowledge.name,
+                            name: knowledge.name,
                             questions: [question.id]
                         });
                     } else {
