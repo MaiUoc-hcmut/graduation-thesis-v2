@@ -80,6 +80,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
     // }
     return (
         <div className="">
+            <ToastContainer />
             <div className="relative h-[530px] block overflow-hidden">
                 <Image
                     src={`${course?.cover_image ? course?.cover_image : '/'}`}
@@ -439,17 +440,18 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                 </div>
                                 <div className='mt-5 flex flex-col'>
                                     <button onClick={async () => {
-                                        await courseApi.studentBuyCourse(params.slug)
-                                        toast.success('Mua khóa học thành công', {
-                                            position: "bottom-right",
-                                            autoClose: 800,
-                                            hideProgressBar: false,
-                                            closeOnClick: true,
-                                            pauseOnHover: true,
-                                            draggable: true,
-                                            progress: undefined,
-                                            theme: "colored",
-                                        });
+                                        await courseApi.studentBuyCourse(params.slug).then(() => {
+                                            toast.success('Mua khóa học thành công', {
+                                                position: "bottom-right",
+                                                autoClose: 800,
+                                                hideProgressBar: false,
+                                                closeOnClick: true,
+                                                pauseOnHover: true,
+                                                draggable: true,
+                                                progress: undefined,
+                                                theme: "colored",
+                                            });
+                                        })
                                     }} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Mua</button>
                                 </div>
                                 <div className='mt-9'>

@@ -1,7 +1,7 @@
 "use client"
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronDownIcon, ChevronUpIcon, Squares2X2Icon, FilmIcon, CheckIcon, DocumentIcon } from '@heroicons/react/24/outline';
+import { EllipsisHorizontalIcon, ExclamationCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
 import React, { useEffect, useState, useRef } from 'react';
 import ReactPlayer from 'react-player'
 import courseApi from "@/app/api/courseApi"
@@ -11,6 +11,8 @@ import { formatDateTime, convertTime } from '@/app/helper/FormatFunction';
 import { useForm, SubmitHandler, Controller } from "react-hook-form"
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import { useSearchParams } from 'next/navigation';
+import { Dropdown } from 'flowbite-react';
+import { Button, Modal } from 'flowbite-react';
 
 export default function LearningPage({ params }: { params: { slug: string } }) {
     const searchParams = useSearchParams();
@@ -27,6 +29,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
     const [currentPageComment, setCurrentPageComment] = useState(1)
     const list = []
     const { user } = useAppSelector(state => state.authReducer);
+    const [modal, setModal] = useState<any>({})
     const {
         register,
         reset,
@@ -175,6 +178,35 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                     comments?.comments?.map((cmt: any) => {
                                         return (
                                             <div key={cmt.id} className='mt-5' >
+                                                <>
+                                                    <Modal show={modal[`delete-comment${cmt.id}`] || false} size="md" onClose={() => setModal({ ...modal, [`delete-comment${cmt.id}`]: false })} popup>
+                                                        <Modal.Header />
+                                                        <Modal.Body>
+                                                            <form className="space-y-6" onSubmit={async (e) => {
+                                                                e.preventDefault()
+                                                                await courseApi.delete(course.id)
+                                                                setChange(!change)
+                                                                setModal(false)
+                                                            }}>
+                                                                <ExclamationCircleIcon className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
+                                                                <h3 className="mb-5 text-lg font-normal text-center text-gray-500 dark:text-gray-400">
+                                                                    Bạn có chắc muốn xóa bình luận này?
+                                                                </h3>
+                                                                <div className="flex justify-center gap-4">
+                                                                    <Button color="failure" type='submit'>
+                                                                        Xóa
+                                                                    </Button>
+                                                                    <Button color="gray" onClick={() => {
+                                                                        setModal({ ...modal, [`delete-comment${cmt.id}`]: false })
+                                                                    }}>
+                                                                        Hủy
+                                                                    </Button>
+                                                                </div>
+                                                            </form>
+                                                        </Modal.Body>
+                                                    </Modal>
+                                                </>
+
                                                 <div className='flex mb-2'>
                                                     <div className=''>
                                                         <Image
@@ -195,9 +227,11 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                                             {
                                                                                 cmt.user.role == "teacher" ? <span className="bg-indigo-100 text-indigo-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-indigo-900 dark:text-indigo-300">Giáo viên</span> : null
                                                                             }
+                                                                            <p className='text-[#828282] text-sm mr-2'>{formatDateTime(cmt.createdAt)}</p>
                                                                         </div>
-
-                                                                        <p className='text-[#828282] text-sm'>{formatDateTime(cmt.createdAt)}</p>
+                                                                        <div className='flex'>
+                                                                            <button className='text-red-500 text-sm mr-2' onClick={() => setModal({ ...modal, [`delete-comment${cmt.id}`]: true })}>Xóa</button>
+                                                                        </div>
                                                                     </div>
                                                                     <div>
                                                                         <div className='mt-2 max-w-3xl min-w-80'>{parse(cmt.content)}</div>

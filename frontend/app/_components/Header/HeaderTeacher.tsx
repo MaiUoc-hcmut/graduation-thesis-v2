@@ -21,35 +21,34 @@ export default function HeaderTeacher() {
     const { user } = useAppSelector(state => state.authReducer);
     const [notifycations, setNotifycations] = useState<any>([])
 
-    useEffect(() => {
-        async function fetchCategory() {
-            if (user) {
-                const socket = io("http://localhost:4003", { transports: ["websocket"] });
-                socket.emit("new_user_online", user.id);
-                await courseApi.getNotify(`${user.id}`).then((data) => {
-                    setNotifycations(data.data)
-                })
-                socket.on("created_course", (data) => {
-                    // setNotifycations((notify: any) => {
-                    //     notify.push((data))
-                    //     return notify
-                    // })
-                    console.log(data);
+    // useEffect(() => {
+    //     async function fetchCategory() {
+    //         if (user) {
+    //             const socket = io("http://localhost:4003", { transports: ["websocket"] });
+    //             socket.emit("new_user_online", user.id);
+    //             await courseApi.getNotify(`${user.id}`).then((data) => {
+    //                 setNotifycations(data.data)
+    //             })
+    //             socket.on("created_course", (data) => {
+    //                 // setNotifycations((notify: any) => {
+    //                 //     notify.push((data))
+    //                 //     return notify
+    //                 // })
+    //                 console.log(data);
 
-                });
-                socket.on("created_exam", (data) => {
-                });
-                socket.on("reported_error", (data) => {
-                });
-                socket.on("created_topic", (data) => {
-                });
-            }
-        }
-        fetchCategory()
+    //             });
+    //             socket.on("created_exam", (data) => {
+    //             });
+    //             socket.on("reported_error", (data) => {
+    //             });
+    //             socket.on("created_topic", (data) => {
+    //             });
+    //         }
+    //     }
+    //     fetchCategory()
 
 
-    }, [user]);
-    console.log(notifycations);
+    // }, [user]);
 
     return (
         <header className="antialiased fixed top-0 left-0 w-full z-50 shadow- border-b-[1px] border-b-[#ececec] shadow-header_teacher">
@@ -130,9 +129,9 @@ export default function HeaderTeacher() {
                                                                             {notify.content}
 
                                                                         </div>
-                                                                        {/* <div className="text-xs text-blue-600 dark:text-blue-500">
-                                                                            1 tháng trước
-                                                                        </div> */}
+                                                                        <div className="text-xs text-blue-600 dark:text-blue-500">
+                                                                            {notify.createdAt}
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -224,9 +223,13 @@ export default function HeaderTeacher() {
                                     >
                                         <li>
                                             <button
-                                                onClick={() => {
+                                                onClick={async () => {
                                                     dispatch(signout())
-                                                    router.push('/login')
+                                                    await fetch('/api/auth', {
+                                                        method: 'DELETE',
+                                                    }).then(() => {
+                                                        router.push('/login')
+                                                    })
                                                 }}
                                                 className="w-full text-left block py-2 px-4 text-sm text-[#f63c3c] hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                                             >

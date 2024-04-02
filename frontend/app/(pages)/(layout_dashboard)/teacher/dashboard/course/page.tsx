@@ -75,13 +75,7 @@ export default function CourseDashboard() {
                 <div className="font-bold text-[#171347] text-lg">Khóa học của tôi</div>
                 <div className="flex justify-between items-center mt-10 mb-10 w-full ">
                     <form className="flex items-center w-1/3"
-                    // onSubmit={(e: any) => {
-                    //     e.preventDefault()
-                    //     courseApi.searchCourseByCreateTeacher(`${user.id}`, { query: searchInput }).then((data: any) => {
-                    //         setCourses(data.data.result)
-                    //     })
 
-                    // }}
                     >
                         <label htmlFor="simple-search" className="sr-only">Search</label>
                         <div className="relative w-full">
@@ -90,12 +84,12 @@ export default function CourseDashboard() {
                                     setCourses(data.data.result)
                                 })
                                 setSearchInput(e.target.value)
-                            }} type="text" id="simple-search" className="w-full text-sm text-[#343434]  rounded-md border-[1px] border-[#ececec] focus:ring-0 focus:border-primary_border" placeholder="Tìm kiếm trong khóa học" required />
+                            }} type="text" id="simple-search" className="w-full text-sm text-[#343434]  rounded-md border-[1px] border-[#ececec] focus:ring-0 focus:border-primary_border" placeholder="Tìm kiếm khóa học" required />
                         </div>
-                        <button type="submit" className="ml-2 bg-primary p-2.5 rounded-md shadow-primary_btn_shadow border-primary text-white hover:bg-primary_hover">
-                            <MagnifyingGlassIcon className='w-4 h-4' />
-                            <span className="sr-only">Search</span>
-                        </button>
+                        {/* <button type="submit" className="ml-2 bg-primary p-2.5 rounded-md shadow-primary_btn_shadow border-primary text-white hover:bg-primary_hover">
+                                <MagnifyingGlassIcon className='w-4 h-4' />
+                                <span className="sr-only">Search</span>
+                            </button> */}
                     </form>
                 </div>
 

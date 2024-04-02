@@ -4,7 +4,7 @@ import { DocumentIcon } from '@heroicons/react/24/outline';
 import React, { useEffect, useState } from 'react';
 import examApi from '@/app/api/examApi';
 import { useAppSelector } from "@/redux/store";
-
+import { formatDateTime } from '@/app/helper/FormatFunction';
 export default function TopicPage({ params }: { params: { slug: string, id_exam: string } }) {
     const [assignments, setAssignments] = useState<any>()
     const { user } = useAppSelector(state => state.authReducer);
@@ -70,6 +70,7 @@ export default function TopicPage({ params }: { params: { slug: string, id_exam:
                                                 <tbody>
                                                     {
                                                         assignments?.map((assignment: any, index: number) => {
+
                                                             return (
                                                                 <tr key={assignment.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                                                                     <th

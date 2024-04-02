@@ -26,15 +26,15 @@ export default function ResultExam({ params }: { params: { slug: string, id_exam
     let listQuestion;
     let listNumber;
     if (assignment) {
-        listQuestion = assignment.details.map((question: any, index: number) => {
-            if (question.multipleAnswer) {
+        listQuestion = assignment.details?.map((question: any, index: number) => {
+            if (question.multi_choice) {
                 return (
-                    <div id={`question${index + 1}`} key={index} className="mt-5">
+                    <div id={`question${index + 1}`} key={index} className="mt-5 border-[1px] border-[#ececec] p-3 rounded-md shadow-sm bg-slate-50">
                         <div className="flex justify-between items-center">
                             <div className="text-lg  font-normal  text-[#000]">
                                 <div style={{ display: "flex" }}>
                                     <span style={{ marginRight: '8px' }} className="font-semibold text-[#153462]">Câu {index + 1}: </span>
-                                    {parse(question.description)}
+                                    {parse(question.content_text)}
                                 </div>
                             </div>
                             {question.isCorrect ? (
@@ -54,48 +54,34 @@ export default function ResultExam({ params }: { params: { slug: string, id_exam
                             )}
                         </div>
                         <div>
-                            <ul className="mt-3 text-base text-gray-900 rounded-lg dark:bg-gray-700 dark:text-white">
-                                {question.answers.map((answer: any, index: number) => {
+                            <ul
+                                className="mt-4 text-base text-gray-900 rounded-lg dark:bg-gray-700 dark:text-white"
+                            >
+                                {question.Answers.map((answer: any, index: number) => {
                                     return (
                                         <li key={index} className="flex items-center mb-4">
-                                            {answer.isSelected ? (
-                                                <input
-                                                    id={answer.answerId}
-                                                    type="checkbox"
-                                                    value=""
-                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                                    defaultChecked
-                                                />
-                                            ) : (
-                                                <input
-                                                    id={answer.answerId}
-                                                    type="checkbox"
-                                                    value=""
-                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                                />
-                                            )}
+
+                                            <input
+                                                id="checked-checkbox"
+                                                disabled defaultChecked={answer.selected_answer.is_selected}
+                                                type="checkbox"
+                                                value={answer.id}
+                                                name={question.id}
+                                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                            />
                                             <label
-                                                htmlFor="list-radio-license"
-                                                className="mt-2 ml-2 text-base font-medium text-gray-900 dark:text-gray-300 mr-2"
+                                                htmlFor="checked-checkbox"
+                                                className="ms-2 font-medium text-gray-900 dark:text-gray-300"
                                             >
-                                                {alphabet[index]}. <span>{answer.description}</span>
+                                                {parse(answer.content_text)}
                                             </label>
-                                            {/* {answer.isSelected ? (
-                                                answer.isCorrect ? (
-                                                    <TiTick className="ml-2 text-[#2FD790] text-xl" />
-                                                ) : (
-                                                    <MdOutlineCancel className="ml-2 text-[#E44848] text-base" />
-                                                )
-                                            ) : (
-                                                ''
-                                            )} */}
+
                                         </li>
                                     );
                                 })}
                             </ul>
                             <div className="font-medium ml-4">
-                                Đáp án:
-                                {question.answers.map((answer: any, index: number) => {
+                                {question?.Answers?.map((answer: any, index: number) => {
                                     if (answer.isCorrect) {
                                         return (
                                             <span key={index}>
@@ -113,9 +99,9 @@ export default function ResultExam({ params }: { params: { slug: string, id_exam
                 return (
                     <div id={`question${index + 1}`} key={index} className="mt-5 border-[1px] border-[#ececec] p-3 rounded-md shadow-sm bg-slate-50">
                         <div className="flex justify-between items-center">
-                            <div className="text-lg  font-normal text-[#000]">
-                                <span className="font-medium text-[#153462]">Câu {index + 1}: </span>
-                                {parse(question.content_text || '')}
+                            <div style={{ display: "flex" }}>
+                                <span style={{ marginRight: '8px' }} className="font-semibold text-[#153462]">Câu {index + 1}: </span>
+                                {parse(question.content_text)}
                             </div>
                             {question.isCorrect ? (
                                 <span
@@ -135,12 +121,12 @@ export default function ResultExam({ params }: { params: { slug: string, id_exam
                         </div>
                         <div>
                             <ul className="mt-2 text-base text-gray-900 rounded-lg dark:bg-gray-700 dark:text-white ">
-                                {question.Answers.map((answer: any, index: number) => {
+                                {question?.Answers?.map((answer: any, index: number) => {
                                     return (
                                         <li key={index} className="flex items-center mb-2 ">
                                             <div className="flex items-center mb-2">
                                                 <input id="default-radio-1" disabled defaultChecked={answer.selected_answer.is_selected} type="radio" value="" name="default-radio" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-                                                <label htmlFor="default-radio-1" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{answer.content_text}</label>
+                                                <label htmlFor="default-radio-1" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{parse(answer.content_text)}</label>
                                             </div>
 
                                         </li>
@@ -185,7 +171,7 @@ export default function ResultExam({ params }: { params: { slug: string, id_exam
                                 })}
                             </ul>
                             <div className="font-medium ml-4">
-                                {question.Answers.map((answer: any, index: number) => {
+                                {question?.Answers?.map((answer: any, index: number) => {
                                     if (answer.isCorrect) {
                                         return <div key={index}>Đáp án: {alphabet[index]}</div>;
                                     }
@@ -235,7 +221,6 @@ export default function ResultExam({ params }: { params: { slug: string, id_exam
             <div className="px-10 py-5 bg-[#153462] fixed w-full top-0 left-0">
                 <div className="flex justify-between h-full items-center">
                     <div className="text-[#fff] text-[22px] font-medium text-center ">dsfaaaaaaaaa</div>
-                    <div className="text-white text-[22px] font-medium" id="displayDiv"></div>
                 </div>
             </div>
             <div className='mx-3 '>

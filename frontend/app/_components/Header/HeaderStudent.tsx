@@ -21,21 +21,21 @@ export default function HeaderTeacher() {
     const { user } = useAppSelector(state => state.authReducer);
     const [notifycations, setNotifycations] = useState<any>([])
 
-    useEffect(() => {
-        async function fetchCategory() {
-            if (user) {
-                const socket = io("http://localhost:4003", { transports: ["websocket"] });
-                socket.emit("new_user_online", user.id);
-                await courseApi.getNotify(`${user.id}`).then((data) => {
-                    setNotifycations(data.data)
-                })
-                socket.on("created_topic", (data) => {
-                    console.log(data);
-                });
-            }
-        }
-        fetchCategory()
-    }, [user]);
+    // useEffect(() => {
+    //     async function fetchCategory() {
+    //         if (user) {
+    //             const socket = io("http://localhost:4003", { transports: ["websocket"] });
+    //             socket.emit("new_user_online", user.id);
+    //             await courseApi.getNotify(`${user.id}`).then((data) => {
+    //                 setNotifycations(data.data)
+    //             })
+    //             socket.on("created_topic", (data) => {
+    //                 console.log(data);
+    //             });
+    //         }
+    //     }
+    //     fetchCategory()
+    // }, [user]);
 
     return (
         <header className="antialiased fixed top-0 left-0 w-full z-50 shadow- border-b-[1px] border-b-[#ececec] shadow-header_teacher">

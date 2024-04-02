@@ -3,7 +3,14 @@ import type { NextRequest } from 'next/server'
 
 // This function can be marked `async` if using `await` inside
 export default function middleware(request: NextRequest) {
-    // if (request.nextUrl.pathname.startsWith('/teacher')) {
+    // const sessionToken = request.cookies.get('sessionToken')
+    // console.log(sessionToken);
+
+    // if (!sessionToken) {
+    //     return NextResponse.redirect(new URL('/login', request.url))
+    // }
+
+    // if (request.nextUrl.pathname.startsWith('/teacher') && !sessionToken) {
     //     return NextResponse.redirect(new URL('/login', request.url))
     // }
     // if (request.nextUrl.pathname.startsWith('/course/learning')) {

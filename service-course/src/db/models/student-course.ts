@@ -22,9 +22,9 @@ StudentCourse.init(
             type: DataTypes.UUID
         }
     }, {
-        tableName: 'student-course',
-        sequelize
-    }
+    tableName: 'student-course',
+    sequelize
+}
 );
 
 Course.hasOne(StudentCourse, { foreignKey: 'id_course' });

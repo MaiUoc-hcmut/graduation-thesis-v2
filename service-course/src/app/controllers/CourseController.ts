@@ -414,7 +414,7 @@ class CourseController {
             });
 
             const course = await Course.findByPk(id_course);
-            const forum = await Course.findOne({
+            const forum = await Forum.findOne({
                 where: { id_course }
             })
 
@@ -645,7 +645,7 @@ class CourseController {
                 transaction: t
             });
 
-            
+
             const data = {
                 id_user: id_teacher,
                 id_course: newCourse.id,

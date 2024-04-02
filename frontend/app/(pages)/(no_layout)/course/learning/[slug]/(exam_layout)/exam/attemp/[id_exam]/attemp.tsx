@@ -68,7 +68,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
         let data: any = {
             id_exam: params.id_exam,
             time_start: "2024-03-12 16:38:55",
-            time_end: "2024-03-12 17:36:55",
+            time_end: Date.now(),
             assignment: []
         }
         exam.questions.map((question: any) => {

@@ -116,7 +116,7 @@ class AssignmentController {
             });
 
             res.status(200).json({ count, assignments });
-            
+
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
@@ -279,15 +279,15 @@ class AssignmentController {
 
             await newAssignment.update({ score, passed, right_question, wrong_question, empty_question }, { transaction: t });
 
-            if (passed && exam.id_course) {
-                await axios.post(`${process.env.BASE_URL_COURSE_LOCAL}/progresses/increase`, {
-                    data: {
-                        id_student,
-                        id_course: exam.id_course,
-                        id_topic
-                    }
-                });
-            }
+            // if (passed && exam.id_course) {
+            //     await axios.post(`${process.env.BASE_URL_COURSE_LOCAL}/progresses/increase`, {
+            //         data: {
+            //             id_student,
+            //             id_course: exam.id_course,
+            //             id_topic
+            //         }
+            //     });
+            // }
 
             await t.commit();
 

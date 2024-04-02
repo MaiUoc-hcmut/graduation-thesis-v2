@@ -81,8 +81,7 @@ export const signout = createAsyncThunk('/auth/signout', async (arg, thunkAPI) =
         localStorage.removeItem('user');
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        // localStorage.removeItem('persist:authReducer');
-        localStorage.removeItem('persist:documentReducer');
+        localStorage.removeItem('persist:authReducer');
         localStorage.removeItem('persist:studentReducer');
         localStorage.removeItem('persist:root');
         return initialState;
@@ -99,6 +98,7 @@ type InitialState = {
     isFailed: boolean,
     message: string,
     user: UserState,
+    accessToken: string,
 };
 
 type UserState = {
@@ -132,6 +132,7 @@ const initialState = {
         grade: 0,
         status: true,
     } as UserState,
+    accessToken: '' as string,
 } as InitialState;
 
 export const auth = createSlice({
@@ -192,6 +193,7 @@ export const auth = createSlice({
                 state.isLoading = false;
                 state.isSuccess = true;
                 state.user = action.payload.user;
+                state.accessToken = action.payload.accessToken;
                 console.log("Fullfiled")
             })
             .addCase(signupTeacher.pending, (state) => {
@@ -242,6 +244,7 @@ export const auth = createSlice({
                 state.isLoading = false;
                 state.isSuccess = true;
                 state.user = action.payload.user;
+                state.accessToken = action.payload.accessToken;
             })
             .addCase(signout.pending, (state, action) => {
                 console.log("Pending");
