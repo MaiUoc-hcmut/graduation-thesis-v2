@@ -58,11 +58,17 @@ Teacher.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    // experience: {
+    //   type: DataTypes.TEXT
+    // },
     status: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true,
     },
+    // rating: {
+    //   type: DataTypes.FLOAT
+    // },
     createdAt: {
       type: DataTypes.TIME,
       allowNull: false,

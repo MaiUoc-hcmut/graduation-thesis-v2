@@ -52,7 +52,14 @@ declare global {
             URL: ImageURL;
             teacher?: any;
             student?: any;
+            user?: USER;
             topicURL: ResponseVideoFile[];
+        }
+
+        type USER = {
+            user?: any,
+            role?: string,
+            authority?: number
         }
 
     }
@@ -84,7 +91,7 @@ class CourseController {
                 include: [
                     {
                         model: Category,
-                        attributes: ['name', 'id'],
+                        attributes: ['name', 'id', 'id_par_category'],
                         through: {
                             attributes: []
                         }
@@ -95,6 +102,13 @@ class CourseController {
             for (const course of courses) {
                 const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${course.id_teacher}`);
                 course.dataValues.user = { id: user.data.id, name: user.data.name };
+
+                for (const category of course.Categories) {
+                    const parCategory = await ParentCategory.findByPk(category.id_par_category);
+                    category.dataValues[`${parCategory.name}`] = category.name;
+                    delete category.dataValues.name;
+                    delete category.dataValues.id_par_category;
+                }
             }
 
             res.status(200).json(courses)
@@ -178,6 +192,12 @@ class CourseController {
     // [GET] /courses/full/:courseId
     getAllDetailCourse = async (req: Request, res: Response, _next: NextFunction) => {
         try {
+            const authority = req.user?.authority;
+
+            let status = authority === 0
+                            ? ['public', 'paid']
+                            : ['public', 'paid', 'private']
+
             const course = await Course.findOne({
                 where: { id: req.params.courseId },
                 include: [
@@ -188,6 +208,7 @@ class CourseController {
                             {
                                 model: Topic,
                                 as: 'topics',
+                                where: { status },
                                 include: [
                                     {
                                         model: Document,
@@ -224,6 +245,8 @@ class CourseController {
             course.chapters.forEach((chapter: any) => {
                 chapter.topics.sort((a: any, b: any) => a.order - b.order);
             });
+
+            let apparentDuration = 0;
             course.chapters.forEach((chapter: any) => {
                 let totalChapterDuration = 0;
                 let totalChapterLectures = 0;
@@ -231,11 +254,20 @@ class CourseController {
                 chapter.topics.forEach((topic: any) => {
                     totalChapterDuration += topic.duration;
                     topic.type === "lecture" ? totalChapterLectures++ : totalChapterExams++; 
+
+                    if (authority === 0 && topic.status === "paid") {
+                        delete topic.dataValues.video;
+                    }
                 });
                 chapter.dataValues.totalDuration = totalChapterDuration;
                 chapter.dataValues.totalChapterLectures = totalChapterLectures;
                 chapter.dataValues.totalChapterExams = totalChapterExams;
+
+                apparentDuration += totalChapterDuration;
             });
+
+            course.dataValues.authority = authority;
+            course.dataValues.apparentDuration = apparentDuration;
 
             res.status(200).json(course);
         } catch (error: any) {
@@ -294,6 +326,18 @@ class CourseController {
                 offset: pageSize * (currentPage - 1),
                 subQuery: false
             });
+
+            for (const course of courses) {
+                const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${course.id_teacher}`);
+                course.dataValues.user = { id: user.data.id, name: user.data.name };
+
+                for (const category of course.Categories) {
+                    const parCategory = await ParentCategory.findByPk(category.id_par_category);
+                    category.dataValues[`${parCategory.name}`] = category.name;
+                    delete category.dataValues.name;
+                    delete category.dataValues.id_par_category;
+                }
+            }
 
             res.status(200).json({ count: count.length, courses });
         } catch (error: any) {
@@ -392,6 +436,11 @@ class CourseController {
                 offset: pageSize * (currentPage - 1)
             });
 
+            for (const course of courses) {
+                const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${course.id_teacher}`);
+                course.dataValues.user = { id: user.data.id, name: user.data.name };
+            }
+
             res.status(200).json({ count, courses });
         } catch (error: any) {
             console.log(error.message);
@@ -414,9 +463,9 @@ class CourseController {
             });
 
             const course = await Course.findByPk(id_course);
-            const forum = await Course.findOne({
+            const forum = await Forum.findOne({
                 where: { id_course }
-            })
+            });
 
             const data = {
                 course: id_course,
@@ -505,6 +554,12 @@ class CourseController {
 
             courseBody.start_time = new Date(courseBody.start_time);
             courseBody.end_time = new Date(courseBody.end_time);
+
+            if (courseBody.start_time >= courseBody.end_time) {
+                return res.status(400).json({
+                    message: "Time to complete course must gap the time to begin the course!"
+                });
+            }
 
             const newCourse = await Course.create({
                 id,

@@ -48,9 +48,9 @@ Course.init(
     thumbnail: DataTypes.STRING,
     cover_image: DataTypes.STRING,
     status: {
-      type: DataTypes.BOOLEAN,
+      type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: true,
+      defaultValue: "public",
     },
     total_lecture: {
       type: DataTypes.INTEGER,

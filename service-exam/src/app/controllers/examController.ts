@@ -271,7 +271,7 @@ class ExamController {
         
         const t = await sequelize.transaction();
         try {
-            const { title, period, status, questions, id_course, categories } = body;
+            const { title, period, status, questions, id_course, categories, pass_score } = body;
             const quantity_question = questions.length;
             const id_teacher = req.teacher.data.id;
 
@@ -279,12 +279,20 @@ class ExamController {
                 return res.status(400).json({ message: "Information missed!" });
             }
                 
-            if (categories === undefined || categories.length === 0) {
+            if (!categories) {
                 return res.status(400).json({ message: "Category missed!" });
             }
 
-            if (questions === undefined || questions.length === 0) {
+            if (!questions) {
                 return res.status(400).json({ message: "Questions missed!" });
+            }
+
+            if (!pass_score) {
+                return res.status(400).json({ message: "Pass score missed!"});
+            }
+
+            if (pass_score < 0 || pass_score > 10) {
+                return res.status(400).json({ message: "Pass score must be in range 0 to 10" });
             }
 
             let categoryInstances: any[] = [];
@@ -312,7 +320,7 @@ class ExamController {
             for (const question of questions) {
                 const { question_categories, knowledges, answers, ...questionBody } = question;
                 
-                if (answers === undefined || answers.length === 0) {
+                if (!answers) {
                     return res.status(400).json({
                         message: "Question must have its own answers!"
                     });
@@ -339,7 +347,7 @@ class ExamController {
                     transaction: t
                 });
 
-                if (question_categories !== undefined && question_categories.length !== 0) {
+                if (question_categories) {
                     let questionCategoryInstances: any[] = [];
                     for (const id of question_categories) {
                         const category = await Category.findByPk(id);
@@ -349,7 +357,7 @@ class ExamController {
                     newQuestion.addCategories(questionCategoryInstances, { transaction: t });
                 }
 
-                if (knowledges !== undefined && knowledges.length !== 0) {
+                if (knowledges) {
                     for (const id of knowledges) {
                         const knowledge = await Knowledge.findByPk(id);
 
@@ -363,6 +371,13 @@ class ExamController {
                     }
                 }
 
+                const rightAnswer = answers.filter((answer: any) => answer.is_correct === true);
+                if (!rightAnswer) {
+                    return res.status(400).json({
+                        message: "Ques tion must have at least 1 right answer",
+                        question
+                    });
+                }
                 for (const answer of answers) {
                     let answer_image = "";
 

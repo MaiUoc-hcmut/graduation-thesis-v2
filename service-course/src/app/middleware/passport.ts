@@ -30,7 +30,6 @@ passport.use(
     new JWTStrategy(jwtConfig, async (payload: any, done: any) => {
         try {
             const id = payload.id;
-            console.log(id);
             done(null, id);
         } catch (err) {
             done(err, false);
