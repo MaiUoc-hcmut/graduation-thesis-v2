@@ -4,10 +4,10 @@ const StudentCourse = require('../../db/models/student-course');
 
 import { Request, Response, NextFunction } from 'express';
 
-class TeacherInformationController {
+class UserInformationController {
 
     // [GET] /teacher/:teacherId
-    getCourseServiceInformation = async (req: Request, res: Response, _next: NextFunction) => {
+    getTeacherInformation = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_teacher = req.params.teacherId;
 
@@ -48,6 +48,17 @@ class TeacherInformationController {
             res.status(500).json({ error, message: error.message });
         }
     }
+
+    // [GET] /student/:studentId
+    getStudentInformation = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const id_student = req.params.studentId;
+
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error, message: error.message });
+        }
+    }
 }
 
-module.exports = new TeacherInformationController();
+module.exports = new UserInformationController();

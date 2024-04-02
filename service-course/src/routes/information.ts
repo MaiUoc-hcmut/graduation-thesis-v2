@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
-const TeacherInformationController = require('../app/controllers/TeacherInformationController');
+const UserInformationController = require('../app/controllers/UserInformationController');
 
 router.route('/teacher/:teacherId')
-    .get(TeacherInformationController.getCourseServiceInformation);
+    .get(UserInformationController.getTeacherInformation);
 
 module.exports = router;
