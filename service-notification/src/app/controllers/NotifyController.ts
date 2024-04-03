@@ -297,20 +297,23 @@ class NotificationController {
                 body = JSON.parse(body);
             }
 
-            const { room, ...message } = body;
+            let { users, ...message } = body;
 
             const io = socketInstance.getIoInstance();
+            const clientConnected = socketInstance.getClientConnected();
 
-            io.to(`${room}`).emit("teacher_send_notification", {
-                ...message
+            users = Array.from(new Set(users));
+            let onlineClientInRoom = clientConnected.filter(client => users.includes(client.user));
+            let sockets = onlineClientInRoom.map(client => client.socket);
+
+            sockets.forEach(socket => {
+                io.to(socket).emit("teacher_send_notification", {
+                    ...message
+                });
             });
 
-            const usersInRoom = await RoomSocket.findAll({
-                where: { room }
-            });
-
-            const dataToCreate = usersInRoom.map((user: any) => ({
-                id_user: user.id_user,
+            const dataToCreate = users.map((id_user: string) => ({
+                id_user,
                 content: message.message
             }));
 

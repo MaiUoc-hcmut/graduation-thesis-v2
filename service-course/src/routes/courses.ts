@@ -25,6 +25,9 @@ router.route('/search/page/:page')
 router.route('/search/teacher/:teacherId/page/:page')
     .get(Authorize.verifyUser, CheckingCourse.checkSearchCourseOfTeacher, courseController.searchCourseOfTeacher);
 
+router.route('/student-course')
+    .get(courseController.getRecordsOfStudentCourseTable);
+
 router.route('/:courseId')
     .get(courseController.getCourseById)
     .post(
