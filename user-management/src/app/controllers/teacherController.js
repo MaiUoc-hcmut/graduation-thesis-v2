@@ -37,6 +37,20 @@ class TeacherController {
 
             if (!teacher) return res.status(404).json({ message: "Teacher not found!" });
 
+            res.status(200).json(teacher);
+        } catch (error) {
+            console.log(error.message);
+            res.status(400).json(error.message);
+        }
+    }
+
+    getProfileTeacher = async (req, res, _next) => {
+        try {
+            const id_teacher = req.params.teacherId;
+            const teacher = await Teacher.findByPk(id_teacher);
+
+            if (!teacher) return res.status(404).json({ message: "Teacher not found!" });
+
             const courseServiceInformation = await axios.get(`${process.env.BASE_URL_COURSE_LOCAL}/informations/teacher/${id_teacher}`);
             const examServiceInformation = await axios.get(`${process.env.BASE_URL_EXAM_LOCAL}/informations/teacher/${id_teacher}`);
 
