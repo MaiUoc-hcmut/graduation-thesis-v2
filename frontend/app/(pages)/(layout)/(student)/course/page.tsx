@@ -12,6 +12,8 @@ import { useSearchParams } from 'next/navigation'
 import { formatCash } from '@/app/helper/FormatFunction'
 import { convertTime } from '@/app/helper/FormatFunction'
 
+// get cod
+
 const sortOptions = [
     { name: 'Phổ biến nhất', href: '#', current: true },
     { name: 'Đánh giá tốt nhất', href: '#', current: false },
@@ -33,16 +35,12 @@ export default function CourseList() {
     const classFilters = searchParams.getAll('class')
 
     const renderStars = (rating: number) => {
-        const stars = [];
-        for (let i = 1; i <= 5; i++) {
-            stars.push(
-                <StarIcon
-                    key={i}
-                    className={`text-${i <= rating ? 'yellow-300' : 'gray-300'} w-5 h-5`}
-                />
-            );
-        }
-        return stars;
+        return Array.from({ length: 5 }, (_, index) => (
+            <StarIcon
+                key={index + 1}
+                className={`text-${index + 1 <= rating ? 'yellow-300' : 'gray-300'} w-5 h-5`}
+            />
+        ));
     };
 
     useEffect(() => {
