@@ -36,9 +36,9 @@ Topic.init(
         },
         order: DataTypes.INTEGER.UNSIGNED,
         status: {
-            type: DataTypes.BOOLEAN,
+            type: DataTypes.STRING,
             allowNull: false,
-            defaultValue: true,
+            defaultValue: "public",
         },
         type: {
             type: DataTypes.STRING,

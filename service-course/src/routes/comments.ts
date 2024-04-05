@@ -11,7 +11,7 @@ router.route('/')
     .get(CommentController.getAllComment)
     .post(
         Authorize.verifyUser, 
-        CheckingComment.checkParentCreateComment, 
+        CheckingComment.checkCreateComment, 
         FileUpload.uploadImage,
         CommentController.uploadCommentImage,
         CommentController.createComment

@@ -11,13 +11,16 @@ const jwt = require('jsonwebtoken');
 const SignToken = require('../../utils/jwt');
 const transporter = require('../../utils/sendEmail');
 
+const axios = require('axios');
+require('dotenv').config();
 
 initializeApp(firebaseConfig);
 const storage = getStorage();
 
 
 class TeacherController {
-    getAllTeacher = async (req, res, next) => {
+
+    getAllTeacher = async (req, res, _next) => {
         try {
             const teachers = await Teacher.findAll();
             res.status(200).json(teachers);
@@ -27,20 +30,33 @@ class TeacherController {
         }
     }
 
-    getTeacherById = async (req, res, next) => {
+    getTeacherById = async (req, res, _next) => {
         try {
-            const teacher = await Teacher.findByPk(req.params.teacherId)
+            const id_teacher = req.params.teacherId;
+            const teacher = await Teacher.findByPk(id_teacher);
 
             if (!teacher) return res.status(404).json({ message: "Teacher not found!" });
 
-            res.status(200).json(teacher);
+            const courseServiceInformation = await axios.get(`${process.env.BASE_URL_COURSE_LOCAL}/informations/teacher/${id_teacher}`);
+            const examServiceInformation = await axios.get(`${process.env.BASE_URL_EXAM_LOCAL}/informations/teacher/${id_teacher}`);
+
+            console.log(examServiceInformation.data);
+            console.log(courseServiceInformation.data);
+
+            const response = {
+                ...teacher.dataValues,
+                ...courseServiceInformation.data,
+                exam_quantity: examServiceInformation.data
+            }
+
+            res.status(200).json(response);
         } catch (error) {
             console.log(error.message);
             res.status(400).json(error.message);
         }
     }
 
-    getTeacherByEmail = async (req, res, next) => {
+    getTeacherByEmail = async (req, res, _next) => {
         try {
             const teacher = await Teacher.findOne({
                 where: { email: req.body.email }
@@ -55,7 +71,7 @@ class TeacherController {
         }
     }
 
-    updateTeacher = async (req, res, next) => {
+    updateTeacher = async (req, res, _next) => {
         try {
             const teacher = Teacher.findOne({
                 where: {
@@ -74,7 +90,7 @@ class TeacherController {
         }
     }
 
-    uploadAvatar = async (req, res, next) => {
+    uploadAvatar = async (req, res, _next) => {
         try {
             const teacherId = req.params.teacherId;
             if (req.teacher.dataValues.id !== teacherId) return res.status(401).json(createError.Unauthorized('You do not have permission to do this action!'));
@@ -116,7 +132,7 @@ class TeacherController {
         }
     }
 
-    changePassword = async (req, res, next) => {
+    changePassword = async (req, res, _next) => {
         try {
             const { oldPassword, newPassword, confirmPassword } = req.body;
             if (newPassword !== confirmPassword) return res.status(400).json({ message: 'Your new password does not match!' });
@@ -146,7 +162,7 @@ class TeacherController {
         }
     }
 
-    forgotPassword = async (req, res, next) => {
+    forgotPassword = async (req, res, _next) => {
         // 1. Find teacher
         const teacher = await Teacher.findOne({
             where: { email: req.body.email }
@@ -186,7 +202,7 @@ class TeacherController {
         }
     }
 
-    resetPassword = async (req, res, next) => {
+    resetPassword = async (req, res, _next) => {
         try {
             const teacher = Teacher.findOne({
                 where: {

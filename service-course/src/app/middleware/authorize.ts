@@ -24,6 +24,7 @@ declare global {
     type USER = {
         user?: any,
         role?: string,
+        authority?: number
     }
 }
 

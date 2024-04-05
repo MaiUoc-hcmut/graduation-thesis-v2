@@ -254,28 +254,35 @@ class ReviewController {
             const id_student = req.student.data.id;
             const { object, ...body } = req.body.data;
 
+            const course = await Course.findByPk(body.id_course);
+
+            const total_review = course.total_review + 1;
+            const average_rating = ((course.average_rating * course.total_review) + body.rating) / total_review;
+
+            await course.update({
+                total_review,
+                average_rating,
+            }, {
+                transaction: t
+            });
+
+            const review = await Review.findOne({
+                where: {
+                    id_student,
+                    id_course: body.id_course
+                }
+            });
+
+            if (review) {
+                await review.destroy({ transaction: t });
+            }
+            
             const newReview = await Review.create({
                 id_student,
                 ...body
             }, {
                 transaction: t
             });
-
-            if (object === "course") {
-                const course = await Course.findByPk(body.id_course);
-
-                const total_review = course.total_review + 1;
-                const average_rating = ((course.average_rating * course.total_review) + body.rating) / total_review;
-
-                await course.update({
-                    total_review,
-                    average_rating,
-                }, {
-                    transaction: t
-                });
-            } else if (object === "teacher") {
-                
-            }
 
             await t.commit();
 

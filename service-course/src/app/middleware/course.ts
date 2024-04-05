@@ -1,4 +1,5 @@
 const Course = require('../../db/models/course');
+const StudentCourse = require('../../db/models/student-course');
 
 import { Request, Response, NextFunction } from "express";
 const createError = require('http-errors');
@@ -65,6 +66,71 @@ class CheckingCourse {
 
     checkGetCourseStudentPaid = async (req: Request, _res: Response, next: NextFunction) => {
         
+    }
+
+    checkStudentBuyCourse = async (req: Request, _res: Response, next: NextFunction) => {
+        try {
+            const id_student = req.student.data.id;
+            const id_course = req.params.courseId;
+
+            const record = await StudentCourse.findOne({
+                where: {
+                    id_student,
+                    id_course
+                }
+            });
+
+            if (record) {
+                let error = "This student had have bought this course!"
+                return next(createError.BadRequest(error));
+            }
+            next();
+        } catch (error: any) {
+            console.log(error.message);
+            next(createError.InternalServerError(error.message));
+        }
+    }
+
+    checkGetDetailCourse = async (req: Request, _res: Response, next: NextFunction) => {
+        try {
+            const id_user = req.user?.user.data.id;
+            const role = req.user?.role;
+            const id_course = req.params.courseId;
+
+            let user: {
+                user?: any,
+                role?: string,
+                authority?: number
+            } = {
+                user: req.user?.user,
+                role: req.user?.role
+            }
+
+            if (role === "teacher" || role === "admin") {
+                user.authority = 2;
+                req.user = user;
+                return next();
+            }
+
+            const record = await StudentCourse.findOne({
+                where: {
+                    id_student: id_user,
+                    id_course
+                }
+            });
+
+            if (record) {
+                user.authority = 1;
+                req.user = user;
+                return next();
+            }
+            user.authority = 0;
+            req.user = user;
+            next();
+        } catch (error: any) {
+            console.log(error.message);
+            next(createError.InternalServerError(error.message));
+        }
     }
 }
 
