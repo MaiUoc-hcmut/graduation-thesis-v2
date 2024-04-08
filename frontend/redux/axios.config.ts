@@ -14,7 +14,10 @@ const instance = axios.create({
 instance.interceptors.request.use(
     (config) => {
         // If the request is login, register or refresh token, we dont need to attach access token
+        console.log(config.url);
+
         if (config && config.url) {
+
             if (
                 config.url.indexOf('/login') >= 0 ||
                 config.url.indexOf('/register') >= 0 ||
@@ -55,6 +58,11 @@ instance.interceptors.request.use(
                 config.url.indexOf('/notification') >= 0
             ) {
                 config.baseURL = 'http://localhost:4003/api/v1';
+            }
+            if (
+                config.url.indexOf('/test') >= 0
+            ) {
+                config.baseURL = 'http://localhost:4004/api/v1';
             }
         }
 

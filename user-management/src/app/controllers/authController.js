@@ -4,6 +4,8 @@ const createError = require('http-errors');
 const SignToken = require('../../utils/jwt');
 const bcrypt = require('bcryptjs');
 
+const axios = require('axios');
+
 class Auth {
   registerStudent = async (req, res, next) => {
     try {
@@ -123,12 +125,11 @@ class Auth {
       const accessToken = SignToken.signAccessToken(req.teacher.id);
       const refreshToken = SignToken.signRefreshToken(req.teacher.id);
 
-      const teacher = req.teacher.dataValues;
-      console.log(req.teacher);
-      const user = {
-        ...teacher,
-        role: 'teacher',
-      };
+            const teacher = req.teacher.dataValues;
+            const user = {
+                ...teacher,
+                role: "teacher"
+            }
 
       res.status(200).json({
         success: true,

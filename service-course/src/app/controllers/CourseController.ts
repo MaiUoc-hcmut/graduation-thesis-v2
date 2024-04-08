@@ -122,7 +122,8 @@ class CourseController {
     // [GET] /courses/:courseId
     getCourseById = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const id = req.params.id;
+            const id = req.params.courseId;
+            console.log(id);
             const course = await Course.findByPk(id);
 
             if (!course) return res.status(404).json({ message: "Course not found!" });
@@ -442,6 +443,18 @@ class CourseController {
             }
 
             res.status(200).json({ count, courses });
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error, message: error.message });
+        }
+    }
+
+    // [GET] /courses/student-course
+    getRecordsOfStudentCourseTable = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const records = await StudentCourse.findAll();
+            
+            res.status(200).json(records);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error, message: error.message });

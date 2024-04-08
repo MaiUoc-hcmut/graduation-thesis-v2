@@ -1,8 +1,9 @@
 "use client"
 import React from 'react';
 import Image from 'next/image';
-const CheckoutPage: React.FC = () => {
-    // Add your code here
+import paymentApi from '@/app/api/payment';
+import { redirect } from 'next/navigation'
+export default function CheckoutPage() {
 
     return (
         <div className='mx-16 my-24'>
@@ -182,7 +183,11 @@ const CheckoutPage: React.FC = () => {
                             <p className="text-2xl font-semibold text-gray-900">$408.00</p>
                         </div>
                     </div>
-                    <button className="mt-4 mb-8 w-full rounded-md bg-gray-900 px-6 py-3 font-medium text-white">
+                    <button onClick={async () => {
+                        const res: any = await paymentApi.getAll()
+                        redirect(res?.payUrl)
+
+                    }} className="mt-4 mb-8 w-full rounded-md bg-gray-900 px-6 py-3 font-medium text-white">
                         Đặt hàng
                     </button>
                 </div>
@@ -193,5 +198,3 @@ const CheckoutPage: React.FC = () => {
 
     );
 };
-
-export default CheckoutPage;
