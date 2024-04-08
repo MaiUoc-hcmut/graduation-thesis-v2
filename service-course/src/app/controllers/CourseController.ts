@@ -353,6 +353,24 @@ class CourseController {
         try {
             const id_teacher = req.params.teacherId;
 
+            enum SortQuery {
+                Rating = 'rating',
+                Date = 'date'
+            }
+
+            const sortFactor = {
+                [SortQuery.Rating]: 'average_rating',
+                [SortQuery.Date]: 'createdAt'
+            }
+
+            const sortQuery = req.query.sort
+
+            let defaultQuery = 'createdAt';
+
+            if (typeof sortQuery === "string" && sortQuery in SortQuery) {
+                defaultQuery = sortFactor[sortQuery as SortQuery];
+            }
+
             const currentPage: number = +req.params.page;
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
@@ -373,7 +391,7 @@ class CourseController {
                         }
                     },
                 ],
-                order: [['createdAt', 'DESC']],
+                order: [[defaultQuery, 'DESC']],
                 limit: pageSize,
                 offset: pageSize * (currentPage - 1)
             });
