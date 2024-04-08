@@ -23,7 +23,7 @@ export default function StudentLayout({
           {children}
         </div>
       </Suspense>
-      <Footer />
+      {/* <Footer /> */}
       <FlowbiteClient />
 
     </section>

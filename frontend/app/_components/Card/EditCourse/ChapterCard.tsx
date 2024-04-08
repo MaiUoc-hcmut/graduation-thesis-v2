@@ -70,7 +70,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
 
     useEffect(() => {
         setTopicsData(data.chapters[indexChapter]?.topics?.filter((topic: any) => topic.modify != "delete"))
-    }, [data]);
+    }, [data, indexChapter]);
 
 
     const reorder = (list: Array<any>, startIndex: any, endIndex: any) => {
@@ -444,7 +444,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                         name="document"
                                         labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
                                     />
-                                 
+
                                 </div>
                                 <div className="mb-5 w-full">
                                     <div

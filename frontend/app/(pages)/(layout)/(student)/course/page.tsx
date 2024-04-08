@@ -1,18 +1,14 @@
 "use client"
-
-import { Fragment, useEffect, useState } from 'react'
-import { Dialog, Disclosure, Menu, Transition } from '@headlessui/react'
-import { XMarkIcon, ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon } from '@heroicons/react/24/outline'
-import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, StarIcon } from '@heroicons/react/20/solid'
+import { Fragment, useEffect, useState } from 'react';
+import { Dialog, Disclosure, Menu, Transition } from '@headlessui/react';
+import { XMarkIcon, ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, StarIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
 import Image from 'next/image';
 import courseApi from '@/app/api/courseApi';
-import categoryApi from '@/app/api/category'
-import { useSearchParams } from 'next/navigation'
-import { formatCash } from '@/app/helper/FormatFunction'
-import { convertTime } from '@/app/helper/FormatFunction'
-
-// get cod
+import categoryApi from '@/app/api/category';
+import { useSearchParams } from 'next/navigation';
+import { formatCash, convertTime } from '@/app/helper/FormatFunction';
 
 const sortOptions = [
     { name: 'Phổ biến nhất', href: '#', current: true },
@@ -20,19 +16,19 @@ const sortOptions = [
     { name: 'Mới nhất', href: '#', current: false },
     { name: 'Giá: Thấp đến cao', href: '#', current: false },
     { name: 'Giá: Cao đến thấp', href: '#', current: false },
-]
+];
 
 function classNames(...classes: any) {
-    return classes.filter(Boolean).join(' ')
+    return classes.filter(Boolean).join(' ');
 }
 
 export default function CourseList() {
-    const [courses, setCourses] = useState<any>()
-    const [category, setCategory] = useState<any>()
-    const searchParams = useSearchParams()
-    const subjectFilters = searchParams.getAll('subject')
-    const levelFilters = searchParams.getAll('level')
-    const classFilters = searchParams.getAll('class')
+    const [courses, setCourses] = useState<any[]>([]);
+    const [category, setCategory] = useState<any[]>([]);
+    const searchParams = useSearchParams();
+    const subjectFilters = searchParams.getAll('subject');
+    const levelFilters = searchParams.getAll('level');
+    const classFilters = searchParams.getAll('class');
 
     const renderStars = (rating: number) => {
         return Array.from({ length: 5 }, (_, index) => (

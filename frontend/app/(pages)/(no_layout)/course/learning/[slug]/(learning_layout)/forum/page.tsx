@@ -50,11 +50,9 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
 
     }, [params.slug, change]);
 
-    console.log(topics);
     for (let i = 1; i <= paginate; i++) {
         list.push(i)
     }
-
     return (
         <div className='w-full'>
             <>
