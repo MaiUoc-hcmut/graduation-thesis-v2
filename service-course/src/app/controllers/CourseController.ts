@@ -123,7 +123,6 @@ class CourseController {
     getCourseById = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id = req.params.courseId;
-            console.log(id);
             const course = await Course.findByPk(id);
 
             if (!course) return res.status(404).json({ message: "Course not found!" });
@@ -205,6 +204,7 @@ class CourseController {
                     {
                         model: Chapter,
                         as: 'chapters',
+                        where: { status },
                         include: [
                             {
                                 model: Topic,

@@ -4,10 +4,7 @@ const router = express.Router();
 const PaymentController = require('../app/controllers/PaymentController');
 
 router.route('/')
-    .get(PaymentController.testPaymentByScanQRCode);
-
-router.route('/manual')
-    .get(PaymentController.testPaymentManual);
+    .get(PaymentController.payByScanQRCode);
 
 module.exports = router;
 
