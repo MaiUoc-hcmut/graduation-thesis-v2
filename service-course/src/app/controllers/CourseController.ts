@@ -7,6 +7,7 @@ const ParentCategory = require('../../db/models/parent-category');
 const CourseDraft = require('../../db/models/course_draft');
 const Document = require('../../db/models/document');
 const Forum = require('../../db/models/forum');
+const Coupon = require('../../db/models/coupon');
 
 const StudentCourse = require('../../db/models/student-course');
 
@@ -225,6 +226,13 @@ class CourseController {
                     {
                         model: Category,
                         attributes: ['name', 'id_par_category', 'id'],
+                        through: {
+                            attributes: []
+                        }
+                    },
+                    {
+                        model: Coupon,
+                        attributes: ['name', 'percent', 'id', 'expire'],
                         through: {
                             attributes: []
                         }
