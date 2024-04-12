@@ -168,6 +168,33 @@ class Test {
             res.status(500).json(error);
         }
     }
+
+    testGetQuery = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const { class: _class, subject: _subject, level: _level } = req.query;
+        
+            // Khởi tạo mảng để lưu trữ các giá trị của query
+            const queryValues = [];
+
+            // Kiểm tra và thêm giá trị của mỗi query vào mảng
+            if (_class) queryValues.push(_class);
+            if (_subject) queryValues.push(_subject);
+            if (_level) queryValues.push(_level);
+
+            // In ra mảng kết quả
+            console.log(queryValues);
+
+            // Trả về kết quả
+            res.status(200).json({
+                queryValues: queryValues
+            });
+        } catch (error: any) {
+            console.log(error.message)
+            res.status(500).json({
+                message: error.message
+            })
+        }
+    }
 }
 
 module.exports = new Test();

@@ -17,7 +17,7 @@ router.route('/')
 
 
 router.route('/filter/page/:page')
-    .get(courseController.getCourseFilterByCategory);
+    .get(courseController.getFilteredCourse);
 
 router.route('/search/page/:page')
     .get(courseController.searchCourse);

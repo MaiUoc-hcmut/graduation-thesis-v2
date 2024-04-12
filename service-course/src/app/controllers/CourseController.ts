@@ -289,15 +289,69 @@ class CourseController {
     }
 
     // [GET] /courses/filter/page/:page
-    getCourseFilterByCategory = async (req: Request, res: Response, _next: NextFunction) => {
+    getFilteredCourse = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const categories = Object.values(req.query);
+
+            const { class: _class, subject, level } = req.query;
+
+            const minPrice = typeof req.query.minPrice === 'string' ? parseInt(req.query.minPrice) : undefined;
+            const maxPrice = typeof req.query.maxPrice === 'string' ? parseInt(req.query.maxPrice) : undefined;
+
+            if (Array.isArray(_class)) {
+                categories.push(..._class)
+            } else {
+                categories.push(_class)
+            }
+
+            if (Array.isArray(subject)) {
+                categories.push(...subject)
+            } else {
+                categories.push(subject)
+            }
+
+            if (Array.isArray(level)) {
+                categories.push(...level)
+            } else {
+                categories.push(level)
+            }
+
+            if (Array.isArray(minPrice) || Array.isArray(maxPrice)) {
+                throw new Error("MinPrice and MaxPrice should just primitive type, not array type")
+            }
+
+            if (minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice) {
+                throw new Error('minPrice must be less than maxPrice.');
+            }
+
+            const condition: {
+                price: any
+            } = {
+                price: {
+                    [Op.between]: [0, 99999999]
+                }
+            };
+
+            if (minPrice !== undefined && maxPrice !== undefined) {
+                condition.price = {
+                    [Op.between]: [minPrice, maxPrice]
+                };
+            } else if (minPrice !== undefined) {
+                condition.price = {
+                    [Op.gte]: minPrice
+                };
+            } else if (maxPrice !== undefined) {
+                condition.price = {
+                    [Op.lte]: maxPrice
+                };
+            }
             
             const currentPage: number = +req.params.page;
             
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const count = await Course.count({
+                where: condition,
                 include: [
                     {
                         model: Category,
@@ -354,33 +408,49 @@ class CourseController {
             res.status(200).json({ count: count.length, courses });
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error });
+            res.status(500).json({ error, message: error.message });
         }
     }
 
     // Get all courses that created by a teacher
     // [GET] /courses/teacher/:teacherId/page/:page
-    // Sort by: rating, date, most register, price
+    // Sort by: most register
     getCourseCreatedByTeacher = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_teacher = req.params.teacherId;
 
             enum SortQuery {
                 Rating = 'rating',
-                Date = 'date'
+                Date = 'date',
+                Price = 'price'
+            }
+            enum SortOrder {
+                ASC = 'ASC',
+                DESC = 'DESC'
             }
 
             const sortFactor = {
                 [SortQuery.Rating]: 'average_rating',
-                [SortQuery.Date]: 'createdAt'
+                [SortQuery.Date]: 'createdAt',
+                [SortQuery.Price]: 'price'
+            }
+            const orderFactor = {
+                [SortOrder.ASC]: 'ASC',
+                [SortOrder.DESC]: 'DESC',
             }
 
+
             const sortQuery = req.query.sort
+            const orderSort = req.query.order;
 
             let defaultQuery = 'createdAt';
+            let defaultOrder = 'ASC';
 
             if (typeof sortQuery === "string" && sortQuery in SortQuery) {
                 defaultQuery = sortFactor[sortQuery as SortQuery];
+            }
+            if (typeof orderSort === "string" && orderSort in SortOrder) {
+                defaultOrder = orderFactor[orderSort as SortOrder];
             }
 
             const currentPage: number = +req.params.page;
@@ -403,7 +473,7 @@ class CourseController {
                         }
                     },
                 ],
-                order: [[defaultQuery, 'DESC']],
+                order: [[defaultQuery, defaultOrder]],
                 limit: pageSize,
                 offset: pageSize * (currentPage - 1)
             });
@@ -727,11 +797,12 @@ class CourseController {
                             }
                             
                             totalDuration += topicVideoDuration;
+                            console.log(topicVideoDuration);
                         }
                     }
                 }
             }
-
+            console.log(totalDuration);
             await newCourse.update({ 
                 total_lecture: totalLecture, 
                 total_exam: totalExam,
