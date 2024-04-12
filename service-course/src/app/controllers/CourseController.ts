@@ -468,7 +468,7 @@ class CourseController {
             });
 
             for (const course of courses) {
-                const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${course.id_teacher}`);
+                const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${course.Course.id_teacher}`);
                 course.dataValues.user = { id: user.data.id, name: user.data.name };
             }
 
