@@ -7,6 +7,7 @@ const ParentCategory = require('../../db/models/parent-category');
 const CourseDraft = require('../../db/models/course_draft');
 const Document = require('../../db/models/document');
 const Forum = require('../../db/models/forum');
+const Coupon = require('../../db/models/coupon');
 
 const StudentCourse = require('../../db/models/student-course');
 
@@ -123,7 +124,6 @@ class CourseController {
     getCourseById = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id = req.params.courseId;
-            console.log(id);
             const course = await Course.findByPk(id);
 
             if (!course) return res.status(404).json({ message: "Course not found!" });
@@ -205,6 +205,7 @@ class CourseController {
                     {
                         model: Chapter,
                         as: 'chapters',
+                        where: { status },
                         include: [
                             {
                                 model: Topic,
@@ -225,6 +226,13 @@ class CourseController {
                     {
                         model: Category,
                         attributes: ['name', 'id_par_category', 'id'],
+                        through: {
+                            attributes: []
+                        }
+                    },
+                    {
+                        model: Coupon,
+                        attributes: ['name', 'percent', 'id', 'expire'],
                         through: {
                             attributes: []
                         }
