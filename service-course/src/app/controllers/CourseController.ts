@@ -135,6 +135,9 @@ class CourseController {
         }
     }
 
+    // Filter by price
+    // Sort 
+
     // [GET] /courses/search/page/:page
     searchCourse = async (req: Request, res: Response, _next: NextFunction) => {
         const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);
@@ -285,7 +288,7 @@ class CourseController {
         }
     }
 
-    // [GET] /courses/filter
+    // [GET] /courses/filter/page/:page
     getCourseFilterByCategory = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const categories = Object.values(req.query);
@@ -357,6 +360,7 @@ class CourseController {
 
     // Get all courses that created by a teacher
     // [GET] /courses/teacher/:teacherId/page/:page
+    // Sort by: rating, date, most register, price
     getCourseCreatedByTeacher = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_teacher = req.params.teacherId;

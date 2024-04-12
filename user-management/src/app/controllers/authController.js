@@ -31,23 +31,21 @@ class Auth {
       const accessToken = SignToken.signAccessToken(newStudent.id);
       const refreshToken = SignToken.signRefreshToken(newStudent.id);
 
-            const cart = await axios.post(`${BASE_URL_PAYMENT_LOCAL}/cart`, {
-                id_user: newStudent.id
-            });
+      const cart = await axios.post(`${BASE_URL_PAYMENT_LOCAL}/cart`, {
+        id_user: newStudent.id,
+      });
 
-            res.status(201).send({
-                student: newStudent,
-                accessToken,
-                refreshToken
-            })
-
-        } catch (error) {
-            if (error?.code === 11000) {
-                return next(createError.BadRequest('Email already exists'));
-            }
-            console.log(error.message)
-            return next(createError.InternalServerError('Server error'));
-        }
+      res.status(201).send({
+        student: newStudent,
+        accessToken,
+        refreshToken,
+      });
+    } catch (error) {
+      if (error?.code === 11000) {
+        return next(createError.BadRequest('Email already exists'));
+      }
+      console.log(error.message);
+      return next(createError.InternalServerError('Server error'));
     }
   };
 
@@ -110,8 +108,12 @@ class Auth {
       const refreshToken = SignToken.signRefreshToken(req.student.id);
 
       const student = req.student.dataValues;
+      const cart = await axios.get(
+        `${BASE_URL_PAYMENT_LOCAL}/cart/student/${student.id}`
+      );
       const user = {
         ...student,
+        cart: cart.data.id,
         role: 'student',
       };
 
@@ -131,11 +133,11 @@ class Auth {
       const accessToken = SignToken.signAccessToken(req.teacher.id);
       const refreshToken = SignToken.signRefreshToken(req.teacher.id);
 
-            const teacher = req.teacher.dataValues;
-            const user = {
-                ...teacher,
-                role: "teacher"
-            }
+      const teacher = req.teacher.dataValues;
+      const user = {
+        ...teacher,
+        role: 'teacher',
+      };
 
       res.status(200).json({
         success: true,
