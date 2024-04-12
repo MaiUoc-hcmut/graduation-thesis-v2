@@ -34,7 +34,8 @@ class CartController {
             const id_cart = req.params.cartId;
 
             const records = await CartCourse.findAll({
-                where: { id_cart }
+                where: { id_cart },
+                order: [['createdAt', 'ASC']]
             });
 
             let courseList = [];
@@ -43,7 +44,7 @@ class CartController {
                 const id_course = record.id_course;
 
                 const course = await axios.get(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${id_course}`);
-                courseList.push(course);
+                courseList.push(course.data);
             }
 
             res.status(200).json(courseList);
@@ -112,7 +113,7 @@ class CartController {
                 where: {
                     id_cart,
                     id_course
-                }
+                },
             }, {
                 transaction: t
             });

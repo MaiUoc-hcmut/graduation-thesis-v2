@@ -22,7 +22,6 @@ CartCourse.init({
     }
 }, {
     sequelize,
-    timestamps: false,
     tableName: 'cart_course'
 });
 
