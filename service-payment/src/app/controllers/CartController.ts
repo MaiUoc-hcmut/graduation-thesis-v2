@@ -9,7 +9,7 @@ import { Request, Response, NextFunction } from "express";
 
 class CartController {
 
-    // [POST] /carts
+    // [POST] /cart
     createCart = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_user = req.body.id_user;
@@ -28,7 +28,7 @@ class CartController {
         }
     }
 
-    // [GET] /carts/:cartId
+    // [GET] /cart/:cartId
     getCartOfStudent = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_cart = req.params.cartId;
@@ -56,7 +56,24 @@ class CartController {
         }
     }
 
-    // [POST] /carts/:cartId
+    // [GET] /cart/student/:studentId
+    getCartInfor = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const cart = await Cart.findOne({
+                where: { id_user: req.params.studentId }
+            });
+
+            res.status(200).json(cart);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({
+                error,
+                message: error.message
+            });
+        }
+    }
+
+    // [POST] /cart/:cartId
     addCourseToCart = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
@@ -84,7 +101,7 @@ class CartController {
         }
     }
 
-    // [DELETE] /carts/:cartId
+    // [DELETE] /cart/:cartId
     deleteCourseFromCart = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {

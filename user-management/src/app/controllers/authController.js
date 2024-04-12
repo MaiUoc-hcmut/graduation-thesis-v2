@@ -95,8 +95,10 @@ class Auth {
             const refreshToken = SignToken.signRefreshToken(req.student.id);
 
             const student = req.student.dataValues;
+            const cart = await axios.get(`${BASE_URL_PAYMENT_LOCAL}/cart/student/${student.id}`);
             const user = {
                 ...student,
+                cart: cart.data.id,
                 role: "student"
             }
 
