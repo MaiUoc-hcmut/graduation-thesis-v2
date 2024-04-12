@@ -31,9 +31,12 @@ class Auth {
       const accessToken = SignToken.signAccessToken(newStudent.id);
       const refreshToken = SignToken.signRefreshToken(newStudent.id);
 
-      const cart = await axios.post(`${BASE_URL_PAYMENT_LOCAL}/cart`, {
-        id_user: newStudent.id,
-      });
+      const cart = await axios.post(
+        `${process.env.BASE_URL_PAYMENT_LOCAL}/cart`,
+        {
+          id_user: newStudent.id,
+        }
+      );
 
       res.status(201).send({
         student: newStudent,
@@ -109,7 +112,7 @@ class Auth {
 
       const student = req.student.dataValues;
       const cart = await axios.get(
-        `${BASE_URL_PAYMENT_LOCAL}/cart/student/${student.id}`
+        `${process.env.BASE_URL_PAYMENT_LOCAL}/cart/student/${student.id}`
       );
       const user = {
         ...student,
@@ -125,6 +128,10 @@ class Auth {
       });
     } catch (error) {
       console.log(error?.message);
+      res.status(500).json({
+        error,
+        message: error.message,
+      });
     }
   };
 
