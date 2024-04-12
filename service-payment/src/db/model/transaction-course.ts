@@ -22,6 +22,7 @@ TransactionCourse.init({
     }
 }, {
     sequelize,
+    timestamps: false,
     tableName: 'transaction_course'
 });
 
