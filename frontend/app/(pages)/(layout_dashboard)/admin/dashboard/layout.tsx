@@ -6,12 +6,12 @@ import { Suspense, useEffect } from 'react'
 import HeaderTeacher from '@/app/_components/Header/HeaderTeacher'
 import HeaderStudent from '@/app/_components/Header/HeaderStudent';
 import FlowbiteClient from '@/app/_components/Flowbite/FlowbiteClient';
-import Loading from './loading';
+import Loading from '../../loading';
 import { useAppSelector } from "@/redux/store";
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
-export default function DashboardLayout({
+export default function DashboardTeacherLayout({
   children,
 }: any) {
   const { user, accessToken } = useAppSelector(state => state.authReducer);

@@ -102,6 +102,7 @@ type InitialState = {
 };
 
 type UserState = {
+    cart: string;
     role: string;
     id: number,
     name: string,

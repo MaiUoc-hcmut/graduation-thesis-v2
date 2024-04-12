@@ -16,12 +16,11 @@ import { useEffect, useState } from 'react';
 export default function HeaderStudent() {
     const dispatch = useDispatch<AppDispatch>();
     const router = useRouter()
-    const authReducer = JSON.parse(localStorage.getItem('persist:authReducer') || '{}')
-    const isAuth = (authReducer?.isAuth == "true" || authReducer?.isAuthTeacher == "true") ? true : false
+    // const authReducer = JSON.parse(localStorage.getItem('persist:authReducer') || '{}')
+    // const isAuth = (authReducer?.isAuth == "true" || authReducer?.isAuthTeacher == "true") ? true : false
     const { user } = useAppSelector(state => state.authReducer);
     const [notifycations, setNotifycations] = useState<any>([])
     const searchParams = useSearchParams()
-    console.log(router);
 
     // useEffect(() => {
     //     async function fetchCategory() {
@@ -71,7 +70,7 @@ export default function HeaderStudent() {
                         </div>
                     </div>
                     {
-                        isAuth && user ?
+                        user.id != 0 ?
                             <div className="flex items-center lg:order-2">
 
                                 <div className='mr-3'>

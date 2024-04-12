@@ -1,9 +1,12 @@
 import axiosConfig from "@/redux/axios.config"
 
 const paymentApi = {
-    getAll: () => {
-        const url = `/test`;
-        return axiosConfig.get(url);
+    getPayment: () => {
+        const url = `/payment/pay`;
+        return axiosConfig.post(url, {
+            amount: '10000',
+            orderInfo: 'dsc'
+        });
     },
     addToCart: (id_course: any, id_cart: string) => {
         const url = `/cart/${id_cart}`;

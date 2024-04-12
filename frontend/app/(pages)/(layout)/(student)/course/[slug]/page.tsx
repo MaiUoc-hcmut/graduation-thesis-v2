@@ -30,7 +30,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
     const [starDetails, setStarDetails] = useState<any>();
     const [hoverRating, setHoverRating] = useState(0);
     const { user } = useAppSelector(state => state.authReducer);
-    console.log(user);
+
 
     const {
         register,
@@ -440,10 +440,8 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                 <div className='mt-5 flex flex-col'>
                                     <button onClick={async () => {
                                         let id_cart = ''
-                                        await paymentApi.getCartOfStudent(user.id).then((data: any) => {
-                                            id_cart = data.id
-                                        })
-                                        await paymentApi.addToCart(course?.id, id_cart).then(() => {
+
+                                        await paymentApi.addToCart(course?.id, user?.cart).then(() => {
                                             toast.success('Thêm vào giỏ hàng thành công', {
                                                 position: "bottom-right",
                                                 autoClose: 800,

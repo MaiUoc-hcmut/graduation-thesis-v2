@@ -184,8 +184,12 @@ export default function CheckoutPage() {
                         </div>
                     </div>
                     <button onClick={async () => {
-                        const res: any = await paymentApi.getAll()
-                        router.push(res?.url);
+                        let res: any
+                        await paymentApi.getPayment().then((data) => {
+                            res = data.data
+                        })
+
+                        router.push(res?.payUrl);
 
                     }} className="mt-4 mb-8 w-full rounded-md bg-gray-900 px-6 py-3 font-medium text-white">
                         Thanh toán

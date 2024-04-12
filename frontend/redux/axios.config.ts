@@ -59,6 +59,7 @@ instance.interceptors.request.use(
             }
             if (
                 config.url.indexOf('/test') >= 0 ||
+                config.url.indexOf('/payment') >= 0 ||
                 config.url.indexOf('/cart') >= 0
             ) {
                 config.baseURL = 'http://localhost:4004/api/v1';

@@ -1,9 +1,10 @@
 "use client"
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { TrashIcon } from '@heroicons/react/24/outline';
 import { useAppSelector } from '@/redux/store';
+import paymentApi from '@/app/api/paymentApi';
 
 const handleDelete = (itemId: any, setCartItems: any, cartItems: any[]) => {
     const updatedCartItems = cartItems.filter((item) => item.id !== itemId);
@@ -11,11 +12,18 @@ const handleDelete = (itemId: any, setCartItems: any, cartItems: any[]) => {
 };
 
 export default function Cart() {
-    const [cartItems, setCartItems] = useState([
-        { id: 1, name: 'Product 1', price: 100 },
-        { id: 2, name: 'Product 2', price: 200 },
-        { id: 3, name: 'Product 3', price: 300 },
-    ]);
+    const [cartItems, setCartItems] = useState([]);
+    const { user } = useAppSelector(state => state.authReducer);
+    useEffect(() => {
+        async function fetchData() {
+            await paymentApi.getCart(user.cart).then((data: any) => {
+                setCartItems(data.data)
+            }
+            )
+        }
+        fetchData()
+    }, [user.cart])
+
     return (
         <section className="py-10 relative">
             <h2 className="title font-manrope font-semibold text-4xl leading-10 mb-8 text-center text-black">
@@ -23,7 +31,7 @@ export default function Cart() {
             </h2>
             <div className="px-4 mx-10 flex">
                 <div className="mr-5 w-2/3">
-                    {cartItems.map((item) => (
+                    {cartItems.map((item: any) => (
                         <div key={item.id} className="rounded-xl h-60 border-[1px] border-gray-200 p-6 flex mb-5">
                             <div className="relative flex-1 mr-5">
                                 <Image
@@ -61,7 +69,7 @@ export default function Cart() {
                         </h5>
                         <div className="flex items-center justify-between gap-5">
                             <h6 className="font-manrope font-bold text-3xl lead-10 text-primary">
-                                ${cartItems.reduce((total, item) => total + item.price, 0)}
+                                ${cartItems.reduce((total, item: any) => total + item.price, 0)}
                             </h6>
                         </div>
                     </div>
