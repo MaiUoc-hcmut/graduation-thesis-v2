@@ -14,6 +14,8 @@ import { useSearchParams } from 'next/navigation';
 import { Dropdown } from 'flowbite-react';
 import { Button, Modal } from 'flowbite-react';
 
+
+
 export default function LearningPage({ params }: { params: { slug: string } }) {
     const searchParams = useSearchParams();
     const [course, setCourse] = useState<any>()

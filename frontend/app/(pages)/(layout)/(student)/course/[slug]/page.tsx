@@ -6,11 +6,13 @@ import { useEffect, useState } from 'react';
 import { ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon, CheckIcon } from '@heroicons/react/24/outline'
 import { ChevronDownIcon, ChevronUpIcon, StarIcon } from '@heroicons/react/20/solid'
 import courseApi from '@/app/api/courseApi';
+import paymentApi from '@/app/api/paymentApi';
 import { useForm, SubmitHandler } from "react-hook-form"
 import parse from 'html-react-parser';
 import { formatCash, convertTime, formatDateTime } from '@/app/helper/FormatFunction';
-import { useSession } from 'next-auth/react';
+// import { useSession } from 'next-auth/react';
 import { ToastContainer, toast } from 'react-toastify';
+import { useAppSelector } from '@/redux/store';
 type Review = {
     content: string
     rating: number
@@ -27,7 +29,8 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
     const [avgReview, setAvgReview] = useState(0);
     const [starDetails, setStarDetails] = useState<any>();
     const [hoverRating, setHoverRating] = useState(0);
-    // const { data: session, status } = useSession();
+    const { user } = useAppSelector(state => state.authReducer);
+
     const {
         register,
         handleSubmit,
@@ -53,8 +56,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
             )
         }
         fetchData()
-    }, [changeData])
-    // reviews?.sort(function (a: any, b: any) { return Date.parse(b.createdAt) - Date.parse(a.createdAt) })
+    }, [changeData, params.slug])
 
 
     const handleHover = (hoverRating: any) => {
@@ -74,10 +76,6 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
         return stars;
     };
 
-    // if (session) {
-    //     console.log(123);
-
-    // }
     return (
         <div className="">
             <ToastContainer />
@@ -275,7 +273,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                     4 sao
                                                 </div>
                                                 <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['5star']?.quantity == 0 ? 0 : starDetails?.['4star'].percentage}%` }} />
+                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['4star']?.quantity == 0 ? 0 : starDetails?.['4star'].percentage}%` }} />
                                                 </div>
                                                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
                                                     {0 || Math.floor(starDetails?.['4star'].percentage)}%
@@ -288,7 +286,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                     3 sao
                                                 </div>
                                                 <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['5star']?.quantity == 0 ? 0 : starDetails?.['3star'].percentage}%` }} />
+                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['3star']?.quantity == 0 ? 0 : starDetails?.['3star'].percentage}%` }} />
                                                 </div>
                                                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
                                                     {0 || Math.floor(starDetails?.['3star'].percentage)}%
@@ -301,7 +299,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                     2 sao
                                                 </div>
                                                 <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['5star']?.quantity == 0 ? 0 : starDetails?.['2star'].percentage}%` }} />
+                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['2star']?.quantity == 0 ? 0 : starDetails?.['2star'].percentage}%` }} />
                                                 </div>
                                                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
                                                     {0 || Math.floor(starDetails?.['2star'].percentage)}%
@@ -314,7 +312,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                     1 sao
                                                 </div>
                                                 <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['5star']?.quantity == 0 ? 0 : starDetails?.['1star'].percentage}%` }} />
+                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['1star']?.quantity == 0 ? 0 : starDetails?.['1star'].percentage}%` }} />
                                                 </div>
                                                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
                                                     {0 || Math.floor(starDetails?.['1star'].percentage)}%
@@ -345,7 +343,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                 <div className='flex items-center mb-4'>
                                                     <div className=''>
                                                         <Image
-                                                            src="/images/avatar.png"
+                                                            src={`${user.avatar ? user.avatar : '/images/avatar.png'}`}
                                                             width={40}
                                                             height={40}
                                                             className='w-10 h-10 rounded-full'
@@ -354,7 +352,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                     </div>
                                                     <div className='flex flex-col ml-2'>
                                                         <span className='font-medium text-secondary'>
-                                                            Việt Lê
+                                                            {user.name}
                                                         </span>
                                                         <div className="flex items-center">
                                                             {[1, 2, 3, 4, 5].map((star) => (
@@ -393,7 +391,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                             <div className='flex items-center mt-2'>
                                                                 <div>
                                                                     <Image
-                                                                        src="/images/avatar.png"
+                                                                        src={`${review?.user?.avatar ? review?.user?.avatar : '/images/avatar.png'}`}
                                                                         width={40}
                                                                         height={40}
                                                                         className='w-10 h-10 rounded-full'
@@ -402,9 +400,9 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                                 </div>
                                                                 <div className='flex flex-col ml-2'>
                                                                     <span className='font-medium text-secondary'>
-                                                                        Việt Lê
+                                                                        {review?.user?.name}
                                                                     </span>
-                                                                    <div className="flex justify-center items-center">{renderStars(review.rating)}</div>
+                                                                    <div className="flex items-center">{renderStars(review.rating)}</div>
                                                                 </div>
                                                             </div>
                                                             <div>
@@ -440,8 +438,12 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                 </div>
                                 <div className='mt-5 flex flex-col'>
                                     <button onClick={async () => {
-                                        await courseApi.studentBuyCourse(params.slug).then(() => {
-                                            toast.success('Mua khóa học thành công', {
+                                        let id_cart = ''
+                                        await paymentApi.getCartOfStudent(user.id).then((data: any) => {
+                                            id_cart = data.id
+                                        })
+                                        await paymentApi.addToCart(course?.id, id_cart).then(() => {
+                                            toast.success('Thêm vào giỏ hàng thành công', {
                                                 position: "bottom-right",
                                                 autoClose: 800,
                                                 hideProgressBar: false,
@@ -452,7 +454,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                 theme: "colored",
                                             });
                                         })
-                                    }} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Mua</button>
+                                    }} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Thêm vào giỏ hàng</button>
                                 </div>
                                 <div className='mt-9'>
                                     <strong className='text-[#343434]'>Khóa học này bao gồm</strong>

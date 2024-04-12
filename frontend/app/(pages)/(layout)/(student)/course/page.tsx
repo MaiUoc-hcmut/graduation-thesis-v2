@@ -11,9 +11,9 @@ import { useSearchParams } from 'next/navigation';
 import { formatCash, convertTime } from '@/app/helper/FormatFunction';
 
 const sortOptions = [
-    { name: 'Phổ biến nhất', href: '#', current: true },
+    { name: 'Mới nhất', href: '?new', current: true },
+    { name: 'Phổ biến nhất', href: '#', current: false },
     { name: 'Đánh giá tốt nhất', href: '#', current: false },
-    { name: 'Mới nhất', href: '#', current: false },
     { name: 'Giá: Thấp đến cao', href: '#', current: false },
     { name: 'Giá: Cao đến thấp', href: '#', current: false },
 ];
@@ -29,6 +29,7 @@ export default function CourseList() {
     const subjectFilters = searchParams.getAll('subject');
     const levelFilters = searchParams.getAll('level');
     const classFilters = searchParams.getAll('class');
+    const priceFilters = searchParams.getAll('price');
 
     const renderStars = (rating: number) => {
         return Array.from({ length: 5 }, (_, index) => (
@@ -45,8 +46,9 @@ export default function CourseList() {
             subjectFilters.map((s) => { filterString += `subject=${s}` })
             levelFilters.map((l) => { filterString += `&level=${l}` })
             classFilters.map((c) => { filterString += `&class=${c}` })
+            priceFilters.map((p) => { filterString += `&price=${p}` })
 
-            if (subjectFilters.length != 0 || levelFilters.length != 0 || classFilters.length != 0) {
+            if (subjectFilters.length != 0 || levelFilters.length != 0 || classFilters.length != 0 || priceFilters.length != 0) {
                 await courseApi.filter(filterString).then((data: any) => {
                     setCourses(data.data.courses)
                 }
@@ -81,6 +83,11 @@ export default function CourseList() {
                             return { ...grade, checked: classFilters.includes(grade.id) }
                         })
                     },
+                    {
+                        id: "price",
+                        name: "Giá",
+                        value: priceFilters[0]
+                    }
 
                 ])
             })
@@ -88,6 +95,7 @@ export default function CourseList() {
         }
         fetchData()
     }, [])
+
 
 
     return (
@@ -180,30 +188,39 @@ export default function CourseList() {
                                                 </h3>
                                                 <Disclosure.Panel className={`pt-6`}>
                                                     <div className="space-y-4">
-                                                        {section.options.map((option: any, optionIdx: any) => (
-                                                            <div key={option.id} className="flex items-center">
-                                                                <input
-                                                                    id={`filter-${section.id}-${optionIdx}`}
-                                                                    name={`${section.id}`}
-                                                                    defaultValue={option.id}
-                                                                    type="checkbox"
-                                                                    defaultChecked={option.checked}
-                                                                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                                                />
-                                                                <label
-                                                                    htmlFor={`filter-${section.id}-${optionIdx}`}
-                                                                    className="ml-3 text-sm text-gray-600"
-                                                                >
-                                                                    {option.name}
-                                                                </label>
-                                                            </div>
-                                                        ))}
+                                                        {
+                                                            section.id !== 'price' ?
+                                                                section.options.map((option: any, optionIdx: any) => (
+
+                                                                    <div key={option.id} className="flex items-center">
+                                                                        <input
+                                                                            id={`filter-${section.id}-${optionIdx}`}
+                                                                            name={`${section.id}`}
+                                                                            defaultValue={option.id}
+                                                                            type="checkbox"
+                                                                            defaultChecked={option.checked}
+                                                                            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:blue-500"
+                                                                        />
+                                                                        <label
+                                                                            htmlFor={`filter-${section.id}-${optionIdx}`}
+                                                                            className="ml-3 text-sm text-gray-600"
+                                                                        >
+                                                                            {option.name}
+                                                                        </label>
+                                                                    </div>
+                                                                )) : <div className="relative mb-6">
+                                                                    <input name={section.id} id="labels-range-input" type="range" defaultValue={Number(section.value) || 100000} min="100000" max="5000000" className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" />
+                                                                    <span className="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-6">100.000</span>
+                                                                    <span className="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-6">5.000.000</span>
+                                                                </div>}
                                                     </div>
                                                 </Disclosure.Panel>
                                             </>
                                         )}
                                     </Disclosure>
                                 ))}
+
+
                                 <button className='px-5 h-11 w-full mt-5 bg-primary font-medium rounded-md border-primary text-white'>Lọc</button>
                             </form>
 

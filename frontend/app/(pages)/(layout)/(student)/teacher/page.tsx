@@ -6,11 +6,12 @@ import { XMarkIcon, ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon } from
 import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, StarIcon } from '@heroicons/react/20/solid'
 import Link from 'next/link';
 import Image from 'next/image';
-import examApi from '@/app/api/examApi';
 import categoryApi from '@/app/api/category'
+import userApi from '@/app/api/userApi'
 import { useSearchParams } from 'next/navigation'
 import { formatCash } from '@/app/helper/FormatFunction'
 import { convertTime } from '@/app/helper/FormatFunction'
+import { teacher } from '@/redux/features/teacherSlice'
 
 const sortOptions = [
     { name: 'Phổ biến nhất', href: '#', current: true },
@@ -24,8 +25,8 @@ function classNames(...classes: any) {
     return classes.filter(Boolean).join(' ')
 }
 
-export default function CourseList() {
-    const [exams, setExams] = useState<any>()
+export default function TeacherPage() {
+    const [teachers, setTeachers] = useState<any>()
     const [category, setCategory] = useState<any>()
     const searchParams = useSearchParams()
     const subjectFilters = searchParams.getAll('subject')
@@ -52,18 +53,22 @@ export default function CourseList() {
             levelFilters.map((l) => { filterString += `&level=${l}` })
             classFilters.map((c) => { filterString += `&class=${c}` })
 
-            if (subjectFilters.length != 0 || levelFilters.length != 0 || classFilters.length != 0) {
-                await examApi.filter(filterString).then((data: any) => {
-                    setExams(data.data.courses)
-                }
-                )
+            // if (subjectFilters.length != 0 || levelFilters.length != 0 || classFilters.length != 0) {
+            //     await userApi.filter(filterString).then((data: any) => {
+            //         setExams(data.data.courses)
+            //     }
+            //     )
+            // }
+            // else {
+            //     await userApi.getAll().then((data: any) => {
+            //         setExams(data.data)
+            //     }
+            //     )
+            // }
+            await userApi.getAllTeacher().then((data: any) => {
+                setTeachers(data.data)
             }
-            else {
-                await examApi.getAll().then((data: any) => {
-                    setExams(data.data)
-                }
-                )
-            }
+            )
             await categoryApi.getAll().then((data: any) => {
                 setCategory([
                     {
@@ -94,6 +99,7 @@ export default function CourseList() {
         fetchData()
     }, [])
 
+    console.log(teachers);
 
     return (
         <div className="bg-white container mx-auto">
@@ -213,9 +219,9 @@ export default function CourseList() {
                             </form>
 
                             <div className="lg:col-span-3 flex-1">
-                                <div className='grid grid-cols-2 gap-x-8 gap-y-8 mt-2'>
+                                {/* <div className='grid grid-cols-2 gap-x-8 gap-y-8 mt-2'>
                                     {
-                                        exams?.map((exam: any) => {
+                                        teachers?.map((exam: any) => {
                                             return (
                                                 <Link key={exam.id} href={`exam/${exam.id}`} className=''>
                                                     <div className='bg-white shadow-card_course rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300'>
@@ -278,7 +284,7 @@ export default function CourseList() {
                                             )
                                         })
                                     }
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </section>

@@ -1,7 +1,7 @@
 "use client"
 import React from 'react';
 import Image from 'next/image';
-import paymentApi from '@/app/api/payment';
+import paymentApi from '@/app/api/paymentApi';
 import { redirect } from 'next/navigation'
 export default function CheckoutPage() {
 

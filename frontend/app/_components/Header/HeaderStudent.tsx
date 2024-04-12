@@ -6,20 +6,22 @@ import Image from 'next/image';
 import { signout } from '@/redux/features/authSlice';
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import { useDispatch } from "react-redux";
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { BellIcon } from "@heroicons/react/24/solid"
 import { InformationCircleIcon } from "@heroicons/react/24/outline"
 import io from "socket.io-client";
 import { useEffect, useState } from 'react';
-import courseApi from '@/app/api/courseApi';
 
-export default function HeaderTeacher() {
+
+export default function HeaderStudent() {
     const dispatch = useDispatch<AppDispatch>();
     const router = useRouter()
     const authReducer = JSON.parse(localStorage.getItem('persist:authReducer') || '{}')
     const isAuth = (authReducer?.isAuth == "true" || authReducer?.isAuthTeacher == "true") ? true : false
     const { user } = useAppSelector(state => state.authReducer);
     const [notifycations, setNotifycations] = useState<any>([])
+    const searchParams = useSearchParams()
+    console.log(router);
 
     // useEffect(() => {
     //     async function fetchCategory() {
@@ -53,20 +55,18 @@ export default function HeaderTeacher() {
                         <div className='flex justify-start flex-1 mx-10'>
                             <ul className='flex items-center text-[1rem] text-[#171347]'>
                                 <li>
-                                    <Link href="/" className='text-[#343434] px-[0.5rem] py-[1rem] hover:text-slate-500'>Trang chủ</Link>
+                                    <Link href="/" className={`${searchParams} text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500`}>Trang chủ</Link>
                                 </li>
                                 <li>
-                                    <Link href="/course" className='text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500'>Khóa học</Link>
+                                    <Link href="/course" className={`${searchParams} text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500`}>Khóa học</Link>
                                 </li>
                                 <li>
-                                    <Link href="#" className='text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500'>Giáo viên</Link>
-                                </li>
-                                {/* <li>
-                                    <Link href="#" className='text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500'>Cửa hàng</Link>
+                                    <Link href="/exam" className={`${searchParams} text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500`}>Đề thi</Link>
                                 </li>
                                 <li>
-                                    <Link href="#" className='text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500'>Diễn đàn</Link>
-                                </li> */}
+                                    <Link href="/teacher" className={`${searchParams} text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500`}>Giáo viên</Link>
+                                </li>
+
                             </ul>
                         </div>
                     </div>
