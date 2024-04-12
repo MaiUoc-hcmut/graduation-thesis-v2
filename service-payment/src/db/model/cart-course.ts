@@ -11,7 +11,7 @@ class CartCourse extends Model {
 CartCourse.init({
     id: {
         type: DataTypes.UUID,
-        defaultValue: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true
     },
     id_cart: {

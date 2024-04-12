@@ -99,7 +99,7 @@ export default function CourseList() {
 
 
     return (
-        <div className="bg-white container mx-auto">
+        <div className="bg-white container px-10">
             <div>
                 <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-6">
@@ -160,7 +160,7 @@ export default function CourseList() {
                         </div>
                     </div>
 
-                    <section aria-labelledby="products-heading" className="pb-24 pt-6">
+                    <section aria-labelledby="products-heading" className="pb-24 pt-4">
                         <h2 id="products-heading" className="sr-only">
                             Products
                         </h2>
@@ -170,7 +170,7 @@ export default function CourseList() {
                                 <h3 className="sr-only">Categories</h3>
 
                                 {category?.map((section: any) => (
-                                    <Disclosure as="div" key={section.id} className="border-b border-gray-200 py-6" defaultOpen>
+                                    <Disclosure as="div" key={section.id} className="border-b p-4 border-gray-200" defaultOpen>
                                         {({ open }) => (
                                             <>
 

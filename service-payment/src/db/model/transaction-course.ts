@@ -11,7 +11,7 @@ class TransactionCourse extends Model {
 TransactionCourse.init({
     id: {
         type: DataTypes.UUID,
-        defaultValue: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true
     },
     id_transaction: {

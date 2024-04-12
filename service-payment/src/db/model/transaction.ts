@@ -9,7 +9,7 @@ class Transaction extends Model {
 Transaction.init({
     id: {
         type: DataTypes.UUID,
-        defaultValue: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true
     },
     id_user: {

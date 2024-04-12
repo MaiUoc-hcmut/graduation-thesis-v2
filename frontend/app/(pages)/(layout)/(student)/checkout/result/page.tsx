@@ -2,9 +2,9 @@
 import React from 'react';
 import Image from 'next/image';
 import paymentApi from '@/app/api/paymentApi';
-import { useRouter } from 'next/navigation';
-export default function CheckoutPage() {
-    const router = useRouter();
+import { redirect } from 'next/navigation'
+export default function CheckoutResultPage() {
+
     return (
         <div className='mx-16 my-24'>
             <div className="flex justify-center items-center border-b-[1px] border-gray-200 p-4">
@@ -185,10 +185,10 @@ export default function CheckoutPage() {
                     </div>
                     <button onClick={async () => {
                         const res: any = await paymentApi.getAll()
-                        router.push(res?.url);
+                        redirect(res?.payUrl)
 
                     }} className="mt-4 mb-8 w-full rounded-md bg-gray-900 px-6 py-3 font-medium text-white">
-                        Thanh toán
+                        Đặt hàng
                     </button>
                 </div>
 

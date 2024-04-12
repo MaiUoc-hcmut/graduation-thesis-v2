@@ -9,25 +9,22 @@ const instance = axios.create({
     },
 })
 
-
-
 instance.interceptors.request.use(
     (config) => {
-        // If the request is login, register or refresh token, we dont need to attach access token
-        console.log(config.url);
 
         if (config && config.url) {
 
             if (
                 config.url.indexOf('/login') >= 0 ||
                 config.url.indexOf('/register') >= 0 ||
+                config.url.indexOf('/teacher') >= 0 ||
                 config.url.indexOf('/refresh-token') >= 0
             ) {
                 config.baseURL = 'http://localhost:4000/api/v1';
                 return config;
             }
 
-            // Request to course service
+            // // Request to course service
             if (
                 config.url.indexOf('/reviews') >= 0 ||
                 config.url.indexOf('/comments') >= 0 ||
@@ -47,6 +44,7 @@ instance.interceptors.request.use(
                 config.headers['Content-Type'] = 'multipart/form-data';
                 config.headers['Accept'] = 'multipart/form-data';
             }
+
             if (
                 config.url.indexOf('/exams') >= 0 ||
                 config.url.indexOf('assignments/student') >= 0 ||
@@ -61,7 +59,7 @@ instance.interceptors.request.use(
             }
             if (
                 config.url.indexOf('/test') >= 0 ||
-                config.url.indexOf('/payment/cart') >= 0
+                config.url.indexOf('/cart') >= 0
             ) {
                 config.baseURL = 'http://localhost:4004/api/v1';
             }

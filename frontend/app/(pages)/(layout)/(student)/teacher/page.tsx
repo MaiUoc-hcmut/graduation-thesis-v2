@@ -9,9 +9,7 @@ import Image from 'next/image';
 import categoryApi from '@/app/api/category'
 import userApi from '@/app/api/userApi'
 import { useSearchParams } from 'next/navigation'
-import { formatCash } from '@/app/helper/FormatFunction'
-import { convertTime } from '@/app/helper/FormatFunction'
-import { teacher } from '@/redux/features/teacherSlice'
+
 
 const sortOptions = [
     { name: 'Phổ biến nhất', href: '#', current: true },
@@ -100,7 +98,6 @@ export default function TeacherPage() {
     }, [])
 
     console.log(teachers);
-
     return (
         <div className="bg-white container mx-auto">
             <div>

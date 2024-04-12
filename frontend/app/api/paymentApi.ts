@@ -1,35 +1,25 @@
-import axiosClient from "./axiosClient";
+import axiosConfig from "@/redux/axios.config"
 
 const paymentApi = {
     getAll: () => {
         const url = `/test`;
-        return axiosClient.get(url, {
-            baseURL: 'http://localhost:4004/api/v1'
-        });
+        return axiosConfig.get(url);
     },
     addToCart: (id_course: any, id_cart: string) => {
-        const url = `/payment/cart/${id_cart}`;
-        return axiosClient.post(url, { data: { id_course } }, {
-            baseURL: 'http://localhost:4004/api/v1'
-        });
+        const url = `/cart/${id_cart}`;
+        return axiosConfig.post(url, { data: { id_course } });
     },
     getCart: (id_student: any) => {
-        const url = `/payment/cart/${id_student}`;
-        return axiosClient.get(url, {
-            baseURL: 'http://localhost:4004/api/v1'
-        });
+        const url = `/cart/${id_student}`;
+        return axiosConfig.get(url);
     },
     deleteCart: (id_course: any) => {
-        const url = `/payment/cart/${id_course}`;
-        return axiosClient.delete(url, {
-            baseURL: 'http://localhost:4004/api/v1'
-        });
+        const url = `/cart/${id_course}`;
+        return axiosConfig.delete(url);
     },
     getCartOfStudent: (id_student: any) => {
-        const url = `/payment/cart/${id_student}`;
-        return axiosClient.get(url, {
-            baseURL: 'http://localhost:4004/api/v1'
-        });
+        const url = `/cart/${id_student}`;
+        return axiosConfig.get(url);
     },
 
 }

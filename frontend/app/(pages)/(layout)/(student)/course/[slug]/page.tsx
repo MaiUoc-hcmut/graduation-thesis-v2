@@ -30,6 +30,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
     const [starDetails, setStarDetails] = useState<any>();
     const [hoverRating, setHoverRating] = useState(0);
     const { user } = useAppSelector(state => state.authReducer);
+    console.log(user);
 
     const {
         register,
