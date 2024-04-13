@@ -432,7 +432,6 @@ class CourseController {
 
     // Get all courses that created by a teacher
     // [GET] /courses/teacher/:teacherId/page/:page
-    // Sort by: most register
     getCourseCreatedByTeacher = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_teacher = req.params.teacherId;
@@ -440,7 +439,8 @@ class CourseController {
             enum SortQuery {
                 Rating = 'rating',
                 Date = 'date',
-                Price = 'price'
+                Price = 'price',
+                Registration = 'registration'
             }
             enum SortOrder {
                 ASC = 'ASC',
@@ -450,7 +450,8 @@ class CourseController {
             const sortFactor = {
                 [SortQuery.Rating]: 'average_rating',
                 [SortQuery.Date]: 'createdAt',
-                [SortQuery.Price]: 'price'
+                [SortQuery.Price]: 'price',
+                [SortQuery.Registration]: 'registration'
             }
             const orderFactor = {
                 [SortOrder.ASC]: 'ASC',
@@ -462,7 +463,7 @@ class CourseController {
             const orderSort = req.query.order;
 
             let defaultQuery = 'createdAt';
-            let defaultOrder = 'ASC';
+            let defaultOrder = 'DESC';
 
             if (typeof sortQuery === "string" && sortQuery in SortQuery) {
                 defaultQuery = sortFactor[sortQuery as SortQuery];
@@ -602,6 +603,12 @@ class CourseController {
             });
 
             const course = await Course.findByPk(id_course);
+            const registration = course.registration + 1;
+            await course.update({
+                registration
+            }, {
+                transaction: t
+            });
             const forum = await Forum.findOne({
                 where: { id_course }
             });

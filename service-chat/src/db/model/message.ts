@@ -1,20 +1,28 @@
 const mongoose = require('mongoose');
+const { v4: uuidv4, validate: uuidValidate } = require('uuid');
+
+const validateUUID = {
+    validator: function(v: string) {
+        return uuidValidate(v);
+    },
+    message: "Id must be valid UUID!"
+}
+
 const messageSchema = new mongoose.Schema(
     {
+        id: {
+            type: String,
+            default: uuidv4,
+            validate: validateUUID,
+        },
         author: {
-            type: mongoose.Schema.Types.UUID,
+            type: String,
+            validate: validateUUID,
         },
-        chatGroupID: {
-            type: mongoose.Schema.Types.UUID,
+        id_group: {
+            type: String,
             ref: 'ChatGroup',
-        },
-        isRead: {
-            type: Boolean,
-            default: false,
-        },
-        createAt: {
-            type: Date,
-            default: Date.now(),
+            validate: validateUUID,
         },
         body: {
             type: String,
@@ -23,7 +31,10 @@ const messageSchema = new mongoose.Schema(
     {
         toJSON: { virtuals: true },
         toObject: { virtuals: true },
+        timestamps: true,
     }
 );
 const Message = mongoose.model('Message', messageSchema);
 module.exports = Message;
+
+export {}
