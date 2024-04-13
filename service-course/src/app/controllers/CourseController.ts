@@ -8,6 +8,7 @@ const CourseDraft = require('../../db/models/course_draft');
 const Document = require('../../db/models/document');
 const Forum = require('../../db/models/forum');
 const Coupon = require('../../db/models/coupon');
+const Progress = require('../../db/models/course_progress');
 
 const StudentCourse = require('../../db/models/student-course');
 
@@ -124,9 +125,26 @@ class CourseController {
     getCourseById = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id = req.params.courseId;
-            const course = await Course.findByPk(id);
+            const currentDate = new Date();
+            const course = await Course.findOne({
+                where: { id },
+                include: [
+                    {
+                        model: Coupon,
+                        where: {
+                            expire: {
+                                [Op.gt]: currentDate
+                            }
+                        },
+                        through: {
+                            attributes: []
+                        }
+                    }
+                ]
+            });
 
             if (!course) return res.status(404).json({ message: "Course not found!" });
+
 
             res.status(200).json(course);
         } catch (error: any) {
@@ -539,7 +557,15 @@ class CourseController {
 
             for (const course of courses) {
                 const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${course.Course.id_teacher}`);
-                course.dataValues.user = { id: user.data.id, name: user.data.name };
+                const countTopic = await Progress.count({
+                    where: {
+                        id_student,
+                        id_course: course.id
+                    }
+                });
+                const progress = countTopic / (course.total_exam + course.total_lecture);
+                course.dataValues.progress = progress;
+                course.dataValues.teacher = { id: user.data.id, name: user.data.name };
             }
 
             res.status(200).json({ count, courses });

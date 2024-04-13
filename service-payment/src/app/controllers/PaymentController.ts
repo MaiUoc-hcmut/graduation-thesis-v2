@@ -199,6 +199,10 @@ class PaymentController {
                 }, {
                     transaction: t
                 });
+
+                for (const course of courses) {
+                    const response = await axios.post(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${course}`);
+                }
             }
 
             const transaction = await Transaction.create({
