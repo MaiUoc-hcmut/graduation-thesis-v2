@@ -88,7 +88,7 @@ class PaymentController {
             var requestId = partnerCode + new Date().getTime();
             var orderId = requestId;
             var orderInfo = req.body.orderInfo;
-            var redirectUrl = "http://localhost:3000/checkout/result";
+            var redirectUrl = "http://localhost:3000/payment/result";
             var ipnUrl = "https://eoidnudnipocu1q.m.pipedream.net/";
             var amount = req.body.amount;
             var requestType = "captureWallet"

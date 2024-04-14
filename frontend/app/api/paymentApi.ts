@@ -1,10 +1,10 @@
 import axiosConfig from "@/redux/axios.config"
 
 const paymentApi = {
-    getPayment: () => {
+    getPayment: (amount: string) => {
         const url = `/payment/pay`;
         return axiosConfig.post(url, {
-            amount: '10000',
+            amount: amount,
             orderInfo: 'dsc'
         });
     },
@@ -16,9 +16,9 @@ const paymentApi = {
         const url = `/cart/${id_student}`;
         return axiosConfig.get(url);
     },
-    deleteCart: (id_course: any) => {
+    deleteCart: (id_course: any, data: any) => {
         const url = `/cart/${id_course}`;
-        return axiosConfig.delete(url);
+        return axiosConfig.delete(url, { data });
     },
     getCartOfStudent: (id_student: any) => {
         const url = `/cart/${id_student}`;

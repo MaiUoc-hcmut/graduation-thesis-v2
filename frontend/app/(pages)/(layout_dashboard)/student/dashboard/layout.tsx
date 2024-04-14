@@ -22,7 +22,7 @@ export default function DashboardTeacherLayout({
         <HeaderStudent />
         <div className='flex justify-end mt-[70px] '>
           <SidebarStudent />
-          <div className="px-4 py-7 w-[calc(100%-254px)] min-h-svh bg-[#fbfbfd] pb-5">
+          <div className="px-6 py-7 w-[calc(100%-254px)] min-h-svh bg-[#fbfbfd] pb-5">
             <Suspense fallback={<Loading />}>
               {children}
             </Suspense>

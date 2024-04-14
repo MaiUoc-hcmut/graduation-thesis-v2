@@ -1,10 +1,26 @@
 "use client"
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import paymentApi from '@/app/api/paymentApi';
 import { useRouter } from 'next/navigation';
+import { useAppSelector } from '@/redux/store';
+import { formatCash } from '@/app/helper/FormatFunction';
 export default function CheckoutPage() {
     const router = useRouter();
+    const [cartItems, setCartItems] = useState([]);
+    const [total, setTotal] = useState(0);
+    const { user } = useAppSelector(state => state.authReducer);
+    useEffect(() => {
+        async function fetchData() {
+            await paymentApi.getCart(user.cart).then((data: any) => {
+                setCartItems(data.data)
+                setTotal(data.data.reduce((total: any, item: any) => total + item.price, 0))
+            }
+            )
+        }
+        fetchData()
+    }, [user.cart])
+
     return (
         <div className='mx-16 my-24'>
             <div className="flex justify-center items-center border-b-[1px] border-gray-200 p-4">
@@ -18,26 +34,32 @@ export default function CheckoutPage() {
                     <p className="text-gray-400">
                         Kiểm tra đơn hàng của bạn.
                     </p>
-                    <div className="mt-8 space-y-3 rounded-lg border bg-white px-2 py-4 sm:px-6">
-                        <div className="flex flex-col rounded-lg bg-white sm:flex-row ">
-                            <div className='relative flex-1'>
-                                <Image
-                                    src={`${'/images/cousre-thumnail-1.jpg'}`}
-                                    fill
-                                    className='rounded-md overflow-hidden object-cover object-center'
-                                    alt="logo"
-                                />
-                            </div>
-                            <div className="flex w-3/4 flex-col px-4 py-4">
-                                <span className="font-semibold">
-                                    Nike Air Max Pro 8888 - Super Light
-                                </span>
-                                <span className="float-right text-gray-400">42EU - 8.5US</span>
-                                <p className="text-lg font-bold">$138.99</p>
-                            </div>
-                        </div>
+                    {
+                        cartItems.map((item: any) => {
+                            return (
+                                <div key={item.id} className="mt-4 space-y-3 rounded-lg border bg-white px-2 py-4 sm:px-6">
+                                    <div className="flex flex-col rounded-lg bg-white sm:flex-row ">
+                                        <div className='relative flex-1'>
+                                            <Image
+                                                src={`${'/images/cousre-thumnail-1.jpg'}`}
+                                                fill
+                                                className='rounded-md overflow-hidden object-cover object-center'
+                                                alt="logo"
+                                            />
+                                        </div>
+                                        <div className="flex w-3/4 flex-col px-4 py-4">
+                                            <span className="font-semibold">
+                                                {item.name}
+                                            </span>
+                                            <p className="text-lg font-bold">{formatCash(`${item.price}`)} VNĐ</p>
+                                        </div>
+                                    </div>
 
-                    </div>
+                                </div>
+                            )
+                        })
+                    }
+
                     <p className="mt-8 text-lg font-medium">Phương thức thanh toán</p>
                     <form className="mt-5 grid gap-6">
                         <div className="relative">
@@ -171,21 +193,21 @@ export default function CheckoutPage() {
                         <div className="mt-6 border-t border-b py-4">
                             <div className="flex items-center justify-between mb-3">
                                 <p className="text-sm font-medium text-gray-900">Tổng phụ</p>
-                                <p className="font-semibold text-gray-900">$399.00</p>
+                                <p className="font-semibold text-gray-900">{formatCash(`${total}`)} VNĐ</p>
                             </div>
                             <div className="flex items-center justify-between">
                                 <p className="text-sm font-medium text-gray-900">Khuyển mãi</p>
-                                <p className="font-semibold text-gray-900">$8.00</p>
+                                <p className="font-semibold text-gray-900">0</p>
                             </div>
                         </div>
                         <div className="mt-6 flex items-center justify-between">
                             <p className="text-sm font-medium text-gray-900">Tổng</p>
-                            <p className="text-2xl font-semibold text-gray-900">$408.00</p>
+                            <p className="text-2xl font-semibold text-gray-900">{formatCash(`${total}`)} VNĐ</p>
                         </div>
                     </div>
                     <button onClick={async () => {
                         let res: any
-                        await paymentApi.getPayment().then((data) => {
+                        await paymentApi.getPayment(`${total}`).then((data) => {
                             res = data.data
                         })
 

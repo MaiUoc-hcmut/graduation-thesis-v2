@@ -11,20 +11,6 @@ import { Dropdown } from 'flowbite-react';
 import { ExclamationCircleIcon, EllipsisVerticalIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline"
 import { Button, Modal } from 'flowbite-react';
 import { useSearchParams } from 'next/navigation'
-type CourseData = {
-    id: string
-    name: string
-    subject: string
-    grade: string
-    level: string
-    goal: string
-    object: string
-    description: string
-    requirement: string
-    price: string
-    thumbnail: Array<File>
-    cover_image: Array<File>
-}
 
 export default function CourseDashboard() {
     const authUser = useAppSelector(state => state.authReducer.user);
@@ -71,15 +57,7 @@ export default function CourseDashboard() {
             <div className="">
                 <div className="font-bold text-[#171347] text-lg">Khóa học của tôi</div>
                 <div className="flex justify-between items-center mt-10 mb-10 w-full ">
-                    <form className="flex items-center w-1/3"
-                    // onSubmit={(e: any) => {
-                    //     e.preventDefault()
-                    //     courseApi.searchCourseByCreateTeacher(`${user.id}`, { query: searchInput }).then((data: any) => {
-                    //         setCourses(data.data.result)
-                    //     })
-
-                    // }}
-                    >
+                    <form className="flex items-center w-1/3">
                         <label htmlFor="simple-search" className="sr-only">Search</label>
                         <div className="relative w-full">
                             <input onChange={(e: any) => {
@@ -102,40 +80,52 @@ export default function CourseDashboard() {
                     courses?.map((data: any) => {
                         const course = data.Course
                         return (
-                            <div key={course?.id} className="relative rounded-[10px] flex bg-white mb-8">
+                            <Link key={course?.id} href={`/course/learning/${course?.id}`}>
+                                <div className="relative rounded-[10px] flex bg-white mb-8">
 
-                                <div className="h-[200px] w-[300px] relative">
-                                    <Image
-                                        src={`${course?.thumbnail ? course?.thumbnail : '/images/cousre-thumnail-1.jpg'}`}
-                                        fill
-                                        alt="logo"
-                                        className="rounded-l-[10px] h-full w-full overflow-hidden object-center object-cover"
-                                    />
-                                </div>
-                                <div className="flex flex-col py-3 pl-[25px] pr-[17px] flex-1">
-                                    <div className="flex justify-between items-center w-full">
-                                        <Link href="#" >
+                                    <div className="h-[200px] w-[300px] relative">
+                                        <Image
+                                            src={`${course?.thumbnail ? course?.thumbnail : '/images/cousre-thumnail-1.jpg'}`}
+                                            fill
+                                            alt="logo"
+                                            className="rounded-l-[10px] h-full w-full overflow-hidden object-center object-cover"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col py-3 pl-[25px] pr-[17px] flex-1">
+                                        <div className="flex justify-between items-center w-full">
                                             <h3 className="text-[#171347] font-bold text-lg">
                                                 {course?.name}
                                             </h3>
-                                        </Link>
 
-                                        <Dropdown label="" renderTrigger={() => <EllipsisVerticalIcon className="w-7 h-7" />} placement="left">
-                                            <Dropdown.Item><Link href={`/course/learning/${course?.id}`}>Đến trang học</Link></Dropdown.Item>
-                                        </Dropdown>
+                                            {/* <Dropdown label="" renderTrigger={() => <EllipsisVerticalIcon className="w-7 h-7" />} placement="left">
+                                                <Dropdown.Item><Link href={`/course/learning/${course?.id}`}>Đến trang học</Link></Dropdown.Item>
+                                            </Dropdown> */}
+                                        </div>
+                                        <div className="flex items-center mt-4">
+                                            {
+                                                renderStars(Math.floor(course?.average_rating || 0))
+                                            }
+                                            <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{course?.average_rating.toFixed(1)}</span>
+                                        </div>
+
+                                        <div className="mt-4">
+                                            <span className="text-[20px] font-bold text-primary">{formatCash(`${course?.price}`)} VNĐ</span>
+                                        </div>
+                                        <div className='flex items-center mt-4 '>
+                                            <div className='w-[400px]'>
+                                                <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                                    <div className="bg-yellow-300 h-2.5 rounded-full" style={{ width: `10%` }} />
+                                                </div>
+                                            </div>
+                                            <span className='ml-3 font-medium text-[#818894]'>Hoàn thành {'10%'}</span>
+                                        </div>
+                                        <div className="mt-2">
+                                            Giáo viên giảng dạy: <span className="font-semibold">Lê Văn A</span>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center mt-4">
-                                        {
-                                            renderStars(Math.floor(course?.average_rating || 0))
-                                        }
-                                        <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{course?.average_rating.toFixed(1)}</span>
-                                    </div>
-                                    <div className="mt-4">
-                                        <span className="text-[20px] font-bold text-primary">{formatCash(`${course?.price}`)} VNĐ</span>
-                                    </div>
+
                                 </div>
-
-                            </div>
+                            </Link>
                         )
                     })
                 }

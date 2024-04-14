@@ -35,7 +35,7 @@ export default function SidebarStudent() {
                         </Link>
                     </div>
                     <div className='relative mt-6 overflow-y-scroll mb-6 h-[calc(100%-200px)] sidebar'>
-                        <ul className="space-y-2 font-medium absolute top-0 left-0 w-full h-[1000px] pr-1">
+                        <ul className="space-y-2 font-medium absolute top-0 left-0 w-full h-auto pr-1">
                             <li>
                                 <Link
                                     href="/student/dashboard"
