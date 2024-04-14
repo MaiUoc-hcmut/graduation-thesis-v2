@@ -88,6 +88,34 @@ class ReviewController {
         }
     }
 
+    // [GET] /reviews/basic/teacher/:teacherId
+    getBasicReviewInforOfTeacher = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const id_teacher = req.params.teacherId;
+            const reviews = await Review.findAll({
+                where: { id_teacher },
+                attributes: ['rating']
+            });
+
+            const total_review = reviews.length;
+            let total_rating = 0;
+
+            for (const review of reviews) {
+                total_rating += review.rating;
+            }
+
+            const average_rating = total_rating / total_review;
+
+            res.status(200).json({
+                total_rating,
+                average_rating
+            });
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error, message: error.message });
+        }
+    }
+
     // [GET] /reviews/course/:courseId/page.:page
     getReviewsForCourse = async (req: Request, res: Response, _next: NextFunction) => {
         try {
@@ -240,7 +268,10 @@ class ReviewController {
                 averageRating: totalRating / reviews.length
             }
 
-            res.status(200).json(response);
+            res.status(200).json({
+                count,
+                response
+            });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
@@ -254,27 +285,53 @@ class ReviewController {
             const id_student = req.student.data.id;
             const { object, ...body } = req.body.data;
 
-            const course = await Course.findByPk(body.id_course);
+            if (object === "course") {
+                const course = await Course.findByPk(body.id_course);
 
-            const total_review = course.total_review + 1;
-            const average_rating = ((course.average_rating * course.total_review) + body.rating) / total_review;
+                const total_review = course.total_review + 1;
+                const average_rating = ((course.average_rating * course.total_review) + body.rating) / total_review;
 
-            await course.update({
-                total_review,
-                average_rating,
-            }, {
-                transaction: t
-            });
+                await course.update({
+                    total_review,
+                    average_rating,
+                }, {
+                    transaction: t
+                });
 
-            const review = await Review.findOne({
-                where: {
-                    id_student,
-                    id_course: body.id_course
+                const review = await Review.findOne({
+                    where: {
+                        id_student,
+                        id_course: body.id_course
+                    }
+                });
+
+                if (review) {
+                    await review.destroy({ transaction: t });
                 }
-            });
+            }
+            if (object === "teacher") {
+                const review = await Review.findOne({
+                    where: {
+                        id_student,
+                        id_teacher: body.id_teacher
+                    }
+                });
 
-            if (review) {
-                await review.destroy({ transaction: t });
+                if (review) {
+                    await review.destroy({ transaction: t });
+                }
+            }
+            if (object === "exam") {
+                const review = await Review.findOne({
+                    where: {
+                        id_student,
+                        id_exam: body.id_exam
+                    }
+                });
+
+                if (review) {
+                    await review.destroy({ transaction: t });
+                }
             }
             
             const newReview = await Review.create({
@@ -290,6 +347,8 @@ class ReviewController {
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
+
+            await t.rollback();
         }
     }
 

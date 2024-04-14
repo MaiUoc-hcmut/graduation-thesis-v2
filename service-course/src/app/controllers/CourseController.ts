@@ -18,6 +18,7 @@ const { Op } = require('sequelize');
 
 const axios = require('axios');
 import { Request, Response, NextFunction } from 'express';
+import { where } from 'sequelize';
 
 const { sequelize } = require('../../config/db/index');
 
@@ -152,9 +153,6 @@ class CourseController {
             res.status(500).json({ error });
         }
     }
-
-    // Filter by price
-    // Sort 
 
     // [GET] /courses/search/page/:page
     searchCourse = async (req: Request, res: Response, _next: NextFunction) => {
@@ -309,26 +307,32 @@ class CourseController {
     // [GET] /courses/filter/page/:page
     getFilteredCourse = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const categories = Object.values(req.query);
+            const categories: any[] = [];
 
             const { class: _class, subject, level } = req.query;
 
             const minPrice = typeof req.query.minPrice === 'string' ? parseInt(req.query.minPrice) : undefined;
             const maxPrice = typeof req.query.maxPrice === 'string' ? parseInt(req.query.maxPrice) : undefined;
 
-            if (Array.isArray(_class)) {
+            if (!_class) {
+                
+            } else if (Array.isArray(_class)) {
                 categories.push(..._class)
             } else {
                 categories.push(_class)
             }
 
-            if (Array.isArray(subject)) {
+            if (!subject) {
+
+            } else if (Array.isArray(subject)) {
                 categories.push(...subject)
             } else {
                 categories.push(subject)
             }
 
-            if (Array.isArray(level)) {
+            if (!level) {
+
+            } else if (Array.isArray(level)) {
                 categories.push(...level)
             } else {
                 categories.push(level)
@@ -363,49 +367,77 @@ class CourseController {
                     [Op.lte]: maxPrice
                 };
             }
+
+            enum SortQuery {
+                Rating = 'rating',
+                Date = 'date',
+                Price = 'price',
+                Registration = 'registration'
+            }
+            enum SortOrder {
+                ASC = 'ASC',
+                DESC = 'DESC'
+            }
+
+            const sortFactor = {
+                [SortQuery.Rating]: 'average_rating',
+                [SortQuery.Date]: 'createdAt',
+                [SortQuery.Price]: 'price',
+                [SortQuery.Registration]: 'registration'
+            }
+            const orderFactor = {
+                [SortOrder.ASC]: 'ASC',
+                [SortOrder.DESC]: 'DESC',
+            }
+
+
+            const sortQuery = req.query.sort
+            const orderSort = req.query.order;
+
+            let defaultQuery = 'createdAt';
+            let defaultOrder = 'DESC';
+
+            if (typeof sortQuery === "string" && sortQuery in SortQuery) {
+                defaultQuery = sortFactor[sortQuery as SortQuery];
+            }
+            if (typeof orderSort === "string" && orderSort in SortOrder) {
+                defaultOrder = orderFactor[orderSort as SortOrder];
+            }
             
             const currentPage: number = +req.params.page;
             
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
-            const count = await Course.count({
+            const queryOption: any = {
                 where: condition,
                 include: [
                     {
                         model: Category,
-                        where: {
-                            id: {
-                                [Op.in]: categories,
-                            },
-                        },
                         through: {
                             attributes: [],
                         },
                     },
                 ],
-                group: ['Course.id'],
-                having: sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`),
+                group: ['Course.id']
+            }
+
+            if (categories.length > 0) {
+                queryOption.include[0].where = {
+                    id: {
+                        [Op.in]: categories,
+                    },
+                }
+                queryOption.having = sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`)
+            }
+
+            const count = await Course.count({
+                ...queryOption,
                 raw: true
             });
 
             const courses = await Course.findAll({
-                include: [
-                    {
-                        model: Category,
-                        where: {
-                            id: {
-                                [Op.in]: categories,
-                            },
-                        },
-                        attributes: ['name', 'id'],
-                        through: {
-                            attributes: [],
-                        },
-                    },
-                ],
-                group: ['Course.id'],
-                having: sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`),
-                order: [['createdAt', 'DESC']],
+                ...queryOption,
+                order: [[defaultQuery, defaultOrder]],
                 limit: pageSize,
                 offset: pageSize * (currentPage - 1),
                 subQuery: false
@@ -420,6 +452,8 @@ class CourseController {
                     category.dataValues[`${parCategory.name}`] = category.name;
                     delete category.dataValues.name;
                     delete category.dataValues.id_par_category;
+                    delete category.dataValues.createdAt;
+                    delete category.dataValues.updatedAt;
                 }
             }
 

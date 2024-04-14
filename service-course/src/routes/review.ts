@@ -18,6 +18,9 @@ router.route('/student/:studentId/page/:page')
 router.route('/teacher/:teacherId/page/:page')
     .get(reviewController.getReviewsForTeacher);
 
+router.route('/basic/teacher/:teacherId')
+    .get(reviewController.getBasicReviewInforOfTeacher);
+
 router.route('/course/:courseId/page/:page')
     .get(reviewController.getReviewsForCourse);
 

@@ -8,8 +8,7 @@ class CheckingCourse {
     checkModifyCourse = async (req: Request, _res: Response, next: NextFunction) => {
         try {
             const id_course = req.params.courseId;
-            const id_user = req.user?.user.data.id;
-            const role = req.user?.role;
+            const id_teacher = req.teacher?.data.id;
 
             const course = await Course.findByPk(id_course);
             if (!course) {
@@ -17,8 +16,7 @@ class CheckingCourse {
                 return next(createError.BadRequest(error));
             }
 
-            if (role !== "admin" && id_user !== course.id_teacher) {
-                console.log(id_user, course.id_teacher);
+            if (id_teacher !== course.id_teacher) {
                 let error = "You does not have permission to do this action!";
                 return next(createError.Unauthorized(error));
             }

@@ -19,6 +19,19 @@ class GroupController {
         }
     }
 
+    // [GET] /groups/list
+    getGroupsOfUser = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({
+                error,
+                message: error.message
+            });
+        }
+    }
+
     // [POST] /groups
     createGroup = async (req: Request, res: Response, _next: NextFunction) => {
         try {
