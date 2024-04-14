@@ -214,6 +214,110 @@ class ExamController {
         }
     }
 
+    // [GET] /api/v1/exams/filter/page/:page
+    getFilteredExam = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const categories = Object.values(req.query);
+
+            const { class: _class, subject, level } = req.query;
+
+            if (Array.isArray(_class)) {
+                categories.push(..._class)
+            } else {
+                categories.push(_class)
+            }
+
+            if (Array.isArray(subject)) {
+                categories.push(...subject)
+            } else {
+                categories.push(subject)
+            }
+
+            if (Array.isArray(level)) {
+                categories.push(...level)
+            } else {
+                categories.push(level)
+            }
+
+            const currentPage: number = +req.params.page;
+            
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+
+            const count = await Exam.count({
+                where: {
+                    id_course: {
+                        [Op.or]: [null, ""]
+                    }
+                },
+                include: [
+                    {
+                        model: Category,
+                        where: {
+                            id: {
+                                [Op.in]: categories,
+                            },
+                        },
+                        through: {
+                            attributes: [],
+                        },
+                    },
+                ],
+                group: ['Course.id'],
+                having: sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`),
+                raw: true
+            });
+
+            const exams = await Exam.findAll({
+                where: {
+                    id_course: {
+                        [Op.or]: [null, ""]
+                    }
+                },
+                include: [
+                    {
+                        model: Category,
+                        where: {
+                            id: {
+                                [Op.in]: categories,
+                            },
+                        },
+                        attributes: ['name', 'id'],
+                        through: {
+                            attributes: [],
+                        },
+                    },
+                ],
+                group: ['Course.id'],
+                having: sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`),
+                order: [['createdAt', 'DESC']],
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1),
+                subQuery: false
+            });
+
+            
+            for (const exam of exams) {
+                const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${exam.id_teacher}`);
+                exam.dataValues.user = { id: user.data.id, name: user.data.name };
+
+                for (const category of exam.Categories) {
+                    const parCategory = await ParentCategory.findByPk(category.id_par_category);
+                    category.dataValues[`${parCategory.name}`] = category.name;
+                    delete category.dataValues.name;
+                    delete category.dataValues.id_par_category;
+                }
+            }
+
+            res.status(200).json({
+                count,
+                exams
+            })
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error, message: error.message });
+        }
+    }
+
     // [GET] /api/v1/exams/search/page/:page
     searchExam = async (req: Request, res: Response, _next: NextFunction) => {
         const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);

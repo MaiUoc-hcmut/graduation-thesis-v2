@@ -34,6 +34,9 @@ CourseDraft.init({
   },
   type: {
     type: DataTypes.STRING(20),
+  },
+  duration: {
+    type: DataTypes.INTEGER
   }
 }, {
   sequelize,

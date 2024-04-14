@@ -30,7 +30,7 @@ class VideoController {
     uploadSingleLectureVideo = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
-            const id_user = req.teacher.data.id;
+            // const id_user = req.teacher.data.id;
             const video = req.file;
 
             if (!video) {
@@ -114,6 +114,10 @@ class VideoController {
                 }
             });
 
+            if (topic.video) {
+                throw new Error("This topic already has video, please call another API if you want to update video of topic")
+            }
+
             await topic.update({
                 duration,
                 video: url
@@ -121,11 +125,11 @@ class VideoController {
                 transaction: t
             });
 
-            const data = {
-                id_user,
-                url,
-                name: originalFileName
-            }
+            // const data = {
+            //     id_user,
+            //     url,
+            //     name: originalFileName
+            // }
 
             // const response = await axios.get(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/upload-video`, { data });
 
@@ -137,7 +141,7 @@ class VideoController {
 
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error });
+            res.status(500).json({ error, message: error.message });
 
             await t.rollback();
         }
@@ -192,8 +196,6 @@ class VideoController {
 
             // Check if course has been created
             const course = await Course.findByPk(body.id_course);
-
-            console.log(body);
 
             if (!course) {
                 return res.status(400).json({

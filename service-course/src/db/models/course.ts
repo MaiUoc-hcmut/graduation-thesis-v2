@@ -86,6 +86,10 @@ Course.init(
       type: DataTypes.DATE,
       allowNull: false
     },
+    registration: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      defaultValue: 0,
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
