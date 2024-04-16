@@ -1,6 +1,7 @@
 
 const { sequelize } = require('../../config/db');
 import { Model, DataTypes } from 'sequelize';
+const Category = require('./category');
 
 class Teacher extends Model {
   declare id: number;
@@ -83,5 +84,8 @@ Teacher.init(
     sequelize,
   },
 );
+
+Teacher.belongsToMany(Category, { through: 'category-teacher', foreignKey: 'id_teacher', otherKey: 'id_category' });
+Category.belongsToMany(Teacher, { through: 'category-teacher', foreignKey: 'id_category', otherKey: 'id_teacher' });
 
 module.exports = Teacher

@@ -216,79 +216,99 @@ class ExamController {
     // [GET] /api/v1/exams/filter/page/:page
     getFilteredExam = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const categories = Object.values(req.query);
+            const categories = [];
 
             const { class: _class, subject, level } = req.query;
 
-            if (Array.isArray(_class)) {
+            if (!_class) {
+                
+            } else if (Array.isArray(_class)) {
                 categories.push(..._class)
             } else {
                 categories.push(_class)
             }
 
-            if (Array.isArray(subject)) {
+            if (!subject) {
+
+            } else if (Array.isArray(subject)) {
                 categories.push(...subject)
             } else {
                 categories.push(subject)
             }
 
-            if (Array.isArray(level)) {
+            if (!level) {
+
+            } else if (Array.isArray(level)) {
                 categories.push(...level)
             } else {
                 categories.push(level)
+            }
+
+            enum SortQuery {
+                Rating = 'rating',
+                Date = 'date',
+            }
+            enum SortOrder {
+                ASC = 'ASC',
+                DESC = 'DESC'
+            }
+
+            const sortFactor = {
+                [SortQuery.Rating]: 'average_rating',
+                [SortQuery.Date]: 'createdAt',
+            }
+            const orderFactor = {
+                [SortOrder.ASC]: 'ASC',
+                [SortOrder.DESC]: 'DESC',
+            }
+
+
+            const sortQuery = req.query.sort
+            const orderSort = req.query.order;
+
+            let defaultQuery = 'createdAt';
+            let defaultOrder = 'DESC';
+
+            if (typeof sortQuery === "string" && sortQuery in SortQuery) {
+                defaultQuery = sortFactor[sortQuery as SortQuery];
+            }
+            if (typeof orderSort === "string" && orderSort in SortOrder) {
+                defaultOrder = orderFactor[orderSort as SortOrder];
             }
 
             const currentPage: number = +req.params.page;
             
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
-            const count = await Exam.count({
-                where: {
-                    id_course: {
-                        [Op.or]: [null, ""]
-                    }
-                },
+            const queryOption: any = {
                 include: [
                     {
                         model: Category,
-                        where: {
-                            id: {
-                                [Op.in]: categories,
-                            },
-                        },
                         through: {
                             attributes: [],
                         },
                     },
                 ],
-                group: ['Course.id'],
-                having: sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`),
+                group: ['Exam.id']
+            }
+
+            if (categories.length > 0) {
+                queryOption.include[0].where = {
+                    id: {
+                        [Op.in]: categories,
+                    },
+                }
+                queryOption.having = sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`)
+            }
+
+            const count = await Exam.count({
+                ...queryOption,
                 raw: true
             });
 
             const exams = await Exam.findAll({
-                where: {
-                    id_course: {
-                        [Op.or]: [null, ""]
-                    }
-                },
-                include: [
-                    {
-                        model: Category,
-                        where: {
-                            id: {
-                                [Op.in]: categories,
-                            },
-                        },
-                        attributes: ['name', 'id'],
-                        through: {
-                            attributes: [],
-                        },
-                    },
-                ],
-                group: ['Course.id'],
-                having: sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`),
-                order: [['createdAt', 'DESC']],
+                ...queryOption,
+                order: [[defaultQuery, defaultOrder]],
                 limit: pageSize,
                 offset: pageSize * (currentPage - 1),
                 subQuery: false
