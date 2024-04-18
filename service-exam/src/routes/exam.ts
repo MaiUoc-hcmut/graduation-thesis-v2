@@ -9,7 +9,7 @@ router.route('/')
     .post(Authorize.authorizeTeacher, ExamController.createExam);
 
 router.route('/page/:page')
-    .get(ExamController.getAllExams)
+    .get(Authorize.checkGetAll, Authorize.verifyUser, ExamController.getAllExams)
 
 router.route('/:examId')
     .get(ExamController.getExamById)

@@ -146,7 +146,7 @@ class Authorize {
     checkGetAll = (req: Request, res: Response, next: NextFunction) => {
         req.getAll = true;
         next();
-    }
+    };
 }
 
 module.exports = new Authorize();

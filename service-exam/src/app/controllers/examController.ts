@@ -22,6 +22,7 @@ declare global {
         interface Request {
             teacher?: any;
             student?: any;
+            authority?: number
         }
     }
 }
@@ -32,6 +33,12 @@ class ExamController {
     // [GET] /api/v1/exam
     getAllExams = async (req: Request, res: Response, _next: NextFunction) => {
         try {
+            const authority = req.authority;
+
+            let status = authority === 2
+                            ? ['public', 'paid', 'private']
+                            : ['public', 'paid'];
+
             const categories = [];
 
             const { class: _class, subject, level } = req.query;
@@ -97,6 +104,7 @@ class ExamController {
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const queryOption: any = {
+                where: { status },
                 include: [
                     {
                         model: Category,

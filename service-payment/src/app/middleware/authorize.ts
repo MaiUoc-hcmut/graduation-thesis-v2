@@ -147,6 +147,11 @@ class Authorize {
             }
         })(req, res, next);
     };
+
+    checkGetAll = (req: Request, res: Response, next: NextFunction) => {
+        req.getAll = true;
+        next();
+    };
 }
 
 module.exports = new Authorize();
