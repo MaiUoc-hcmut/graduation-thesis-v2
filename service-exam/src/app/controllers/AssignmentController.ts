@@ -10,6 +10,8 @@ const axios = require('axios');
 
 import { Request, Response, NextFunction } from "express";
 
+const { Op } = require('sequelize');
+
 require('dotenv').config();
 
 class AssignmentController {
@@ -20,11 +22,60 @@ class AssignmentController {
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
             const currentPage: number = +req.params.page;
 
-            const count = await Assignment.count();
+            let preDate: Date = new Date(0);;
+            let postDate: Date = new Date();
+
+            if (typeof req.query.postDate === 'string' || typeof req.query.postDate === 'number') {
+                postDate = new Date(req.query.postDate);
+            } else if (req.query.postDate instanceof Date) {
+                postDate = req.query.postDate;
+            }
+
+            if (typeof req.query.preDate === 'string' || typeof req.query.preDate === 'number') {
+                preDate = new Date(req.query.preDate);
+            } else if (req.query.preDate instanceof Date) {
+                preDate = req.query.preDate;
+            }
+
+            const date_condition: any = {
+                [Op.between]: [preDate, postDate]
+            }
+
+            const status = req.query.status;
+            const id_course = req.query.id_course;
+
+            let status_condition = [];
+
+            if (status === "pass") {
+                status_condition = [true];
+            } else if (status === "fail") {
+                status_condition = [false];
+            } else {
+                status_condition = [true, false];
+            }
+
+            const queryOption: any = {
+                where: {
+                    passed: status_condition,
+                    createdAt: date_condition
+                }
+            }
+
+            if (id_course && typeof id_course === "string") {
+                queryOption.include = [{
+                    model: Exam,
+                    where: {
+                        id_course
+                    }
+                }];
+            }
+
+            const count = await Assignment.count(queryOption);
             const assignments = await Assignment.findAll({
+                ...queryOption,
                 limit: pageSize,
                 offset: pageSize * (currentPage - 1),
-                order: [['createdAt', 'ASC']]
+                order: [['createdAt', 'DESC']]
             });
 
             res.status(200).json({ count, assignments });
@@ -43,15 +94,132 @@ class AssignmentController {
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
             const currentPage: number = +req.params.page;
 
-            const count = await Assignment.count({
-                where: { id_student }
-            });
+            let preDate: Date = new Date(0);;
+            let postDate: Date = new Date();
 
+            if (typeof req.query.postDate === 'string' || typeof req.query.postDate === 'number') {
+                postDate = new Date(req.query.postDate);
+            } else if (req.query.postDate instanceof Date) {
+                postDate = req.query.postDate;
+            }
+
+            if (typeof req.query.preDate === 'string' || typeof req.query.preDate === 'number') {
+                preDate = new Date(req.query.preDate);
+            } else if (req.query.preDate instanceof Date) {
+                preDate = req.query.preDate;
+            }
+
+            const date_condition: any = {
+                [Op.between]: [preDate, postDate]
+            }
+
+            const status = req.query.status;
+            const id_course = req.query.id_course;
+
+            let status_condition = [];
+
+            if (status === "pass") {
+                status_condition = [true];
+            } else if (status === "fail") {
+                status_condition = [false];
+            } else {
+                status_condition = [true, false];
+            }
+
+            const queryOption: any = {
+                where: {
+                    passed: status_condition,
+                    createdAt: date_condition,
+                    id_student
+                }
+            }
+
+            if (id_course && typeof id_course === "string") {
+                queryOption.include[0].where.id_course = id_course;
+            }
+
+            const count = await Assignment.count(queryOption);
             const assignments = await Assignment.findAll({
-                where: { id_student },
+                ...queryOption,
                 limit: pageSize,
                 offset: pageSize * (currentPage - 1),
-                order: [['createdAt', 'ASC']]
+                order: [['createdAt', 'DESC']]
+            });
+
+            res.status(200).json({ count, assignments });
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    // [GET] /assignments/teacher/:teacherId/page/:page
+    getAssignmentsOfExamsOfTeacher = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const id_teacher = req.params.teacherId;
+
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+            const currentPage: number = +req.params.page;
+
+            let preDate: Date = new Date(0);;
+            let postDate: Date = new Date();
+
+            if (typeof req.query.postDate === 'string' || typeof req.query.postDate === 'number') {
+                postDate = new Date(req.query.postDate);
+            } else if (req.query.postDate instanceof Date) {
+                postDate = req.query.postDate;
+            }
+
+            if (typeof req.query.preDate === 'string' || typeof req.query.preDate === 'number') {
+                preDate = new Date(req.query.preDate);
+            } else if (req.query.preDate instanceof Date) {
+                preDate = req.query.preDate;
+            }
+
+            const date_condition: any = {
+                [Op.between]: [preDate, postDate]
+            }
+
+            const status = req.query.status;
+            const id_course = req.query.id_course;
+
+            let status_condition = [];
+
+            if (status === "pass") {
+                status_condition = [true];
+            } else if (status === "fail") {
+                status_condition = [false];
+            } else {
+                status_condition = [true, false];
+            }
+
+            const queryOption: any = {
+                where: {
+                    passed: status_condition,
+                    createdAt: date_condition
+                },
+                include: [
+                    {
+                        model: Exam,
+                        where: {
+                            id_teacher
+                        }
+                    }
+                ]
+            }
+
+            if (id_course && typeof id_course === "string") {
+                queryOption.include[0].where.id_course = id_course;
+            }
+
+            console.log(68)
+
+            const count = await Assignment.count(queryOption);
+            const assignments = await Assignment.findAll({
+                ...queryOption,
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1),
+                order: [['createdAt', 'DESC']]
             });
 
             res.status(200).json({ count, assignments });
@@ -70,26 +238,55 @@ class AssignmentController {
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
             const currentPage: number = +req.params.page;
 
-            const count = await Assignment.count({
+            let preDate: Date = new Date(0);;
+            let postDate: Date = new Date();
+
+            if (typeof req.query.postDate === 'string' || typeof req.query.postDate === 'number') {
+                postDate = new Date(req.query.postDate);
+            } else if (req.query.postDate instanceof Date) {
+                postDate = req.query.postDate;
+            }
+
+            if (typeof req.query.preDate === 'string' || typeof req.query.preDate === 'number') {
+                preDate = new Date(req.query.preDate);
+            } else if (req.query.preDate instanceof Date) {
+                preDate = req.query.preDate;
+            }
+
+            const date_condition: any = {
+                [Op.between]: [preDate, postDate]
+            }
+
+            const status = req.query.status;
+
+            let status_condition = [];
+
+            if (status === "pass") {
+                status_condition = [true];
+            } else if (status === "fail") {
+                status_condition = [false];
+            } else {
+                status_condition = [true, false];
+            }
+
+            const queryOption: any = {
                 where: {
+                    passed: status_condition,
+                    createdAt: date_condition,
                     id_student,
                     id_exam
                 }
-            });
+            }
 
-            const assignment = await Assignment.findAll({
-                where: {
-                    id_exam,
-                    id_student
-                },
+            const count = await Assignment.count(queryOption);
+            const assignments = await Assignment.findAll({
+                ...queryOption,
                 limit: pageSize,
-                offset: pageSize * (currentPage - 1)
+                offset: pageSize * (currentPage - 1),
+                order: [['createdAt', 'DESC']]
             });
 
-            res.status(200).json({
-                count,
-                assignment
-            })
+            res.status(200).json({ count, assignments });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
@@ -104,19 +301,55 @@ class AssignmentController {
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
             const currentPage: number = +req.params.page;
 
-            const count = await Assignment.count({
-                where: { id_exam }
-            });
+            let preDate: Date = new Date(0);;
+            let postDate: Date = new Date();
 
+            if (typeof req.query.postDate === 'string' || typeof req.query.postDate === 'number') {
+                postDate = new Date(req.query.postDate);
+            } else if (req.query.postDate instanceof Date) {
+                postDate = req.query.postDate;
+            }
+
+            if (typeof req.query.preDate === 'string' || typeof req.query.preDate === 'number') {
+                preDate = new Date(req.query.preDate);
+            } else if (req.query.preDate instanceof Date) {
+                preDate = req.query.preDate;
+            }
+
+            const date_condition: any = {
+                [Op.between]: [preDate, postDate]
+            }
+
+            const status = req.query.status;
+            const id_course = req.query.id_course;
+
+            let status_condition = [];
+
+            if (status === "pass") {
+                status_condition = [true];
+            } else if (status === "fail") {
+                status_condition = [false];
+            } else {
+                status_condition = [true, false];
+            }
+
+            const queryOption: any = {
+                where: {
+                    passed: status_condition,
+                    createdAt: date_condition,
+                    id_exam
+                }
+            }
+
+            const count = await Assignment.count(queryOption);
             const assignments = await Assignment.findAll({
-                where: { id_exam },
+                ...queryOption,
                 limit: pageSize,
                 offset: pageSize * (currentPage - 1),
-                order: [['createdAt', 'ASC']]
+                order: [['createdAt', 'DESC']]
             });
 
             res.status(200).json({ count, assignments });
-            
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
@@ -295,7 +528,7 @@ class AssignmentController {
 
         } catch (error: any) {
             console.log(error.message);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error, message: error.message });
 
             await t.rollback();
         }

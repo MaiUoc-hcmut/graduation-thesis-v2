@@ -8,11 +8,17 @@ const CheckingAssignment = require('../app/middleware/assignment');
 router.route('/')
     .post(Authorize.verifyStudent, AssignmentController.submitAssignment);
 
+router.route('/page/:page')
+    .get(AssignmentController.getAllAssignments)
+
 router.route('/full/:assignmentId')
     .get(Authorize.verifyUser, CheckingAssignment.checkGetAssignmentsOfStudent, AssignmentController.getDetailOfAssignment);
 
 router.route('/student/:studentId/page/:page')
     .get(Authorize.verifyUser, CheckingAssignment.checkGetAssignmentsOfStudent, AssignmentController.getAssignmentsOfStudent);
+
+router.route('/teacher/:teacherId/page/:page')
+    .get(Authorize.verifyUser, CheckingAssignment.checkGetAssignmentsOfExamsOfTeacher, AssignmentController.getAssignmentsOfExamsOfTeacher);
 
 router.route('/student/:studentId/exam/:examId/page/:page')
     .get(Authorize.verifyUser, CheckingAssignment.checkGetAssignmentsOfStudent, AssignmentController.getAssignmentsOfStudentOfExam);

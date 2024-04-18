@@ -18,7 +18,11 @@ class CouponController {
                 where: { id: id_coupon },
                 include: [
                     {
-                        model: Course
+                        model: Course,
+                        attributes: ['id', 'name', 'thumbnail', 'cover_image'],
+                        through: {
+                            attributes: []
+                        }
                     }
                 ]
             });
@@ -41,7 +45,16 @@ class CouponController {
             const coupons = await Coupon.findAll({
                 where: {
                     id_teacher
-                }
+                },
+                include: [
+                    {
+                        model: Course,
+                        attributes: ['id', 'name', 'thumbnail', 'cover_image'],
+                        through: {
+                            attributes: []
+                        }
+                    }
+                ]
             });
 
             res.status(200).json(coupons);

@@ -12,12 +12,10 @@ router.use("/chapters", chaptersRouter)
 
 //route course
 router.route('/')
-    .get(courseController.getAllCourse)
     .post(Authorize.protectedAPI, courseController.createCourse)
 
-
-router.route('/filter/page/:page')
-    .get(courseController.getFilteredCourse);
+router.route('/page/:page')
+    .get(courseController.getAllCourse)
 
 router.route('/search/page/:page')
     .get(courseController.searchCourse);
@@ -47,6 +45,12 @@ router.route('/full/:courseId')
 
 router.route('/teacher/:teacherId/page/:page')
     .get(Authorize.authorizeTeacher, courseController.getCourseCreatedByTeacher);
+
+router.route('/all-student/teacher/:teacherId/page/:page')
+    .get(courseController.getStudentsBuyCoursesOfTeacher);
+
+router.route('/:courseId/student-course/page/:page')
+    .get(courseController.getStudentsBuyACourse);
     
 router.post("/test", fileUpload.uploadCourseFiles, courseController.test);
 

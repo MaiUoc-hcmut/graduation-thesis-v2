@@ -28,6 +28,22 @@ class CheckingCart {
         }
     }
 
+    checkGetCartOfStudentByStudentId = async (req: Request, _res: Response, next: NextFunction) => {
+        try {
+            const id_student = req.params.studentId;
+            const id_user = req.user?.user.data.id;
+
+            if (id_user !== id_student) {
+                let error = "You dot not have permission to get this information!";
+                return next(createError.Unauthorized(error));
+            }
+            next();
+        } catch (error: any) {
+            console.log(error.message);
+            next(createError.InternalServerError(error.message));
+        }
+    }
+
     checkAddCourseToCart = async (req: Request, _res: Response, next: NextFunction) => {
         try {
             const id_cart = req.params.cartId;

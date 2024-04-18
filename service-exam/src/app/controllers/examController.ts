@@ -263,16 +263,16 @@ class ExamController {
             }
 
 
-            const sortQuery = req.query.sort
-            const orderSort = req.query.order;
+            const sortQuery = req.query.sort as SortQuery;
+            const orderSort = req.query.order as SortOrder;
 
             let defaultQuery = 'createdAt';
             let defaultOrder = 'DESC';
 
-            if (typeof sortQuery === "string" && sortQuery in SortQuery) {
+            if (typeof sortQuery === "string" && Object.values(SortQuery).includes(sortQuery)) {
                 defaultQuery = sortFactor[sortQuery as SortQuery];
             }
-            if (typeof orderSort === "string" && orderSort in SortOrder) {
+            if (typeof orderSort === "string" && Object.values(SortOrder).includes(orderSort)) {
                 defaultOrder = orderFactor[orderSort as SortOrder];
             }
 
@@ -433,6 +433,7 @@ class ExamController {
                 title,
                 period,
                 quantity_question,
+                pass_score,
                 status: actualStatus
             }, {
                 transaction: t
@@ -524,13 +525,15 @@ class ExamController {
                 }
             }
 
-            const data = {
-                id_user: id_teacher,
-                id_exam: newExam.id,
-                name: newExam.title
+            if (!id_course) {
+                const data = {
+                    id_user: id_teacher,
+                    id_exam: newExam.id,
+                    name: newExam.title
+                }
+    
+                const response = await axios.get(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/create-exam`, { data });
             }
-
-            const response = await axios.get(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/create-exam`, { data });
 
             await t.commit();
 

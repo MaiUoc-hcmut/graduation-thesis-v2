@@ -87,19 +87,143 @@ declare global {
 class CourseController {
 
     // Get all courses
-    // [GET] /courses
-    getAllCourse = async (_req: Request, res: Response, _next: NextFunction) => {
+    // [GET] /courses/page/:page
+    getAllCourse = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const courses = await Course.findAll({
+            const categories: any[] = [];
+
+            const { class: _class, subject, level } = req.query;
+
+            const minPrice = typeof req.query.minPrice === 'string' ? parseInt(req.query.minPrice) : undefined;
+            const maxPrice = typeof req.query.maxPrice === 'string' ? parseInt(req.query.maxPrice) : undefined;
+
+            if (!_class) {
+                
+            } else if (Array.isArray(_class)) {
+                categories.push(..._class)
+            } else {
+                categories.push(_class)
+            }
+
+            if (!subject) {
+
+            } else if (Array.isArray(subject)) {
+                categories.push(...subject)
+            } else {
+                categories.push(subject)
+            }
+
+            if (!level) {
+
+            } else if (Array.isArray(level)) {
+                categories.push(...level)
+            } else {
+                categories.push(level)
+            }
+
+            if (Array.isArray(minPrice) || Array.isArray(maxPrice)) {
+                throw new Error("MinPrice and MaxPrice should just primitive type, not array type")
+            }
+
+            if (minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice) {
+                throw new Error('minPrice must be less than maxPrice.');
+            }
+
+            const condition: {
+                price: any
+            } = {
+                price: {
+                    [Op.between]: [0, 99999999]
+                }
+            };
+
+            if (minPrice !== undefined && maxPrice !== undefined) {
+                condition.price = {
+                    [Op.between]: [minPrice, maxPrice]
+                };
+            } else if (minPrice !== undefined) {
+                condition.price = {
+                    [Op.gte]: minPrice
+                };
+            } else if (maxPrice !== undefined) {
+                condition.price = {
+                    [Op.lte]: maxPrice
+                };
+            }
+
+            enum SortQuery {
+                Rating = 'rating',
+                Date = 'date',
+                Price = 'price',
+                Registration = 'registration'
+            }
+            enum SortOrder {
+                ASC = 'ASC',
+                DESC = 'DESC'
+            }
+
+            const sortFactor = {
+                [SortQuery.Rating]: 'average_rating',
+                [SortQuery.Date]: 'createdAt',
+                [SortQuery.Price]: 'price',
+                [SortQuery.Registration]: 'registration'
+            }
+            const orderFactor = {
+                [SortOrder.ASC]: 'ASC',
+                [SortOrder.DESC]: 'DESC',
+            }
+
+
+            const sortQuery = req.query.sort as SortQuery;
+            const orderSort = req.query.order as SortOrder;
+
+            let defaultQuery = 'createdAt';
+            let defaultOrder = 'DESC';
+
+            if (typeof sortQuery === "string" && Object.values(SortQuery).includes(sortQuery)) {
+                defaultQuery = sortFactor[sortQuery as SortQuery];
+            }
+            if (typeof orderSort === "string" && Object.values(SortOrder).includes(orderSort)) {
+                defaultOrder = orderFactor[orderSort as SortOrder];
+            }
+            
+            const currentPage: number = +req.params.page;
+            
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+
+            const queryOption: any = {
+                where: condition,
                 include: [
                     {
                         model: Category,
-                        attributes: ['name', 'id', 'id_par_category'],
                         through: {
-                            attributes: []
-                        }
-                    }
-                ]
+                            attributes: [],
+                        },
+                    },
+                ],
+                group: ['Course.id']
+            }
+
+            if (categories.length > 0) {
+                queryOption.include[0].where = {
+                    id: {
+                        [Op.in]: categories,
+                    },
+                }
+                queryOption.having = sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`)
+            }
+
+            const count = await Course.count({
+                ...queryOption,
+                raw: true
+            });
+
+            const courses = await Course.findAll({
+                ...queryOption,
+                order: [[defaultQuery, defaultOrder]],
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1),
+                subQuery: false
             });
 
             for (const course of courses) {
@@ -111,10 +235,12 @@ class CourseController {
                     category.dataValues[`${parCategory.name}`] = category.name;
                     delete category.dataValues.name;
                     delete category.dataValues.id_par_category;
+                    delete category.dataValues.createdAt;
+                    delete category.dataValues.updatedAt;
                 }
             }
 
-            res.status(200).json(courses)
+            res.status(200).json({ count: count.length, courses });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
@@ -304,166 +430,6 @@ class CourseController {
         }
     }
 
-    // [GET] /courses/filter/page/:page
-    getFilteredCourse = async (req: Request, res: Response, _next: NextFunction) => {
-        try {
-            const categories: any[] = [];
-
-            const { class: _class, subject, level } = req.query;
-
-            const minPrice = typeof req.query.minPrice === 'string' ? parseInt(req.query.minPrice) : undefined;
-            const maxPrice = typeof req.query.maxPrice === 'string' ? parseInt(req.query.maxPrice) : undefined;
-
-            if (!_class) {
-                
-            } else if (Array.isArray(_class)) {
-                categories.push(..._class)
-            } else {
-                categories.push(_class)
-            }
-
-            if (!subject) {
-
-            } else if (Array.isArray(subject)) {
-                categories.push(...subject)
-            } else {
-                categories.push(subject)
-            }
-
-            if (!level) {
-
-            } else if (Array.isArray(level)) {
-                categories.push(...level)
-            } else {
-                categories.push(level)
-            }
-
-            if (Array.isArray(minPrice) || Array.isArray(maxPrice)) {
-                throw new Error("MinPrice and MaxPrice should just primitive type, not array type")
-            }
-
-            if (minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice) {
-                throw new Error('minPrice must be less than maxPrice.');
-            }
-
-            const condition: {
-                price: any
-            } = {
-                price: {
-                    [Op.between]: [0, 99999999]
-                }
-            };
-
-            if (minPrice !== undefined && maxPrice !== undefined) {
-                condition.price = {
-                    [Op.between]: [minPrice, maxPrice]
-                };
-            } else if (minPrice !== undefined) {
-                condition.price = {
-                    [Op.gte]: minPrice
-                };
-            } else if (maxPrice !== undefined) {
-                condition.price = {
-                    [Op.lte]: maxPrice
-                };
-            }
-
-            enum SortQuery {
-                Rating = 'rating',
-                Date = 'date',
-                Price = 'price',
-                Registration = 'registration'
-            }
-            enum SortOrder {
-                ASC = 'ASC',
-                DESC = 'DESC'
-            }
-
-            const sortFactor = {
-                [SortQuery.Rating]: 'average_rating',
-                [SortQuery.Date]: 'createdAt',
-                [SortQuery.Price]: 'price',
-                [SortQuery.Registration]: 'registration'
-            }
-            const orderFactor = {
-                [SortOrder.ASC]: 'ASC',
-                [SortOrder.DESC]: 'DESC',
-            }
-
-
-            const sortQuery = req.query.sort
-            const orderSort = req.query.order;
-
-            let defaultQuery = 'createdAt';
-            let defaultOrder = 'DESC';
-
-            if (typeof sortQuery === "string" && sortQuery in SortQuery) {
-                defaultQuery = sortFactor[sortQuery as SortQuery];
-            }
-            if (typeof orderSort === "string" && orderSort in SortOrder) {
-                defaultOrder = orderFactor[orderSort as SortOrder];
-            }
-            
-            const currentPage: number = +req.params.page;
-            
-            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
-
-            const queryOption: any = {
-                where: condition,
-                include: [
-                    {
-                        model: Category,
-                        through: {
-                            attributes: [],
-                        },
-                    },
-                ],
-                group: ['Course.id']
-            }
-
-            if (categories.length > 0) {
-                queryOption.include[0].where = {
-                    id: {
-                        [Op.in]: categories,
-                    },
-                }
-                queryOption.having = sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`)
-            }
-
-            const count = await Course.count({
-                ...queryOption,
-                raw: true
-            });
-
-            const courses = await Course.findAll({
-                ...queryOption,
-                order: [[defaultQuery, defaultOrder]],
-                limit: pageSize,
-                offset: pageSize * (currentPage - 1),
-                subQuery: false
-            });
-
-            for (const course of courses) {
-                const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${course.id_teacher}`);
-                course.dataValues.user = { id: user.data.id, name: user.data.name };
-
-                for (const category of course.Categories) {
-                    const parCategory = await ParentCategory.findByPk(category.id_par_category);
-                    category.dataValues[`${parCategory.name}`] = category.name;
-                    delete category.dataValues.name;
-                    delete category.dataValues.id_par_category;
-                    delete category.dataValues.createdAt;
-                    delete category.dataValues.updatedAt;
-                }
-            }
-
-            res.status(200).json({ count: count.length, courses });
-        } catch (error: any) {
-            console.log(error.message);
-            res.status(500).json({ error, message: error.message });
-        }
-    }
-
     // Get all courses that created by a teacher
     // [GET] /courses/teacher/:teacherId/page/:page
     getCourseCreatedByTeacher = async (req: Request, res: Response, _next: NextFunction) => {
@@ -493,16 +459,16 @@ class CourseController {
             }
 
 
-            const sortQuery = req.query.sort
-            const orderSort = req.query.order;
+            const sortQuery = req.query.sort as SortQuery;
+            const orderSort = req.query.order as SortOrder;
 
             let defaultQuery = 'createdAt';
             let defaultOrder = 'DESC';
 
-            if (typeof sortQuery === "string" && sortQuery in SortQuery) {
+            if (typeof sortQuery === "string" && Object.values(SortQuery).includes(sortQuery)) {
                 defaultQuery = sortFactor[sortQuery as SortQuery];
             }
-            if (typeof orderSort === "string" && orderSort in SortOrder) {
+            if (typeof orderSort === "string" && Object.values(SortOrder).includes(orderSort)) {
                 defaultOrder = orderFactor[orderSort as SortOrder];
             }
 
@@ -616,6 +582,95 @@ class CourseController {
             const records = await StudentCourse.findAll();
             
             res.status(200).json(records);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error, message: error.message });
+        }
+    }
+
+    // [GET] /courses/:courseId/student-course/page/:page
+    getStudentsBuyACourse = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const currentPage: number = +req.params.page;
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+            
+            const id_course = req.params.courseId;
+
+            const records = await StudentCourse.findAll({
+                where: { id_course },
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1)
+            });
+
+            const students: {
+                id: string,
+                email: string,
+                name: string,
+                avatar: any
+            }[] = [];
+            for (const record of records) {
+                const student = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${record.id_student}`);
+                students.push({
+                    id: student.data.id,
+                    email: student.data.email,
+                    name: student.data.name,
+                    avatar: student.data.avatar
+                });
+            }
+
+            res.status(200).json(students);
+
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error, message: error.message });
+        }
+    }
+
+    // [GET] /courses/all-student/teacher/:teacherId/page/:page
+    getStudentsBuyCoursesOfTeacher = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const currentPage: number = +req.params.page;
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+
+            const id_teacher = req.params.teacherId;
+            const courses = await Course.findAll({
+                where: {
+                    id_teacher
+                }
+            });
+
+            const ids = [];
+            for (const course of courses) {
+                ids.push(course.id);
+            }
+            const records = await StudentCourse.findAll({
+                where: {
+                    id_course: ids
+                },
+                attributes: ['id_student'],
+                group: ['id_student'],
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1),
+            });
+
+            const students: {
+                id: string,
+                email: string,
+                name: string,
+                avatar: any
+            }[] = [];
+            for (const record of records) {
+                const student = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${record.id_student}`);
+                students.push({
+                    id: student.data.id,
+                    email: student.data.email,
+                    name: student.data.name,
+                    avatar: student.data.avatar
+                });
+            }
+
+            res.status(200).json(students);
+
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error, message: error.message });

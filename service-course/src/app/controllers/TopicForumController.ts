@@ -181,7 +181,8 @@ class TopicForumController {
             await forum.update({ total_topic }, { transaction: t });
 
             const data = {
-                id_forum: forum.id
+                id_forum: forum.id,
+                name: body.title
             }
 
             const response = await axios.post(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/create-topic`, { data });
