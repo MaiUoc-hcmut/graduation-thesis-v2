@@ -18,7 +18,6 @@ const { Op } = require('sequelize');
 
 const axios = require('axios');
 import { Request, Response, NextFunction } from 'express';
-import { where } from 'sequelize';
 
 const { sequelize } = require('../../config/db/index');
 
@@ -57,6 +56,7 @@ declare global {
             student?: any;
             user?: USER;
             topicURL: ResponseVideoFile[];
+            authority?: number;
         }
 
         type USER = {
@@ -90,6 +90,12 @@ class CourseController {
     // [GET] /courses/page/:page
     getAllCourse = async (req: Request, res: Response, _next: NextFunction) => {
         try {
+            const authority = req.authority;
+
+            let status = authority === 2
+                            ? ['public', 'paid', 'private']
+                            : ['public', 'paid'];
+
             const categories: any[] = [];
 
             const { class: _class, subject, level } = req.query;
@@ -192,7 +198,10 @@ class CourseController {
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const queryOption: any = {
-                where: condition,
+                where: {
+                    ...condition,
+                    status
+                },
                 include: [
                     {
                         model: Category,

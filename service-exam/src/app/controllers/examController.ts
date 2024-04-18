@@ -30,26 +30,123 @@ class ExamController {
 
     // Get all exam
     // [GET] /api/v1/exam
-    getAllExams = async (_req: Request, res: Response, _next: NextFunction) => {
+    getAllExams = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const exams = await Exam.findAll({
+            const categories = [];
+
+            const { class: _class, subject, level } = req.query;
+
+            if (!_class) {
+                
+            } else if (Array.isArray(_class)) {
+                categories.push(..._class)
+            } else {
+                categories.push(_class)
+            }
+
+            if (!subject) {
+
+            } else if (Array.isArray(subject)) {
+                categories.push(...subject)
+            } else {
+                categories.push(subject)
+            }
+
+            if (!level) {
+
+            } else if (Array.isArray(level)) {
+                categories.push(...level)
+            } else {
+                categories.push(level)
+            }
+
+            enum SortQuery {
+                Rating = 'rating',
+                Date = 'date',
+            }
+            enum SortOrder {
+                ASC = 'ASC',
+                DESC = 'DESC'
+            }
+
+            const sortFactor = {
+                [SortQuery.Rating]: 'average_rating',
+                [SortQuery.Date]: 'createdAt',
+            }
+            const orderFactor = {
+                [SortOrder.ASC]: 'ASC',
+                [SortOrder.DESC]: 'DESC',
+            }
+
+
+            const sortQuery = req.query.sort as SortQuery;
+            const orderSort = req.query.order as SortOrder;
+
+            let defaultQuery = 'createdAt';
+            let defaultOrder = 'DESC';
+
+            if (typeof sortQuery === "string" && Object.values(SortQuery).includes(sortQuery)) {
+                defaultQuery = sortFactor[sortQuery as SortQuery];
+            }
+            if (typeof orderSort === "string" && Object.values(SortOrder).includes(orderSort)) {
+                defaultOrder = orderFactor[orderSort as SortOrder];
+            }
+
+            const currentPage: number = +req.params.page;
+            
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+
+            const queryOption: any = {
                 include: [
                     {
                         model: Category,
-                        attributes: ['name', 'id'],
                         through: {
-                            attributes: []
-                        }
-                    }
-                ]
-            });
-
-            for (const exam of exams) {
-                const user = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/teacher/get-teacher-by-id/${exam.id_teacher}`);
-                exam.dataValues.user = { id: user.data.id, name: user.data.name };
+                            attributes: [],
+                        },
+                    },
+                ],
+                group: ['Exam.id']
             }
 
-            res.status(200).json(exams);
+            if (categories.length > 0) {
+                queryOption.include[0].where = {
+                    id: {
+                        [Op.in]: categories,
+                    },
+                }
+                queryOption.having = sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`)
+            }
+
+            const count = await Exam.count({
+                ...queryOption,
+                raw: true
+            });
+
+            const exams = await Exam.findAll({
+                ...queryOption,
+                order: [[defaultQuery, defaultOrder]],
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1),
+                subQuery: false
+            });
+
+            
+            for (const exam of exams) {
+                const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${exam.id_teacher}`);
+                exam.dataValues.user = { id: user.data.id, name: user.data.name };
+
+                for (const category of exam.Categories) {
+                    const parCategory = await ParentCategory.findByPk(category.id_par_category);
+                    category.dataValues[`${parCategory.name}`] = category.name;
+                    delete category.dataValues.name;
+                    delete category.dataValues.id_par_category;
+                }
+            }
+
+            res.status(200).json({
+                count,
+                exams
+            });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
@@ -213,129 +310,6 @@ class ExamController {
         }
     }
 
-    // [GET] /api/v1/exams/filter/page/:page
-    getFilteredExam = async (req: Request, res: Response, _next: NextFunction) => {
-        try {
-            const categories = [];
-
-            const { class: _class, subject, level } = req.query;
-
-            if (!_class) {
-                
-            } else if (Array.isArray(_class)) {
-                categories.push(..._class)
-            } else {
-                categories.push(_class)
-            }
-
-            if (!subject) {
-
-            } else if (Array.isArray(subject)) {
-                categories.push(...subject)
-            } else {
-                categories.push(subject)
-            }
-
-            if (!level) {
-
-            } else if (Array.isArray(level)) {
-                categories.push(...level)
-            } else {
-                categories.push(level)
-            }
-
-            enum SortQuery {
-                Rating = 'rating',
-                Date = 'date',
-            }
-            enum SortOrder {
-                ASC = 'ASC',
-                DESC = 'DESC'
-            }
-
-            const sortFactor = {
-                [SortQuery.Rating]: 'average_rating',
-                [SortQuery.Date]: 'createdAt',
-            }
-            const orderFactor = {
-                [SortOrder.ASC]: 'ASC',
-                [SortOrder.DESC]: 'DESC',
-            }
-
-
-            const sortQuery = req.query.sort as SortQuery;
-            const orderSort = req.query.order as SortOrder;
-
-            let defaultQuery = 'createdAt';
-            let defaultOrder = 'DESC';
-
-            if (typeof sortQuery === "string" && Object.values(SortQuery).includes(sortQuery)) {
-                defaultQuery = sortFactor[sortQuery as SortQuery];
-            }
-            if (typeof orderSort === "string" && Object.values(SortOrder).includes(orderSort)) {
-                defaultOrder = orderFactor[orderSort as SortOrder];
-            }
-
-            const currentPage: number = +req.params.page;
-            
-            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
-
-            const queryOption: any = {
-                include: [
-                    {
-                        model: Category,
-                        through: {
-                            attributes: [],
-                        },
-                    },
-                ],
-                group: ['Exam.id']
-            }
-
-            if (categories.length > 0) {
-                queryOption.include[0].where = {
-                    id: {
-                        [Op.in]: categories,
-                    },
-                }
-                queryOption.having = sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`)
-            }
-
-            const count = await Exam.count({
-                ...queryOption,
-                raw: true
-            });
-
-            const exams = await Exam.findAll({
-                ...queryOption,
-                order: [[defaultQuery, defaultOrder]],
-                limit: pageSize,
-                offset: pageSize * (currentPage - 1),
-                subQuery: false
-            });
-
-            
-            for (const exam of exams) {
-                const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${exam.id_teacher}`);
-                exam.dataValues.user = { id: user.data.id, name: user.data.name };
-
-                for (const category of exam.Categories) {
-                    const parCategory = await ParentCategory.findByPk(category.id_par_category);
-                    category.dataValues[`${parCategory.name}`] = category.name;
-                    delete category.dataValues.name;
-                    delete category.dataValues.id_par_category;
-                }
-            }
-
-            res.status(200).json({
-                count,
-                exams
-            })
-        } catch (error: any) {
-            console.log(error.message);
-            res.status(500).json({ error, message: error.message });
-        }
-    }
 
     // [GET] /api/v1/exams/search/page/:page
     searchExam = async (req: Request, res: Response, _next: NextFunction) => {

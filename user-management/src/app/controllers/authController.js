@@ -1,5 +1,6 @@
 const Student = require('../models/student');
 const Teacher = require('../models/teacher');
+const Admin = require('../models/admin');
 const createError = require('http-errors');
 const SignToken = require('../../utils/jwt');
 const bcrypt = require('bcryptjs');
@@ -67,9 +68,7 @@ class Auth {
                 phone,
                 biostory: '',
                 degree: 'bachelor'
-            })
-
-            console.log(newTeacher.id);
+            });
 
             const accessToken = SignToken.signAccessToken(newTeacher.id);
             const refreshToken = SignToken.signRefreshToken(newTeacher.id);
@@ -89,7 +88,44 @@ class Auth {
         }
     }
 
-    loginStudent = async (req, res, next) => {
+    registerAdmin = async (req, res, _next) => {
+        try {
+            const { email, name, password, confirmPassword } = req.body.data;
+
+            const existedAdmin = await Admin.findOne({
+                where: {
+                    email
+                }
+            });
+            if (existedAdmin) {
+                let error = "This email already exist!";
+                res.send(createError.Conflict(error));
+            }
+
+            if (password !== confirmPassword) {
+                res.statu(400).json({
+                    message: "Password and confirm password does not match!"
+                });
+            }
+
+            const hashPassword = await bcrypt.hash(password, 12);
+            const admin = await Admin.create({
+                email,
+                name,
+                password: hashPassword
+            });
+
+            res.status(201).json(admin);
+        } catch (error) {
+            console.log(error.message);
+            res.status(500).json({
+                error,
+                message: error.message
+            });
+        }
+    }
+
+    loginStudent = async (req, res, _next) => {
         try {
             const accessToken = SignToken.signAccessToken(req.student.id);
             const refreshToken = SignToken.signRefreshToken(req.student.id);
@@ -115,7 +151,7 @@ class Auth {
         }
     }
 
-    loginTeacher = async (req, res, next) => {
+    loginTeacher = async (req, res, _next) => {
         try {
             const accessToken = SignToken.signAccessToken(req.teacher.id);
             const refreshToken = SignToken.signRefreshToken(req.teacher.id);
@@ -135,6 +171,32 @@ class Auth {
         } catch (error) {
             console.log(error?.message);
             res.status(500).json({ error })
+        }
+    }
+
+    loginAdmin = async (req, res, _next) => {
+        try {
+            const accessToken = SignToken.signAccessToken(req.student.id);
+            const refreshToken = SignToken.signRefreshToken(req.student.id);
+
+            const admin = req.admin.dataValues;
+            const user = {
+                ...admin,
+                role: "admin"
+            }
+
+            res.status(200).json({
+                success: true,
+                accessToken,
+                refreshToken,
+                user
+            });
+        } catch (error) {
+            console.log(error?.message);
+            res.status(500).json({
+                error,
+                message: error.message
+            })
         }
     }
 

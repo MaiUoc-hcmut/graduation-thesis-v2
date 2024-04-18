@@ -1,7 +1,7 @@
-const expressStudent = require('express');
-const routerStudent = expressStudent.Router();
+const express = require('express');
+const routerStudent = express.Router();
 const AuthStudent = require('../controllers/authController');
-const passportStudent = require('passport');
+require('passport');
 const authStudent = require('../middleware/studentAuth');
 
 routerStudent.post('/register', AuthStudent.registerStudent);
@@ -13,3 +13,5 @@ routerStudent.post(
 routerStudent.post('/refresh-token', AuthStudent.refreshToken);
  
 module.exports = routerStudent;
+
+export {}

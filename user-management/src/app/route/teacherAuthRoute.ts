@@ -1,5 +1,5 @@
-const expressTeacher = require('express');
-const routerTeacher = expressTeacher.Router();
+const express = require('express');
+const routerTeacher = express.Router();
 const AuthTeacher = require('../controllers/authController');
 const passportTeacher = require('passport');
 const authTeacher = require('../middleware/teacherAuth');

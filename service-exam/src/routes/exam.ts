@@ -6,8 +6,10 @@ const Authorize = require('../app/middleware/authorize');
 const CheckingExam = require('../app/middleware/exam');
 
 router.route('/')
-    .get(ExamController.getAllExams)
     .post(Authorize.authorizeTeacher, ExamController.createExam);
+
+router.route('/page/:page')
+    .get(ExamController.getAllExams)
 
 router.route('/:examId')
     .get(ExamController.getExamById)

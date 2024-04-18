@@ -15,7 +15,7 @@ router.route('/')
     .post(Authorize.protectedAPI, courseController.createCourse)
 
 router.route('/page/:page')
-    .get(courseController.getAllCourse)
+    .get(Authorize.checkGetAll, Authorize.verifyUser, courseController.getAllCourse)
 
 router.route('/search/page/:page')
     .get(courseController.searchCourse);
