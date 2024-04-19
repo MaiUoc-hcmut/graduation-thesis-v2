@@ -26,7 +26,9 @@ router.route('/search/:forumId/page/:page')
 router.route('/:topicId')
     .put(
         Authorize.verifyUser,
+        FileUpload.uploadFile,
         CheckingTopic.checkUpdateTopic,
+        TopicForumController.uploadFile,
         TopicForumController.updateTopic
     )
     .delete(

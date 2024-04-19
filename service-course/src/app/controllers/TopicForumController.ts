@@ -3,6 +3,7 @@ const TopicForum = require('../../db/models/topicforum');
 const Answer = require('../../db/models/answer'); 
 
 const FileUpload = require('../../config/firebase/fileUpload');
+const Authorize = require('../middleware/authorize');
 
 import { Request, Response, NextFunction } from 'express';
 import { Op } from 'sequelize';
@@ -138,6 +139,29 @@ class TopicForumController {
                 page: currentPage - 1
             });
 
+            for (const topic of result.hits) {
+                if (!topic.author.avatar) {
+                    delete topic.author;
+                    const student = await Authorize.getUserFromAPI(`${process.env.BASE_URL_LOCAL}/student/${topic.id_user}`);
+                    if (student) {
+                        topic.author = {
+                            id: student.data.id,
+                            name: student.data.name,
+                            avatar: student.data.avatar
+                        };
+                    }
+
+                    const teacher = await Authorize.getUserFromAPI(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${topic.id_user}`);
+                    if (teacher) {
+                        topic.author = {
+                            id: teacher.data.id,
+                            name: teacher.data.name,
+                            avatar: teacher.data.avatar
+                        };
+                    }
+                }
+            }
+
             res.status(200).json({
                 total: result.nbHits,
                 result: result.hits
@@ -151,7 +175,6 @@ class TopicForumController {
     // [POST] /topicsforum
     createTopic = async (req: Request, res: Response, _next: NextFunction) => {
         let body = req.body.data;
-        console.log(req.body);
         if (typeof body === "string") {
             body = JSON.parse(body);
         }
@@ -194,7 +217,11 @@ class TopicForumController {
             const algoliaDataSave = {
                 ...dataValues,
                 objectID: topic.id,
-                author: req.user?.user?.data.name
+                author: {
+                    id: req.user?.user.data.id,
+                    name: req.user?.user?.data.name,
+                    avatar: req.user?.user.data.avatar
+                }
             }
 
             await index.saveObject(algoliaDataSave);
@@ -257,16 +284,23 @@ class TopicForumController {
                 body = JSON.parse(body);
             }
 
+            const TopicFile = req.ImageUrl;
+
             const id_topic = req.params.topicId
             const topic = await TopicForum.findByPk(id_topic);
+            let file = topic.file;
+            if (TopicFile) {
+                file = TopicFile;
+            }
 
-            await topic.update({ ...body }, { transaction: t });
+            await topic.update({ ...body, file }, { transaction: t });
 
             await t.commit();
 
             const dataToUpdate = {
                 objectID: id_topic,
-                ...body
+                ...body,
+                file
             }
 
             await index.partialUpdateObject(dataToUpdate);

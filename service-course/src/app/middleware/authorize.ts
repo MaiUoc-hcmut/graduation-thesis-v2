@@ -39,7 +39,6 @@ class Authorize {
             }
         } catch (error: any) {
             if (error.response && error.response.status === 404) {
-                console.log(42);
                 return null;
             } else {
                 throw error;
