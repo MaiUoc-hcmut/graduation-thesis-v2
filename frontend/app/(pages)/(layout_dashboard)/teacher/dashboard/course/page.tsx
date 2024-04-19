@@ -58,8 +58,6 @@ export default function CourseDashboard() {
             await courseApi.getAllByTeacher(`${authUser.id}`, page || '1').then((data: any) => {
                 setCourses(data.data.courses)
                 setPaginate(Math.ceil(data.data.count / 10))
-
-
             })
         }
         fetchData()

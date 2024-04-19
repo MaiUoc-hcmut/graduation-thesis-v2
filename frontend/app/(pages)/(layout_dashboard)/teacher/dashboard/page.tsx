@@ -1,11 +1,17 @@
 "use client"
+import Link from 'next/link';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import notifyApi from '@/app/api/notifyApi';
+import { useAppSelector } from '@/redux/store';
+import { InformationCircleIcon } from '@heroicons/react/24/solid';
 
-export default function TeacherDashboard() {
+export default function Dashboard() {
 
     return (
-        <div className="h-[2000px] px-[30px] py-[20px] w-[calc(100%-254px)] bg-slate-50">
-
+        <div>
+            Dashboard
         </div>
+
     )
 }
-

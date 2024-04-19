@@ -114,7 +114,7 @@ class Auth {
       const cart = await axios.get(
         `${process.env.BASE_URL_PAYMENT_LOCAL}/cart/student/${student.id}`
       );
-      console.log(cart);
+
       const user = {
         ...student,
         cart: cart.data.id,

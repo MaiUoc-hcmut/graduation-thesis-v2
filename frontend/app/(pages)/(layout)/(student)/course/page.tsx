@@ -7,20 +7,17 @@ import Link from 'next/link';
 import Image from 'next/image';
 import courseApi from '@/app/api/courseApi';
 import categoryApi from '@/app/api/category';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { formatCash, convertTime } from '@/app/helper/FormatFunction';
 
-const sortOptions = [
-    { name: 'Mới nhất', href: '?new', current: true },
-    { name: 'Phổ biến nhất', href: '#', current: false },
-    { name: 'Đánh giá tốt nhất', href: '#', current: false },
-    { name: 'Giá: Thấp đến cao', href: '#', current: false },
-    { name: 'Giá: Cao đến thấp', href: '#', current: false },
-];
+
+
 
 function classNames(...classes: any) {
     return classes.filter(Boolean).join(' ');
 }
+
+
 
 export default function CourseList() {
     const [courses, setCourses] = useState<any[]>([]);
@@ -29,7 +26,24 @@ export default function CourseList() {
     const subjectFilters = searchParams.getAll('subject');
     const levelFilters = searchParams.getAll('level');
     const classFilters = searchParams.getAll('class');
-    const priceFilters = searchParams.getAll('price');
+    const priceFilters = searchParams.get('maxPrice');
+    const sortFilters = searchParams.get('sort');
+    const orderFilters = searchParams.get('order');
+
+
+    const sortOptions = [
+        { name: 'Mới nhất', href: '?sort=date&order=DESC', current: sortFilters === 'date' },
+        { name: 'Phổ biến nhất', href: '?sort=registration&order=DESC', current: sortFilters === 'registration' },
+        { name: 'Đánh giá tốt nhất', href: '?sort=rating&order=DESC', current: sortFilters === 'rating' },
+        { name: 'Giá: Thấp đến cao', href: '?sort=price&order=asc', current: sortFilters === 'price' && orderFilters === 'asc' },
+        { name: 'Giá: Cao đến thấp', href: '?sort=price&order=DESC', current: sortFilters === 'price' && orderFilters === 'DESC' },
+    ];
+
+    // const obj = Object.fromEntries(searchParams.entries());
+
+    // for (const key of Object.keys(obj)) {
+    //     console.log(`${key}: ${obj[key]}`)
+    // }
 
     const renderStars = (rating: number) => {
         return Array.from({ length: 5 }, (_, index) => (
@@ -43,12 +57,14 @@ export default function CourseList() {
     useEffect(() => {
         async function fetchData() {
             let filterString = ''
-            subjectFilters.map((s) => { filterString += `subject=${s}` })
-            levelFilters.map((l) => { filterString += `&level=${l}` })
-            classFilters.map((c) => { filterString += `&class=${c}` })
-            priceFilters.map((p) => { filterString += `&price=${p}` })
+            subjectFilters?.map((s) => { filterString += `subject=${s}` })
+            levelFilters?.map((l) => { filterString += `&level=${l}` })
+            classFilters?.map((c) => { filterString += `&class=${c}` })
+            priceFilters ? filterString += `&minPrice=0&maxPrice=${priceFilters}` : null
+            filterString += `&sort=${sortFilters}&order=${orderFilters}`
 
-            if (subjectFilters.length != 0 || levelFilters.length != 0 || classFilters.length != 0 || priceFilters.length != 0) {
+
+            if (subjectFilters.length != 0 || levelFilters.length != 0 || classFilters.length != 0 || !!priceFilters || !!sortFilters || !!orderFilters) {
                 await courseApi.filter(filterString).then((data: any) => {
                     setCourses(data.data.courses)
                 }
@@ -65,28 +81,28 @@ export default function CourseList() {
                     {
                         id: "subject",
                         name: "Môn học",
-                        options: data.Subject.map((subject: any) => {
+                        options: data?.Subject?.map((subject: any) => {
                             return { ...subject, checked: subjectFilters.includes(subject.id) }
                         })
                     },
                     {
                         id: "level",
                         name: "Mức độ",
-                        options: data.Level.map((level: any) => {
+                        options: data?.Level?.map((level: any) => {
                             return { ...level, checked: levelFilters.includes(level.id) }
                         })
                     },
                     {
                         id: "class",
                         name: "Lớp",
-                        options: data.Class.map((grade: any) => {
+                        options: data?.Class?.map((grade: any) => {
                             return { ...grade, checked: classFilters.includes(grade.id) }
                         })
                     },
                     {
-                        id: "price",
+                        id: "maxPrice",
                         name: "Giá",
-                        value: priceFilters[0]
+                        value: priceFilters
                     }
 
                 ])
@@ -128,7 +144,7 @@ export default function CourseList() {
                                 >
                                     <Menu.Items className="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none">
                                         <div className="py-1">
-                                            {sortOptions.map((option) => (
+                                            {sortOptions?.map((option) => (
                                                 <Menu.Item key={option.name}>
                                                     {({ active }) => (
                                                         <Link
@@ -189,8 +205,8 @@ export default function CourseList() {
                                                 <Disclosure.Panel className={`pt-6`}>
                                                     <div className="space-y-4">
                                                         {
-                                                            section.id !== 'price' ?
-                                                                section.options.map((option: any, optionIdx: any) => (
+                                                            section.id !== 'maxPrice' ?
+                                                                section?.options?.map((option: any, optionIdx: any) => (
 
                                                                     <div key={option.id} className="flex items-center">
                                                                         <input
@@ -209,8 +225,8 @@ export default function CourseList() {
                                                                         </label>
                                                                     </div>
                                                                 )) : <div className="relative mb-6">
-                                                                    <input name={section.id} id="labels-range-input" type="range" defaultValue={Number(section.value) || 100000} min="100000" max="5000000" className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" />
-                                                                    <span className="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-6">100.000</span>
+                                                                    <input name={section.id} id="labels-range-input" type="range" defaultValue={Number(section.value) || 5000000} min="0" max="5000000" className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" />
+                                                                    <span className="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-6">0</span>
                                                                     <span className="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-6">5.000.000</span>
                                                                 </div>}
                                                     </div>

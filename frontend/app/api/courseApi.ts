@@ -20,11 +20,6 @@ const courseApi = {
 
 
 
-    getNotify: async (id_user: string) => {
-        const url = `/notification/get-noti/${id_user}`;
-        return await axiosConfig.get(url);
-    },
-
     searchCourseByCreateTeacher: async (id_teacher: string, params: object) => {
         const url = `/courses/search/teacher/${id_teacher}/page/1`;
         return await axiosConfig.get(url, { params });
@@ -84,6 +79,11 @@ const courseApi = {
 
     getReview: (id: string) => {
         const url = `/reviews/course/${id}/page/1`;
+        return axiosConfig.get(url);
+    },
+
+    getReviewOfTeacher: (id: string) => {
+        const url = `/reviews/teacher/${id}/page/1`;
         return axiosConfig.get(url);
     },
 

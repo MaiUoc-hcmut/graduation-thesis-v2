@@ -23,7 +23,7 @@ initializeApp(firebaseConfig);
 const storage = getStorage();
 
 class TeacherController {
-  getAllTeacher = async (req, res, _next) => {
+  getAllTeacher = async (_req, res, _next) => {
     try {
       const teachers = await Teacher.findAll();
       res.status(200).json(teachers);
@@ -62,9 +62,6 @@ class TeacherController {
       const examServiceInformation = await axios.get(
         `${process.env.BASE_URL_EXAM_LOCAL}/informations/teacher/${id_teacher}`
       );
-
-      console.log(examServiceInformation.data);
-      console.log(courseServiceInformation.data);
 
       const response = {
         ...teacher.dataValues,

@@ -30,6 +30,8 @@ interface DataTableProps<TData, TValue> {
     data: TData[]
 }
 
+
+
 export function DataTable<TData, TValue>({
     columns,
     data,
@@ -63,7 +65,6 @@ export function DataTable<TData, TValue>({
                     defaultValue={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
                     onChange={(event) => {
                         table.getColumn("name")?.setFilterValue(event.target.value)
-
                     }
                     }
                     className="max-w-sm"
@@ -76,7 +77,7 @@ export function DataTable<TData, TValue>({
                             <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => {
                                     return (
-                                        <TableHead className="border-[1px]" key={header.id}>
+                                        <TableHead className="border-[1px] border-[#e5e7eb]" key={header.id}>
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
@@ -93,13 +94,15 @@ export function DataTable<TData, TValue>({
                         {table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
                                 <TableRow
-                                    className="border-[1px]"
+                                    className=""
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
                                 >
                                     {row.getVisibleCells().map((cell) => (
 
-                                        <TableCell className="border-[1px]" key={cell.id}>
+                                        <TableCell className="border-[1px] border-[#e5e7eb]" key={cell.id}>
+                                            <div className="bg-slate-50">
+                                            </div>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </TableCell>
                                     ))}

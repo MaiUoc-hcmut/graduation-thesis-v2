@@ -15,7 +15,7 @@ import { Button, Modal } from 'flowbite-react';
 
 export default function ExamDashboard() {
     const authUser = useAppSelector(state => state.authReducer.user);
-    const [exams, setExams] = useState<[examData]>()
+    const [exams, setExams] = useState<[any]>()
     const [modal, setModal] = useState<any>({})
     const [change, setChange] = useState<boolean>(false)
 
@@ -37,7 +37,7 @@ export default function ExamDashboard() {
             await examApi.getAllByTeacher(`${authUser.id}`, '1').then((data: any) => setExams(data.data.exams))
         }
         fetchData()
-    }, [change]);
+    }, [authUser.id, change]);
 
     return (
         <div className="">

@@ -10,6 +10,7 @@ const instance = axios.create({
 })
 
 instance.interceptors.request.use(
+
     (config) => {
 
         if (config && config.url) {
@@ -17,8 +18,9 @@ instance.interceptors.request.use(
             if (
                 config.url.indexOf('/login') >= 0 ||
                 config.url.indexOf('/register') >= 0 ||
-                config.url.indexOf('/teacher') >= 0 ||
+                // config.url.indexOf('/teacher') >= 0 ||
                 config.url.indexOf('/refresh-token') >= 0
+
             ) {
                 config.baseURL = 'http://localhost:4000/api/v1';
                 return config;
@@ -29,10 +31,12 @@ instance.interceptors.request.use(
                 config.url.indexOf('/reviews') >= 0 ||
                 config.url.indexOf('/comments') >= 0 ||
                 config.url.indexOf('/courses') >= 0 ||
+                config.url.indexOf('/coupons') >= 0 ||
                 config.url.indexOf('/progresses') >= 0
             ) {
                 config.baseURL = 'http://localhost:4001/api/v1';
             }
+
 
             if (
                 config.url.indexOf('/images') >= 0 ||

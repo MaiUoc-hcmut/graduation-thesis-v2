@@ -1,60 +1,72 @@
 "use client"
-
-import { Fragment, useEffect, useState } from 'react'
-import { Dialog, Disclosure, Menu, Transition } from '@headlessui/react'
-import { XMarkIcon, ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon } from '@heroicons/react/24/outline'
-import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, StarIcon } from '@heroicons/react/20/solid'
+import { Fragment, useEffect, useState } from 'react';
+import { Dialog, Disclosure, Menu, Transition } from '@headlessui/react';
+import { XMarkIcon, ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, StarIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
 import Image from 'next/image';
 import examApi from '@/app/api/examApi';
-import categoryApi from '@/app/api/category'
-import { useSearchParams } from 'next/navigation'
-import { formatCash } from '@/app/helper/FormatFunction'
-import { convertTime } from '@/app/helper/FormatFunction'
+import categoryApi from '@/app/api/category';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { formatCash, convertTime } from '@/app/helper/FormatFunction';
 
-const sortOptions = [
-    { name: 'Phổ biến nhất', href: '#', current: true },
-    { name: 'Đánh giá tốt nhất', href: '#', current: false },
-    { name: 'Mới nhất', href: '#', current: false },
-    { name: 'Giá: Thấp đến cao', href: '#', current: false },
-    { name: 'Giá: Cao đến thấp', href: '#', current: false },
-]
+
+
 
 function classNames(...classes: any) {
-    return classes.filter(Boolean).join(' ')
+    return classes.filter(Boolean).join(' ');
 }
 
-export default function CourseList() {
-    const [exams, setExams] = useState<any>()
-    const [category, setCategory] = useState<any>()
-    const searchParams = useSearchParams()
-    const subjectFilters = searchParams.getAll('subject')
-    const levelFilters = searchParams.getAll('level')
-    const classFilters = searchParams.getAll('class')
+
+
+export default function ExamList() {
+    const [exams, setExams] = useState<any>([]);
+    const [category, setCategory] = useState<any[]>([]);
+    const searchParams = useSearchParams();
+    const subjectFilters = searchParams.getAll('subject');
+    const levelFilters = searchParams.getAll('level');
+    const classFilters = searchParams.getAll('class');
+    const priceFilters = searchParams.get('maxPrice');
+    const sortFilters = searchParams.get('sort');
+    const orderFilters = searchParams.get('order');
+
+
+    const sortOptions = [
+        { name: 'Mới nhất', href: '?sort=date&order=desc', current: sortFilters === 'date' },
+        { name: 'Phổ biến nhất', href: '?sort=registration&order=desc', current: sortFilters === 'registration' },
+        { name: 'Đánh giá tốt nhất', href: '?sort=rating&order=desc', current: sortFilters === 'rating' },
+        { name: 'Giá: Thấp đến cao', href: '?sort=price&order=asc', current: sortFilters === 'price' && orderFilters === 'asc' },
+        { name: 'Giá: Cao đến thấp', href: '?sort=price&order=desc', current: sortFilters === 'price' && orderFilters === 'desc' },
+    ];
+
+    // const obj = Object.fromEntries(searchParams.entries());
+
+    // for (const key of Object.keys(obj)) {
+    //     console.log(`${key}: ${obj[key]}`)
+    // }
 
     const renderStars = (rating: number) => {
-        const stars = [];
-        for (let i = 1; i <= 5; i++) {
-            stars.push(
-                <StarIcon
-                    key={i}
-                    className={`text-${i <= rating ? 'yellow-300' : 'gray-300'} w-5 h-5`}
-                />
-            );
-        }
-        return stars;
+        return Array.from({ length: 5 }, (_, index) => (
+            <StarIcon
+                key={index + 1}
+                className={`text-${index + 1 <= rating ? 'yellow-300' : 'gray-300'} w-5 h-5`}
+            />
+        ));
     };
 
     useEffect(() => {
         async function fetchData() {
             let filterString = ''
-            subjectFilters.map((s) => { filterString += `subject=${s}` })
-            levelFilters.map((l) => { filterString += `&level=${l}` })
-            classFilters.map((c) => { filterString += `&class=${c}` })
+            subjectFilters?.map((s) => { filterString += `subject=${s}` })
+            levelFilters?.map((l) => { filterString += `&level=${l}` })
+            classFilters?.map((c) => { filterString += `&class=${c}` })
+            priceFilters ? filterString += `&minPrice=0&maxPrice=${priceFilters}` : null
+            filterString += `&sort=${sortFilters}&order=${orderFilters}`
 
-            if (subjectFilters.length != 0 || levelFilters.length != 0 || classFilters.length != 0) {
+
+            if (subjectFilters.length != 0 || levelFilters.length != 0 || classFilters.length != 0 || !!priceFilters || !!sortFilters || !!orderFilters) {
                 await examApi.filter(filterString).then((data: any) => {
-                    setExams(data.data.courses)
+                    setExams(data.data.exams)
                 }
                 )
             }
@@ -69,34 +81,41 @@ export default function CourseList() {
                     {
                         id: "subject",
                         name: "Môn học",
-                        options: data.Subject.map((subject: any) => {
+                        options: data?.Subject?.map((subject: any) => {
                             return { ...subject, checked: subjectFilters.includes(subject.id) }
                         })
                     },
                     {
                         id: "level",
                         name: "Mức độ",
-                        options: data.Level.map((level: any) => {
+                        options: data?.Level?.map((level: any) => {
                             return { ...level, checked: levelFilters.includes(level.id) }
                         })
                     },
                     {
                         id: "class",
                         name: "Lớp",
-                        options: data.Class.map((grade: any) => {
+                        options: data?.Class?.map((grade: any) => {
                             return { ...grade, checked: classFilters.includes(grade.id) }
                         })
                     },
+                    {
+                        id: "maxPrice",
+                        name: "Giá",
+                        value: priceFilters
+                    }
 
                 ])
             })
+
         }
         fetchData()
     }, [])
 
 
+
     return (
-        <div className="bg-white container mx-auto">
+        <div className="bg-white container px-10">
             <div>
                 <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-6">
@@ -125,7 +144,7 @@ export default function CourseList() {
                                 >
                                     <Menu.Items className="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none">
                                         <div className="py-1">
-                                            {sortOptions.map((option) => (
+                                            {sortOptions?.map((option) => (
                                                 <Menu.Item key={option.name}>
                                                     {({ active }) => (
                                                         <Link
@@ -157,7 +176,7 @@ export default function CourseList() {
                         </div>
                     </div>
 
-                    <section aria-labelledby="products-heading" className="pb-24 pt-6">
+                    <section aria-labelledby="products-heading" className="pb-24 pt-4">
                         <h2 id="products-heading" className="sr-only">
                             Products
                         </h2>
@@ -167,7 +186,7 @@ export default function CourseList() {
                                 <h3 className="sr-only">Categories</h3>
 
                                 {category?.map((section: any) => (
-                                    <Disclosure as="div" key={section.id} className="border-b border-gray-200 py-6" defaultOpen>
+                                    <Disclosure as="div" key={section.id} className="border-b p-4 border-gray-200" defaultOpen>
                                         {({ open }) => (
                                             <>
 
@@ -185,30 +204,39 @@ export default function CourseList() {
                                                 </h3>
                                                 <Disclosure.Panel className={`pt-6`}>
                                                     <div className="space-y-4">
-                                                        {section.options.map((option: any, optionIdx: any) => (
-                                                            <div key={option.id} className="flex items-center">
-                                                                <input
-                                                                    id={`filter-${section.id}-${optionIdx}`}
-                                                                    name={`${section.id}`}
-                                                                    defaultValue={option.id}
-                                                                    type="checkbox"
-                                                                    defaultChecked={option.checked}
-                                                                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                                                />
-                                                                <label
-                                                                    htmlFor={`filter-${section.id}-${optionIdx}`}
-                                                                    className="ml-3 text-sm text-gray-600"
-                                                                >
-                                                                    {option.name}
-                                                                </label>
-                                                            </div>
-                                                        ))}
+                                                        {
+                                                            section.id !== 'maxPrice' ?
+                                                                section?.options?.map((option: any, optionIdx: any) => (
+
+                                                                    <div key={option.id} className="flex items-center">
+                                                                        <input
+                                                                            id={`filter-${section.id}-${optionIdx}`}
+                                                                            name={`${section.id}`}
+                                                                            defaultValue={option.id}
+                                                                            type="checkbox"
+                                                                            defaultChecked={option.checked}
+                                                                            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:blue-500"
+                                                                        />
+                                                                        <label
+                                                                            htmlFor={`filter-${section.id}-${optionIdx}`}
+                                                                            className="ml-3 text-sm text-gray-600"
+                                                                        >
+                                                                            {option.name}
+                                                                        </label>
+                                                                    </div>
+                                                                )) : <div className="relative mb-6">
+                                                                    <input name={section.id} id="labels-range-input" type="range" defaultValue={Number(section.value) || 5000000} min="0" max="5000000" className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" />
+                                                                    <span className="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-6">0</span>
+                                                                    <span className="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-6">5.000.000</span>
+                                                                </div>}
                                                     </div>
                                                 </Disclosure.Panel>
                                             </>
                                         )}
                                     </Disclosure>
                                 ))}
+
+
                                 <button className='px-5 h-11 w-full mt-5 bg-primary font-medium rounded-md border-primary text-white'>Lọc</button>
                             </form>
 
@@ -218,7 +246,7 @@ export default function CourseList() {
                                         exams?.map((exam: any) => {
                                             return (
                                                 <Link key={exam.id} href={`exam/${exam.id}`} className=''>
-                                                    <div className='bg-white shadow-card_course rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300'>
+                                                    <div className='bg-white shadow-card_exam rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300'>
                                                         <div className='relative w-full h-60'>
                                                             <Image
                                                                 src={`${exam.thumbnail}`}
@@ -253,20 +281,17 @@ export default function CourseList() {
                                                             <div className='mt-4 grid grid-cols-2 gap-2'>
                                                                 <div className='flex items-center'>
                                                                     <ClockIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{convertTime(exam?.total_duration)} giờ</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>10 đề thi</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
                                                                     <Squares2X2Icon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{exam?.total_chapter} chương</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>1000 câu hỏi</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
                                                                     <FilmIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{exam?.total_lecture} bài giảng</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>200 dạng</span>
                                                                 </div>
-                                                                <div className='flex items-center'>
-                                                                    <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{exam?.total_exam} đề thi</span>
-                                                                </div>
+
 
                                                             </div>
                                                             <div className='mt-6'>

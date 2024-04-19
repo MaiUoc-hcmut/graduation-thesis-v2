@@ -30,6 +30,12 @@ const userApi = {
         });
     },
 
+    getReviewOfTeacher: (id: string) => {
+        const url = `/reviews/teacher/${id}/page/1`;
+        return axiosConfig.get(url);
+    },
+
+
 }
 
 export default userApi;
