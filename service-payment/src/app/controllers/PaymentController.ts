@@ -194,15 +194,19 @@ class PaymentController {
                 where: { id_user }
             });
 
-            if (transactionBody.message === 'Successfull' || transactionBody.message === 'successfull') {
+            if (transactionBody.message === 'Successful.' || transactionBody.message === 'successful.') {
                 await CartCourse.destroy({
                     where: { id_cart: cart.id }
                 }, {
                     transaction: t
                 });
 
+                const data = {
+                    id_student: id_user
+                }
+
                 for (const course of courses) {
-                    const response = await axios.post(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${course}`);
+                    const response = await axios.post(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${course}`, { data });
                 }
             }
 
