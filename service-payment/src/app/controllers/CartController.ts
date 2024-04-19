@@ -56,10 +56,10 @@ class CartController {
         }
     }
 
-    // [GET] /cart/student/:studentId
+    // [GET] /cart/student
     getCartOfStudentByStudentId = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const id_student = req.params.studentId;
+            const id_student = req.student.data.id;
 
             const cart = await Cart.findOne({
                 where: {
@@ -91,32 +91,21 @@ class CartController {
         }
     }
 
-    // [GET] /cart/student/:studentId
-    getCartInfor = async (req: Request, res: Response, _next: NextFunction) => {
-        try {
-            const cart = await Cart.findOne({
-                where: { id_user: req.params.studentId }
-            });
-
-            res.status(200).json(cart);
-        } catch (error: any) {
-            console.log(error.message);
-            res.status(500).json({
-                error,
-                message: error.message
-            });
-        }
-    }
-
-    // [POST] /cart/:cartId
+    // [POST] /cart/student
     addCourseToCart = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
-            const id_cart = req.params.cartId;
+            const id_student= req.student.data.id;
             const { id_course } = req.body.data;
 
+            const cart = await Cart.findOne({
+                where: {
+                    id_user: id_student
+                }
+            })
+
             const newRecord = await CartCourse.create({
-                id_cart,
+                id_cart: cart.id,
                 id_course
             }, {
                 transaction: t
@@ -136,16 +125,22 @@ class CartController {
         }
     }
 
-    // [DELETE] /cart/:cartId
+    // [DELETE] /cart/student
     deleteCourseFromCart = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
-            const id_cart = req.params.cartId;
+            const id_student = req.student.data.id;
             const { id_course } = req.body.data;
+
+            const cart = await Cart.findOne({
+                where: {
+                    id_user: id_student
+                }
+            });
 
             await CartCourse.destroy({
                 where: {
-                    id_cart,
+                    id_cart: cart.id,
                     id_course
                 },
             }, {

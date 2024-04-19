@@ -35,7 +35,7 @@ class Authorize {
             }
         } catch (error: any) {
             if (error.response && error.response.status === 404) {
-                return { user: null };
+                return null;
             } else {
                 throw error;
             }

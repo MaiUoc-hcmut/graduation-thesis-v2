@@ -35,7 +35,7 @@ class Authorize {
             }
         } catch (error: any) {
             if (error.response && error.response.status === 404) {
-                return { user: null };
+                return null;
             } else {
                 throw error;
             }
@@ -59,7 +59,7 @@ class Authorize {
             } = {};
             
             try {
-                const student = await this.getUserFromAPI(`${process.env.BASE_URL_LOCAL}/student/${id}`);
+                const student = await this.getUserFromAPI(`${process.env.BASE_URL_USER_LOCAL}/student/${id}`);
                 if (student) {
                     user.user = student;
                     user.role = "student";
@@ -67,7 +67,7 @@ class Authorize {
                     return next();
                 }
 
-                const teacher = await this.getUserFromAPI(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${id}`);
+                const teacher = await this.getUserFromAPI(`${process.env.BASE_URL_USER_LOCAL}/teacher/get-teacher-by-id/${id}`);
                 if (teacher) {
                     user.user = teacher;
                     user.role = "teacher";
@@ -75,7 +75,7 @@ class Authorize {
                     return next();
                 }
                 
-                const admin = await this.getUserFromAPI(`${process.env.BASE_URL_LOCAL}/admin/${id}`);
+                const admin = await this.getUserFromAPI(`${process.env.BASE_URL_USER_LOCAL}/admin/${id}`);
                 if (admin) {
                     user.user = admin;
                     user.role = "admin";
@@ -98,7 +98,7 @@ class Authorize {
                 return next(createError.Unauthorized(info?.message ? info.message : err))
             }
             try {
-                const student = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${id}`);
+                const student = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/student/${id}`);
                 req.student = student;
                 next();
             } catch (error: any) {
