@@ -28,8 +28,7 @@ export default function Cart() {
     };
     useEffect(() => {
         async function fetchData() {
-            await paymentApi.getCartOfStudent(user.id).then((data: any) => {
-
+            await paymentApi.getCartOfStudent().then((data: any) => {
                 setCartItems(data.data)
             }
             )
@@ -68,7 +67,7 @@ export default function Cart() {
                                                 <Modal.Body>
                                                     <form className="space-y-6" onSubmit={async (e) => {
                                                         e.preventDefault()
-                                                        await paymentApi.deleteCart(user.cart, { data: { id_course: item.id } })
+                                                        await paymentApi.deleteCart({ data: { id_course: item.id } })
                                                         setChange(!change)
                                                     }}>
                                                         <ExclamationCircleIcon className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />

@@ -97,6 +97,11 @@ const courseApi = {
         return axiosConfig.post(url, data);
     },
 
+    deleteComment: (id_comment: string) => {
+        const url = `/comments/${id_comment}`;
+        return axiosConfig.delete(url);
+    },
+
     uploadVideo: (video: object) => {
         const url = `/images`;
         return axiosConfig.post(url, video);

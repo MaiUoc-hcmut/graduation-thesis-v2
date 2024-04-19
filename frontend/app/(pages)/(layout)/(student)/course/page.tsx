@@ -39,12 +39,6 @@ export default function CourseList() {
         { name: 'Giá: Cao đến thấp', href: '?sort=price&order=desc', current: sortFilters === 'price' && orderFilters === 'desc' },
     ];
 
-    // const obj = Object.fromEntries(searchParams.entries());
-
-    // for (const key of Object.keys(obj)) {
-    //     console.log(`${key}: ${obj[key]}`)
-    // }
-
     const renderStars = (rating: number) => {
         return Array.from({ length: 5 }, (_, index) => (
             <StarIcon

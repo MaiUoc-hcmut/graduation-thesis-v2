@@ -186,7 +186,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                         <Modal.Body>
                                                             <form className="space-y-6" onSubmit={async (e) => {
                                                                 e.preventDefault()
-                                                                await courseApi.delete(course.id)
+                                                                await courseApi.deleteComment(cmt.id)
                                                                 setChange(!change)
                                                                 setModal(false)
                                                             }}>

@@ -1,9 +1,37 @@
 "use client"
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { StarIcon } from '@heroicons/react/24/solid';
+import { useAppSelector } from '@/redux/store';
+import paymentApi from '@/app/api/paymentApi';
+import { useSearchParams } from 'next/navigation';
 
 export default function CheckoutResultPage() {
+    const { user } = useAppSelector(state => state.authReducer);
+    const searchParams = useSearchParams();
+    const info: any = useMemo(() => ({}), []);
+
+    const obj = Object.fromEntries(searchParams.entries());
+
+    for (const key of Object.keys(obj)) {
+        info[key] = obj[key]
+    }
+
+    useEffect(() => {
+        async function fetchData() {
+            await paymentApi.getCartOfStudent().then(async (data: any) => {
+                await paymentApi.sendInfoTransaction({
+                    data: {
+                        "user": user.id,
+                        "courses": data.data.map((course: any) => course.id),
+                        ...info
+                    }
+                })
+            }
+            )
+
+        }
+        fetchData()
+    }, [info, user.id])
 
     return (
         <div className="bg-gray-100 h-screen">

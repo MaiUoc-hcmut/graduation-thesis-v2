@@ -8,17 +8,21 @@ const paymentApi = {
             orderInfo: 'dsc'
         });
     },
-    addToCart: (id_course: any, id_cart: string) => {
-        const url = `/cart/${id_cart}`;
+    addToCart: (id_course: any) => {
+        const url = `/cart/student`;
         return axiosConfig.post(url, { data: { id_course } });
     },
-    deleteCart: (id_course: any, data: any) => {
-        const url = `/cart/${id_course}`;
+    deleteCart: (data: any) => {
+        const url = `/cart/student`;
         return axiosConfig.delete(url, { data });
     },
-    getCartOfStudent: (id_student: any) => {
-        const url = `/cart/student/${id_student}`;
+    getCartOfStudent: () => {
+        const url = `/cart/student`;
         return axiosConfig.get(url);
+    },
+    sendInfoTransaction: (data: object) => {
+        const url = `/payment/receive-ipn`;
+        return axiosConfig.post(url, data);
     },
 
 }

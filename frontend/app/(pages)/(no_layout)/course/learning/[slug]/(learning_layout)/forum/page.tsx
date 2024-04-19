@@ -11,6 +11,7 @@ import parse from 'html-react-parser';
 import { formatDateTime } from '@/app/helper/FormatFunction';
 import { useSearchParams } from 'next/navigation';
 import { Dropdown } from 'flowbite-react';
+import { useAppSelector } from '@/redux/store';
 
 
 type TopicData = {
@@ -29,6 +30,7 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
     const page = searchParams.get('page')
     const [paginate, setPaginate] = useState(1)
     const list: any = []
+    const { user } = useAppSelector(state => state.authReducer);
     const {
         register,
         reset,
@@ -306,15 +308,18 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                         <div className='w-1/6 flex flex-col justify-between items-end'>
                                             <div className='flex justify-center items-center'>
                                                 <div className='text-[#818894] mr-2 text-sm'>{formatDateTime(topic.createdAt)}</div>
-                                                <Dropdown label="" renderTrigger={() => <EllipsisHorizontalIcon className="w-7 h-7" />} placement="left">
-                                                    <Dropdown.Item onClick={() => {
+                                                {
+                                                    topic?.id_user === user.id ? <Dropdown label="" renderTrigger={() => <EllipsisHorizontalIcon className="w-7 h-7" />} placement="left">
+                                                        <Dropdown.Item onClick={() => {
 
-                                                    }}>
-                                                        <button onClick={() => setModal({ ...modal, [`edit-topic${topic.id}`]: true })}>Sửa</button>
+                                                        }}>
+                                                            <button onClick={() => setModal({ ...modal, [`edit-topic${topic.id}`]: true })}>Sửa</button>
 
-                                                    </Dropdown.Item>
-                                                    <Dropdown.Item><button type="button" className="text-red-600" onClick={() => setModal({ ...modal, [`delete-topic${topic.id}`]: true })}>Xóa</button></Dropdown.Item>
-                                                </Dropdown>
+                                                        </Dropdown.Item>
+                                                        <Dropdown.Item><button type="button" className="text-red-600" onClick={() => setModal({ ...modal, [`delete-topic${topic.id}`]: true })}>Xóa</button></Dropdown.Item>
+                                                    </Dropdown> : null
+                                                }
+
                                             </div>
                                             <div className='text-[#818894] text-sm'>Số câu trả lời : {topic.total_answer}</div>
                                         </div>

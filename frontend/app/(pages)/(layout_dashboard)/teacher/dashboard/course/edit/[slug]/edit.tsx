@@ -164,7 +164,7 @@ export default function Edit({ id, course }: any) {
 
 
                             courseApi.update(id, formData).then(() => {
-                                router.push("/dashboard/course")
+                                router.push("/teacher/dashboard/course")
                             })
 
 

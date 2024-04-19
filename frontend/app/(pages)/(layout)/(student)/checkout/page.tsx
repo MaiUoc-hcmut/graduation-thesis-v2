@@ -12,7 +12,7 @@ export default function CheckoutPage() {
     const { user } = useAppSelector(state => state.authReducer);
     useEffect(() => {
         async function fetchData() {
-            await paymentApi.getCart(user.cart).then((data: any) => {
+            await paymentApi.getCartOfStudent().then((data: any) => {
                 setCartItems(data.data)
                 setTotal(data.data.reduce((total: any, item: any) => total + item.price, 0))
             }
