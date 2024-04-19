@@ -33,8 +33,8 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchData() {
-      await courseApi.getAll().then((data: any) => {
-        setCourses(data.data)
+      await courseApi.getAll('').then((data: any) => {
+        setCourses(data.data.courses)
       }
       )
     }
@@ -87,7 +87,7 @@ export default function Home() {
             arrows={false}
             renderDotsOutside={true}
           >
-            {courses.map((course) => {
+            {courses.map((course: any) => {
               return (
                 <div key={course.id} className='bg-white shadow-card_course rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105 duration-300'>
                   <div className='relative w-full h-60'>

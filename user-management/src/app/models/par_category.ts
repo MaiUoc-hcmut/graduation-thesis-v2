@@ -1,5 +1,6 @@
 const { sequelize } = require('../../config/db');
 import { Model, DataTypes, CreationOptional } from 'sequelize';
+const Category = require('./category');
 
 class ParentCategory extends Model {
     declare createdAt: CreationOptional<Date>;

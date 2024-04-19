@@ -8,6 +8,7 @@ import { socketInstance } from "../..";
 const { sequelize } = require('../../config/db/index');
 
 class NotificationController {
+    // Add name of course, exam and related information when create notification
 
     // [GET] /notification/create-course
     notifyCreateCourse = async (req: Request, res: Response, _next: NextFunction) => {
@@ -29,7 +30,9 @@ class NotificationController {
 
             const newNoti = await NotificationModel.create({
                 id_user,
-                content: "Khóa học được tạo thành công"
+                content: "Khóa học được tạo thành công",
+                type: "course",
+                name
             }, {
                 transaction: t
             });
@@ -79,7 +82,9 @@ class NotificationController {
 
             const newNoti = await NotificationModel.create({
                 id_user,
-                content: "Đề thi được tạo thành công"
+                content: "Đề thi được tạo thành công",
+                type: "exam",
+                name
             }, {
                 transaction: t
             });
@@ -117,7 +122,8 @@ class NotificationController {
 
             const newNoti = await NotificationModel.create({
                 id_user,
-                content: "Student has reported about the question"
+                content: "Student has reported about the question",
+                type: "report"
             });
 
             res.status(200).json({
@@ -134,7 +140,7 @@ class NotificationController {
     notifyCreateTopic = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
-            const { id_forum } = req.body.data;
+            const { id_forum, name } = req.body.data;
 
             const io = socketInstance.getIoInstance();
 
@@ -149,7 +155,9 @@ class NotificationController {
 
             const dataToCreate = usersInRoom.map((user: any) => ({
                 id_user: user.id_user,
-                content: "Có người vừa tạo topic mới ở trong forum"
+                content: "Có người vừa tạo topic mới ở trong forum",
+                type: "topic",
+                name
             }));
 
             const notifications = await NotificationModel.bulkCreate(dataToCreate);
@@ -188,7 +196,9 @@ class NotificationController {
 
             const newNoti = await NotificationModel.create({
                 id_user,
-                content: "Một học sinh đã mua khóa học"
+                content: "Một học sinh đã mua khóa học",
+                type: "course",
+                name
             });
 
             const userInRoom = await RoomSocket.findOne({

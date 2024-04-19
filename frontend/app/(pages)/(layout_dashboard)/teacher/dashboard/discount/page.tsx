@@ -29,6 +29,8 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
         reset,
         handleSubmit,
         control,
+        setError,
+        getValues,
         formState: { errors },
     } = useForm<any>()
     const { user } = useAppSelector(state => state.authReducer);
@@ -50,6 +52,7 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
     for (let i = 1; i <= paginate; i++) {
         list.push(i)
     }
+
     return (
         <div className='w-full'>
             <>
@@ -57,6 +60,17 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                     <Modal.Header />
                     <Modal.Body>
                         <form className="space-y-6" onSubmit={handleSubmit(async (data: any) => {
+                            const startTime = getValues("start_time");
+                            const endTime = getValues("end_time");
+                            if (startTime !== undefined && endTime !== undefined && startTime > endTime) {
+                                setError("time", {
+                                    type: "validate",
+                                    message: "Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc."
+                                });
+                                return;
+                            }
+                            console.log(errors);
+
                             if (!(Object.entries(errors).length === 0)) return
                             const dataForm = {
                                 name: data.name,
@@ -161,17 +175,23 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                                 >
                                     Thời gian diễn ra khuyến mãi
                                 </label>
-                                <div date-rangepicker className="flex items-center">
+                                <div className="flex items-center">
                                     <div className="">
-                                        <input {...register("start_time")} date-rangepicker={true} type="date" className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date start" />
+                                        <input {...register("start_time", {
+                                            required: "Thời gian bắt đầu và thời gian kết thúc không thể thiếu."
+                                        })} date-rangepicker="true" type="date" className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date start" />
                                     </div>
                                     <span className="mx-4 text-gray-500">đến</span>
                                     <div className="">
-                                        <input {...register("end_time")} date-rangepicker={true} type="date" className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date end" />
+
+                                        <input {...register("end_time", {
+                                            required: "Thời gian bắt đầu và thời gian kết thúc không thể thiếu."
+                                        })} date-rangepicker="true" type="date" className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date end" />
                                     </div>
                                 </div>
                                 <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                    {errors?.price?.message?.toString()}
+                                    {errors?.start_time?.message?.toString() || errors?.end_time?.message?.toString()}
+                                    {errors?.time?.message?.toString()}
                                 </p>
 
                             </div>
@@ -261,158 +281,174 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                                                             </form>
                                                         </Modal.Body>
                                                     </Modal>
-                                                    <>
-                                                        <Modal show={modal[`edit-discount${item.id}`] || false} size="xl" onClose={() => setModal({ ...modal, [`edit-discount${item.id}`]: false })} popup>
-                                                            <Modal.Header />
-                                                            <Modal.Body>
-                                                                <form className="space-y-6" onSubmit={handleSubmit(async (data: any) => {
-                                                                    if (!(Object.entries(errors).length === 0)) return
-                                                                    const dataForm = {
-                                                                        name: data.name,
-                                                                        percent: Number(data.percent),
-                                                                        start_time: data.start_time,
-                                                                        expire: data.end_time,
-                                                                        courses: [data.courses]
-                                                                    }
 
-                                                                    await discountApi.create(dataForm).then(() => {
+                                                    <Modal show={modal[`edit-discount${item.id}`] || false} size="xl" onClose={() => setModal({ ...modal, [`edit-discount${item.id}`]: false })} popup>
+                                                        <Modal.Header />
+                                                        <Modal.Body>
+                                                            <form className="space-y-6" onSubmit={handleSubmit(async (data: any) => {
+                                                                const startTime = getValues("start_time");
+                                                                const endTime = getValues("end_time");
+                                                                if (startTime !== undefined && endTime !== undefined && startTime > endTime) {
+                                                                    setError("time", {
+                                                                        type: "validate",
+                                                                        message: "Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc."
+                                                                    });
+                                                                    return;
+                                                                }
+                                                                if (!(Object.entries(errors).length === 0)) return;
+                                                                const dataForm = {
+                                                                    name: data.name,
+                                                                    percent: Number(data.percent),
+                                                                    start_time: data.start_time,
+                                                                    expire: data.end_time,
+                                                                    courses: [data.courses]
+                                                                }
 
-                                                                    })
+                                                                await discountApi.create(dataForm).then(() => {
 
-                                                                    setChange(!change)
-                                                                    reset()
-                                                                    setModal({ ...modal, [`edit-discount${item.id}`]: false })
-                                                                })}>
+                                                                })
 
-                                                                    <h3 className="text-xl font-medium text-gray-900 dark:text-white">Thêm khuyến mãi</h3>
-                                                                    <div className="">
-                                                                        <label
-                                                                            htmlFor="name"
-                                                                            className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
-                                                                        >
-                                                                            Tiêu đề
-                                                                        </label>
-                                                                        <input
-                                                                            defaultValue={item.name}
-                                                                            {...register("name", {
-                                                                                required: "Tiêu đề không thể trống."
-                                                                            })}
-                                                                            type="text"
-                                                                            id="name"
-                                                                            name="name"
-                                                                            className={`bg-white border border-gray-300 text-[#343434] text-sm focus:ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
-                                                                        />
-                                                                        <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                                                            {errors?.name?.message?.toString()}
-                                                                        </p>
-                                                                    </div>
-                                                                    <div className="">
-                                                                        <label
-                                                                            htmlFor="grade"
-                                                                            className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
-                                                                        >
-                                                                            Khóa học
-                                                                        </label>
-                                                                        <Controller
-                                                                            control={control}
-                                                                            name="courses"
-                                                                            defaultValue={item.courses}
-                                                                            rules={{ required: "Lớp học không thể trống" }}
-                                                                            render={({ field }) => (
-                                                                                <select id="courses" {...field} className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                                                                    <option value="" defaultChecked>Chọn khóa học</option>
+                                                                setChange(!change)
+                                                                reset()
+                                                                setModal({ ...modal, [`edit-discount${item.id}`]: false })
+                                                            })}>
 
-                                                                                    {courses?.map((course: any, index: number) => {
-                                                                                        return (
-                                                                                            <option key={course.id} value={`${course.id}`}>{course.name}</option>
-                                                                                        )
-                                                                                    })}
-                                                                                </select>
-                                                                            )}
-                                                                        />
-                                                                        {errors?.courses?.message && (
-                                                                            <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                                                                {errors.courses.message.toString()}
-                                                                            </p>
+                                                                <h3 className="text-xl font-medium text-gray-900 dark:text-white">Sửa khuyến mãi</h3>
+                                                                <div className="">
+                                                                    <label
+                                                                        htmlFor="name"
+                                                                        className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                                                    >
+                                                                        Tiêu đề
+                                                                    </label>
+                                                                    <input
+                                                                        defaultValue={item.name}
+                                                                        {...register("name", {
+                                                                            required: "Tiêu đề không thể trống."
+                                                                        })}
+                                                                        type="text"
+                                                                        id="name"
+                                                                        name="name"
+                                                                        className={`bg-white border border-gray-300 text-[#343434] text-sm focus:ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
+                                                                    />
+                                                                    <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                                                        {errors?.name?.message?.toString()}
+                                                                    </p>
+                                                                </div>
+                                                                <div className="">
+                                                                    <label
+                                                                        htmlFor="grade"
+                                                                        className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                                                    >
+                                                                        Khóa học
+                                                                    </label>
+                                                                    <Controller
+                                                                        control={control}
+                                                                        name="courses"
+                                                                        defaultValue={item.courses}
+                                                                        rules={{ required: "Lớp học không thể trống" }}
+                                                                        render={({ field }) => (
+                                                                            <select id="courses" {...field} className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                                                <option value="" defaultChecked>Chọn khóa học</option>
+
+                                                                                {courses?.map((course: any, index: number) => {
+                                                                                    return (
+                                                                                        <option key={course.id} value={`${course.id}`}>{course.name}</option>
+                                                                                    )
+                                                                                })}
+                                                                            </select>
                                                                         )}
-                                                                    </div>
-                                                                    <div className="w-1/2">
-                                                                        <label
-                                                                            htmlFor="percent"
-                                                                            className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
-                                                                        >
-                                                                            Số lượng (%)
-                                                                        </label>
-                                                                        <input
-                                                                            defaultValue={item.percent}
-                                                                            {...register("percent", {
-                                                                                required: "Số lượng không thể trống.",
-                                                                                min: {
-                                                                                    value: 0,
-                                                                                    message: "Số lượng không phù hợp."
-                                                                                },
-                                                                                max: {
-                                                                                    value: 100,
-                                                                                    message: "Số lượng không phù hợp."
-                                                                                }
-                                                                            })}
-                                                                            type="number"
-                                                                            id="percent"
-                                                                            name="percent"
-                                                                            className={`bg-white border border-gray-300 text-[#343434] text-sm focus:ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
-                                                                        />
+                                                                    />
+                                                                    {errors?.courses?.message && (
                                                                         <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                                                            {errors?.percent?.message?.toString()}
+                                                                            {errors.courses.message.toString()}
                                                                         </p>
+                                                                    )}
+                                                                </div>
+                                                                <div className="w-1/2">
+                                                                    <label
+                                                                        htmlFor="percent"
+                                                                        className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                                                    >
+                                                                        Số lượng (%)
+                                                                    </label>
+                                                                    <input
+                                                                        defaultValue={item.percent}
+                                                                        {...register("percent", {
+                                                                            required: "Số lượng không thể trống.",
+                                                                            min: {
+                                                                                value: 0,
+                                                                                message: "Số lượng không phù hợp."
+                                                                            },
+                                                                            max: {
+                                                                                value: 100,
+                                                                                message: "Số lượng không phù hợp."
+                                                                            }
+                                                                        })}
+                                                                        type="number"
+                                                                        id="percent"
+                                                                        name="percent"
+                                                                        className={`bg-white border border-gray-300 text-[#343434] text-sm focus:ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
+                                                                    />
+                                                                    <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                                                        {errors?.percent?.message?.toString()}
+                                                                    </p>
 
-                                                                    </div>
-                                                                    <div className="">
-                                                                        <label
-                                                                            htmlFor="price"
-                                                                            className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
-                                                                        >
-                                                                            Thời gian diễn ra khuyến mãi
-                                                                        </label>
-                                                                        <div date-rangepicker className="flex items-center">
-                                                                            <div className="">
-                                                                                <input defaultValue={item.createdAt} {...register("start_time")} date-rangepicker={true} type="date" className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date start" />
-                                                                            </div>
-                                                                            <span className="mx-4 text-gray-500">đến</span>
-                                                                            <div className="">
-                                                                                <input {...register("end_time")} date-rangepicker={true} type="date" className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date end" />
-                                                                            </div>
+                                                                </div>
+                                                                <div className="">
+                                                                    <label
+                                                                        htmlFor="price"
+                                                                        className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                                                    >
+                                                                        Thời gian diễn ra khuyến mãi
+                                                                    </label>
+                                                                    <div date-rangepicker className="flex items-center">
+                                                                        <div className="">
+                                                                            <input {...register("start_time", {
+                                                                                required: "Thời gian bắt đầu và thời gian kết thúc không thể thiếu."
+                                                                            })} date-rangepicker={true} type="date" className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date start" />
                                                                         </div>
-                                                                        <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                                                            {errors?.price?.message?.toString()}
-                                                                        </p>
+                                                                        <span className="mx-4 text-gray-500">đến</span>
+                                                                        <div className="">
 
+                                                                            <input {...register("end_time", {
+                                                                                required: "Thời gian bắt đầu và thời gian kết thúc không thể thiếu."
+                                                                            })} date-rangepicker={true} type="date" className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date end" />
+                                                                        </div>
                                                                     </div>
+                                                                    <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                                                        {errors?.start_time?.message?.toString()}
+                                                                        {errors?.time?.message?.toString()}
+                                                                    </p>
 
-                                                                    <div className="mt-6 flex justify-end">
+                                                                </div>
+
+                                                                <div className="mt-6 flex justify-end">
+                                                                    <button
+                                                                        onClick={() => {
+
+                                                                            setModal({ ...modal, [`edit-discount${item.id}`]: false })
+                                                                            reset()
+                                                                        }
+                                                                        }
+                                                                        type="button"
+                                                                        className="mr-4 text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                                                                    >
+                                                                        Hủy
+                                                                    </button>
+                                                                    <div>
                                                                         <button
-                                                                            onClick={() => {
-                                                                                setModal({ ...modal, [`edit-discount${item.id}`]: false })
-                                                                                reset()
-                                                                            }
-                                                                            }
-                                                                            type="button"
-                                                                            className="mr-4 text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                                                                            type="submit"
+                                                                            className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                                                         >
-                                                                            Hủy
+                                                                            Tạo
                                                                         </button>
-                                                                        <div>
-                                                                            <button
-                                                                                type="submit"
-                                                                                className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                                                            >
-                                                                                Tạo
-                                                                            </button>
-                                                                        </div>
                                                                     </div>
-                                                                </form>
-                                                            </Modal.Body>
-                                                        </Modal>
-                                                    </>
+                                                                </div>
+                                                            </form>
+                                                        </Modal.Body>
+                                                    </Modal>
+
                                                 </>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm  text-gray-800 dark:text-neutral-200">{item.name}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">{item.name}</td>

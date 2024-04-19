@@ -77,6 +77,24 @@ class CheckingAssignment {
             next(createError.InternalServerError(error.message));
         }
     }
+
+    checkGetAssignmentsOfExamsOfTeacher = async (req: Request, _res: Response, next: NextFunction) => {
+        try {
+            const id_teacher = req.params.teacherId;
+            const id_user = req.user?.user.data.id;
+            const role = req.user?.role;
+
+            if (id_user !== id_teacher && role !== "admin") {
+                let error = "You do not have permission to get this information!"
+                return next(createError.Unauthorized(error));
+            }
+
+            next();
+        } catch (error: any) {
+            console.log(error.message);
+            next(createError.InternalServerError(error.message));
+        }
+    }
 }
 
 module.exports = new CheckingAssignment();

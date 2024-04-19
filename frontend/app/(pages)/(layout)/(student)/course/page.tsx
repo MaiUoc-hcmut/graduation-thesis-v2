@@ -32,11 +32,11 @@ export default function CourseList() {
 
 
     const sortOptions = [
-        { name: 'Mới nhất', href: '?sort=date&order=DESC', current: sortFilters === 'date' },
-        { name: 'Phổ biến nhất', href: '?sort=registration&order=DESC', current: sortFilters === 'registration' },
-        { name: 'Đánh giá tốt nhất', href: '?sort=rating&order=DESC', current: sortFilters === 'rating' },
+        { name: 'Mới nhất', href: '?sort=date&order=desc', current: sortFilters === 'date' },
+        { name: 'Phổ biến nhất', href: '?sort=registration&order=desc', current: sortFilters === 'registration' },
+        { name: 'Đánh giá tốt nhất', href: '?sort=rating&order=desc', current: sortFilters === 'rating' },
         { name: 'Giá: Thấp đến cao', href: '?sort=price&order=asc', current: sortFilters === 'price' && orderFilters === 'asc' },
-        { name: 'Giá: Cao đến thấp', href: '?sort=price&order=DESC', current: sortFilters === 'price' && orderFilters === 'DESC' },
+        { name: 'Giá: Cao đến thấp', href: '?sort=price&order=desc', current: sortFilters === 'price' && orderFilters === 'desc' },
     ];
 
     // const obj = Object.fromEntries(searchParams.entries());
@@ -61,21 +61,14 @@ export default function CourseList() {
             levelFilters?.map((l) => { filterString += `&level=${l}` })
             classFilters?.map((c) => { filterString += `&class=${c}` })
             priceFilters ? filterString += `&minPrice=0&maxPrice=${priceFilters}` : null
-            filterString += `&sort=${sortFilters}&order=${orderFilters}`
+
+            sortFilters && orderFilters ? filterString += `&sort=${sortFilters}&order=${orderFilters}` : null
 
 
-            if (subjectFilters.length != 0 || levelFilters.length != 0 || classFilters.length != 0 || !!priceFilters || !!sortFilters || !!orderFilters) {
-                await courseApi.filter(filterString).then((data: any) => {
-                    setCourses(data.data.courses)
-                }
-                )
+            await courseApi.getAll(filterString).then((data: any) => {
+                setCourses(data.data.courses)
             }
-            else {
-                await courseApi.getAll().then((data: any) => {
-                    setCourses(data.data)
-                }
-                )
-            }
+            )
             await categoryApi.getAll().then((data: any) => {
                 setCategory([
                     {
@@ -110,7 +103,7 @@ export default function CourseList() {
 
         }
         fetchData()
-    }, [])
+    }, [sortFilters, orderFilters])
 
 
 

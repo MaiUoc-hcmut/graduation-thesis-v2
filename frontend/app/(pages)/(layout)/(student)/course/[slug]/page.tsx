@@ -439,20 +439,22 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                 </div>
                                 <div className='mt-5 flex flex-col'>
                                     <button onClick={async () => {
-                                        let id_cart = ''
+                                        await paymentApi.getCartOfStudent(user.id).then(async (data: any) => {
+                                            await paymentApi.addToCart(course?.id, data).then(() => {
+                                                toast.success('Thêm vào giỏ hàng thành công', {
+                                                    position: "bottom-right",
+                                                    autoClose: 800,
+                                                    hideProgressBar: false,
+                                                    closeOnClick: true,
+                                                    pauseOnHover: true,
+                                                    draggable: true,
+                                                    progress: undefined,
+                                                    theme: "colored",
+                                                });
+                                            })
+                                        }
+                                        )
 
-                                        await paymentApi.addToCart(course?.id, user?.cart).then(() => {
-                                            toast.success('Thêm vào giỏ hàng thành công', {
-                                                position: "bottom-right",
-                                                autoClose: 800,
-                                                hideProgressBar: false,
-                                                closeOnClick: true,
-                                                pauseOnHover: true,
-                                                draggable: true,
-                                                progress: undefined,
-                                                theme: "colored",
-                                            });
-                                        })
                                     }} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Thêm vào giỏ hàng</button>
                                 </div>
                                 <div className='mt-9'>

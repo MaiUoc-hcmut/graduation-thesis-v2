@@ -14,6 +14,8 @@ declare global {
             teacher?: any;
             student?: any;
             user?: USER;
+            getAll?: boolean;
+            authority?: number;
         }
     }
 
@@ -25,9 +27,29 @@ declare global {
 }
 
 class Authorize {
+    getUserFromAPI = async (url: string) => {
+        try {
+            const response = await axios.get(url);
+            return {
+                user: response.data
+            }
+        } catch (error: any) {
+            if (error.response && error.response.status === 404) {
+                return { user: null };
+            } else {
+                throw error;
+            }
+        }
+    }
+
     verifyUser = (req: Request, res: Response, next: NextFunction) => {
         passport.authenticate('user-jwt', { session: false }, async (err: any, id: string, info: any) => {
-            if (err) {
+            if (err || !id) {
+                const token = req.headers.authorization?.split(' ')[1];
+                if (!token && req.getAll) {
+                    req.authority = 0;
+                    return next();
+                }
                 return next(createError.Unauthorized(info?.message ? info.message : err))
             }
             
@@ -37,28 +59,34 @@ class Authorize {
             } = {};
             
             try {
-                const student = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/student/${id}`);
-                user.user = student;
-                user.role = "student";
-                req.user = user;
-                next();
-            } catch (error: any) {
-                if (error.response && error.response.status === 404) {
-                    // If student does not exist, try to find teacher
-                    try {
-                        const teacher = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${id}`);
-                        user.user = teacher;
-                        user.role = "teacher";
-                        req.user = user;
-                        next();
-                    } catch (error) {
-                        // If both student and teacher do not exist
-                        return next(createError.NotFound("User not found!"));
-                    }
-                } else {
-                    // Other error
-                    return next(createError.InternalServerError(error.message));
+                const student = await this.getUserFromAPI(`${process.env.BASE_URL_LOCAL}/student/${id}`);
+                if (student) {
+                    user.user = student;
+                    user.role = "student";
+                    req.user = user;
+                    return next();
                 }
+
+                const teacher = await this.getUserFromAPI(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${id}`);
+                if (teacher) {
+                    user.user = teacher;
+                    user.role = "teacher";
+                    req.user = user;
+                    return next();
+                }
+                
+                const admin = await this.getUserFromAPI(`${process.env.BASE_URL_LOCAL}/admin/${id}`);
+                if (admin) {
+                    user.user = admin;
+                    user.role = "admin";
+                    req.user = user;
+                    req.authority = 2;
+                    return next();
+                }
+
+                return next(createError.NotFound("User not found!"));
+            } catch (error: any) {
+                return next(createError.InternalServerError(error.message));
             }
             
         })(req, res, next);

@@ -22,6 +22,12 @@ NotificationModel.init({
         type: DataTypes.BOOLEAN,
         defaultValue: false,
         allowNull: false
+    },
+    type: {
+        type: DataTypes.STRING,
+    },
+    name: {
+        type: DataTypes.STRING
     }
 }, {
     sequelize,

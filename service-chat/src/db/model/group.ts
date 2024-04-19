@@ -1,15 +1,26 @@
 const mongoose = require('mongoose');
+const { v4: uuidv4, validate: uuidValidate } = require('uuid');
+
+const validateUUID = {
+    validator: function(v: string) {
+        return uuidValidate(v);
+    },
+    message: "Id must be valid UUID!"
+}
+
 const groupSchema = new mongoose.Schema(
     {
         id: {
-            type: mongoose.Schema.Types.UUID
+            type: String,
+            default: uuidv4,
+            validator: validateUUID
         },
         lastMessage: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: String,
             ref: 'Message',
         },
-        members: [{ type: mongoose.Schema.Types.UUID }],
-        admins: [{ type: mongoose.Schema.Types.UUID }],
+        members: [{ type: String, validator: validateUUID }],
+        admins: [{ type: String, validator: validateUUID }],
         name: {
             type: String,
         },

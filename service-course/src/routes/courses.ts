@@ -12,12 +12,10 @@ router.use("/chapters", chaptersRouter)
 
 //route course
 router.route('/')
-    .get(courseController.getAllCourse)
     .post(Authorize.protectedAPI, courseController.createCourse)
 
-
-router.route('/filter/page/:page')
-    .get(courseController.getFilteredCourse);
+router.route('/page/:page')
+    .get(Authorize.checkGetAll, Authorize.verifyUser, courseController.getAllCourse)
 
 router.route('/search/page/:page')
     .post(courseController.searchCourse);
@@ -31,9 +29,9 @@ router.route('/student-course')
 router.route('/:courseId')
     .get(courseController.getCourseById)
     .post(
-        Authorize.verifyStudent, 
-        CheckingCourse.checkExistedCourse, 
-        CheckingCourse.checkStudentBuyCourse, 
+        Authorize.verifyStudent,
+        CheckingCourse.checkExistedCourse,
+        CheckingCourse.checkStudentBuyCourse,
         courseController.studentBuyACourse
     )
     .put(Authorize.authorizeTeacher, CheckingCourse.checkModifyCourse, courseController.updateCourse)
@@ -47,6 +45,12 @@ router.route('/full/:courseId')
 
 router.route('/teacher/:teacherId/page/:page')
     .get(Authorize.authorizeTeacher, courseController.getCourseCreatedByTeacher);
+
+router.route('/all-student/teacher/:teacherId/page/:page')
+    .get(courseController.getStudentsBuyCoursesOfTeacher);
+
+router.route('/:courseId/student-course/page/:page')
+    .get(courseController.getStudentsBuyACourse);
 
 router.post("/test", fileUpload.uploadCourseFiles, courseController.test);
 

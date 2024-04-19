@@ -58,6 +58,41 @@ class CartController {
     }
 
     // [GET] /cart/student/:studentId
+    getCartOfStudentByStudentId = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const id_student = req.params.studentId;
+
+            const cart = await Cart.findOne({
+                where: {
+                    id_user: id_student
+                }
+            });
+
+            const records = await CartCourse.findAll({
+                where: { id_cart: cart.id },
+                order: [['createdAt', 'ASC']]
+            });
+
+            let courseList = [];
+
+            for (const record of records) {
+                const id_course = record.id_course;
+
+                const course = await axios.get(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${id_course}`);
+                courseList.push(course.data);
+            }
+
+            res.status(200).json(courseList);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({
+                error,
+                message: error.message
+            });
+        }
+    }
+
+    // [GET] /cart/student/:studentId
     getCartInfor = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const cart = await Cart.findOne({

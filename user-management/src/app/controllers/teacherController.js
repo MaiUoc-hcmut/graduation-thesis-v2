@@ -48,6 +48,82 @@ class TeacherController {
     }
   };
 
+  getFilteredTeacher = async (req, res, _next) => {
+    try {
+      const categories = [];
+
+      const { class: _class, subject } = req.query;
+
+      if (!_class) {
+      } else if (Array.isArray(_class)) {
+        categories.push(..._class);
+      } else {
+        categories.push(_class);
+      }
+
+      if (!subject) {
+      } else if (Array.isArray(subject)) {
+        categories.push(...subject);
+      } else {
+        categories.push(subject);
+      }
+
+      const currentPage = +req.params.page;
+
+      const pageSize = parseInt(process.env.SIZE_OF_PAGE || '10');
+
+      const queryOption = {
+        include: [
+          {
+            model: Category,
+            through: {
+              attributes: [],
+            },
+          },
+        ],
+        group: ['Teacher.id'],
+      };
+
+      if (categories.length > 0) {
+        queryOption.include[0].where = {
+          id: {
+            [Op.in]: categories,
+          },
+        };
+        queryOption.having = sequelize.literal(
+          'COUNT(DISTINCT ' +
+            `Categories` +
+            '.' +
+            `id` +
+            `) = ${categories.length}`
+        );
+      }
+
+      const count = await Teacher.count({
+        ...queryOption,
+        raw: true,
+      });
+
+      const teachers = await Teacher.findAll({
+        ...queryOption,
+        limit: pageSize,
+        offset: pageSize * (currentPage - 1),
+        subQuery: false,
+      });
+
+      res.status(200).json({
+        count,
+        teachers,
+      });
+    } catch (error) {
+      console.log(error.message);
+      res.status(500).json({
+        error,
+        message: error.message,
+      });
+    }
+  };
+
   getProfileTeacher = async (req, res, _next) => {
     try {
       const id_teacher = req.params.teacherId;

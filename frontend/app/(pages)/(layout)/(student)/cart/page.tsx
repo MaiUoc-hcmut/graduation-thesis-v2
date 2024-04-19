@@ -28,13 +28,16 @@ export default function Cart() {
     };
     useEffect(() => {
         async function fetchData() {
-            await paymentApi.getCart(user.cart).then((data: any) => {
-                setCartItems(data.data)
+            await paymentApi.getCartOfStudent(user.id).then(async (data: any) => {
+                await paymentApi.getCart(data).then((data: any) => {
+                    setCartItems(data.data)
+                }
+                )
             }
             )
         }
         fetchData()
-    }, [user.cart, change])
+    }, [change, user.id])
 
     return (
         <section className="py-10 flex flex-col justify-center items-center">

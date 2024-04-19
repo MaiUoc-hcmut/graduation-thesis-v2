@@ -1,7 +1,10 @@
 const StudentCourse = require('../../db/models/student-course');
 
+import axios from "axios";
 import { Request, Response, NextFunction } from "express";
 const createError = require('http-errors');
+
+require('dotenv').config();
 
 
 class CheckingReview {
@@ -42,12 +45,26 @@ class CheckingReview {
                     let error = "You must provide id_teacher to review a course!";
                     return next(createError.BadRequest(error));
                 }
+
+                try {
+                    const teacher = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${body.id_teacher}`);
+                } catch (error) {
+                    let e = "Teacher does not exist!";
+                    return next(createError.BadRequest(e));
+                }
             }
 
             if (object === "exam") {
                 if (!body.id_exam) {
                     let error = "You must provide id_exam to review a course!";
                     return next(createError.BadRequest(error));
+                }
+                
+                try {
+                    const exam = await axios.get(`${process.env.BASE_URL_EXAM_LOCAL}/exams/${body.id_exam}`);
+                } catch (error) {
+                    let e = "Exam does not exist!";
+                    return next(createError.BadRequest(e));
                 }
             }
             

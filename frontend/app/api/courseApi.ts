@@ -7,8 +7,8 @@ const courseApi = {
         return axiosConfig.get(url);
     },
 
-    getAll: () => {
-        const url = '/courses';
+    getAll: (filterString: string) => {
+        const url = `/courses/page/1?${filterString}`;
         return axiosConfig.get(url);
     },
 

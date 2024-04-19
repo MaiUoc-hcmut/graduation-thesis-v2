@@ -2,6 +2,8 @@ const Message = require('../../db/model/message');
 
 import { Request, Response, NextFunction } from 'express';
 
+require('dotenv').config();
+
 declare global {
     namespace Express {
         interface Request {
@@ -38,7 +40,17 @@ class MessageController {
     // [GET] /messages/groups/:groupId/scroll/:scroll
     getMessagesInGroup = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            
+            const id_group = req.params.groupId;
+            const scroll = +req.params.scroll;
+
+            const scrollSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+            const offset = (scroll - 1) * scrollSize;
+
+            const messages = await Message.find({
+                id_group
+            }).skip(offset).limit(scrollSize).sort({ createdAt: -1 }).exec();
+
+            res.status(200).json(messages);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({

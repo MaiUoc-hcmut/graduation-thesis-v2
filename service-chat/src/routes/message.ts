@@ -10,3 +10,5 @@ router.route('/')
     .post(Authorize.verifyUser, CheckingMessage.checkCreateMessage, MessageController.createMessage);
 
 module.exports = router;
+
+export {}

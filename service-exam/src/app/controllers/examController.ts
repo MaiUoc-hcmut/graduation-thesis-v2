@@ -23,6 +23,7 @@ declare global {
         interface Request {
             teacher?: any;
             student?: any;
+            authority?: number
         }
     }
 }
@@ -31,26 +32,130 @@ class ExamController {
 
     // Get all exam
     // [GET] /api/v1/exam
-    getAllExams = async (_req: Request, res: Response, _next: NextFunction) => {
+    getAllExams = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const exams = await Exam.findAll({
+            const authority = req.authority;
+
+            let status = authority === 2
+                            ? ['public', 'paid', 'private']
+                            : ['public', 'paid'];
+
+            const categories = [];
+
+            const { class: _class, subject, level } = req.query;
+
+            if (!_class) {
+                
+            } else if (Array.isArray(_class)) {
+                categories.push(..._class)
+            } else {
+                categories.push(_class)
+            }
+
+            if (!subject) {
+
+            } else if (Array.isArray(subject)) {
+                categories.push(...subject)
+            } else {
+                categories.push(subject)
+            }
+
+            if (!level) {
+
+            } else if (Array.isArray(level)) {
+                categories.push(...level)
+            } else {
+                categories.push(level)
+            }
+
+            enum SortQuery {
+                Rating = 'rating',
+                Date = 'date',
+            }
+            enum SortOrder {
+                ASC = 'ASC',
+                DESC = 'DESC'
+            }
+
+            const sortFactor = {
+                [SortQuery.Rating]: 'average_rating',
+                [SortQuery.Date]: 'createdAt',
+            }
+            const orderFactor = {
+                [SortOrder.ASC]: 'ASC',
+                [SortOrder.DESC]: 'DESC',
+            }
+
+
+            const sortQuery = req.query.sort as SortQuery;
+            const orderSort = req.query.order as SortOrder;
+
+            let defaultQuery = 'createdAt';
+            let defaultOrder = 'DESC';
+
+            if (typeof sortQuery === "string" && Object.values(SortQuery).includes(sortQuery)) {
+                defaultQuery = sortFactor[sortQuery as SortQuery];
+            }
+            if (typeof orderSort === "string" && Object.values(SortOrder).includes(orderSort)) {
+                defaultOrder = orderFactor[orderSort as SortOrder];
+            }
+
+            const currentPage: number = +req.params.page;
+            
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+
+            const queryOption: any = {
+                where: { status },
                 include: [
                     {
                         model: Category,
-                        attributes: ['name', 'id'],
                         through: {
-                            attributes: []
-                        }
-                    }
-                ]
-            });
-
-            for (const exam of exams) {
-                const user = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/teacher/get-teacher-by-id/${exam.id_teacher}`);
-                exam.dataValues.user = { id: user.data.id, name: user.data.name };
+                            attributes: [],
+                        },
+                    },
+                ],
+                group: ['Exam.id']
             }
 
-            res.status(200).json(exams);
+            if (categories.length > 0) {
+                queryOption.include[0].where = {
+                    id: {
+                        [Op.in]: categories,
+                    },
+                }
+                queryOption.having = sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`)
+            }
+
+            const count = await Exam.count({
+                ...queryOption,
+                raw: true
+            });
+
+            const exams = await Exam.findAll({
+                ...queryOption,
+                order: [[defaultQuery, defaultOrder]],
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1),
+                subQuery: false
+            });
+
+            
+            for (const exam of exams) {
+                const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${exam.id_teacher}`);
+                exam.dataValues.user = { id: user.data.id, name: user.data.name };
+
+                for (const category of exam.Categories) {
+                    const parCategory = await ParentCategory.findByPk(category.id_par_category);
+                    category.dataValues[`${parCategory.name}`] = category.name;
+                    delete category.dataValues.name;
+                    delete category.dataValues.id_par_category;
+                }
+            }
+
+            res.status(200).json({
+                count,
+                exams
+            });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
@@ -214,109 +319,6 @@ class ExamController {
         }
     }
 
-    // [GET] /api/v1/exams/filter/page/:page
-    getFilteredExam = async (req: Request, res: Response, _next: NextFunction) => {
-        try {
-            const categories = Object.values(req.query);
-
-            const { class: _class, subject, level } = req.query;
-
-            if (Array.isArray(_class)) {
-                categories.push(..._class)
-            } else {
-                categories.push(_class)
-            }
-
-            if (Array.isArray(subject)) {
-                categories.push(...subject)
-            } else {
-                categories.push(subject)
-            }
-
-            if (Array.isArray(level)) {
-                categories.push(...level)
-            } else {
-                categories.push(level)
-            }
-
-            const currentPage: number = +req.params.page;
-            
-            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
-
-            const count = await Exam.count({
-                where: {
-                    id_course: {
-                        [Op.or]: [null, ""]
-                    }
-                },
-                include: [
-                    {
-                        model: Category,
-                        where: {
-                            id: {
-                                [Op.in]: categories,
-                            },
-                        },
-                        through: {
-                            attributes: [],
-                        },
-                    },
-                ],
-                group: ['Course.id'],
-                having: sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`),
-                raw: true
-            });
-
-            const exams = await Exam.findAll({
-                where: {
-                    id_course: {
-                        [Op.or]: [null, ""]
-                    }
-                },
-                include: [
-                    {
-                        model: Category,
-                        where: {
-                            id: {
-                                [Op.in]: categories,
-                            },
-                        },
-                        attributes: ['name', 'id'],
-                        through: {
-                            attributes: [],
-                        },
-                    },
-                ],
-                group: ['Course.id'],
-                having: sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`),
-                order: [['createdAt', 'DESC']],
-                limit: pageSize,
-                offset: pageSize * (currentPage - 1),
-                subQuery: false
-            });
-
-            
-            for (const exam of exams) {
-                const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${exam.id_teacher}`);
-                exam.dataValues.user = { id: user.data.id, name: user.data.name };
-
-                for (const category of exam.Categories) {
-                    const parCategory = await ParentCategory.findByPk(category.id_par_category);
-                    category.dataValues[`${parCategory.name}`] = category.name;
-                    delete category.dataValues.name;
-                    delete category.dataValues.id_par_category;
-                }
-            }
-
-            res.status(200).json({
-                count,
-                exams
-            })
-        } catch (error: any) {
-            console.log(error.message);
-            res.status(500).json({ error, message: error.message });
-        }
-    }
 
     // [GET] /api/v1/exams/search/page/:page
     searchExam = async (req: Request, res: Response, _next: NextFunction) => {
@@ -416,6 +418,7 @@ class ExamController {
                 title,
                 period,
                 quantity_question,
+                pass_score,
                 status: actualStatus
             }, {
                 transaction: t
@@ -509,13 +512,15 @@ class ExamController {
                 }
             }
 
-            const data = {
-                id_user: id_teacher,
-                id_exam: newExam.id,
-                name: newExam.title
+            if (!id_course) {
+                const data = {
+                    id_user: id_teacher,
+                    id_exam: newExam.id,
+                    name: newExam.title
+                }
+    
+                const response = await axios.get(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/create-exam`, { data });
             }
-
-            const response = await axios.get(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/create-exam`, { data });
 
             await t.commit();
 
