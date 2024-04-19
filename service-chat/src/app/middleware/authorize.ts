@@ -31,7 +31,7 @@ class Authorize {
         try {
             const response = await axios.get(url);
             return {
-                user: response.data
+                data: response.data
             }
         } catch (error: any) {
             if (error.response && error.response.status === 404) {

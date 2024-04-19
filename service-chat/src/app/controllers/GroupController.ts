@@ -45,7 +45,11 @@ class GroupController {
             let { name, members, individual } = body;
 
             individual = (individual === undefined || individual === "") ? true : false;
-
+            if (members.length > 1 && individual) {
+                return res.status(400).json({
+                    message: "If group have at least 3 members, this group is not individual group"
+                });
+            }
 
             const group = await Group.create({
                 name,
