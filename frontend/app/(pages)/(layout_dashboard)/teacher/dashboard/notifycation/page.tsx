@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import notifyApi from '@/app/api/notifyApi';
 import { useAppSelector } from '@/redux/store';
 import { InformationCircleIcon } from '@heroicons/react/24/solid';
+import { convertToVietnamTime } from '@/app/helper/FormatFunction';
 
 export default function NotifycationDashboard() {
     const [notifycations, setNotifycations] = useState<any>([])
@@ -42,15 +43,17 @@ export default function NotifycationDashboard() {
                                             Thông báo mới từ hệ thống
                                         </div>
                                         <span className='text-[#818894] text-xs'>
-                                            {notify.createdAt}
+                                            {convertToVietnamTime(notify.createdAt)}
                                         </span>
                                     </div>
                                     <div className="text-gray-500 text-sm flex-1 text-center">
-                                        {notify.content}
+                                        {notify.type === 'course' && (
+                                            <>Khóa học <span className='font-medium text-black'>{notify.name}</span>  vừa được tạo thành công</>
+                                        )}
                                     </div>
-                                    <div className="text-gray-500 text-sm w-1/12 flex justify-center items-center">
+                                    <Link href={'/teacher/dashboard/course'} className="text-gray-500 text-sm w-1/12 flex justify-center items-center">
                                         <button type='button' className='px-4 py-2 border-[1px] border-gray-200 rounded-md hover:text-white hover:bg-primary'>Xem</button>
-                                    </div>
+                                    </Link>
                                 </div>
                             </div>
                         )

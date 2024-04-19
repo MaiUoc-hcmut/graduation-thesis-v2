@@ -1,14 +1,12 @@
-"use client"
+// "use client"
+
 import type { Metadata } from 'next'
 import './globals.css'
 import FlowbiteClient from './_components/Flowbite/FlowbiteClient'
-import { Suspense, useEffect } from 'react'
+import { Suspense } from 'react'
 import 'react-toastify/dist/ReactToastify.css';
 import { ReduxProvider } from '@/redux/provider';
 
-// import GlobalError from './global-error';
-// import Error from './Error';
-// import { ErrorBoundary } from 'next/dist/client/components/error-boundary';
 import '@/node_modules/react-multi-carousel/lib/styles.css'
 
 
@@ -22,12 +20,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
 
-
-
   return (
     <html lang="en">
-      <head>
-      </head>
       <body >
         <Suspense fallback={<p>Loading data...</p>}>
           <ReduxProvider>

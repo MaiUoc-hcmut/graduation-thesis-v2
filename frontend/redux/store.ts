@@ -5,6 +5,14 @@ import storage from 'redux-persist/lib/storage';
 import authReducer from './features/authSlice';
 import studentReducer from './features/studentSlice';
 import { TypedUseSelectorHook, useSelector } from "react-redux";
+import {
+    FLUSH,
+    REHYDRATE,
+    PAUSE,
+    PERSIST,
+    PURGE,
+    REGISTER,
+} from 'redux-persist'
 
 const rootReducer = combineReducers({
     authReducer: persistReducer({ key: 'authReducer', storage }, authReducer),
@@ -20,9 +28,16 @@ const persistConfig = {
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 
+
 export const store = configureStore({
-    reducer: persistedReducer
-});
+    reducer: persistedReducer,
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: {
+                ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+            },
+        }),
+})
 
 
 export const persistor = persistStore(store);

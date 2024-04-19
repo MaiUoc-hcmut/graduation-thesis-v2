@@ -84,7 +84,7 @@ export default function CourseDashboard() {
                         <div className="relative w-full">
                             <input onChange={async (e: any) => {
                                 setSearchInput(e.target.value)
-                            }} type="text" id="simple-search" className="w-full text-sm text-[#343434]  rounded-md border-[1px] border-[#ececec] focus:ring-0 focus:border-primary_border" placeholder="Tìm kiếm khóa học" required />
+                            }} type="text" id="simple-search" className="w-full text-sm text-[#343434]  rounded-md border-[1px] border-[#ececec] focus:ring-0 focus:border-primary_border" placeholder="Tìm kiếm khóa học" />
                         </div>
                         <button type="submit" className="ml-2 bg-primary p-2.5 rounded-md shadow-primary_btn_shadow border-primary text-white hover:bg-primary_hover">
                             <MagnifyingGlassIcon className='w-4 h-4' />

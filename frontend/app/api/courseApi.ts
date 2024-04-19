@@ -17,9 +17,6 @@ const courseApi = {
         return await axiosConfig.get(url);
     },
 
-
-
-
     searchCourseByCreateTeacher: async (id_teacher: string, params: object) => {
         const url = `/courses/search/teacher/${id_teacher}/page/1`;
         return await axiosConfig.get(url, { params });
@@ -102,6 +99,11 @@ const courseApi = {
         return axiosConfig.delete(url);
     },
 
+    deleteTopicForum: (id_topic: string) => {
+        const url = `/topicsforum/${id_topic}`;
+        return axiosConfig.delete(url);
+    },
+
     uploadVideo: (video: object) => {
         const url = `/images`;
         return axiosConfig.post(url, video);
@@ -115,6 +117,11 @@ const courseApi = {
     createTopicForum: (data: object) => {
         const url = `/topicsforum`;
         return axiosConfig.post(url, data);
+    },
+
+    editTopicForum: (data: object, id_topic: string) => {
+        const url = `/topicsforum/${id_topic}`;
+        return axiosConfig.put(url, data);
     },
 
     createAnswerOfTopic: (data: object) => {

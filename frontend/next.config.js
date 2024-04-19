@@ -14,15 +14,4 @@ const nextConfig = {
   reactStrictMode: false,
 };
 
-// const withVideos = require('next-videos');
-
-// module.exports = withVideos({
-//   assetPrefix: 'https://www.youtube.com',
-//   basePath: '/watch',
-
-//   webpack(config, options) {
-//     return config;
-//   },
-// });
-
 module.exports = nextConfig;

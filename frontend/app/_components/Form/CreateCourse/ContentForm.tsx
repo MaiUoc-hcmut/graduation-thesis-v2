@@ -48,7 +48,7 @@ export function ContentForm({
         return result;
     };
 
-    // console.log(data.chapters, errors);
+
 
     return (
         <div className="mb-10">

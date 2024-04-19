@@ -40,8 +40,9 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
 
     useEffect(() => {
         async function fetchData() {
-            await courseApi.getForumOfCourse(params.slug, 1).then((data: any) => {
+            await courseApi.getForumOfCourse(params.slug, Number(page) || 1).then((data: any) => {
                 setForum(data.data)
+                setPaginate(Math.ceil(data.data.total_topic / 10))
                 setTopics(data.data.topics)
             }
             )
@@ -50,7 +51,7 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
         fetchData()
 
 
-    }, [params.slug, change]);
+    }, [params.slug, change, page]);
 
     for (let i = 1; i <= paginate; i++) {
         list.push(i)
@@ -145,29 +146,25 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                 <div className='w-2/5 flex justify-center'>
                                     <form className="flex items-center max-w-sm mx-auto w-full" onSubmit={async (e) => {
                                         e.preventDefault()
+                                        await courseApi.searchForum(forum?.id, {
+                                            query: content
+                                        }).then((data: any) => {
+                                            setTopics(data.data.result)
+                                        }
+                                        )
 
                                     }}>
                                         <label htmlFor="simple-search" className="sr-only">Search</label>
                                         <div className="relative w-full">
                                             <input onChange={async (e) => {
-                                                // setContent(e.target.value)
-                                                if (e.target.value != '') {
-                                                    await courseApi.searchForum(forum?.id, {
-                                                        query: e.target.value
-                                                    }).then((data: any) => {
-                                                        setTopics(data.data.result)
-                                                    }
-                                                    )
-                                                }
-                                                else {
-                                                    setTopics(forum?.topics)
-                                                }
+                                                setContent(e.target.value)
+
                                             }} type="text" id="simple-search" className="w-full text-sm text-[#343434]  rounded-md border-[1px] border-[#ececec] focus:ring-0 focus:border-primary_border" placeholder="Tìm trong phần thảo luận này" />
                                         </div>
-                                        {/* <button type="submit" className="ml-2 bg-primary p-2.5 rounded-md shadow-primary_btn_shadow border-primary text-white hover:bg-primary_hover">
+                                        <button type="submit" className="ml-2 bg-primary p-2.5 rounded-md shadow-primary_btn_shadow border-primary text-white hover:bg-primary_hover">
                                             <MagnifyingGlassIcon className='w-4 h-4' />
                                             <span className="sr-only">Search</span>
-                                        </button> */}
+                                        </button>
                                     </form>
                                 </div>
                                 <div className='w-1/5 flex items-center justify-end'>
@@ -185,10 +182,10 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                             <Modal.Header />
                                             <Modal.Body>
                                                 <form className="space-y-6" onSubmit={async (e) => {
-                                                    // e.preventDefault()
-                                                    // await courseApi.delete(course.id)
-                                                    // setChange(!change)
-                                                    // setModal(false)
+                                                    e.preventDefault()
+                                                    await courseApi.deleteTopicForum(topic.id)
+                                                    setChange(!change)
+                                                    setModal(false)
                                                 }}>
                                                     <ExclamationCircleIcon className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
                                                     <h3 className="mb-5 text-lg font-normal text-center text-gray-500 dark:text-gray-400">
@@ -220,13 +217,13 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                                         },
                                                         file: data.file[0]
                                                     }
-                                                    await courseApi.createTopicForum(formData)
+                                                    await courseApi.editTopicForum(formData, topic.id)
                                                     setChange(!change)
                                                     reset()
-                                                    setModal({ ...modal, [`add-topic`]: false })
+                                                    setModal({ ...modal, [`edit-topic${topic.id}`]: false })
                                                 })}>
 
-                                                    <h3 className="text-xl font-medium text-gray-900 dark:text-white">Thêm chủ đề</h3>
+                                                    <h3 className="text-xl font-medium text-gray-900 dark:text-white">Sửa chủ đề</h3>
                                                     <div>
                                                         <div className="mb-2 block">
                                                             <Label htmlFor="title" value="Tiêu đề" />
@@ -293,9 +290,9 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                                 </div>
                                                 <div className='text-center mt-4 flex flex-col items-center'>
                                                     <span className=' text-secondary font-bold'>
-                                                        {topic.user?.name}
+                                                        {topic.user?.name || topic.author}
                                                     </span>
-                                                    <span className='text-[#818894] text-[0.75rem] mt-2]'>{topic.user?.role == "teacher" ? "Giáo viên" : "Học sinh"}</span>
+                                                    <span className='text-[#818894] text-[0.75rem] mt-2]'>{topic.user?.role || topic.role == "teacher" ? "Giáo viên" : "Học sinh"}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -338,32 +335,31 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                 <nav aria-label="Page navigation example">
                                     <ul className="flex items-center -space-x-px h-8 text-sm">
                                         <li>
-                                            <a href="#" className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                                            <button disabled className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                                                 <span className="sr-only">Previous</span>
                                                 <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
                                                     <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 1 1 5l4 4" />
                                                 </svg>
-                                            </a>
+                                            </button>
                                         </li>
                                         {
                                             list.map((l: number) => {
                                                 return (
                                                     <div key={l} onClick={() => setChange(!change)}>
                                                         <li>
-                                                            <Link href={`course?page=${l}`} className={`flex items-center justify-center px-3 h-8 leading-tight ${page == `${l}` ? 'text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'} `}>{l}</Link>
+                                                            <Link href={`?page=${l}`} className={`flex items-center justify-center px-3 h-8 leading-tight ${page == `${l}` ? 'text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'} `}>{l}</Link>
                                                         </li>
-
                                                     </div>
                                                 )
                                             })
                                         }
                                         <li>
-                                            <a href="#" className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                                            <button disabled className='flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'>
                                                 <span className="sr-only">Next</span>
                                                 <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
                                                     <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m1 9 4-4-4-4" />
                                                 </svg>
-                                            </a>
+                                            </button>
                                         </li>
                                     </ul>
                                 </nav>

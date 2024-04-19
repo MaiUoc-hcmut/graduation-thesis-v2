@@ -36,10 +36,6 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
     const { user } = useAppSelector(state => state.authReducer);
     useEffect(() => {
         async function fetchData() {
-            await courseApi.getAllByTeacher(`${user.id}`, page || '1').then((data: any) => {
-                setCourses(data.data.courses)
-                setPaginate(Math.ceil(data.data.count / 10))
-            })
             await discountApi.getAllByCreateTeacher(`${user.id}`).then((data: any) => {
                 setDiscounts(data.data)
             })
@@ -451,7 +447,7 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
 
                                                 </>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm  text-gray-800 dark:text-neutral-200">{item.name}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">{item.name}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">{item.Courses[0]?.name}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">{item.percent}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">{item.percent}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">{formatDateTime(item.createdAt)}</td>

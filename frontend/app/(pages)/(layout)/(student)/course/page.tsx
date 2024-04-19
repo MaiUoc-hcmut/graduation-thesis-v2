@@ -11,8 +11,6 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { formatCash, convertTime } from '@/app/helper/FormatFunction';
 
 
-
-
 function classNames(...classes: any) {
     return classes.filter(Boolean).join(' ');
 }
@@ -247,7 +245,8 @@ export default function CourseList() {
                                                                 <div className='mr-2 w-10 h-10 max-h-10 max-w-10 rounded-full relative'>
                                                                     <Image
                                                                         src='/images/avatar-teacher.png'
-                                                                        fill
+                                                                        width={40}
+                                                                        height={40}
                                                                         className='rounded-full overflow-hidden object-cover object-center'
                                                                         alt="logo"
                                                                     />

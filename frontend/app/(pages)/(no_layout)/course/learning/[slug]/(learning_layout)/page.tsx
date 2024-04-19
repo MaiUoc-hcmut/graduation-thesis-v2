@@ -243,15 +243,20 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div className=''>
-                                                                <button type='button' className='text-blue-600 hover:text-blue-800 text-xs' onClick={() => {
+                                                            <div className='flex items-center justify-start mt-2 mb-5'>
+                                                                <button className='text-black underline hover:text-slate-800 text-md mr-2' onClick={() => {
                                                                     setToggle({ ...toggle, [`edit-cmt${cmt.id}`]: !toggle[`edit-cmt${cmt.id}`] })
+                                                                }}>
+                                                                    {cmt.replies?.length || 0} phản hồi
+                                                                </button>
+                                                                <button type='button' className='text-blue-600 hover:text-blue-800 text-md ' onClick={() => {
+                                                                    setToggle({ ...toggle, [`edit-cmt${cmt.id}`]: true })
                                                                 }}>Trả lời</button>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className={`ml-[58px] w-4/5 mt-2 ${toggle[`edit-cmt${cmt.id}`] ? '' : 'hidden'}`}>
+                                                <div className={`ml-32 w-4/5 mt-2 ${toggle[`edit-cmt${cmt.id}`] ? '' : 'hidden'}`}>
                                                     <form onSubmit={handleSubmit(async (data) => {
                                                         if (data[cmt.id] != '') {
                                                             const formData = {
@@ -273,7 +278,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                             <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-2 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Bình luận</button>
                                                         </div>
                                                     </form>
-                                                    <div className='mt-5'>
+                                                    <div className='mt-5 '>
                                                         {
                                                             cmt.replies.map((reply: any) => {
                                                                 return (

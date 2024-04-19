@@ -40,7 +40,7 @@ class ReviewController {
             const id_teacher = req.params.teacherId;
 
             const currentPage: number = +req.params.page;
-            
+
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const count = await Review.count({
@@ -59,7 +59,7 @@ class ReviewController {
             for (const review of reviews) {
                 totalRating += review.rating;
                 starCount[review.rating]++;
-                
+
                 const user = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${review.id_student}`);
 
                 review.dataValues.user = { avatar: user.data.avatar, name: user.data.name };
@@ -122,7 +122,7 @@ class ReviewController {
             const id_course = req.params.courseId;
 
             const currentPage: number = +req.params.page;
-            
+
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const count = await Review.count({
@@ -176,7 +176,7 @@ class ReviewController {
             const id_exam = req.params.examId;
 
             const currentPage: number = +req.params.page;
-            
+
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const count = await Review.count({
@@ -195,7 +195,7 @@ class ReviewController {
             for (const review of reviews) {
                 totalRating += review.rating;
                 starCount[review.rating]++;
-                
+
                 const user = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${review.id_student}`);
 
                 review.dataValues.user = { avatar: user.data.avatar, name: user.data.name };
@@ -244,7 +244,7 @@ class ReviewController {
             const id_student = req.params.studentId;
 
             const currentPage: number = +req.params.page;
-            
+
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const count = await Review.count({
@@ -333,7 +333,7 @@ class ReviewController {
                     await review.destroy({ transaction: t });
                 }
             }
-            
+
             const newReview = await Review.create({
                 id_student,
                 ...body

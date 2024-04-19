@@ -4,6 +4,22 @@ export function formatCash(str: string) {
     })
 }
 
+export function convertToVietnamTime(dateTime: string) {
+    // Create a new Date object from the provided data time
+    const date = new Date(dateTime);
+
+    // Get the time difference in milliseconds between UTC and Vietnam time (GMT+7)
+    // const timeDifference = 7 * 60 * 60 * 1000; // 7 hours * 60 minutes * 60 seconds * 1000 milliseconds
+
+    // Add the time difference to the UTC date to get Vietnam time
+    const vietnamTime = new Date(date.getTime());
+
+    // Format the Vietnam time in the specified format
+    const formattedVietnamTime = `${vietnamTime.getHours().toString().padStart(2, '0')}:${vietnamTime.getMinutes().toString().padStart(2, '0')} ${vietnamTime.getDate()}/${vietnamTime.getMonth() + 1}/${vietnamTime.getFullYear()}`;
+
+    return formattedVietnamTime;
+}
+
 export function formatDateTime(time: string): string {
     const objectDate = new Date(time)
     let day = objectDate.getDate();

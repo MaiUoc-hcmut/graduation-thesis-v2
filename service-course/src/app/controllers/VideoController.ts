@@ -167,9 +167,9 @@ class VideoController {
             }
             const dateTime = fileUpload.giveCurrentDateTime();
 
-            let body = req.body;
+            let body = req.body.data;
 
-            if (typeof(body) == 'string') {
+            if (typeof (body) == 'string') {
                 body = JSON.parse(body);
             }
 
@@ -182,7 +182,7 @@ class VideoController {
             const originalFileName = video.originalname.substring(secondHyphen + 1);
 
             const storageRef = ref(
-                storage, 
+                storage,
                 `video course/${originalFileName + "       " + dateTime}`
             );
 
@@ -206,11 +206,13 @@ class VideoController {
             const topic = await Topic.findByPk(body.id_topic);
 
             if (!topic) {
+
                 await CourseDraft.create({
+                    id_course: course.id,
                     url,
                     duration,
                     id_topic: body.id_topic,
-                    type: "lecture"
+                    type: "lecture",
                 }, {
                     transaction: t
                 });

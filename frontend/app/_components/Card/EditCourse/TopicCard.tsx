@@ -184,13 +184,13 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                         process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                                             const formData = new FormData();
                                             formData.append(fieldName, file, `${indexChapter + 1}-${indexTopic + 1}-${file.name}`);
-                                            const data = { id_course: id_course }
-                                            console.log(formData.get('video'));
+                                            const data = { id_course: id_course, id_topic: topic.id }
+
 
                                             formData.append('data', JSON.stringify(data));
 
                                             const request = new XMLHttpRequest();
-                                            request.open('POST', 'http://localhost:4001/api/v1/videos')
+                                            request.open('PUT', 'http://localhost:4001/api/v1/videos/update')
 
                                             request.upload.onprogress = (e) => {
                                                 progress(e.lengthComputable, e.loaded, e.total);

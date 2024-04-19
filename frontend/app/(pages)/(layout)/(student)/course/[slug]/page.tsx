@@ -331,7 +331,8 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                 data: {
                                                     ...dataReview,
                                                     "id_course": params.slug,
-                                                    rating
+                                                    rating,
+                                                    "object": "course"
                                                 }
                                             }
                                             await courseApi.createReview(formData)
