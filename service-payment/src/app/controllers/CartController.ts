@@ -37,7 +37,6 @@ class CartController {
                 where: { id_cart },
                 order: [['createdAt', 'ASC']]
             });
-
             let courseList = [];
 
             for (const record of records) {

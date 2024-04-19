@@ -92,6 +92,8 @@ class CourseController {
         try {
             const authority = req.authority;
 
+            console.log(authority);
+
             let status = authority === 2
                             ? ['public', 'paid', 'private']
                             : ['public', 'paid'];
@@ -209,8 +211,7 @@ class CourseController {
                             attributes: [],
                         },
                     },
-                ],
-                group: ['Course.id']
+                ]
             }
 
             if (categories.length > 0) {
@@ -218,8 +219,9 @@ class CourseController {
                     id: {
                         [Op.in]: categories,
                     },
-                }
-                queryOption.having = sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`)
+                };
+                queryOption.group = ['Course.id'];
+                queryOption.having = sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`);
             }
 
             const count = await Course.count({
@@ -249,7 +251,7 @@ class CourseController {
                 }
             }
 
-            res.status(200).json({ count: count.length, courses });
+            res.status(200).json({ count, courses });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
@@ -261,17 +263,12 @@ class CourseController {
     getCourseById = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id = req.params.courseId;
-            const currentDate = new Date();
+            // const currentDate = new Date();
             const course = await Course.findOne({
                 where: { id },
                 include: [
                     {
                         model: Coupon,
-                        where: {
-                            expire: {
-                                [Op.gt]: currentDate
-                            }
-                        },
                         through: {
                             attributes: []
                         }
@@ -551,7 +548,6 @@ class CourseController {
 
             const courses = await StudentCourse.findAll({
                 where: { id_student },
-                attributes: ['createdAt'],
                 through: {
                     attributes: []
                 },

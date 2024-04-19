@@ -14,7 +14,7 @@ router.route('/:cartId')
     .delete(Authorize.verifyStudent, CheckingCart.checkDeleteCourseFromCart, CartController.deleteCourseFromCart);
 
 router.route('/student/:studentId')
-    .get(Authorize.verifyUser,CheckingCart.checkGetCartOfStudentByStudentId , CartController.getCartOfStudentByStudentId);
+    .get(Authorize.verifyUser, CheckingCart.checkGetCartOfStudentByStudentId , CartController.getCartOfStudentByStudentId);
 
 router.route('/student/:studentId')
     .get(CartController.getCartInfor);
