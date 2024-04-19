@@ -1,70 +1,61 @@
 "use client"
-
-import { Fragment, useEffect, useState } from 'react'
-import { Dialog, Disclosure, Menu, Transition } from '@headlessui/react'
-import { XMarkIcon, ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon } from '@heroicons/react/24/outline'
-import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, StarIcon } from '@heroicons/react/20/solid'
+import { Fragment, useEffect, useState } from 'react';
+import { Dialog, Disclosure, Menu, Transition } from '@headlessui/react';
+import { XMarkIcon, ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, StarIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
 import Image from 'next/image';
-import categoryApi from '@/app/api/category'
-import userApi from '@/app/api/userApi'
-import { useSearchParams } from 'next/navigation'
+import userApi from '@/app/api/userApi';
+import categoryApi from '@/app/api/category';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { formatCash, convertTime } from '@/app/helper/FormatFunction';
 
 
-const sortOptions = [
-    { name: 'Phổ biến nhất', href: '#', current: true },
-    { name: 'Đánh giá tốt nhất', href: '#', current: false },
-    { name: 'Mới nhất', href: '#', current: false },
-    { name: 'Giá: Thấp đến cao', href: '#', current: false },
-    { name: 'Giá: Cao đến thấp', href: '#', current: false },
-]
+
 
 function classNames(...classes: any) {
-    return classes.filter(Boolean).join(' ')
+    return classes.filter(Boolean).join(' ');
 }
 
-export default function TeacherPage() {
-    const [teachers, setTeachers] = useState<any>()
-    const [category, setCategory] = useState<any>()
-    const searchParams = useSearchParams()
-    const subjectFilters = searchParams.getAll('subject')
-    const levelFilters = searchParams.getAll('level')
-    const classFilters = searchParams.getAll('class')
+
+
+export default function TeacherList() {
+    const [teachers, setteachers] = useState<any[]>([]);
+    const [category, setCategory] = useState<any[]>([]);
+    const searchParams = useSearchParams();
+    const subjectFilters = searchParams.getAll('subject');
+    const classFilters = searchParams.getAll('class');
+    const sortFilters = searchParams.get('sort');
+    const orderFilters = searchParams.get('order');
+
+
+    const sortOptions = [
+        { name: 'Mới nhất', href: '?sort=date&order=desc', current: sortFilters === 'date' },
+        { name: 'Phổ biến nhất', href: '?sort=registration&order=desc', current: sortFilters === 'registration' },
+        { name: 'Đánh giá tốt nhất', href: '?sort=rating&order=desc', current: sortFilters === 'rating' },
+    ];
+
 
     const renderStars = (rating: number) => {
-        const stars = [];
-        for (let i = 1; i <= 5; i++) {
-            stars.push(
-                <StarIcon
-                    key={i}
-                    className={`text-${i <= rating ? 'yellow-300' : 'gray-300'} w-5 h-5`}
-                />
-            );
-        }
-        return stars;
+        return Array.from({ length: 5 }, (_, index) => (
+            <StarIcon
+                key={index + 1}
+                className={`text-${index + 1 <= rating ? 'yellow-300' : 'gray-300'} w-5 h-5`}
+            />
+        ));
     };
 
     useEffect(() => {
         async function fetchData() {
             let filterString = ''
-            subjectFilters.map((s) => { filterString += `subject=${s}` })
-            levelFilters.map((l) => { filterString += `&level=${l}` })
-            classFilters.map((c) => { filterString += `&class=${c}` })
+            subjectFilters?.map((s) => { filterString += `subject=${s}` })
+            classFilters?.map((c) => { filterString += `&class=${c}` })
 
-            // if (subjectFilters.length != 0 || levelFilters.length != 0 || classFilters.length != 0) {
-            //     await userApi.filter(filterString).then((data: any) => {
-            //         setExams(data.data.courses)
-            //     }
-            //     )
-            // }
-            // else {
-            //     await userApi.getAll().then((data: any) => {
-            //         setExams(data.data)
-            //     }
-            //     )
-            // }
-            await userApi.getAllTeacher().then((data: any) => {
-                setTeachers(data.data)
+            sortFilters && orderFilters ? filterString += `&sort=${sortFilters}&order=${orderFilters}` : null
+
+
+            await teacherApi.getAll(filterString).then((data: any) => {
+                setteachers(data.data.teachers)
             }
             )
             await categoryApi.getAll().then((data: any) => {
@@ -72,38 +63,32 @@ export default function TeacherPage() {
                     {
                         id: "subject",
                         name: "Môn học",
-                        options: data.Subject.map((subject: any) => {
+                        options: data?.Subject?.map((subject: any) => {
                             return { ...subject, checked: subjectFilters.includes(subject.id) }
-                        })
-                    },
-                    {
-                        id: "level",
-                        name: "Mức độ",
-                        options: data.Level.map((level: any) => {
-                            return { ...level, checked: levelFilters.includes(level.id) }
                         })
                     },
                     {
                         id: "class",
                         name: "Lớp",
-                        options: data.Class.map((grade: any) => {
+                        options: data?.Class?.map((grade: any) => {
                             return { ...grade, checked: classFilters.includes(grade.id) }
                         })
                     },
-
                 ])
             })
+
         }
         fetchData()
-    }, [])
+    }, [sortFilters, orderFilters])
 
-    console.log(teachers);
+
+
     return (
-        <div className="bg-white container mx-auto">
+        <div className="bg-white container px-10">
             <div>
                 <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-6">
-                        <h1 className="text-4xl font-bold tracking-tight text-gray-900">Đề thi</h1>
+                        <h1 className="text-4xl font-bold tracking-tight text-gray-900">Giáo viên</h1>
 
                         <div className="flex items-center">
                             <Menu as="div" className="relative inline-block text-left">
@@ -128,7 +113,7 @@ export default function TeacherPage() {
                                 >
                                     <Menu.Items className="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none">
                                         <div className="py-1">
-                                            {sortOptions.map((option) => (
+                                            {sortOptions?.map((option) => (
                                                 <Menu.Item key={option.name}>
                                                     {({ active }) => (
                                                         <Link
@@ -160,7 +145,7 @@ export default function TeacherPage() {
                         </div>
                     </div>
 
-                    <section aria-labelledby="products-heading" className="pb-24 pt-6">
+                    <section aria-labelledby="products-heading" className="pb-24 pt-4">
                         <h2 id="products-heading" className="sr-only">
                             Products
                         </h2>
@@ -170,7 +155,7 @@ export default function TeacherPage() {
                                 <h3 className="sr-only">Categories</h3>
 
                                 {category?.map((section: any) => (
-                                    <Disclosure as="div" key={section.id} className="border-b border-gray-200 py-6" defaultOpen>
+                                    <Disclosure as="div" key={section.id} className="border-b p-4 border-gray-200" defaultOpen>
                                         {({ open }) => (
                                             <>
 
@@ -188,43 +173,52 @@ export default function TeacherPage() {
                                                 </h3>
                                                 <Disclosure.Panel className={`pt-6`}>
                                                     <div className="space-y-4">
-                                                        {section.options.map((option: any, optionIdx: any) => (
-                                                            <div key={option.id} className="flex items-center">
-                                                                <input
-                                                                    id={`filter-${section.id}-${optionIdx}`}
-                                                                    name={`${section.id}`}
-                                                                    defaultValue={option.id}
-                                                                    type="checkbox"
-                                                                    defaultChecked={option.checked}
-                                                                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                                                />
-                                                                <label
-                                                                    htmlFor={`filter-${section.id}-${optionIdx}`}
-                                                                    className="ml-3 text-sm text-gray-600"
-                                                                >
-                                                                    {option.name}
-                                                                </label>
-                                                            </div>
-                                                        ))}
+                                                        {
+                                                            section.id !== 'maxPrice' ?
+                                                                section?.options?.map((option: any, optionIdx: any) => (
+
+                                                                    <div key={option.id} className="flex items-center">
+                                                                        <input
+                                                                            id={`filter-${section.id}-${optionIdx}`}
+                                                                            name={`${section.id}`}
+                                                                            defaultValue={option.id}
+                                                                            type="checkbox"
+                                                                            defaultChecked={option.checked}
+                                                                            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:blue-500"
+                                                                        />
+                                                                        <label
+                                                                            htmlFor={`filter-${section.id}-${optionIdx}`}
+                                                                            className="ml-3 text-sm text-gray-600"
+                                                                        >
+                                                                            {option.name}
+                                                                        </label>
+                                                                    </div>
+                                                                )) : <div className="relative mb-6">
+                                                                    <input name={section.id} id="labels-range-input" type="range" defaultValue={Number(section.value) || 5000000} min="0" max="5000000" className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" />
+                                                                    <span className="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-6">0</span>
+                                                                    <span className="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-6">5.000.000</span>
+                                                                </div>}
                                                     </div>
                                                 </Disclosure.Panel>
                                             </>
                                         )}
                                     </Disclosure>
                                 ))}
+
+
                                 <button className='px-5 h-11 w-full mt-5 bg-primary font-medium rounded-md border-primary text-white'>Lọc</button>
                             </form>
 
                             <div className="lg:col-span-3 flex-1">
-                                {/* <div className='grid grid-cols-2 gap-x-8 gap-y-8 mt-2'>
+                                <div className='grid grid-cols-2 gap-x-8 gap-y-8 mt-2'>
                                     {
-                                        teachers?.map((exam: any) => {
+                                        teachers?.map((teacher: any) => {
                                             return (
-                                                <Link key={exam.id} href={`exam/${exam.id}`} className=''>
-                                                    <div className='bg-white shadow-card_course rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300'>
+                                                <Link key={teacher.id} href={`teacher/${teacher.id}`} className=''>
+                                                    <div className='bg-white shadow-card_teacher rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300'>
                                                         <div className='relative w-full h-60'>
                                                             <Image
-                                                                src={`${exam.thumbnail}`}
+                                                                src={`${teacher.thumbnail}`}
                                                                 fill
                                                                 className='rounded-tl-2xl rounded-tr-2xl overflow-hidden object-cover object-center'
                                                                 alt="logo"
@@ -245,35 +239,35 @@ export default function TeacherPage() {
                                                                 </div>
                                                             </div>
                                                             <h3 className="overflow-hidden text-[#17134] mt-4 h-8 font-bold">
-                                                                {exam.name}
+                                                                {teacher.name}
                                                             </h3>
 
 
                                                             <div className="flex items-center mt-4">
-                                                                {renderStars(Math.floor(exam?.average_rating))}
-                                                                <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{exam?.average_rating.toFixed(1)}</span>
+                                                                {renderStars(Math.floor(teacher?.average_rating))}
+                                                                <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{teacher?.average_rating.toFixed(1)}</span>
                                                             </div>
                                                             <div className='mt-4 grid grid-cols-2 gap-2'>
                                                                 <div className='flex items-center'>
                                                                     <ClockIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{convertTime(exam?.total_duration)} giờ</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{convertTime(teacher?.total_duration)} giờ</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
                                                                     <Squares2X2Icon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{exam?.total_chapter} chương</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_chapter} chương</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
                                                                     <FilmIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{exam?.total_lecture} bài giảng</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_lecture} bài giảng</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
                                                                     <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{exam?.total_exam} đề thi</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_exam} đề thi</span>
                                                                 </div>
 
                                                             </div>
                                                             <div className='mt-6'>
-                                                                <span className='text-xl text-primary font-extrabold'>{formatCash(`${exam.price}`)} VNĐ</span>
+                                                                <span className='text-xl text-primary font-extrabold'>{formatCash(`${teacher.price}`)} VNĐ</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -281,7 +275,7 @@ export default function TeacherPage() {
                                             )
                                         })
                                     }
-                                </div> */}
+                                </div>
                             </div>
                         </div>
                     </section>

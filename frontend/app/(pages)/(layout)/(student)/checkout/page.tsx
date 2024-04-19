@@ -60,69 +60,9 @@ export default function CheckoutPage() {
                         })
                     }
 
-                    <p className="mt-8 text-lg font-medium">Phương thức thanh toán</p>
-                    <form className="mt-5 grid gap-6">
-                        <div className="relative">
-                            <input
-                                className="peer hidden"
-                                id="radio_1"
-                                type="radio"
-                                name="radio"
-                                defaultChecked
-                            />
-                            <span className="peer-checked:border-gray-700 absolute right-4 top-1/2 box-content block h-3 w-3 -translate-y-1/2 rounded-full border-8 border-gray-300 bg-white" />
-                            <label
-                                className="peer-checked:border-2 peer-checked:border-gray-700 peer-checked:bg-gray-50 flex cursor-pointer select-none rounded-lg border border-gray-300 p-4"
-                                htmlFor="radio_1"
-                            >
-                                <div className='relative w-12 h-12'>
-                                    <Image
-                                        src={`${'/images/momo.png'}`}
-                                        fill
-                                        className='rounded-md overflow-hidden object-cover object-center'
-                                        alt="logo"
-                                    />
-                                </div>
-                                <div className="ml-5">
-                                    <span className="mt-2 font-semibold">MOMO</span>
-                                    <p className="text-slate-500 text-sm leading-6">
-                                        Thanh toán qua ví điện tử momo.
-                                    </p>
-                                </div>
-                            </label>
-                        </div>
-                        <div className="relative">
-                            <input
-                                className="peer hidden"
-                                id="radio_2"
-                                type="radio"
-                                name="radio"
-                            />
-                            <span className="peer-checked:border-gray-700 absolute right-4 top-1/2 box-content block h-3 w-3 -translate-y-1/2 rounded-full border-8 border-gray-300 bg-white" />
-                            <label
-                                className="peer-checked:border-2 peer-checked:border-gray-700 peer-checked:bg-gray-50 flex cursor-pointer select-none rounded-lg border border-gray-300 p-4"
-                                htmlFor="radio_2"
-                            >
-                                <div className='relative w-12 h-12'>
-                                    <Image
-                                        src={`${'/images/credit_card.png'}`}
-                                        fill
-                                        className='rounded-md overflow-hidden object-cover object-center'
-                                        alt="logo"
-                                    />
-                                </div>
-                                <div className="ml-5">
-                                    <span className="mt-2 font-semibold">Ngân hàng</span>
-                                    <p className="text-slate-500 text-sm leading-6">
-                                        Thanh toán bằng cách chuyển khoản.
-                                    </p>
-                                </div>
-                            </label>
-                        </div>
-                    </form>
                 </div>
                 <div className="px-2 pt-8 w-1/2 ">
-                    <p className="text-xl font-medium">Thông tin thanh toán</p>
+                    {/* <p className="text-xl font-medium">Thông tin thanh toán</p>
                     <p className="text-gray-400">
                         Hoàn thành đơn hàng của bạn bằng cách điền thông tin bên dưới.
                     </p>
@@ -189,21 +129,80 @@ export default function CheckoutPage() {
                                 />
                             </div>
                         </div>
-                        {/* Total */}
-                        <div className="mt-6 border-t border-b py-4">
-                            <div className="flex items-center justify-between mb-3">
-                                <p className="text-sm font-medium text-gray-900">Tổng phụ</p>
-                                <p className="font-semibold text-gray-900">{formatCash(`${total}`)} VNĐ</p>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <p className="text-sm font-medium text-gray-900">Khuyển mãi</p>
-                                <p className="font-semibold text-gray-900">0</p>
-                            </div>
+                    </div> */}
+                    <p className="mt-8 text-lg font-medium">Phương thức thanh toán</p>
+                    <form className="mt-5 grid gap-6">
+                        <div className="relative">
+                            <input
+                                className="peer hidden"
+                                id="radio_1"
+                                type="radio"
+                                name="radio"
+                                defaultChecked
+                            />
+                            <span className="peer-checked:border-gray-700 absolute right-4 top-1/2 box-content block h-3 w-3 -translate-y-1/2 rounded-full border-8 border-gray-300 bg-white" />
+                            <label
+                                className="peer-checked:border-2 peer-checked:border-gray-700 peer-checked:bg-gray-50 flex cursor-pointer select-none rounded-lg border border-gray-300 p-4"
+                                htmlFor="radio_1"
+                            >
+                                <div className='relative w-12 h-12'>
+                                    <Image
+                                        src={`${'/images/momo.png'}`}
+                                        fill
+                                        className='rounded-md overflow-hidden object-cover object-center'
+                                        alt="logo"
+                                    />
+                                </div>
+                                <div className="ml-5">
+                                    <span className="mt-2 font-semibold">MOMO</span>
+                                    <p className="text-slate-500 text-sm leading-6">
+                                        Thanh toán qua ví điện tử momo.
+                                    </p>
+                                </div>
+                            </label>
                         </div>
-                        <div className="mt-6 flex items-center justify-between">
-                            <p className="text-sm font-medium text-gray-900">Tổng</p>
-                            <p className="text-2xl font-semibold text-gray-900">{formatCash(`${total}`)} VNĐ</p>
+                        <div className="relative">
+                            <input
+                                className="peer hidden"
+                                id="radio_2"
+                                type="radio"
+                                name="radio"
+                            />
+                            <span className="peer-checked:border-gray-700 absolute right-4 top-1/2 box-content block h-3 w-3 -translate-y-1/2 rounded-full border-8 border-gray-300 bg-white" />
+                            <label
+                                className="peer-checked:border-2 peer-checked:border-gray-700 peer-checked:bg-gray-50 flex cursor-pointer select-none rounded-lg border border-gray-300 p-4"
+                                htmlFor="radio_2"
+                            >
+                                <div className='relative w-12 h-12'>
+                                    <Image
+                                        src={`${'/images/credit_card.png'}`}
+                                        fill
+                                        className='rounded-md overflow-hidden object-cover object-center'
+                                        alt="logo"
+                                    />
+                                </div>
+                                <div className="ml-5">
+                                    <span className="mt-2 font-semibold">Ngân hàng</span>
+                                    <p className="text-slate-500 text-sm leading-6">
+                                        Thanh toán bằng cách chuyển khoản.
+                                    </p>
+                                </div>
+                            </label>
                         </div>
+                    </form>
+                    <div className="mt-6 border-t border-b py-4">
+                        <div className="flex items-center justify-between mb-3">
+                            <p className="text-sm font-medium text-gray-900">Tổng phụ</p>
+                            <p className="font-semibold text-gray-900">{formatCash(`${total}`)} VNĐ</p>
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <p className="text-sm font-medium text-gray-900">Khuyển mãi</p>
+                            <p className="font-semibold text-gray-900">0</p>
+                        </div>
+                    </div>
+                    <div className="mt-6 flex items-center justify-between">
+                        <p className="text-sm font-medium text-gray-900">Tổng</p>
+                        <p className="text-2xl font-semibold text-gray-900">{formatCash(`${total}`)} VNĐ</p>
                     </div>
                     <button onClick={async () => {
                         let res: any

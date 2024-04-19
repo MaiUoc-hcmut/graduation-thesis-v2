@@ -72,8 +72,8 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                 )
         }
         fetchData()
-    }, [topicId, change]);
-    // comments?.sort(function (a: any, b: any) { return Date.parse(b.createdAt) - Date.parse(a.createdAt) })
+    }, [topicId, change, currentPageComment]);
+
 
     console.log(user);
 
@@ -231,9 +231,12 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                                             }
                                                                             <p className='text-[#828282] text-sm mr-2'>{formatDateTime(cmt.createdAt)}</p>
                                                                         </div>
-                                                                        <div className='flex'>
-                                                                            <button className='text-red-500 text-sm mr-2' onClick={() => setModal({ ...modal, [`delete-comment${cmt.id}`]: true })}>Xóa</button>
-                                                                        </div>
+                                                                        {
+                                                                            cmt.id_user === user.id ? <div className='flex'>
+                                                                                <button className='text-red-500 text-sm mr- 2' onClick={() => setModal({ ...modal, [`delete-comment${cmt.id}`]: true })}>Xóa</button>
+                                                                            </div> : null
+                                                                        }
+
                                                                     </div>
                                                                     <div>
                                                                         <div className='mt-2 max-w-3xl min-w-80'>{parse(cmt.content)}</div>

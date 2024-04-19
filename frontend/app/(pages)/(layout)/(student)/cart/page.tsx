@@ -28,11 +28,9 @@ export default function Cart() {
     };
     useEffect(() => {
         async function fetchData() {
-            await paymentApi.getCartOfStudent(user.id).then(async (data: any) => {
-                await paymentApi.getCart(data).then((data: any) => {
-                    setCartItems(data.data)
-                }
-                )
+            await paymentApi.getCartOfStudent(user.id).then((data: any) => {
+
+                setCartItems(data.data)
             }
             )
         }

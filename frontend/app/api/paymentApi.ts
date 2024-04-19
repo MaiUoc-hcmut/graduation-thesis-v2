@@ -12,16 +12,12 @@ const paymentApi = {
         const url = `/cart/${id_cart}`;
         return axiosConfig.post(url, { data: { id_course } });
     },
-    getCart: (id_student: any) => {
-        const url = `/cart/${id_student}`;
-        return axiosConfig.get(url);
-    },
     deleteCart: (id_course: any, data: any) => {
         const url = `/cart/${id_course}`;
         return axiosConfig.delete(url, { data });
     },
     getCartOfStudent: (id_student: any) => {
-        const url = `/cart/${id_student}`;
+        const url = `/cart/student/${id_student}`;
         return axiosConfig.get(url);
     },
 

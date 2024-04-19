@@ -54,27 +54,8 @@ export default function CourseDashboard() {
 
     return (
         <div className="">
-            <div className="">
-                <div className="font-bold text-[#171347] text-lg">Khóa học của tôi</div>
-                <div className="flex justify-between items-center mt-10 mb-10 w-full ">
-                    <form className="flex items-center w-1/3">
-                        <label htmlFor="simple-search" className="sr-only">Search</label>
-                        <div className="relative w-full">
-                            <input onChange={(e: any) => {
-                                courseApi.searchCourseByCreateTeacher(`${user.id}`, { query: e.target.value }).then((data: any) => {
-                                    setCourses(data.data.result)
-                                })
-                                setSearchInput(e.target.value)
-                            }} type="text" id="simple-search" className="w-full text-sm text-[#343434]  rounded-md border-[1px] border-[#ececec] focus:ring-0 focus:border-primary_border" placeholder="Tìm kiếm trong khóa học" required />
-                        </div>
-                        <button type="submit" className="ml-2 bg-primary p-2.5 rounded-md shadow-primary_btn_shadow border-primary text-white hover:bg-primary_hover">
-                            <MagnifyingGlassIcon className='w-4 h-4' />
-                            <span className="sr-only">Search</span>
-                        </button>
-                    </form>
-                </div>
 
-            </div>
+            <div className="font-bold text-[#171347] text-lg">Khóa học của tôi</div>
             <div className="mt-8">
                 {
                     courses?.map((data: any) => {
@@ -96,10 +77,6 @@ export default function CourseDashboard() {
                                             <h3 className="text-[#171347] font-bold text-lg">
                                                 {course?.name}
                                             </h3>
-
-                                            {/* <Dropdown label="" renderTrigger={() => <EllipsisVerticalIcon className="w-7 h-7" />} placement="left">
-                                                <Dropdown.Item><Link href={`/course/learning/${course?.id}`}>Đến trang học</Link></Dropdown.Item>
-                                            </Dropdown> */}
                                         </div>
                                         <div className="flex items-center mt-4">
                                             {
@@ -114,13 +91,13 @@ export default function CourseDashboard() {
                                         <div className='flex items-center mt-4 '>
                                             <div className='w-[400px]'>
                                                 <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                                                    <div className="bg-yellow-300 h-2.5 rounded-full" style={{ width: `10%` }} />
+                                                    <div className="bg-yellow-300 h-2.5 rounded-full" style={{ width: `${data?.progress ? data?.progress : '0%'}` }} />
                                                 </div>
                                             </div>
-                                            <span className='ml-3 font-medium text-[#818894]'>Hoàn thành {'10%'}</span>
+                                            <span className='ml-3 font-medium text-[#818894]'>Hoàn thành {`${data?.progress ? data?.progress : '0%'}`}</span>
                                         </div>
                                         <div className="mt-2">
-                                            Giáo viên giảng dạy: <span className="font-semibold">Lê Văn A</span>
+                                            Giáo viên giảng dạy: <span className="font-semibold">{data?.teacher?.name}</span>
                                         </div>
                                     </div>
 
