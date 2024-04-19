@@ -17,6 +17,7 @@ Transaction.init({
     },
     orderId: {
         type: DataTypes.STRING,
+        unique: true,
     },
     orderType: {
         type: DataTypes.STRING,

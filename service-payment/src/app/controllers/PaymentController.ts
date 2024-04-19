@@ -193,7 +193,7 @@ class PaymentController {
                 where: { id_user }
             });
 
-            if (transactionBody.message === 'Successfull' || transactionBody.message === 'successfull') {
+            if (transactionBody.message === 'Successful.' || transactionBody.message === 'successful.') {
                 await CartCourse.destroy({
                     where: { id_cart: cart.id }
                 }, {
