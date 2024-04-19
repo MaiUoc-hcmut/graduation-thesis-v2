@@ -167,7 +167,7 @@ class VideoController {
             }
             const dateTime = fileUpload.giveCurrentDateTime();
 
-            let body = req.body;
+            let body = req.body.data;
 
             if (typeof(body) == 'string') {
                 body = JSON.parse(body);
@@ -207,6 +207,7 @@ class VideoController {
 
             if (!topic) {
                 await CourseDraft.create({
+                    id_course: course.id,
                     url,
                     duration,
                     id_topic: body.id_topic,

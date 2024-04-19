@@ -288,15 +288,8 @@ class ReviewController {
             if (object === "course") {
                 const course = await Course.findByPk(body.id_course);
 
-                const total_review = course.total_review + 1;
-                const average_rating = ((course.average_rating * course.total_review) + body.rating) / total_review;
-
-                await course.update({
-                    total_review,
-                    average_rating,
-                }, {
-                    transaction: t
-                });
+                let total_review: number = course.total_review;
+                let average_rating: number = course.average_rating;
 
                 const review = await Review.findOne({
                     where: {
@@ -306,8 +299,21 @@ class ReviewController {
                 });
 
                 if (review) {
+                    const deletedRating = review.rating;
+                    average_rating = ((course.average_rating * course.total_review) - deletedRating + body.rating) / total_review;
                     await review.destroy({ transaction: t });
+                } else {
+                    total_review = course.total_review + 1;
+                    average_rating = ((course.average_rating * course.total_review) + body.rating) / total_review;
                 }
+
+                await course.update({
+                    total_review,
+                    average_rating: average_rating,
+                }, {
+                    transaction: t
+                });
+
             }
             if (object === "teacher") {
                 const review = await Review.findOne({

@@ -1,6 +1,7 @@
 const Forum = require('../../db/models/forum');
 const TopicForum = require('../../db/models/topicforum');
 const Answer = require('../../db/models/answer'); 
+const Course = require('../../db/models/course');
 
 const FileUpload = require('../../config/firebase/fileUpload');
 const Authorize = require('../middleware/authorize');
@@ -198,6 +199,7 @@ class TopicForumController {
             });
 
             const forum = await Forum.findByPk(body.id_forum);
+            const course = await Course.findByPk(forum.id_course);
 
             const total_topic = forum.total_topic + 1;
 
@@ -205,7 +207,9 @@ class TopicForumController {
 
             const data = {
                 id_forum: forum.id,
-                name: body.title
+                name: body.title,
+                id_topic: topic.id,
+                course_name: course.name
             }
 
             const response = await axios.post(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/create-topic`, { data });
