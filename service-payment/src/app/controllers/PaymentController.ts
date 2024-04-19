@@ -200,8 +200,12 @@ class PaymentController {
                     transaction: t
                 });
 
+                const data = {
+                    id_student: id_user
+                }
+
                 for (const course of courses) {
-                    const response = await axios.post(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${course}`);
+                    const response = await axios.post(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${course}`, { data });
                 }
             }
 

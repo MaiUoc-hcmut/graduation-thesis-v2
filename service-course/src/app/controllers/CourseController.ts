@@ -686,7 +686,7 @@ class CourseController {
     studentBuyACourse = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
-            const id_student = req.student.data.id;
+            const { id_student } = req.body.data;
             const id_course = req.params.courseId;
 
             await StudentCourse.create({
