@@ -49,7 +49,7 @@ class CouponController {
                 include: [
                     {
                         model: Course,
-                        attributes: ['id', 'name', 'thumbnail', 'cover_image'],
+                        // attributes: ['id', 'name', 'thumbnail', 'cover_image'],
                         through: {
                             attributes: []
                         }

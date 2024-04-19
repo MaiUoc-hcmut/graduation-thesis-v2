@@ -113,8 +113,7 @@ class ExamController {
                             attributes: [],
                         },
                     },
-                ],
-                group: ['Exam.id']
+                ]
             }
 
             if (categories.length > 0) {
@@ -122,8 +121,9 @@ class ExamController {
                     id: {
                         [Op.in]: categories,
                     },
-                }
-                queryOption.having = sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`)
+                };
+                queryOption.group = ['Exam.id'];
+                queryOption.having = sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`);
             }
 
             const count = await Exam.count({
@@ -141,7 +141,7 @@ class ExamController {
 
             
             for (const exam of exams) {
-                const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${exam.id_teacher}`);
+                const user = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/teacher/get-teacher-by-id/${exam.id_teacher}`);
                 exam.dataValues.user = { id: user.data.id, name: user.data.name };
 
                 for (const category of exam.Categories) {

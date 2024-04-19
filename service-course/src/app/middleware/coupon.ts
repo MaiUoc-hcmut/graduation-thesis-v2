@@ -7,6 +7,7 @@ const createError = require('http-errors');
 class CheckingCoupon {
     checkGetCouponOfTeacher = async (req: Request, _res: Response, next: NextFunction) => {
         try {
+            console.log(req.user?.user);
             const id_teacher = req.params.teacherId;
             const id_user = req.user?.user.data.id;
             const role = req.user?.role;
