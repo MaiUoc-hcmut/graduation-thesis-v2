@@ -140,7 +140,7 @@ class NotificationController {
     notifyCreateTopic = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
-            const { id_forum, name, id_topic, course_name } = req.body.data;
+            const { id_forum, id_course, name, id_topic, course_name } = req.body.data;
 
             const io = socketInstance.getIoInstance();
 
@@ -160,6 +160,7 @@ class NotificationController {
                 name,
                 id_topic,
                 id_forum,
+                id_course,
                 course_name
             }));
 

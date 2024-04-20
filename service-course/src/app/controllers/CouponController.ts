@@ -73,6 +73,11 @@ class CouponController {
         try {
             const id_teacher = req.teacher.data.id;
             const { courses, ...couponBody } = req.body.data;
+            if (!couponBody.start_time) {
+                return res.status(400).json({
+                    message: "Coupon must have start date"
+                });
+            }
             if (!couponBody.expire) {
                 return res.status(400).json({
                     message: "Coupon must have expire date"
@@ -84,6 +89,7 @@ class CouponController {
                 });
             }
             couponBody.expire = new Date(couponBody.expire);
+            couponBody.start_time = new Date(couponBody.start_time);
 
             const coupon = await Coupon.create({
                 ...couponBody,

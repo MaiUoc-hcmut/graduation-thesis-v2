@@ -24,6 +24,10 @@ Coupon.init({
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
     },
+    start_time: {
+        type: DataTypes.DATE,
+        allowNull: false
+    },
     expire: {
         type: DataTypes.DATE,
         allowNull: false

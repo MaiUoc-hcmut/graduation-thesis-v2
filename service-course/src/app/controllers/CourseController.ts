@@ -226,7 +226,7 @@ class CourseController {
 
             const count = await Course.count({
                 ...queryOption,
-                raw: true
+                distinct: true
             });
 
             const courses = await Course.findAll({

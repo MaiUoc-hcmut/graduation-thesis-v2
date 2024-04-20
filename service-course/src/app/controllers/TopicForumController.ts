@@ -219,6 +219,7 @@ class TopicForumController {
 
             const data = {
                 id_forum: forum.id,
+                id_course: forum.id_course,
                 name: body.title,
                 id_topic: topic.id,
                 course_name: course.name
