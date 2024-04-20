@@ -11,7 +11,8 @@ import { BellIcon } from "@heroicons/react/24/solid"
 import { InformationCircleIcon } from "@heroicons/react/24/outline"
 import io from "socket.io-client";
 import { useEffect, useState } from 'react';
-import courseApi from '@/app/api/courseApi';
+import notifyApi from '@/app/api/notifyApi';
+import { convertToVietnamTime } from '@/app/helper/FormatFunction';
 
 export default function HeaderTeacher() {
     const dispatch = useDispatch<AppDispatch>();
@@ -20,35 +21,38 @@ export default function HeaderTeacher() {
     const isAuth = (authReducer?.isAuth == "true" || authReducer?.isAuthTeacher == "true") ? true : false
     const { user } = useAppSelector(state => state.authReducer);
     const [notifycations, setNotifycations] = useState<any>([])
+    const [change, setChange] = useState(false)
 
-    // useEffect(() => {
-    //     async function fetchCategory() {
-    //         if (user) {
-    //             const socket = io("http://localhost:4003", { transports: ["websocket"] });
-    //             socket.emit("new_user_online", user.id);
-    //             await courseApi.getNotify(`${user.id}`).then((data) => {
-    //                 setNotifycations(data.data)
-    //             })
-    //             socket.on("created_course", (data) => {
-    //                 // setNotifycations((notify: any) => {
-    //                 //     notify.push((data))
-    //                 //     return notify
-    //                 // })
-    //                 console.log(data);
+    useEffect(() => {
+        async function fetchData() {
+            if (user) {
+                const socket = io("http://localhost:4003", { transports: ["websocket"] });
+                socket.emit("new_user_online", user.id);
+                socket.on("created_course", (data) => {
 
-    //             });
-    //             socket.on("created_exam", (data) => {
-    //             });
-    //             socket.on("reported_error", (data) => {
-    //             });
-    //             socket.on("created_topic", (data) => {
-    //             });
-    //         }
-    //     }
-    //     fetchCategory()
+                });
+                socket.on("created_exam", (data) => {
+                });
+                socket.on("reported_error", (data) => {
+                });
+                socket.on("created_topic", (data) => {
+                });
+            }
+        }
+        fetchData()
 
 
-    // }, [user]);
+    }, [user]);
+    useEffect(() => {
+        async function fetchData() {
+            if (user) {
+                await notifyApi.getNotify(`${user.id}`).then((data) => {
+                    setNotifycations(data.data)
+                })
+            }
+        }
+        fetchData()
+    }, [user, change]);
 
     return (
         <header className="antialiased fixed top-0 left-0 w-full z-50 shadow- border-b-[1px] border-b-[#ececec] shadow-header_teacher">
@@ -93,6 +97,7 @@ export default function HeaderTeacher() {
                                         data-dropdown-toggle="dropdownNotification"
                                         className="relative flex justify-center items-center text-sm font-medium text-center text-gray-500 hover:text-gray-600 focus:outline-none dark:hover:text-white dark:text-gray-400"
                                         type="button"
+                                        onClick={() => setChange(!change)}
                                     >
                                         <BellIcon className='w-6 h-6' />
                                         <div className="absolute block w-3 h-3 bg-red-500 border-2 border-white rounded-full -top-0 start-3 dark:border-gray-900" />
@@ -100,7 +105,7 @@ export default function HeaderTeacher() {
                                     {/* Dropdown menu */}
                                     <div
                                         id="dropdownNotification"
-                                        className="z-20 hidden w-80 max-w-sm bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-800 dark:divide-gray-700"
+                                        className="z-20 hidden w-96 max-w-sm bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-800 dark:divide-gray-700"
                                         aria-labelledby="dropdownNotificationButton"
                                     >
                                         <div className="block px-4 py-2 font-medium text-center text-gray-700 rounded-t-lg bg-gray-50 dark:bg-gray-800 dark:text-white">
@@ -122,15 +127,15 @@ export default function HeaderTeacher() {
                                                                     <div>
                                                                         <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
                                                                             Thông báo mới từ {" "}
-                                                                            <span className="font-semibold text-gray-900 dark:text-white">
-                                                                                Hệ thống
+                                                                            <span className="">
+                                                                                hệ thống
                                                                             </span>
                                                                             {": "}
-                                                                            {notify.content}
+                                                                            <>Khóa học <span className='font-medium text-black'>{notify.name}</span>  vừa được tạo thành công</>
 
                                                                         </div>
                                                                         <div className="text-xs text-blue-600 dark:text-blue-500">
-                                                                            {notify.createdAt}
+                                                                            {convertToVietnamTime(notify.createdAt)}
                                                                         </div>
                                                                     </div>
                                                                 </div>

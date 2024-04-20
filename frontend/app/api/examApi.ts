@@ -21,6 +21,11 @@ const examApi = {
         return await axiosConfig.get(url);
     },
 
+    getAssigmnentByTeacherId: async (id_teacher: string, page: number) => {
+        const url = `/assignments/teacher/${id_teacher}/page/${page}`;
+        return await axiosConfig.get(url);
+    },
+
     getDetailAssigmnent: async (id_assignment: string) => {
         const url = `/assignments/full/${id_assignment}`;
         return await axiosConfig.get(url);

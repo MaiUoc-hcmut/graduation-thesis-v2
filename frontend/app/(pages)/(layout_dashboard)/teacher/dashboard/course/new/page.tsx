@@ -26,6 +26,8 @@ type CourseData = {
     thumbnail: Array<File>
     cover: Array<File>
     chapters: Array<ChapterData>
+    start_time: string
+    end_time: string
 }
 
 type ChapterData = {
@@ -56,6 +58,8 @@ const INITIAL_DATA: CourseData = {
     description: "",
     thumbnail: [],
     cover: [],
+    start_time: "",
+    end_time: "",
     chapters: [
     ]
 }
@@ -77,6 +81,7 @@ export default function CreateCourse() {
 
     const {
         handleSubmit,
+        setError,
         formState: { errors },
     } = handleForm
 
@@ -86,6 +91,7 @@ export default function CreateCourse() {
             <BasicInfomationForm key={'step1'} id_course={id_course} handleForm={handleForm} images={images} setImages={setImages} />,
             <ContentForm key={'step2'} data={data} id_course={id_course} setData={setData} handleForm={handleForm} toggle={toggle} setToggle={setToggle} typeSubmit={typeSubmit} setTypeSubmit={setTypeSubmit} />,
         ], currentStepIndex, setCurrentStepIndex)
+
 
     return (
         < div className="" >
@@ -131,7 +137,15 @@ export default function CreateCourse() {
             <div className="flex flex-col ">
                 <form onSubmit={
                     handleSubmit(async (dataForm: any) => {
-
+                        const startTime = dataForm["start_time"];
+                        const endTime = dataForm["end_time"];
+                        if (startTime !== undefined && endTime !== undefined && startTime > endTime) {
+                            setError("start_time", {
+                                type: "validate",
+                                message: "Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc."
+                            });
+                            return;
+                        }
                         if (!(Object.entries(errors).length === 0)) return
                         setToggle({ ...toggle, [`${typeSubmit}`]: false })
                         setData(dataForm)

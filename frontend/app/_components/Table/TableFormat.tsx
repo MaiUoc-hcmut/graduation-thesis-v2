@@ -30,12 +30,13 @@ interface DataTableProps<TData, TValue> {
     data: TData[]
 }
 
-
-
 export function DataTable<TData, TValue>({
     columns,
     data,
-}: DataTableProps<TData, TValue>) {
+    page,
+    setPage,
+    pageCount,
+}: any) {
 
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
@@ -59,7 +60,7 @@ export function DataTable<TData, TValue>({
 
     return (
         <div>
-            <div className="flex items-center py-4">
+            {/* <div className="flex items-center py-4">
                 <Input
                     placeholder="Lọc theo tên khóa học..."
                     defaultValue={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
@@ -69,7 +70,7 @@ export function DataTable<TData, TValue>({
                     }
                     className="max-w-sm"
                 />
-            </div>
+            </div> */}
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>
@@ -124,16 +125,19 @@ export function DataTable<TData, TValue>({
                 <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
+                    onClick={() => setPage(page - 1)} disabled={page === 1}
+                // onClick={() => table.previousPage()}
+                // disabled={!table.getCanPreviousPage()}
                 >
                     Trước
                 </Button>
+                <span>Trang {page} / {pageCount}</span>
                 <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
+                    onClick={() => setPage(page + 1)} disabled={page === pageCount}
+                // onClick={() => table.nextPage()}
+                // disabled={!table.getCanNextPage()}
                 >
                     Tiếp theo
                 </Button>

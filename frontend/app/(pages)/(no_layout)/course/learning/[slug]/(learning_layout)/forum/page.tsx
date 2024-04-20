@@ -300,7 +300,7 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                         </Modal>
                                     </>
                                     <div className='flex w-full'>
-                                        <div className='flex-1 bg-[#f7fafd] p-4 rounded-lg'>
+                                        <div className='w-1/5 bg-[#f7fafd] p-4 rounded-lg'>
                                             <div className=' flex-1 flex flex-col justify-center items-center p-2 pt-0'>
                                                 <div className='p-[6px] bg-white rounded-full'>
                                                     <Image
@@ -319,7 +319,7 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className='ml-5 w-4/6 '>
+                                        <div className='ml-5 flex-1 pr-4'>
                                             <Link href={`/course/learning/${params.slug}/forum/${topic.id}`}>
                                                 <h3 className='text-[#171347] font-bold'>{topic.title}</h3>
                                             </Link>

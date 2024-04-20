@@ -20,6 +20,10 @@ const paymentApi = {
         const url = `/cart/student`;
         return axiosConfig.get(url);
     },
+    getTransactionOfTeacher: (id_teacher: string) => {
+        const url = `/payment/transaction/${id_teacher}`;
+        return axiosConfig.get(url);
+    },
     sendInfoTransaction: (data: object) => {
         const url = `/payment/receive-ipn`;
         return axiosConfig.post(url, data);

@@ -321,7 +321,7 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                     </div>
                     <div className='mt-5'>
                         <h3 className='text-secondary font-bold text-xl'>Phản hồi</h3>
-                        <div className='mt-6 rounded-lg border-[1px] border-[#ececec] p-4 flex w-full'>
+                        <div className='mt-4 rounded-lg border-[1px] border-[#ececec] p-4 flex w-full'>
                             <div className='flex w-full'>
                                 <div className='flex-1 h-auto bg-[#f7fafd] p-4 rounded-lg flex justify-center items-center'>
                                     <div className=' flex-1 flex flex-col justify-center items-center p-2 pt-0'>

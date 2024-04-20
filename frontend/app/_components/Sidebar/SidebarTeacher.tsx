@@ -189,26 +189,16 @@ export default function SidebarTeacher() {
                                 <ul id="finance" className="hidden py-2 space-y-2">
                                     <li>
                                         <Link
-                                            href="/teacher/dashboard/exam/new"
-                                            className={`${pathname == '/teacher/dashboard/exam/new' ? 'bg-slate-100' : ''} ml-4 flex items-center p-2 text-gray-900 transition duration-75 rounded-lg pl-2 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700`}
+                                            href="/teacher/dashboard/finance"
+                                            className={`${pathname == '/teacher/dashboard/finance' ? 'bg-slate-100' : ''} ml-4 flex items-center p-2 text-gray-900 transition duration-75 rounded-lg pl-2 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700`}
                                         >
                                             <div className='ml-2'>
-                                                Thống kê bán hàng
+                                                Danh sách giao dịch
                                             </div>
 
                                         </Link>
                                     </li>
-                                    <li>
-                                        <Link
-                                            href="/teacher/dashboard/exam"
-                                            className={`${pathname == '/teacher/dashboard/exam' ? 'bg-slate-100' : ''} ml-4 flex items-center p-2 text-gray-900 transition duration-75 rounded-lg pl-2 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700`}
-                                        >
-                                            <div className='ml-2'>
-                                                Khuyến mãi của tôi
-                                            </div>
 
-                                        </Link>
-                                    </li>
 
                                 </ul>
                             </li>

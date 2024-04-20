@@ -65,8 +65,6 @@ export function BasicInfomationForm({
         fetchCategory()
     }, []);
 
-    console.log(getValues(), files);
-
     return (
         <>
             <div className="mb-5 w-1/3">
@@ -197,25 +195,29 @@ export function BasicInfomationForm({
                 </p>
 
             </div>
-            <div className="mb-5 w-1/3">
+            <div className="mb-5">
                 <label
-                    htmlFor="price"
+                    htmlFor="time"
                     className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
                 >
                     Thời gian diễn ra khóa học
                 </label>
                 <div className="flex items-center">
-
                     <div className="">
-                        <input date-rangepicker='true' name="start" {...register("start_time")} type="date" className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date start" />
+                        <input {...register("start_time", {
+                            required: "Thời gian bắt đầu và thời gian kết thúc không thể thiếu."
+                        })} date-rangepicker="true" type="date" className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date start" />
                     </div>
                     <span className="mx-4 text-gray-500">đến</span>
                     <div className="">
-                        <input date-rangepicker='true' name="end" {...register("end_time")} type="date" className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date end" />
+
+                        <input {...register("end_time", {
+                            required: "Thời gian bắt đầu và thời gian kết thúc không thể thiếu."
+                        })} date-rangepicker="true" type="date" className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date end" />
                     </div>
                 </div>
                 <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                    {errors?.price?.message}
+                    {errors?.start_time?.message?.toString() || errors?.end_time?.message?.toString()}
                 </p>
 
             </div>

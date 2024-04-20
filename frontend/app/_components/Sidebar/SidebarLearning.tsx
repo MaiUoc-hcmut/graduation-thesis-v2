@@ -10,7 +10,9 @@ export default function SidebarLearning({ course, id_course, progress }: any) {
     const initToggle: any = {}
     const [toggle, setToggle] = useState(initToggle)
     const searchParams = useSearchParams();
-    const topicId = searchParams.get('lecture');
+    const lectureId = searchParams.get('lecture')
+    const examId = searchParams.get('exam')
+    const topicId = lectureId || examId;
 
     return (
         <>
@@ -66,7 +68,7 @@ export default function SidebarLearning({ course, id_course, progress }: any) {
                                                             chapter.topics.map((topic: any) => {
                                                                 if (topic.type == "lecture")
                                                                     return (
-                                                                        <Link href={`/course/learning/${id_course}?lecture=${topic.id}`} key={topic.id} className={`${topicId == topic.id ? 'bg-[#f1f1f1]' : 'bg-white'} px-2 py-2 mb-1 cursor-pointer flex items-center`}>
+                                                                        <Link href={`/course/learning/${id_course}?lecture=${topic.id}`} key={topic.id} className={`${topicId == topic.id ? 'bg-[#f1f1f1]' : 'bg-white'} px-2 py-2 mb-1 cursor-pointer flex items-center rounded-sm`}>
                                                                             <span className='mr-3 bg-[#ececec] w-10 h-10 rounded-full flex justify-center items-center'>
                                                                                 <FilmIcon className='w-4 h-4' />
                                                                             </span>
@@ -92,7 +94,7 @@ export default function SidebarLearning({ course, id_course, progress }: any) {
                                                                     )
                                                                 else
                                                                     return (
-                                                                        <Link href={`/course/learning/${id_course}/exam/${topic.id_exam}`} key={topic.id} className={`${topicId == topic.id ? 'bg-[#f1f1f1]' : 'bg-white'} px-2 py-2 mb-1 cursor-pointer flex items-center`}>
+                                                                        <Link href={`/course/learning/${id_course}/?exam=${topic.id_exam}`} key={topic.id} className={`${topicId == topic.id_exam ? 'bg-[#f1f1f1]' : 'bg-white'} px-2 py-2 mb-1 cursor-pointer flex items-center rounded-sm`}>
                                                                             <span className='mr-3 bg-[#ececec] w-10 h-10 rounded-full flex justify-center items-center'>
                                                                                 <DocumentIcon className='w-4 h-4' />
                                                                             </span>

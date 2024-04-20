@@ -85,28 +85,35 @@ class TopicForumController {
                 ]
             });
 
+            if (topic.role === "student") {
+                const author = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${topic.id_user}`);
+
+                topic.dataValues.author = { avatar: author.data.avatar, name: author.data.name, id: author.data.id, role: author.data.role };
+                delete author.dataValues.role;
+            }
+
             for (const answer of topic.answers) {
                 if (answer.role === "student") {
                     const user = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${answer.id_user}`);
 
-                    answer.dataValues.user = { avatar: user.data.avatar, name: user.data.name, role: answer.role };
+                    answer.dataValues.user = { avatar: user.data.avatar, name: user.data.name, role: answer.role, id: user.data.id };
                     delete answer.dataValues.role;
                 } else if (answer.role === "teacher") {
                     const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${answer.id_user}`);
 
-                    answer.dataValues.user = { avatar: user.data.avatar, name: user.data.name, role: answer.role };
+                    answer.dataValues.user = { avatar: user.data.avatar, name: user.data.name, role: answer.role, id: user.data.id };
                     delete answer.dataValues.role;
                 }
                 for (const reply of answer.replies) {
                     if (reply.role === "student") {
                         const user = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${reply.id_user}`);
 
-                        reply.dataValues.user = { avatar: user.avatar, name: user.name, role: reply.role };
+                        reply.dataValues.user = { avatar: user.avatar, name: user.name, role: reply.role, id: user.data.id };
                         delete reply.dataValues.role;
                     } else if (reply.role === "teacher") {
                         const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${reply.id_user}`);
 
-                        reply.dataValues.user = { avatar: user.data.avatar, name: user.data.name, role: reply.role };
+                        reply.dataValues.user = { avatar: user.data.avatar, name: user.data.name, role: reply.role, id: user.data.id };
                         delete reply.dataValues.role;
                     }
                 }

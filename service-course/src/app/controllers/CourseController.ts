@@ -638,6 +638,8 @@ class CourseController {
             const currentPage: number = +req.params.page;
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
+            const id_course = req.query.id_course;
+
             const id_teacher = req.params.teacherId;
             const courses = await Course.findAll({
                 where: {
@@ -645,9 +647,13 @@ class CourseController {
                 }
             });
 
-            const ids = [];
-            for (const course of courses) {
-                ids.push(course.id);
+            const ids: string[] = [];
+            if (typeof id_course === "string") {
+                ids.push(id_course);
+            } else {
+                for (const course of courses) {
+                    ids.push(course.id);
+                }
             }
             const records = await StudentCourse.findAll({
                 where: {

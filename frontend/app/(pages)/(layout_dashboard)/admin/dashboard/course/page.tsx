@@ -1,6 +1,6 @@
 "use client"
 
-import { Course, columns } from "@/app/_components/Table/CourseTable/columns"
+import { Course, columns } from "@/app/_components/Table/CourseColumns/columns"
 import { DataTable } from "@/app/_components/Table/TableFormat"
 import { useEffect, useState } from "react"
 import courseApi from "@/app/api/courseApi"

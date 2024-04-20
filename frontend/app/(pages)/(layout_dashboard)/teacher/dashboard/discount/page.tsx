@@ -65,7 +65,6 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                                 });
                                 return;
                             }
-                            console.log(errors);
 
                             if (!(Object.entries(errors).length === 0)) return
                             const dataForm = {
@@ -166,7 +165,7 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                             </div>
                             <div className="">
                                 <label
-                                    htmlFor="price"
+                                    htmlFor="time"
                                     className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
                                 >
                                     Thời gian diễn ra khuyến mãi
