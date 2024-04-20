@@ -31,6 +31,21 @@ export function formatDateTime(time: string): string {
     return day + "/" + month + "/" + year
 }
 
+export function formatDateTimeEng(time: string): string {
+    const objectDate = new Date(time)
+    let day = objectDate.getDate();
+
+    let month = objectDate.getMonth() + 1;
+
+    let year = objectDate.getFullYear();
+
+    let strDay = day < 10 ? `0${day}` : `${day}`
+    let strMonth = month < 10 ? `0${month}` : `${month}`
+    let strYear = year < 10 ? `0${year}` : `${year}`
+
+    return year + "-" + strMonth + "-" + strDay
+}
+
 export function convertTime(time: number) {
     const totalMinutes = Math.floor(time / 60);
 

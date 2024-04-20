@@ -16,7 +16,7 @@ import paymentApi from '@/app/api/paymentApi';
 import { DataTable } from '@/app/_components/Table/TableFormat';
 import { columns } from "@/app/_components/Table/TransactionColumns/columns"
 
-export default function DiscountDashboard({ params }: { params: { slug: string } }) {
+export default function FinanceDashboard() {
     const [transactions, settransactions] = useState([])
     const [modal, setModal] = useState<any>({})
     const [change, setChange] = useState(false)
@@ -35,14 +35,14 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
     const { user } = useAppSelector(state => state.authReducer);
     useEffect(() => {
         async function fetchData() {
-            await paymentApi.getTransactionOfTeacher(`847dabbe-af39-4195-87cf-f7a2a6b78162`).then((data: any) => {
+            await paymentApi.getTransactionOfTeacher(`${user.id}`).then((data: any) => {
                 settransactions(data.data)
             })
         }
         fetchData()
 
 
-    }, [params.slug, change, user.id, page]);
+    }, [change, user.id, page]);
 
 
     return (

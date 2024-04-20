@@ -15,6 +15,10 @@ const examApi = {
         const url = `/exams/full/${id}`;
         return await axiosConfig.get(url);
     },
+    searchExam: async (query: string) => {
+        const url = `/exams/search/page/1?query=${query}`;
+        return await axiosConfig.get(url);
+    },
 
     getAssigmnentByExamId: async (id_student: string, id_exam: string) => {
         const url = `/assignments/student/${id_student}/exam/${id_exam}/page/1`;
@@ -50,7 +54,7 @@ const examApi = {
     },
 
     delete: (id: string) => {
-        const url = `/courses/${id}`;
+        const url = `/exams/${id}`;
         return axiosConfig.delete(url);
     },
 

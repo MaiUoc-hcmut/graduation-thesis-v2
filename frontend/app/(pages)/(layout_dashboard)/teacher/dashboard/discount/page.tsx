@@ -7,7 +7,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Controller, useForm } from "react-hook-form"
 import { Label, Modal, TextInput, Textarea, Button } from 'flowbite-react';
 import discountApi from '@/app/api/discountApi';
-import { formatDateTime } from '@/app/helper/FormatFunction';
+import { formatDateTime, formatDateTimeEng } from '@/app/helper/FormatFunction';
 import { useSearchParams } from 'next/navigation';
 import { Dropdown } from 'flowbite-react';
 import { useAppSelector } from '@/redux/store';
@@ -39,6 +39,10 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
             await discountApi.getAllByCreateTeacher(`${user.id}`).then((data: any) => {
                 setDiscounts(data.data)
             })
+            await courseApi.getAllByTeacher(`${user.id}`, 1).then((data: any) => {
+                setCourses(data.data.courses)
+            })
+
         }
         fetchData()
 
@@ -48,7 +52,6 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
     for (let i = 1; i <= paginate; i++) {
         list.push(i)
     }
-
     return (
         <div className='w-full'>
             <>
@@ -340,7 +343,7 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                                                                     <Controller
                                                                         control={control}
                                                                         name="courses"
-                                                                        defaultValue={item.courses}
+                                                                        defaultValue={item.Courses[0].id}
                                                                         rules={{ required: "Lớp học không thể trống" }}
                                                                         render={({ field }) => (
                                                                             <select id="courses" {...field} className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
@@ -399,14 +402,15 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                                                                     </label>
                                                                     <div date-rangepicker className="flex items-center">
                                                                         <div className="">
-                                                                            <input {...register("start_time", {
+
+                                                                            <input defaultValue={`${formatDateTimeEng(item.createdAt)}`} {...register("start_time", {
                                                                                 required: "Thời gian bắt đầu và thời gian kết thúc không thể thiếu."
                                                                             })} date-rangepicker={true} type="date" className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date start" />
                                                                         </div>
                                                                         <span className="mx-4 text-gray-500">đến</span>
                                                                         <div className="">
 
-                                                                            <input {...register("end_time", {
+                                                                            <input defaultValue={`${formatDateTimeEng(item.expire)}`} {...register("end_time", {
                                                                                 required: "Thời gian bắt đầu và thời gian kết thúc không thể thiếu."
                                                                             })} date-rangepicker={true} type="date" className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date end" />
                                                                         </div>
@@ -448,7 +452,7 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm  text-gray-800 dark:text-neutral-200">{item.name}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">{item.Courses[0]?.name}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">{item.percent}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">{item.percent}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">Đang diễn ra</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">{formatDateTime(item.createdAt)}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">{formatDateTime(item.expire)}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">

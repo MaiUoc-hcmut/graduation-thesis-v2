@@ -131,7 +131,12 @@ export default function HeaderTeacher() {
                                                                                 hệ thống
                                                                             </span>
                                                                             {": "}
-                                                                            <>Khóa học <span className='font-medium text-black'>{notify.name}</span>  vừa được tạo thành công</>
+                                                                            {notify.type === 'course' && (
+                                                                                <>Khóa học <span className='font-medium text-black'>{notify.name}</span>  vừa được tạo thành công</>
+                                                                            )}
+                                                                            {notify.type === 'topic' && (
+                                                                                <>Có người vừa tạo chủ đề <span className='font-medium text-black'>{notify.name}</span> trong khóa học <span className='font-medium text-black'>{notify.course_name}</span></>
+                                                                            )}
 
                                                                         </div>
                                                                         <div className="text-xs text-blue-600 dark:text-blue-500">
@@ -148,7 +153,7 @@ export default function HeaderTeacher() {
 
                                         </div>
                                         <Link
-                                            href="#"
+                                            href="/teacher/dashboard/notifycation"
                                             className="block py-2 text-sm font-medium text-center text-gray-900 rounded-b-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white"
                                         >
                                             <div className="inline-flex items-center ">

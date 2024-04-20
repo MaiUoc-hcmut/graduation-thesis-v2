@@ -18,6 +18,7 @@ export default function ExamDashboard() {
     const [exams, setExams] = useState<[any]>()
     const [modal, setModal] = useState<any>({})
     const [change, setChange] = useState<boolean>(false)
+    const [searchInput, setSearchInput] = useState('')
 
     const renderStars = (rating: number) => {
         const stars = [];
@@ -43,11 +44,18 @@ export default function ExamDashboard() {
         <div className="">
             <div className="">
                 <div className="font-bold text-[#171347] text-lg">Đề thi của của tôi</div>
-                <div className="flex justify-between items-center mt-10 mb-10 w-full ">
-                    <form className="flex items-center w-1/3">
+                <div className="flex justify-between items-center mt-5 mb-10 w-full ">
+                    <form className="flex items-center w-1/3" onSubmit={async (e: any) => {
+                        e.preventDefault()
+                        await examApi.searchExam(searchInput).then((data: any) => {
+                            setExams(data.data.result)
+                        })
+                    }}>
                         <label htmlFor="simple-search" className="sr-only">Search</label>
                         <div className="relative w-full">
-                            <input type="text" id="simple-search" className="w-full text-sm text-[#343434]  rounded-md border-[1px] border-[#ececec] focus:ring-0 focus:border-primary_border" placeholder="Tìm kiếm trong khóa học" required />
+                            <input onChange={async (e: any) => {
+                                setSearchInput(e.target.value)
+                            }} type="text" id="simple-search" className="w-full text-sm text-[#343434]  rounded-md border-[1px] border-[#ececec] focus:ring-0 focus:border-primary_border" placeholder="Tìm kiếm đề thi" />
                         </div>
                         <button type="submit" className="ml-2 bg-primary p-2.5 rounded-md shadow-primary_btn_shadow border-primary text-white hover:bg-primary_hover">
                             <MagnifyingGlassIcon className='w-4 h-4' />
@@ -68,13 +76,13 @@ export default function ExamDashboard() {
                                         <Modal.Body>
                                             <form className="space-y-6" onSubmit={async (e) => {
                                                 e.preventDefault()
-                                                // await examApi.delete(exam.id)
+                                                await examApi.delete(exam.id)
                                                 setChange(!change)
                                                 setModal(false)
                                             }}>
                                                 <ExclamationCircleIcon className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
                                                 <h3 className="mb-5 text-lg font-normal text-center text-gray-500 dark:text-gray-400">
-                                                    Bạn có chắc muốn xóa khóa học này?
+                                                    Bạn có chắc muốn xóa đề thi này?
                                                 </h3>
                                                 <div className="flex justify-center gap-4">
                                                     <Button color="failure" type='submit'>
@@ -91,12 +99,13 @@ export default function ExamDashboard() {
                                     </Modal>
                                 </>
 
-                                <div className="h-full w-[200px] relative">
+                                <div className="h-[200px] w-[200px] relative py-3 px-10 bg-slate-100 flex justify-center items-center">
                                     <Image
-                                        src={`${exam.thumbnail ? exam.thumbnail : '/'}`}
-                                        fill
+                                        src={`/images/exam_icon.png`}
+                                        width={150}
+                                        height={150}
                                         alt="logo"
-                                        className="rounded-l-[10px] h-full w-full overflow-hidden object-center object-cover"
+                                        className="rounded-l-[10px] overflow-hidden object-center object-cover"
                                     />
                                 </div>
                                 <div className="flex flex-col py-3 pl-[25px] pr-[17px] flex-1">
@@ -104,7 +113,7 @@ export default function ExamDashboard() {
                                         <Link href="#" >
                                             <h3 className="text-[#171347] font-bold text-lg">
                                                 {exam.title}
-                                                {/* <span className="ml-3 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border-[1px] border-green-500">Cơ bản</span> */}
+
                                             </h3>
                                         </Link>
 
@@ -112,11 +121,11 @@ export default function ExamDashboard() {
                                             <Dropdown.Item onClick={() => {
 
                                             }}>
-                                                <Link href={`/dashboard/exam/edit/${exam.id}`} >
-                                                    Sửa khóa học
+                                                <Link href={`/teacher/dashboard/exam/edit/${exam.id}`} >
+                                                    Sửa đề thi
                                                 </Link>
                                             </Dropdown.Item>
-                                            <Dropdown.Item><p className="text-red-600" onClick={() => setModal({ ...modal, [`delete-exam${exam.id}`]: true })}>Xóa khóa học</p></Dropdown.Item>
+                                            <Dropdown.Item><p className="text-red-600" onClick={() => setModal({ ...modal, [`delete-exam${exam.id}`]: true })}>Xóa đề thi</p></Dropdown.Item>
                                         </Dropdown>
                                     </div>
                                     <div className="flex items-center mt-4">

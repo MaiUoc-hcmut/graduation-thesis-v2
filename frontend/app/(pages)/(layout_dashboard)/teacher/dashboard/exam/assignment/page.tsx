@@ -34,15 +34,15 @@ export default function AssignmentDashboard() {
 
     return (
         <div>
-            <div>
+            {/* <div>
                 <div className="font-bold text-[#171347] text-lg">Lọc kết quả</div>
                 <div className="p-5 bg-white mt-4 rounded-lg">
                     dfs
                 </div>
-            </div>
-            <div className="mt-5">
+            </div> */}
+            <div className="">
                 <div className="font-bold text-[#171347] text-lg">Kết quả làm bài</div>
-                <div className="container mx-auto bg-white p-4 rounded-lg mt-4">
+                <div className="container mx-auto rounded-lg mt-4">
                     <DataTable columns={columns} data={assignments.map((assignment: any) => { return { ...assignment, time_end: convertToVietnamTime(assignment.time_end) } })} page={page} setPage={setPage} pageCount={pageCount} />
                 </div>
             </div>

@@ -323,42 +323,42 @@ export function BasicInfomationForm({
                         </div> : null
                 }
             </div>
-            <div className="mb-16">
+            <div className="mb-5">
                 <label
                     className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
                 >
                     Mô tả
                 </label>
                 <CustomCKEditor
-                    setValue={setValue} postion={"description"} value={getValues().description}
+                    setValue={setValue} position={"description"} value={getValues().description}
                 />
                 <p className="mt-12 text-sm text-red-600 dark:text-red-500">
                     {errors?.description?.message}
                 </p>
             </div>
-            <div className="mb-16">
+            <div className="mb-5">
                 <label
                     className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
                 >
                     Mục tiêu
                 </label>
-                <CustomCKEditor setValue={setValue} postion={"goal"} value={getValues().goal} />
+                <CustomCKEditor setValue={setValue} position={"goal"} value={getValues().goal} />
             </div>
-            <div className="mb-16">
+            <div className="mb-5">
                 <label
                     className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
                 >
                     Đối tượng
                 </label>
-                <CustomCKEditor setValue={setValue} postion={"object"} value={getValues().object} />
+                <CustomCKEditor setValue={setValue} position={"object"} value={getValues().object} />
             </div>
-            <div className="mb-16">
+            <div className="mb-5">
                 <label
                     className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
                 >
                     Yêu cầu
                 </label>
-                <CustomCKEditor setValue={setValue} postion={"requirement"} value={getValues().requirement} />
+                <CustomCKEditor setValue={setValue} position={"requirement"} value={getValues().requirement} />
             </div>
         </>
     )

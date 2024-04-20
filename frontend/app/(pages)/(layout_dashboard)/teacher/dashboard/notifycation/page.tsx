@@ -50,10 +50,21 @@ export default function NotifycationDashboard() {
                                         {notify.type === 'course' && (
                                             <>Khóa học <span className='font-medium text-black'>{notify.name}</span>  vừa được tạo thành công</>
                                         )}
+                                        {notify.type === 'topic' && (
+                                            <>Có người vừa tạo chủ đề <span className='font-medium text-black'>{notify.name}</span> trong khóa học <span className='font-medium text-black'>{notify.course_name}</span></>
+                                        )}
                                     </div>
-                                    <Link href={'/teacher/dashboard/course'} className="text-gray-500 text-sm w-1/12 flex justify-center items-center">
-                                        <button type='button' className='px-4 py-2 border-[1px] border-gray-200 rounded-md hover:text-white hover:bg-primary'>Xem</button>
-                                    </Link>
+                                    {
+                                        notify.type === 'course' && (<Link href={'/teacher/dashboard/course'} className="text-gray-500 text-sm w-1/12 flex justify-center items-center">
+                                            <button type='button' className='px-4 py-2 border-[1px] border-gray-200 rounded-md hover:text-white hover:bg-primary'>Xem</button>
+                                        </Link>)
+                                    }
+                                    {
+                                        notify.type === 'topic' && (<Link href={`/course/learning/123/forum/${notify.id_forum}`} className="text-gray-500 text-sm w-1/12 flex justify-center items-center">
+                                            <button type='button' className='px-4 py-2 border-[1px] border-gray-200 rounded-md hover:text-white hover:bg-primary'>Xem</button>
+                                        </Link>)
+                                    }
+
                                 </div>
                             </div>
                         )

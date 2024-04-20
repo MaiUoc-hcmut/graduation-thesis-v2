@@ -220,21 +220,12 @@ export default function SidebarTeacher() {
                             </li>
                             <li>
                                 <Link
-                                    href="/teacher/dashboard/notifycation"
-                                    className={`${pathname == '/teacher/dashboard/notifycation' ? 'bg-slate-100' : ''} flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group`}
+                                    href="/teacher/dashboard/profile"
+                                    className={`${pathname == '/teacher/dashboard/profile' ? 'bg-slate-100' : ''} flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group`}
                                 >
                                     <span className="ms-3">Hồ sơ của tôi</span>
                                 </Link>
                             </li>
-                            <li>
-                                <Link
-                                    href="/teacher/dashboard/notifycation"
-                                    className={`${pathname == '/teacher/dashboard/notifycation' ? 'bg-slate-100' : ''} flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group`}
-                                >
-                                    <span className="ms-3">Đăng xuất</span>
-                                </Link>
-                            </li>
-
 
                         </ul>
                     </div>

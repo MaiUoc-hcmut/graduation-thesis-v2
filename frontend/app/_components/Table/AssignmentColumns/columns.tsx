@@ -26,7 +26,7 @@ export const columns: ColumnDef<any>[] = [
         },
     },
     {
-        accessorKey: "Exam.title",
+        accessorKey: "student.name",
         header: ({ column }) => {
             return (
                 <button

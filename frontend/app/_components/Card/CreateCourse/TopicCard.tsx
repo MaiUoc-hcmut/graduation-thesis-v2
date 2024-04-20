@@ -377,6 +377,21 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                                     Công khai
                                                 </label>
                                             </div>
+                                            <div className="flex items-center me-4" >
+                                                <input
+                                                    id="inline-radio"
+                                                    type="radio"
+                                                    {...register(`chapters.${indexChapter}.topics.${indexTopic}.status`)}
+                                                    value="paid"
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                />
+                                                <label
+                                                    htmlFor="inline-radio"
+                                                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                >
+                                                    Tính phí
+                                                </label>
+                                            </div>
                                             <div className="flex items-center me-4">
                                                 <input
                                                     id="inline-2-radio"
@@ -462,6 +477,14 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                 <input
                                     {...register(`chapters.${indexChapter}.topics.${indexTopic}.pass_score`, {
                                         required: "Điểm hoàn thành không thể thiếu",
+                                        min: {
+                                            value: 0,
+                                            message: "Điểm hoàn thành không thể nhỏ hơn 0"
+                                        },
+                                        max: {
+                                            value: 10,
+                                            message: "Điểm hoàn thành không thể lớn hơn 10"
+                                        }
                                     })}
                                     type="number"
                                     className={`bg-white border-[1px] border-[#ececec] text-[#343434] text-sm focus: ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
@@ -485,7 +508,7 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                                 <input
                                                     id="inline-radio"
                                                     type="radio"
-                                                    defaultChecked
+                                                    defaultChecked={topic.status == "public" ? true : false}
                                                     {...register(`chapters.${indexChapter}.topics.${indexTopic}.status`)}
                                                     value="public"
                                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
@@ -497,10 +520,27 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                                     Công khai
                                                 </label>
                                             </div>
+                                            <div className="flex items-center me-4" >
+                                                <input
+                                                    id="inline-radio"
+                                                    type="radio"
+                                                    defaultChecked={topic.status == "paid" ? true : false}
+                                                    {...register(`chapters.${indexChapter}.topics.${indexTopic}.status`)}
+                                                    value="paid"
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                />
+                                                <label
+                                                    htmlFor="inline-radio"
+                                                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                >
+                                                    Tính phí
+                                                </label>
+                                            </div>
                                             <div className="flex items-center me-4">
                                                 <input
                                                     id="inline-2-radio"
                                                     type="radio"
+                                                    defaultChecked={topic.status == "private" ? true : false}
                                                     {...register(`chapters.${indexChapter}.topics.${indexTopic}.status`)}
                                                     value="private"
                                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"

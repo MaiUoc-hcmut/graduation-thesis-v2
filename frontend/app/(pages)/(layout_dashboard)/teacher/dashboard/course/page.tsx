@@ -153,7 +153,7 @@ export default function CourseDashboard() {
                                                 </Link>
                                             </Dropdown.Item>
                                             <Dropdown.Item><Link href={`/course/learning/${course.id}`}>Đến trang học</Link></Dropdown.Item>
-                                            <Dropdown.Item><button type="button" className="text-red-600" onClick={() => setModal({ ...modal, [`delete-course${course.id}`]: true })}>Xóa khóa học</button></Dropdown.Item>
+                                            <Dropdown.Item><div className="text-red-600" onClick={() => setModal({ ...modal, [`delete-course${course.id}`]: true })}>Xóa khóa học</div></Dropdown.Item>
                                         </Dropdown>
                                     </div>
                                     <div className="flex items-center mt-4">

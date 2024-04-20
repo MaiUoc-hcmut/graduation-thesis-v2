@@ -71,7 +71,7 @@ export function DataTable<TData, TValue>({
                     className="max-w-sm"
                 />
             </div> */}
-            <div className="rounded-md border">
+            <div className="rounded-md border bg-white">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -131,11 +131,11 @@ export function DataTable<TData, TValue>({
                 >
                     Trước
                 </Button>
-                <span>Trang {page} / {pageCount}</span>
+                <span>Trang {page} / {Math.ceil(pageCount / 10)}</span>
                 <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setPage(page + 1)} disabled={page === pageCount}
+                    onClick={() => setPage(page + 1)} disabled={page === Math.ceil(pageCount / 10)}
                 // onClick={() => table.nextPage()}
                 // disabled={!table.getCanNextPage()}
                 >
