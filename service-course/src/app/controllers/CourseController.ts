@@ -92,8 +92,6 @@ class CourseController {
         try {
             const authority = req.authority;
 
-            console.log(authority);
-
             let status = authority === 2
                             ? ['public', 'paid', 'private']
                             : ['public', 'paid'];
@@ -453,6 +451,12 @@ class CourseController {
         try {
             const id_teacher = req.params.teacherId;
 
+            const authority = req.authority;
+
+            let status = (authority === 2 || req.user?.user.data.id === id_teacher)
+                            ? ['public', 'paid', 'private']
+                            : ['public', 'paid'];
+
             enum SortQuery {
                 Rating = 'rating',
                 Date = 'date',
@@ -494,12 +498,12 @@ class CourseController {
 
             // Count all the record that match the condition
             const count = await Course.count({
-                where: { id_teacher }
+                where: { id_teacher, status }
             });
 
             // Response the result with the limit for pagination
             const courses = await Course.findAll({
-                where: { id_teacher },
+                where: { id_teacher, status },
                 include: [
                     {
                         model: Category,

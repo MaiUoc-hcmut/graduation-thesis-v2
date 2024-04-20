@@ -93,7 +93,7 @@ class TeacherController {
 
             const count = await Teacher.count({
                 ...queryOption,
-                raw: true
+                distinct: true
             });
 
             const teachers = await Teacher.findAll({
@@ -103,9 +103,22 @@ class TeacherController {
                 subQuery: false
             });
 
+            const response = [];
+
+            for (const teacher of teachers) {
+                const courseServiceInformation = await axios.get(`${process.env.BASE_URL_COURSE_LOCAL}/informations/teacher/${teacher.id}`);
+                const examServiceInformation = await axios.get(`${process.env.BASE_URL_EXAM_LOCAL}/informations/teacher/${teacher.id}`);
+
+                response.push({
+                    ...teacher.dataValues,
+                    ...courseServiceInformation.data,
+                    exam_quantity: examServiceInformation.data
+                });
+            }
+
             res.status(200).json({
                 count,
-                teachers
+                response
             });
         } catch (error) {
             console.log(error.message);
