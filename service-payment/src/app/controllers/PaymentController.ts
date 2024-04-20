@@ -39,6 +39,20 @@ class PaymentController {
         }
     }
 
+    // [GET] /payment/transactions/teacher/:teacherId
+    getTransactionOfTeacher = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const id_teacher = req.params.teacherId;
+
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({
+                error,
+                message: error.message
+            });
+        }
+    }
+
     // [GET] /payment/transactions/:studentId/:transactionId
     getDetailOfTransaction = async (req: Request, res: Response, _next: NextFunction) => {
         try {

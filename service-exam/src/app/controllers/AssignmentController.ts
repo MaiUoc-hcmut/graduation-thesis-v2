@@ -222,6 +222,18 @@ class AssignmentController {
                 order: [['createdAt', 'DESC']]
             });
 
+            for (const assignment of assignments) {
+                const user = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/student/${assignment.id_student}`);
+
+                assignment.dataValues.student = {
+                    id: user.data.id,
+                    avatar: user.data.avatar,
+                    name: user.data.name
+                }
+
+                delete assignment.dataValues.id_student
+            }
+
             res.status(200).json({ count, assignments });
         } catch (error: any) {
             console.log(error.message);
