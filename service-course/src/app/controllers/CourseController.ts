@@ -411,12 +411,23 @@ class CourseController {
                 let totalChapterDuration = 0;
                 let totalChapterLectures = 0;
                 let totalChapterExams = 0;
-                chapter.topics.forEach((topic: any) => {
+                chapter.topics.forEach( async (topic: any) => {
                     totalChapterDuration += topic.duration;
                     topic.type === "lecture" ? totalChapterLectures++ : totalChapterExams++; 
 
-                    if (authority === 0 && topic.status === "paid") {
+                    if (authority === 0 && topic.status === "paid" && topic.type === "lecture") {
                         delete topic.dataValues.video;
+                    }
+                    if (topic.type === "exam") {
+                        const exam = await axios.get(`${process.env.BASE_URL_EXAM_LOCAL}/exams/${topic.id_exam}`);
+                        topic.dataValues.exam = {
+                            quantity_question: exam.data.quantity_question,
+                            period: exam.data.period
+                        }
+
+                        if (topic.status === "paid" && authority === 0) {
+                            delete topic.dataValues.id_exam;
+                        }
                     }
                 });
                 chapter.dataValues.totalDuration = totalChapterDuration;

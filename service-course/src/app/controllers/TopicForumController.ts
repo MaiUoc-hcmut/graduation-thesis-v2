@@ -89,7 +89,12 @@ class TopicForumController {
                 const author = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${topic.id_user}`);
 
                 topic.dataValues.author = { avatar: author.data.avatar, name: author.data.name, id: author.data.id, role: author.data.role };
-                delete author.dataValues.role;
+                delete topic.dataValues.role;
+            } else {
+                const author = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${topic.id_author}`);
+
+                topic.dataValues.author = { avatar: author.data.avatar, name: author.data.name, role: topic.role, id: author.data.id };
+                delete topic.dataValues.role;
             }
 
             for (const answer of topic.answers) {
