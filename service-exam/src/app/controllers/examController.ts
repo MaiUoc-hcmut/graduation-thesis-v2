@@ -117,9 +117,11 @@ class ExamController {
 
             const { exam: examQuery } = req.query;
 
-            if (examQuery) {
-                queryOption.where.id_course = [null, ""];
+            if (examQuery === "true") {
+                queryOption.where.id_course = null;
             }
+
+            console.log(queryOption);
 
             if (categories.length > 0) {
                 queryOption.include[0].where = {
@@ -133,7 +135,7 @@ class ExamController {
 
             const count = await Exam.count({
                 ...queryOption,
-                raw: true
+                distinct: true
             });
 
             const exams = await Exam.findAll({

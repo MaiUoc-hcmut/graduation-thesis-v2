@@ -35,6 +35,9 @@ NotificationModel.init({
     id_forum: {
         type: DataTypes.UUID
     },
+    id_course: {
+        type: DataTypes.UUID
+    },
     course_name: {
         type: DataTypes.STRING
     }
