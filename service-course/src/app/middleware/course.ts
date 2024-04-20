@@ -15,9 +15,9 @@ class CheckingCourse {
                 let error = "Course does not exist!"
                 return next(createError.BadRequest(error));
             }
-
+            console.log(id_teacher);
             if (id_teacher !== course.id_teacher) {
-                let error = "You does not have permission to do this action!";
+                let error = "You do not have permission to do this action!";
                 return next(createError.Unauthorized(error));
             }
             next();
