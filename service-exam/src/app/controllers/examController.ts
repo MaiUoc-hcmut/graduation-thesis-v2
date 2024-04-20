@@ -115,6 +115,12 @@ class ExamController {
                 ]
             }
 
+            const { exam: examQuery } = req.query;
+
+            if (examQuery) {
+                queryOption.where.id_course = [null, ""];
+            }
+
             if (categories.length > 0) {
                 queryOption.include[0].where = {
                     id: {
@@ -329,7 +335,7 @@ class ExamController {
 
             const { query } = req.query;
 
-            const filters = `id_course:${null}`;
+            const filters = `id_course:0`;
 
             const result = await index.search(query, {
                 hitsPerPage: pageSize,
@@ -523,6 +529,10 @@ class ExamController {
             const user = { id: id_teacher, name: req.teacher?.data.name };
 
             const dataValues = newExam.dataValues;
+
+            if (newExam.id_course === null) {
+                newExam.dataValues.id_course = 0;
+            }
 
             const algoliaDataSave = {
                 ...dataValues,

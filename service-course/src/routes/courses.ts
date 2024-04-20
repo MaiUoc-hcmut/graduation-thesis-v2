@@ -35,7 +35,7 @@ router.route('/:courseId')
         courseController.studentBuyACourse
     )
     .put(Authorize.authorizeTeacher, CheckingCourse.checkModifyCourse, courseController.updateCourse)
-    .delete(Authorize.verifyUser, CheckingCourse.checkModifyCourse, courseController.deleteCourse);
+    .delete(Authorize.authorizeTeacher, CheckingCourse.checkModifyCourse, courseController.deleteCourse);
 
 router.route('/student/:studentId/page/:page')
     .get(Authorize.verifyUser, courseController.getCourseStudentPaid);
