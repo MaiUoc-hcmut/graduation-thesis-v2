@@ -11,7 +11,7 @@ export default function EditExam({ params }: { params: { slug: string } }) {
             await examApi.get(params.slug).then((data: any) => setData(data.data))
         }
         fetchData()
-    }, []);
+    }, [params.slug]);
     if (data) {
         data.Categories?.map((category: any) => {
             if (category.Class) {

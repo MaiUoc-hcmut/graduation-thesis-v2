@@ -33,7 +33,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "app/_components/Editor/customUploadAdapter.js"
+    "app/_components/Editor/customUploadAdapter.js",
+    "app.js"
   ],
   "exclude": [
     "node_modules"

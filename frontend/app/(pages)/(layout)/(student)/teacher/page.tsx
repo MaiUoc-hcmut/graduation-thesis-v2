@@ -5,26 +5,24 @@ import { XMarkIcon, ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon } from
 import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, StarIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
 import Image from 'next/image';
-import userApi from '@/app/api/userApi';
+import courseApi from '@/app/api/courseApi';
 import categoryApi from '@/app/api/category';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { formatCash, convertTime } from '@/app/helper/FormatFunction';
-
-
 
 
 function classNames(...classes: any) {
     return classes.filter(Boolean).join(' ');
 }
 
-
-
-export default function TeacherList() {
-    const [teachers, setteachers] = useState<any[]>([]);
+export default function CourseList() {
+    const [courses, setCourses] = useState<any[]>([]);
     const [category, setCategory] = useState<any[]>([]);
     const searchParams = useSearchParams();
     const subjectFilters = searchParams.getAll('subject');
+    const levelFilters = searchParams.getAll('level');
     const classFilters = searchParams.getAll('class');
+    const priceFilters = searchParams.get('maxPrice');
     const sortFilters = searchParams.get('sort');
     const orderFilters = searchParams.get('order');
 
@@ -33,8 +31,9 @@ export default function TeacherList() {
         { name: 'Mới nhất', href: '?sort=date&order=desc', current: sortFilters === 'date' },
         { name: 'Phổ biến nhất', href: '?sort=registration&order=desc', current: sortFilters === 'registration' },
         { name: 'Đánh giá tốt nhất', href: '?sort=rating&order=desc', current: sortFilters === 'rating' },
+        { name: 'Giá: Thấp đến cao', href: '?sort=price&order=asc', current: sortFilters === 'price' && orderFilters === 'asc' },
+        { name: 'Giá: Cao đến thấp', href: '?sort=price&order=desc', current: sortFilters === 'price' && orderFilters === 'desc' },
     ];
-
 
     const renderStars = (rating: number) => {
         return Array.from({ length: 5 }, (_, index) => (
@@ -49,13 +48,15 @@ export default function TeacherList() {
         async function fetchData() {
             let filterString = ''
             subjectFilters?.map((s) => { filterString += `subject=${s}` })
+            levelFilters?.map((l) => { filterString += `&level=${l}` })
             classFilters?.map((c) => { filterString += `&class=${c}` })
+            priceFilters ? filterString += `&minPrice=0&maxPrice=${priceFilters}` : null
 
             sortFilters && orderFilters ? filterString += `&sort=${sortFilters}&order=${orderFilters}` : null
 
 
-            await teacherApi.getAll(filterString).then((data: any) => {
-                setteachers(data.data.teachers)
+            await courseApi.getAll(filterString).then((data: any) => {
+                setCourses(data.data.courses)
             }
             )
             await categoryApi.getAll().then((data: any) => {
@@ -68,12 +69,25 @@ export default function TeacherList() {
                         })
                     },
                     {
+                        id: "level",
+                        name: "Mức độ",
+                        options: data?.Level?.map((level: any) => {
+                            return { ...level, checked: levelFilters.includes(level.id) }
+                        })
+                    },
+                    {
                         id: "class",
                         name: "Lớp",
                         options: data?.Class?.map((grade: any) => {
                             return { ...grade, checked: classFilters.includes(grade.id) }
                         })
                     },
+                    {
+                        id: "maxPrice",
+                        name: "Giá",
+                        value: priceFilters
+                    }
+
                 ])
             })
 
@@ -88,7 +102,7 @@ export default function TeacherList() {
             <div>
                 <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-6">
-                        <h1 className="text-4xl font-bold tracking-tight text-gray-900">Giáo viên</h1>
+                        <h1 className="text-4xl font-bold tracking-tight text-gray-900">Khóa học</h1>
 
                         <div className="flex items-center">
                             <Menu as="div" className="relative inline-block text-left">
@@ -212,13 +226,13 @@ export default function TeacherList() {
                             <div className="lg:col-span-3 flex-1">
                                 <div className='grid grid-cols-2 gap-x-8 gap-y-8 mt-2'>
                                     {
-                                        teachers?.map((teacher: any) => {
+                                        courses?.map((course: any) => {
                                             return (
-                                                <Link key={teacher.id} href={`teacher/${teacher.id}`} className=''>
-                                                    <div className='bg-white shadow-card_teacher rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300'>
+                                                <Link key={course.id} href={`course/${course.id}`} className=''>
+                                                    <div className='bg-white shadow-card_course rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300'>
                                                         <div className='relative w-full h-60'>
                                                             <Image
-                                                                src={`${teacher.thumbnail}`}
+                                                                src={`${course.thumbnail}`}
                                                                 fill
                                                                 className='rounded-tl-2xl rounded-tr-2xl overflow-hidden object-cover object-center'
                                                                 alt="logo"
@@ -229,7 +243,8 @@ export default function TeacherList() {
                                                                 <div className='mr-2 w-10 h-10 max-h-10 max-w-10 rounded-full relative'>
                                                                     <Image
                                                                         src='/images/avatar-teacher.png'
-                                                                        fill
+                                                                        width={40}
+                                                                        height={40}
                                                                         className='rounded-full overflow-hidden object-cover object-center'
                                                                         alt="logo"
                                                                     />
@@ -239,35 +254,35 @@ export default function TeacherList() {
                                                                 </div>
                                                             </div>
                                                             <h3 className="overflow-hidden text-[#17134] mt-4 h-8 font-bold">
-                                                                {teacher.name}
+                                                                {course.name}
                                                             </h3>
 
 
                                                             <div className="flex items-center mt-4">
-                                                                {renderStars(Math.floor(teacher?.average_rating))}
-                                                                <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{teacher?.average_rating.toFixed(1)}</span>
+                                                                {renderStars(Math.floor(course?.average_rating))}
+                                                                <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{course?.average_rating.toFixed(1)}</span>
                                                             </div>
                                                             <div className='mt-4 grid grid-cols-2 gap-2'>
                                                                 <div className='flex items-center'>
                                                                     <ClockIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{convertTime(teacher?.total_duration)} giờ</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{convertTime(course?.total_duration)} giờ</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
                                                                     <Squares2X2Icon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_chapter} chương</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{course?.total_chapter} chương</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
                                                                     <FilmIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_lecture} bài giảng</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{course?.total_lecture} bài giảng</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
                                                                     <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_exam} đề thi</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{course?.total_exam} đề thi</span>
                                                                 </div>
 
                                                             </div>
                                                             <div className='mt-6'>
-                                                                <span className='text-xl text-primary font-extrabold'>{formatCash(`${teacher.price}`)} VNĐ</span>
+                                                                <span className='text-xl text-primary font-extrabold'>{formatCash(`${course.price}`)} VNĐ</span>
                                                             </div>
                                                         </div>
                                                     </div>

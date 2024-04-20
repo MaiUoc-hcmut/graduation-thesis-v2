@@ -28,6 +28,15 @@ NotificationModel.init({
     },
     name: {
         type: DataTypes.STRING
+    },
+    id_topic: {
+        type: DataTypes.UUID
+    },
+    id_forum: {
+        type: DataTypes.UUID
+    },
+    course_name: {
+        type: DataTypes.STRING
     }
 }, {
     sequelize,

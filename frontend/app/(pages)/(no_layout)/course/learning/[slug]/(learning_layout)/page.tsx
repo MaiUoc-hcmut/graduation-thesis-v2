@@ -14,6 +14,7 @@ import { useSearchParams } from 'next/navigation';
 import { Dropdown } from 'flowbite-react';
 import { Button, Modal } from 'flowbite-react';
 
+import { ToastContainer, toast } from 'react-toastify';
 
 
 export default function LearningPage({ params }: { params: { slug: string } }) {
@@ -32,6 +33,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
     const list = []
     const { user } = useAppSelector(state => state.authReducer);
     const [modal, setModal] = useState<any>({})
+    const editorRef = useRef<any>(null);
     const {
         register,
         reset,
@@ -60,7 +62,6 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
 
 
     }, [params.slug]);
-    console.log(getValues());
 
     useEffect(() => {
         async function fetchData() {
@@ -75,10 +76,10 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
     }, [topicId, change, currentPageComment]);
 
 
-    console.log(user);
 
     return (
         <div className='flex relative h-[calc(100vh-85px)] w-full'>
+            <ToastContainer />
             <div className='flex-1'>
                 <div className='flex bg-black p-4 h-full'>
                     <div className='w-full rounded-xl'>
@@ -153,6 +154,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                 }
                                                 await courseApi.createComment(formData)
                                                 reset()
+                                                editorRef.current.setContent('')
                                                 setChange(!change)
                                             }
                                         })}>
@@ -162,7 +164,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                 }} type="text" className="bg-gray-50 border-b border-[#ccc] mb-2 text-gray-900 text-sm rounded-lg block w-full p-2.5" placeholder="Bạn có thắc mắc gì trong bài học này?" />
                                             </div>
                                             <div className={`${toggle[`edit-cmt`] ? '' : 'hidden'}`}>
-                                                <TinyMceEditorComment value={content} setValue={setValue} position={'content'} />
+                                                <TinyMceEditorComment value={content} setValue={setValue} position={'content'} editorRef={editorRef} />
                                             </div>
                                             <div className='flex justify-end mt-4'>
                                                 <button type="button" className="py-2.5 px-5 mr-2 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-gray-200" onClick={() => (setToggle({ ...toggle, [`edit-cmt`]: false }))}>Hủy</button>
@@ -186,7 +188,18 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                         <Modal.Body>
                                                             <form className="space-y-6" onSubmit={async (e) => {
                                                                 e.preventDefault()
-                                                                await courseApi.deleteComment(cmt.id)
+                                                                await courseApi.deleteComment(cmt.id).then(() => {
+                                                                    toast.success('Xóa bình luận thành công', {
+                                                                        position: "bottom-right",
+                                                                        autoClose: 800,
+                                                                        hideProgressBar: false,
+                                                                        closeOnClick: true,
+                                                                        pauseOnHover: true,
+                                                                        draggable: true,
+                                                                        progress: undefined,
+                                                                        theme: "colored",
+                                                                    });
+                                                                })
                                                                 setChange(!change)
                                                                 setModal(false)
                                                             }}>

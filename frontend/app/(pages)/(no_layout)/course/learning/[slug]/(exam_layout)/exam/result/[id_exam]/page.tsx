@@ -20,7 +20,7 @@ export default function ResultExam({ params }: { params: { slug: string, id_exam
             })
         }
         fetchData()
-    }, []);
+    }, [params.id_exam]);
 
 
     let listQuestion;

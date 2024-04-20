@@ -108,6 +108,45 @@ export default function TopicPage({ params }: { params: { id: string } }) {
 
                     </section>
                     <div className='mt-5'>
+                        <div className='mb-6 rounded-lg border-[2px] border-[#ececec] bg-slate-100 p-4'>
+                            <div className=' flex w-full'>
+                                <div className='flex w-full'>
+                                    <div className='flex-1 bg-[#f7fafd] p-4 rounded-lg pb-4'>
+                                        <div className=' flex-1 flex flex-col justify-center items-center p-2 pt-0'>
+                                            <div className='p-[6px] bg-white rounded-full'>
+                                                <Image
+                                                    src={`${topic?.user?.avatar ? topic?.user?.avatar : '/images/avatar.png'}`}
+                                                    width={80}
+                                                    height={80}
+                                                    className='rounded-full'
+                                                    alt="logo"
+                                                />
+                                            </div>
+                                            <div className='text-center mt-4 flex flex-col items-center'>
+                                                <span className=' text-secondary font-bold'>
+                                                    {topic?.user?.name}
+                                                </span>
+                                                <span className='text-[#818894] text-[0.75rem] mt-2]'>{topic?.user?.role == "teacher" ? "Giáo viên" : "Học sinh"}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className='ml-7 w-5/6 '>
+                                        <p className='text-black text-sm font-semibold'>{topic?.title}</p>
+                                        <p className='text-[#818894] text-sm mt-5'>{topic?.description}</p>
+                                        {
+                                            topic?.file ?
+                                                <Link href={topic?.file} target='_blank' download className='bg-[#f7fafd] text-sm mt-2 p-1 flex justify-center items-center rounded-xl text-[#818894] w-28'>
+                                                    <PaperClipIcon className='w-4 h-4 mr-2' />
+                                                    Đính kèm
+                                                </Link> : null
+                                        }
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
                         {
                             topic?.answer?.length != 0 ?
                                 topic?.answers?.map((answer: any, index: any) => {

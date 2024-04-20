@@ -5,12 +5,10 @@ import { XMarkIcon, ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon } from
 import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, StarIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
 import Image from 'next/image';
-import examApi from '@/app/api/examApi';
+import courseApi from '@/app/api/courseApi';
 import categoryApi from '@/app/api/category';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { formatCash, convertTime } from '@/app/helper/FormatFunction';
-
-
 
 
 function classNames(...classes: any) {
@@ -19,8 +17,8 @@ function classNames(...classes: any) {
 
 
 
-export default function ExamList() {
-    const [exams, setExams] = useState<any>([]);
+export default function CourseList() {
+    const [courses, setCourses] = useState<any[]>([]);
     const [category, setCategory] = useState<any[]>([]);
     const searchParams = useSearchParams();
     const subjectFilters = searchParams.getAll('subject');
@@ -39,12 +37,6 @@ export default function ExamList() {
         { name: 'Giá: Cao đến thấp', href: '?sort=price&order=desc', current: sortFilters === 'price' && orderFilters === 'desc' },
     ];
 
-    // const obj = Object.fromEntries(searchParams.entries());
-
-    // for (const key of Object.keys(obj)) {
-    //     console.log(`${key}: ${obj[key]}`)
-    // }
-
     const renderStars = (rating: number) => {
         return Array.from({ length: 5 }, (_, index) => (
             <StarIcon
@@ -61,21 +53,14 @@ export default function ExamList() {
             levelFilters?.map((l) => { filterString += `&level=${l}` })
             classFilters?.map((c) => { filterString += `&class=${c}` })
             priceFilters ? filterString += `&minPrice=0&maxPrice=${priceFilters}` : null
-            filterString += `&sort=${sortFilters}&order=${orderFilters}`
+
+            sortFilters && orderFilters ? filterString += `&sort=${sortFilters}&order=${orderFilters}` : null
 
 
-            if (subjectFilters.length != 0 || levelFilters.length != 0 || classFilters.length != 0 || !!priceFilters || !!sortFilters || !!orderFilters) {
-                await examApi.filter(filterString).then((data: any) => {
-                    setExams(data.data.exams)
-                }
-                )
+            await courseApi.getAll(filterString).then((data: any) => {
+                setCourses(data.data.courses)
             }
-            else {
-                await examApi.getAll().then((data: any) => {
-                    setExams(data.data)
-                }
-                )
-            }
+            )
             await categoryApi.getAll().then((data: any) => {
                 setCategory([
                     {
@@ -110,7 +95,7 @@ export default function ExamList() {
 
         }
         fetchData()
-    }, [])
+    }, [sortFilters, orderFilters])
 
 
 
@@ -119,7 +104,7 @@ export default function ExamList() {
             <div>
                 <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-6">
-                        <h1 className="text-4xl font-bold tracking-tight text-gray-900">Đề thi</h1>
+                        <h1 className="text-4xl font-bold tracking-tight text-gray-900">Khóa học</h1>
 
                         <div className="flex items-center">
                             <Menu as="div" className="relative inline-block text-left">
@@ -243,13 +228,13 @@ export default function ExamList() {
                             <div className="lg:col-span-3 flex-1">
                                 <div className='grid grid-cols-2 gap-x-8 gap-y-8 mt-2'>
                                     {
-                                        exams?.map((exam: any) => {
+                                        courses?.map((course: any) => {
                                             return (
-                                                <Link key={exam.id} href={`exam/${exam.id}`} className=''>
-                                                    <div className='bg-white shadow-card_exam rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300'>
+                                                <Link key={course.id} href={`course/${course.id}`} className=''>
+                                                    <div className='bg-white shadow-card_course rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300'>
                                                         <div className='relative w-full h-60'>
                                                             <Image
-                                                                src={`${exam.thumbnail}`}
+                                                                src={`${course.thumbnail}`}
                                                                 fill
                                                                 className='rounded-tl-2xl rounded-tr-2xl overflow-hidden object-cover object-center'
                                                                 alt="logo"
@@ -260,7 +245,8 @@ export default function ExamList() {
                                                                 <div className='mr-2 w-10 h-10 max-h-10 max-w-10 rounded-full relative'>
                                                                     <Image
                                                                         src='/images/avatar-teacher.png'
-                                                                        fill
+                                                                        width={40}
+                                                                        height={40}
                                                                         className='rounded-full overflow-hidden object-cover object-center'
                                                                         alt="logo"
                                                                     />
@@ -270,32 +256,35 @@ export default function ExamList() {
                                                                 </div>
                                                             </div>
                                                             <h3 className="overflow-hidden text-[#17134] mt-4 h-8 font-bold">
-                                                                {exam.name}
+                                                                {course.name}
                                                             </h3>
 
 
                                                             <div className="flex items-center mt-4">
-                                                                {renderStars(Math.floor(exam?.average_rating))}
-                                                                <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{exam?.average_rating.toFixed(1)}</span>
+                                                                {renderStars(Math.floor(course?.average_rating))}
+                                                                <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{course?.average_rating.toFixed(1)}</span>
                                                             </div>
                                                             <div className='mt-4 grid grid-cols-2 gap-2'>
                                                                 <div className='flex items-center'>
                                                                     <ClockIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>10 đề thi</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{convertTime(course?.total_duration)} giờ</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
                                                                     <Squares2X2Icon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>1000 câu hỏi</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{course?.total_chapter} chương</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
                                                                     <FilmIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>200 dạng</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{course?.total_lecture} bài giảng</span>
                                                                 </div>
-
+                                                                <div className='flex items-center'>
+                                                                    <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />
+                                                                    <span className='text-[#171347] font-medium text-sm'>{course?.total_exam} đề thi</span>
+                                                                </div>
 
                                                             </div>
                                                             <div className='mt-6'>
-                                                                <span className='text-xl text-primary font-extrabold'>{formatCash(`${exam.price}`)} VNĐ</span>
+                                                                <span className='text-xl text-primary font-extrabold'>{formatCash(`${course.price}`)} VNĐ</span>
                                                             </div>
                                                         </div>
                                                     </div>

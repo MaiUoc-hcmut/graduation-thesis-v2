@@ -12,7 +12,7 @@ import { formatDateTime } from '@/app/helper/FormatFunction';
 import { useSearchParams } from 'next/navigation';
 import { Dropdown } from 'flowbite-react';
 import { useAppSelector } from '@/redux/store';
-
+import { ToastContainer, toast } from 'react-toastify';
 
 type TopicData = {
     title: string,
@@ -58,6 +58,7 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
     }
     return (
         <div className='w-full'>
+            <ToastContainer />
             <>
                 <Modal show={modal[`add-topic`] || false} size="xl" onClose={() => setModal({ ...modal, [`add-topic`]: false })} popup>
                     <Modal.Header />
@@ -183,7 +184,18 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                             <Modal.Body>
                                                 <form className="space-y-6" onSubmit={async (e) => {
                                                     e.preventDefault()
-                                                    await courseApi.deleteTopicForum(topic.id)
+                                                    await courseApi.deleteTopicForum(topic.id).then(() => {
+                                                        toast.success('Xóa chủ đề thành công', {
+                                                            position: "bottom-right",
+                                                            autoClose: 800,
+                                                            hideProgressBar: false,
+                                                            closeOnClick: true,
+                                                            pauseOnHover: true,
+                                                            draggable: true,
+                                                            progress: undefined,
+                                                            theme: "colored",
+                                                        });
+                                                    })
                                                     setChange(!change)
                                                     setModal(false)
                                                 }}>
@@ -217,7 +229,18 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                                         },
                                                         file: data.file[0]
                                                     }
-                                                    await courseApi.editTopicForum(formData, topic.id)
+                                                    await courseApi.editTopicForum(formData, topic.id).then(() => {
+                                                        toast.success('Sửa chủ đề thành công', {
+                                                            position: "bottom-right",
+                                                            autoClose: 800,
+                                                            hideProgressBar: false,
+                                                            closeOnClick: true,
+                                                            pauseOnHover: true,
+                                                            draggable: true,
+                                                            progress: undefined,
+                                                            theme: "colored",
+                                                        });
+                                                    })
                                                     setChange(!change)
                                                     reset()
                                                     setModal({ ...modal, [`edit-topic${topic.id}`]: false })
@@ -281,7 +304,7 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                             <div className=' flex-1 flex flex-col justify-center items-center p-2 pt-0'>
                                                 <div className='p-[6px] bg-white rounded-full'>
                                                     <Image
-                                                        src={`${topic.user?.avatar ? topic.user?.avatar : '/images/avatar.png'}`}
+                                                        src={`${topic.user?.avatar || topic.author?.avatar ? topic.user?.avatar || topic.author?.avatar : '/images/avatar.png'}`}
                                                         width={80}
                                                         height={80}
                                                         className='rounded-full'
@@ -290,7 +313,7 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                                 </div>
                                                 <div className='text-center mt-4 flex flex-col items-center'>
                                                     <span className=' text-secondary font-bold'>
-                                                        {topic.user?.name || topic.author}
+                                                        {topic.user?.name || topic.author.name}
                                                     </span>
                                                     <span className='text-[#818894] text-[0.75rem] mt-2]'>{topic.user?.role || topic.role == "teacher" ? "Giáo viên" : "Học sinh"}</span>
                                                 </div>

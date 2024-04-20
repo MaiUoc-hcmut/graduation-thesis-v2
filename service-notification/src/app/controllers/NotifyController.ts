@@ -140,7 +140,7 @@ class NotificationController {
     notifyCreateTopic = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
-            const { id_forum, name } = req.body.data;
+            const { id_forum, name, id_topic, course_name } = req.body.data;
 
             const io = socketInstance.getIoInstance();
 
@@ -157,7 +157,10 @@ class NotificationController {
                 id_user: user.id_user,
                 content: "Có người vừa tạo topic mới ở trong forum",
                 type: "topic",
-                name
+                name,
+                id_topic,
+                id_forum,
+                course_name
             }));
 
             const notifications = await NotificationModel.bulkCreate(dataToCreate);

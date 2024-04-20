@@ -3,7 +3,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import FlowbiteClient from './_components/Flowbite/FlowbiteClient'
-import { Suspense } from 'react'
+import { Suspense, useEffect } from 'react'
 import 'react-toastify/dist/ReactToastify.css';
 import { ReduxProvider } from '@/redux/provider';
 

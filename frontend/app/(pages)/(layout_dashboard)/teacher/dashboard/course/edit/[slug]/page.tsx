@@ -11,7 +11,7 @@ export default function EditCourse({ params }: { params: { slug: string } }) {
             await courseApi.get(params.slug).then((data: any) => setData(data.data))
         }
         fetchData()
-    }, []);
+    }, [params.slug]);
     if (data) {
         data.Categories?.map((category: any) => {
             if (category.Class) {

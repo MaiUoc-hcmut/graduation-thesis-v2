@@ -21,14 +21,6 @@ export default function CustomTinyMceEditor({ setValue, value, position }: any) 
                 }
             }))
 
-            // xhr.upload.onprogress = (e) => {
-            //     progress((e.loaded / e.total) * 100);
-            //     if (progress && typeof progress === "function") {
-            //         const percent = 0;
-            //         progress(percent);
-            //     }
-            // };
-
             xhr.onload = () => {
                 if (xhr.status === 403) {
                     reject({ message: "HTTP Error: " + xhr.status, remove: true });

@@ -8,12 +8,7 @@ import examApi from "@/app/api/examApi"
 import uuid from 'react-uuid';
 import { DragDropContext, Draggable, Droppable, DroppableProps } from 'react-beautiful-dnd';
 import { StrictModeDroppable } from "@/app/_components/React_Beautiful_Dnd/StrictModeDroppable"
-import { ChapterCard } from "@/app/_components/Card/EditCourse/ChapterCard"
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import {
-    ExclamationCircleIcon, PencilSquareIcon, ArrowsPointingOutIcon, DocumentIcon,
-    PlusCircleIcon, TrashIcon, ChevronDownIcon, ChevronUpIcon, BookOpenIcon
-} from "@heroicons/react/24/outline"
 import { Button, Label, Modal, TextInput } from 'flowbite-react';
 import { QuestionCard } from "@/app/_components/Card/Exam/QuestionCard"
 import { AnswerCard } from "@/app/_components/Card/Exam/AnswerCard"
@@ -28,8 +23,6 @@ import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import CustomCKEditor from "@/app/_components/Editor/CKEditor"
 
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
-
-
 
 type ExamData = {
     title: string
@@ -154,7 +147,7 @@ export default function CreateExam() {
                                                     required: "Tiêu đề câu hỏi không thể thiếu."
                                                 })}
                                             /> */}
-                                            <CustomCKEditor className="h-50" setValue={setValue} value="" position={`questions.${indexQuestion}.content_text`} />
+                                            {/* <CustomCKEditor className="h-50" setValue={setValue} value="" position={`questions.${indexQuestion}.content_text`} /> */}
 
                                             <div className="mt-2 text-sm text-red-600 dark:text-red-500">
                                                 {errors?.questions?.[indexQuestion]?.content_text?.message}

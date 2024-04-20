@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 
-export default function TinyMceEditorComment({ setValue, value, position }: any) {
+export default function TinyMceEditorComment({ setValue, value, position, editorRef }: any) {
 
     function extractTimestamps(text: string): string[] {
         // Regex to match timestamps in various formats (optional colons, leading zeros)
@@ -52,9 +52,6 @@ export default function TinyMceEditorComment({ setValue, value, position }: any)
 
         // Lấy tất cả timestamp trong text
         const timestamps = extractTimestamps(text);
-
-        console.log(timestamps, text);
-
         // Duyệt qua từng timestamp
         timestamps?.forEach(timestamp => {
             // Chuyển đổi timestamp thành URL
@@ -105,12 +102,11 @@ export default function TinyMceEditorComment({ setValue, value, position }: any)
     };
 
 
-
     return (
         <Editor
             apiKey='3wrf8xthqaxg88pboqgmvyterhthdjvpae4bjj2k0jml5dvs'
             initialValue={value || ''}
-
+            onInit={(evt, editor) => { if (editorRef) editorRef.current = editor }}
             init={{
                 height: 200,
                 plugins: [

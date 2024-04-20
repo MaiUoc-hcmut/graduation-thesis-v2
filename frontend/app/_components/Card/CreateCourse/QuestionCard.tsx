@@ -33,7 +33,7 @@ export const QuestionCard = ({ indexChapter, indexTopic, hanldeForm, indexQuesti
                                         <Label htmlFor="email" value="Nội dung câu hỏi" />
                                     </div>
 
-                                    <CustomCKEditor className="h-50" setValue={setValue} value={question.content_text} position={`chapters.${indexChapter}.topics.${indexTopic}.questions.${indexQuestion}.content_text`} />
+                                    {/* <CustomCKEditor className="h-50" setValue={setValue} value={question.content_text} position={`chapters.${indexChapter}.topics.${indexTopic}.questions.${indexQuestion}.content_text`} /> */}
                                     <div className="mt-2 text-sm text-red-600 dark:text-red-500">
                                         {errors?.chapters?.[indexChapter]?.topics?.[indexTopic]?.questions?.[indexQuestion]?.content_text?.message}
                                     </div>

@@ -441,7 +441,7 @@ export default function ExamDetail({ params }: { params: { slug: string } }) {
                                     <button onClick={async () => {
                                         let id_cart = ''
 
-                                        await paymentApi.addToCart(course?.id, user?.cart).then(() => {
+                                        await paymentApi.addToCart(course?.id).then(() => {
                                             toast.success('Thêm vào giỏ hàng thành công', {
                                                 position: "bottom-right",
                                                 autoClose: 800,

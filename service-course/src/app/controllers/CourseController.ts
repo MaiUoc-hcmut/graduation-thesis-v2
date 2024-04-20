@@ -546,7 +546,7 @@ class CourseController {
                 where: { id_student }
             });
 
-            const courses = await StudentCourse.findAll({
+            const records = await StudentCourse.findAll({
                 where: { id_student },
                 through: {
                     attributes: []
@@ -561,20 +561,21 @@ class CourseController {
                 offset: pageSize * (currentPage - 1)
             });
 
-            for (const course of courses) {
-                const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${course.Course.id_teacher}`);
+            for (const record of records) {
+                const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${record.Course.id_teacher}`);
+
                 const countTopic = await Progress.count({
                     where: {
                         id_student,
-                        id_course: course.id
+                        id_course: record.id_course
                     }
                 });
-                const progress = countTopic / (course.total_exam + course.total_lecture);
-                course.dataValues.progress = progress;
-                course.dataValues.teacher = { id: user.data.id, name: user.data.name };
+                const progress = countTopic / (record.Course.total_exam + record.Course.total_lecture);
+                record.dataValues.progress = progress;
+                record.dataValues.teacher = { id: user.data.id, name: user.data.name };
             }
 
-            res.status(200).json({ count, courses });
+            res.status(200).json({ count, records });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error, message: error.message });

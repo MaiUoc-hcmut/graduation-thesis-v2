@@ -41,7 +41,9 @@ export default function CourseDashboard() {
     useEffect(() => {
         async function fetchData() {
             await courseApi.studentGetCourse(`${authUser.id}`).then((data: any) => {
-                setCourses(data.data.courses)
+                console.log(data.data);
+
+                setCourses(data.data.records)
                 setPaginate(Math.ceil(data.data.count / 10))
             })
         }
@@ -51,6 +53,8 @@ export default function CourseDashboard() {
     for (let i = 1; i <= paginate; i++) {
         list.push(i)
     }
+
+    console.log(courses);
 
     return (
         <div className="">
@@ -91,10 +95,10 @@ export default function CourseDashboard() {
                                         <div className='flex items-center mt-4 '>
                                             <div className='w-[400px]'>
                                                 <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                                                    <div className="bg-yellow-300 h-2.5 rounded-full" style={{ width: `${data?.progress ? data?.progress : '0%'}` }} />
+                                                    <div className="bg-yellow-300 h-2.5 rounded-full" style={{ width: `${data?.progress ? `${data?.progress * 100}%` : '0%'}` }} />
                                                 </div>
                                             </div>
-                                            <span className='ml-3 font-medium text-[#818894]'>Hoàn thành {`${data?.progress ? data?.progress : '0%'}`}</span>
+                                            <span className='ml-3 font-medium text-[#818894]'>Hoàn thành {`${data?.progress ? `${data?.progress * 100}%` : '0%'}`}</span>
                                         </div>
                                         <div className="mt-2">
                                             Giáo viên giảng dạy: <span className="font-semibold">{data?.teacher?.name}</span>

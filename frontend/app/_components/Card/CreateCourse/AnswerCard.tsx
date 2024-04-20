@@ -44,7 +44,7 @@ export const AnswerCard = ({ indexChapter, indexTopic, hanldeForm, indexQuestion
                                 <div className="mb-2 block">
                                     <Label htmlFor="title" value="Nội dung câu trả lời" />
                                 </div>
-                                <CustomCKEditor className="h-50" setValue={setValue} value={getValues().chapters[indexChapter].topics[indexTopic].questions[indexQuestion].answers[indexAnswer].content_text} position={`chapters.${indexChapter}.topics.${indexTopic}.questions.${indexQuestion}.answers.${indexAnswer}.content_text`} />
+                                {/* <CustomCKEditor className="h-50" setValue={setValue} value={getValues().chapters[indexChapter].topics[indexTopic].questions[indexQuestion].answers[indexAnswer].content_text} position={`chapters.${indexChapter}.topics.${indexTopic}.questions.${indexQuestion}.answers.${indexAnswer}.content_text`} /> */}
                                 <div className="mt-2 text-sm text-red-600 dark:text-red-500">
                                     {errors?.chapters?.[indexChapter]?.topics?.[indexTopic]?.questions?.[indexQuestion]?.answers?.[indexAnswer]?.content_text?.message}
                                 </div>
