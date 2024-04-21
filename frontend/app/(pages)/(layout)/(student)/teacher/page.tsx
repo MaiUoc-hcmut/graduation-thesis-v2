@@ -5,24 +5,22 @@ import { XMarkIcon, ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon } from
 import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, StarIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
 import Image from 'next/image';
-import courseApi from '@/app/api/courseApi';
 import categoryApi from '@/app/api/category';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { formatCash, convertTime } from '@/app/helper/FormatFunction';
+import userApi from '@/app/api/userApi';
 
 
 function classNames(...classes: any) {
     return classes.filter(Boolean).join(' ');
 }
 
-export default function CourseList() {
-    const [courses, setCourses] = useState<any[]>([]);
+export default function TeacherList() {
+    const [teachers, setTeachers] = useState<any[]>([]);
     const [category, setCategory] = useState<any[]>([]);
     const searchParams = useSearchParams();
     const subjectFilters = searchParams.getAll('subject');
-    const levelFilters = searchParams.getAll('level');
     const classFilters = searchParams.getAll('class');
-    const priceFilters = searchParams.get('maxPrice');
     const sortFilters = searchParams.get('sort');
     const orderFilters = searchParams.get('order');
 
@@ -31,8 +29,6 @@ export default function CourseList() {
         { name: 'Mới nhất', href: '?sort=date&order=desc', current: sortFilters === 'date' },
         { name: 'Phổ biến nhất', href: '?sort=registration&order=desc', current: sortFilters === 'registration' },
         { name: 'Đánh giá tốt nhất', href: '?sort=rating&order=desc', current: sortFilters === 'rating' },
-        { name: 'Giá: Thấp đến cao', href: '?sort=price&order=asc', current: sortFilters === 'price' && orderFilters === 'asc' },
-        { name: 'Giá: Cao đến thấp', href: '?sort=price&order=desc', current: sortFilters === 'price' && orderFilters === 'desc' },
     ];
 
     const renderStars = (rating: number) => {
@@ -48,15 +44,12 @@ export default function CourseList() {
         async function fetchData() {
             let filterString = ''
             subjectFilters?.map((s) => { filterString += `subject=${s}` })
-            levelFilters?.map((l) => { filterString += `&level=${l}` })
             classFilters?.map((c) => { filterString += `&class=${c}` })
-            priceFilters ? filterString += `&minPrice=0&maxPrice=${priceFilters}` : null
-
             sortFilters && orderFilters ? filterString += `&sort=${sortFilters}&order=${orderFilters}` : null
 
 
-            await courseApi.getAll(filterString).then((data: any) => {
-                setCourses(data.data.courses)
+            await userApi.getAllTeacher(filterString).then((data: any) => {
+                setTeachers(data.data.teachers)
             }
             )
             await categoryApi.getAll().then((data: any) => {
@@ -69,25 +62,12 @@ export default function CourseList() {
                         })
                     },
                     {
-                        id: "level",
-                        name: "Mức độ",
-                        options: data?.Level?.map((level: any) => {
-                            return { ...level, checked: levelFilters.includes(level.id) }
-                        })
-                    },
-                    {
                         id: "class",
                         name: "Lớp",
                         options: data?.Class?.map((grade: any) => {
                             return { ...grade, checked: classFilters.includes(grade.id) }
                         })
                     },
-                    {
-                        id: "maxPrice",
-                        name: "Giá",
-                        value: priceFilters
-                    }
-
                 ])
             })
 
@@ -226,63 +206,49 @@ export default function CourseList() {
                             <div className="lg:col-span-3 flex-1">
                                 <div className='grid grid-cols-2 gap-x-8 gap-y-8 mt-2'>
                                     {
-                                        courses?.map((course: any) => {
+                                        teachers?.map((teacher: any) => {
                                             return (
-                                                <Link key={course.id} href={`course/${course.id}`} className=''>
-                                                    <div className='bg-white shadow-card_course rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300'>
-                                                        <div className='relative w-full h-60'>
-                                                            <Image
-                                                                src={`${course.thumbnail}`}
-                                                                fill
-                                                                className='rounded-tl-2xl rounded-tr-2xl overflow-hidden object-cover object-center'
-                                                                alt="logo"
-                                                            />
+                                                <Link key={teacher.id} href={`teacher/profile/${teacher.id}`} className=''>
+                                                    <div className='bg-white shadow-card_teacher rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300 border-[1px] border-slate-200'>
+                                                        <div className='flex justify-center items-center bg-slate-50 py-5'>
+                                                            <div className='relative w-40 h-40'>
+                                                                <Image
+                                                                    src={`${teacher?.avatar ? teacher?.avatar : "/images/avatar-teacher.png"}`}
+                                                                    fill
+                                                                    className='rounded-full overflow-hidden object-cover object-center'
+                                                                    alt="logo"
+                                                                />
+                                                            </div>
                                                         </div>
                                                         <div className='px-3 py-4'>
-                                                            <div className='flex items-center'>
-                                                                <div className='mr-2 w-10 h-10 max-h-10 max-w-10 rounded-full relative'>
-                                                                    <Image
-                                                                        src='/images/avatar-teacher.png'
-                                                                        width={40}
-                                                                        height={40}
-                                                                        className='rounded-full overflow-hidden object-cover object-center'
-                                                                        alt="logo"
-                                                                    />
-                                                                </div>
-                                                                <div>
-                                                                    <p className='font-medium text-[#818894]'>Việt Lê</p>
-                                                                </div>
-                                                            </div>
-                                                            <h3 className="overflow-hidden text-[#17134] mt-4 h-8 font-bold">
-                                                                {course.name}
+
+                                                            <h3 className="overflow-hidden text-[#17134] h-8 font-bold">
+                                                                Giáo viên: {teacher.name}
                                                             </h3>
 
 
-                                                            <div className="flex items-center mt-4">
-                                                                {renderStars(Math.floor(course?.average_rating))}
-                                                                <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{course?.average_rating.toFixed(1)}</span>
+                                                            <div className="flex items-center mt-2">
+                                                                {renderStars(Math.floor(teacher?.average_rating))}
+                                                                <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{(teacher?.average_rating || 0).toFixed(1)}</span>
                                                             </div>
                                                             <div className='mt-4 grid grid-cols-2 gap-2'>
                                                                 <div className='flex items-center'>
                                                                     <ClockIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{convertTime(course?.total_duration)} giờ</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{convertTime(teacher?.total_duration)} giờ</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
                                                                     <Squares2X2Icon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{course?.total_chapter} chương</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_chapter} chương</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
                                                                     <FilmIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{course?.total_lecture} bài giảng</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_lecture} bài giảng</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
                                                                     <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{course?.total_exam} đề thi</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_exam} đề thi</span>
                                                                 </div>
 
-                                                            </div>
-                                                            <div className='mt-6'>
-                                                                <span className='text-xl text-primary font-extrabold'>{formatCash(`${course.price}`)} VNĐ</span>
                                                             </div>
                                                         </div>
                                                     </div>

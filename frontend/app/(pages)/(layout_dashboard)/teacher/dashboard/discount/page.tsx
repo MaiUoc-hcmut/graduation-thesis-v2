@@ -39,7 +39,7 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
             await discountApi.getAllByCreateTeacher(`${user.id}`).then((data: any) => {
                 setDiscounts(data.data)
             })
-            await courseApi.getAllByTeacher(`${user.id}`, 1).then((data: any) => {
+            await courseApi.getAllByTeacher(`${user.id}`, '1').then((data: any) => {
                 setCourses(data.data.courses)
             })
 
@@ -302,7 +302,7 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                                                                     courses: [data.courses]
                                                                 }
 
-                                                                await discountApi.create(dataForm).then(() => {
+                                                                await discountApi.update(dataForm).then(() => {
 
                                                                 })
 

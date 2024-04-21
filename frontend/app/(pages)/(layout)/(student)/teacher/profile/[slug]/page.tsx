@@ -20,7 +20,8 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
 
     const [reviews, setReviews] = useState([]);
     const [changeData, setChangeData] = useState(false);
-    const [course, setCourse] = useState<any>();
+    const [courses, setCourses] = useState<any>();
+    const [profile, setProfile] = useState<any>();
     const [rating, setRating] = useState(0);
     const [avgReview, setAvgReview] = useState(0);
     const [starDetails, setStarDetails] = useState<any>();
@@ -36,10 +37,10 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
 
     useEffect(() => {
         async function fetchData() {
-            // await courseApi.get(params.slug).then((data: any) => {
-            //     setCourse(data.data)
-            // }
-            // )
+            await userApi.getProfileTeacher(params.slug).then((data: any) => {
+                setProfile(data.data)
+            }
+            )
             await userApi.getReviewOfTeacher(params.slug).then((data: any) => {
                 setReviews(data.data.reviews)
                 if (data.data.averageRating) {
@@ -50,6 +51,9 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                 }
             }
             )
+            await courseApi.getAllByTeacher(`${params.slug}`, '1').then((data: any) => {
+                setCourses(data.data.courses)
+            })
         }
         fetchData()
     }, [changeData, params.slug])
@@ -67,25 +71,6 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
         setHoverRating(hoverRating);
     };
 
-    // useEffect(() => {
-    //     async function fetchData() {
-    //         await courseApi.get(params.slug).then((data: any) => {
-    //             setCourse(data.data)
-    //         }
-    //         )
-    //         await courseApi.getReview(params.slug).then((data: any) => {
-    //             setReviews(data.data.reviews)
-    //             if (data.data.averageRating) {
-    //                 setAvgReview(data.data.averageRating)
-    //             }
-    //             if (data.data.starDetails) {
-    //                 setStarDetails(data.data.starDetails)
-    //             }
-    //         }
-    //         )
-    //     }
-    //     fetchData()
-    // }, [changeData, params.slug])
 
 
 
@@ -95,7 +80,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                 <div className='flex items-center'>
                     <div className='w-[190px] h-[190px] rounded-full relative'>
                         <Image
-                            src={`/images/avatar-teacher.png`}
+                            src={`${profile?.avatar ? profile?.avatar : "/images/avatar-teacher.png"}`}
                             fill
                             className='rounded-full overflow-hidden object-cover object-center'
                             alt="logo"
@@ -103,11 +88,11 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                     </div>
                     <div className='ml-10'>
                         <h1 className='font-bold text-2xl text-[#171347]'>
-                            Ricardo dave
+                            {profile?.name}
                         </h1>
                         <div className="flex items-center mt-4">
-                            {renderStars(Math.floor(4.1))}
-                            <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{4.1.toFixed(1)}</span>
+                            {renderStars(Math.floor(profile?.average_rating || 0))}
+                            <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{(profile?.average_rating || 0).toFixed(1)}</span>
                         </div>
                         <div className='mt-5 flex justify-around items-center'>
                             <div className='w/1/4 flex flex-col items-center mr-10'>
@@ -122,7 +107,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                     </div>
                                 </div>
                                 <span className='font-bold text-[#171347] text-xl'>
-                                    4
+                                    {profile?.total_submit || 0}
                                 </span>
                                 <span className='text-[#818894] text-sm'>
                                     Học viên
@@ -140,7 +125,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                     </div>
                                 </div>
                                 <span className='font-bold text-[#171347] text-xl'>
-                                    6
+                                    {profile?.course_quantity}
                                 </span>
                                 <span className='text-[#818894] text-sm'>
                                     Khóa học
@@ -158,7 +143,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                     </div>
                                 </div>
                                 <span className='font-bold text-[#171347] text-xl'>
-                                    10
+                                    {profile?.total_reviews}
                                 </span>
                                 <span className='text-[#818894] text-sm'>
                                     Đánh giá
@@ -176,10 +161,10 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                     </div>
                                 </div>
                                 <span className='font-bold text-[#171347] text-xl'>
-                                    4
+                                    {profile?.exam_quantity}
                                 </span>
                                 <span className='text-[#818894] text-sm'>
-                                    Học viên
+                                    Đề thi
                                 </span>
                             </div>
                         </div>
@@ -221,85 +206,65 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
 
                         <div className=''>
                             <div className=''>
-                                <h3 className='font-bold text-secondary'>Yêu cầu</h3>
+                                <h3 className='font-bold text-secondary'>Giới thiệu</h3>
                                 <p className='flex items-start mt-2 text-[14px] text-[#818894]'>
-                                    {/* <CheckIcon className='w-[18px] h-[18px] mr-2' /> */}
-                                    sdaf
+                                    {profile?.biostory}
                                 </p>
                             </div>
                         </div>
                     </div>
                     <div className={`${tab == 2 ? '' : 'hidden'}`}>
                         <ul>
-                            {course?.chapters?.map((chapter: any) => {
-                                return (
-                                    <li key={chapter.id} className='bg-white py-3 pl-[20px] pr-6 rounded-lg mb-5 list-none border-[1px] border-[#ececec]'>
-                                        <div className='flex items-center justify-between'>
-                                            <div className="flex justify-between items-center">
-                                                <div className="flex justify-center items-center">
-                                                    <span className="flex justify-center items-center w-10 h-10 min-w-10 min-h-10 bg-primary rounded-full mr-[10px]">
-                                                        <Squares2X2Icon className="w-6 h-6 text-white" />
-                                                    </span>
-                                                    <div>
-                                                        <span className="font-bold text-[rgb(23,19,71)] text-base">
-                                                            {chapter.name}
-                                                        </span>
-                                                        <span className="font-normal text-[818894] text-xs flex">
-                                                            {chapter.topics?.length} chủ đề
-                                                            | {convertTime(chapter.totalDuration)}
-                                                        </span>
+                            {
+                                courses?.map((course: any) => {
+                                    return (
+                                        <div key={course.id} className="border-[1px] border-slate-200 relative rounded-[10px] flex bg-white mb-8">
+
+                                            <div className="h-[200px] w-[300px] relative">
+                                                <Image
+                                                    src={`${course.thumbnail ? course.thumbnail : '/images/cousre-thumnail-1.jpg'}`}
+                                                    fill
+                                                    alt="logo"
+                                                    className="rounded-l-[10px] h-full w-full overflow-hidden object-center object-cover"
+                                                />
+                                            </div>
+                                            <div className="flex flex-col py-3 pl-[25px] pr-[17px] flex-1">
+                                                <div className="flex justify-between items-center w-full">
+                                                    <Link href="#" >
+                                                        <h3 className="text-[#171347] font-bold text-lg">
+                                                            {course.name}
+                                                        </h3>
+                                                    </Link>
+                                                </div>
+                                                <div className="flex items-center mt-4">
+                                                    {
+                                                        renderStars(Math.floor(course?.average_rating || 0))
+                                                    }
+                                                    <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{course.average_rating.toFixed(1)}</span>
+                                                </div>
+                                                <div className="mt-4">
+                                                    <span className="text-[20px] font-bold text-primary">{formatCash(`${course.price}`)} VNĐ</span>
+                                                </div>
+                                                <div className="mt-auto flex items-center justify-between flex-wrap">
+                                                    <div className="flex items-center flex-col mt-[20px] mr-[15px]">
+                                                        <span className="text-sm text-[#818894]">Lớp:</span>
+                                                        <span className="text-sm text-[#171347]">{course.Categories[0]?.Class}</span>
+                                                    </div>
+                                                    <div className="flex items-center flex-col mt-[20px] mr-[15px]">
+                                                        <span className="text-sm text-[#818894]">Môn học:</span>
+                                                        <span className="text-sm text-[#171347]">{course.Categories[1]?.Subject}</span>
+                                                    </div>
+                                                    <div className="flex items-center flex-col mt-[20px] mr-[15px]">
+                                                        <span className="text-sm text-[#818894]">Mức độ:</span>
+                                                        <span className="text-sm text-[#171347]">{course.Categories[2]?.Level}</span>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="ml-5 flex items-center justify-center">
 
-                                                <div className="mr-[10px]" >
-                                                    {
-                                                        !toggle[`open_chapter_${chapter.id}`] ?
-                                                            <button type="button" className="mr-[10px] text-[#818894]" onClick={() => {
-                                                                setToggle({ ...toggle, [`open_chapter_${chapter.id}`]: true })
-                                                            }}>
-                                                                <ChevronDownIcon className="w-5 h-5" />
-                                                            </button>
-                                                            :
-                                                            <button type="button" className="mr-[10px] text-[#818894]" onClick={() => {
-                                                                setToggle({ ...toggle, [`open_chapter_${chapter.id}`]: false })
-                                                            }}>
-                                                                <ChevronUpIcon className="w-5 h-5" />
-                                                            </button>
-                                                    }
-
-                                                </div>
-                                            </div>
                                         </div>
-                                        <ul className={`${toggle[`open_chapter_${chapter.id}`] ? '' : 'hidden'} mt-4 pt-8 border-t-[1px] border-[#ececec]`}>
-                                            {
-                                                chapter.topics?.map((topic: any) => {
-                                                    return (
-                                                        <li key={topic.id} className='bg-white py-3 pl-[20px] pr-6 rounded-lg mb-5 list-none border-[1px] border-[#ececec]'>
-                                                            <div className='flex items-center justify-between'>
-                                                                <div className="flex justify-between items-center">
-                                                                    <div className="flex justify-center items-center">
-                                                                        <span className='mr-3 bg-[#ececec] w-10 h-10 rounded-full flex justify-center items-center'>
-                                                                            <FilmIcon className='w-4 h-4' />
-                                                                        </span>
-                                                                        <span className="font-bold text-[rgb(23,19,71)] text-base">
-                                                                            {topic.name}
-                                                                        </span>
-
-                                                                    </div>
-                                                                </div>
-
-                                                            </div>
-                                                        </li>
-                                                    )
-                                                })
-                                            }
-                                        </ul>
-                                    </li>
-                                )
-
-                            })}
+                                    )
+                                })
+                            }
                         </ul>
 
                     </div>

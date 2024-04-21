@@ -7,6 +7,7 @@ const {
   uploadBytesResumable,
   getStorage,
 } = require('firebase/storage');
+const Category = require('../models/category');
 const { initializeApp } = require('firebase/app');
 
 const Teacher = require('../models/teacher');

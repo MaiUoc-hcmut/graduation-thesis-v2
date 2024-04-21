@@ -87,8 +87,6 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
         const submitAnswer = async () => {
             await examApi.submitExam({ data })
         };
-        console.log(data);
-
 
         try {
             const response = await submitAnswer();
@@ -235,7 +233,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
         <form onSubmit={handleSubmit((data) => {
             console.log(data, 1);
             submitTest('1', data)
-            router.push(`/course/learning/${params.slug}/exam/${params.id_exam}`)
+            router.push(`/course/learning/${params.slug}?exam=${params.id_exam}`)
 
         })} className="bg-[#FBFAF9] relative py-10 min-h-screen">
             <div className="px-10 py-5 bg-[#153462] fixed w-full top-0 left-0 z-10">

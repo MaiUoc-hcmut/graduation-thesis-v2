@@ -37,19 +37,19 @@ export default function ResultExam({ params }: { params: { slug: string, id_exam
                                     {parse(question.content_text)}
                                 </div>
                             </div>
-                            {question.isCorrect ? (
+                            {question.is_correct ? (
                                 <span
                                     key={index}
                                     className="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300"
                                 >
-                                    correct
+                                    đúng
                                 </span>
                             ) : (
                                 <span
                                     key={index}
                                     className="bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300"
                                 >
-                                    wrong
+                                    sai
                                 </span>
                             )}
                         </div>
@@ -349,14 +349,16 @@ export default function ResultExam({ params }: { params: { slug: string, id_exam
                             <p className="rounded-md text-center font-medium text-lg text-[#153462] mb-5">Điều hướng bài kiểm tra</p>
                             {/* <div className="grid grid-cols-5 justify-items-center gap-y-3">{listNumber}</div> */}
                             <div className="text-center mt-10 mb-2">
-                                <button
-                                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                    onClick={() => {
-                                        setOpen(true);
-                                    }}
-                                >
-                                    Nộp bài
-                                </button>
+                                <Link href={`/course/learning/${params.slug}`}>
+                                    <button
+                                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                        onClick={() => {
+                                            setOpen(true);
+                                        }}
+                                    >
+                                        Thoát
+                                    </button>
+                                </Link>
                             </div>
                         </div>
                     </div>

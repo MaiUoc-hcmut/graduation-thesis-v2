@@ -2,7 +2,7 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
     await queryInterface.createTable('par_category', {
       id: {
         allowNull: false,
@@ -52,7 +52,7 @@ module.exports = {
       },
     });
     await queryInterface.createTable('category-teacher', {
-      id_exam: {
+      id_teacher: {
         allowNull: false,
         type: Sequelize.UUID,
         references: {
@@ -83,9 +83,9 @@ module.exports = {
     });
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('category-teacher');
     await queryInterface.dropTable('category');
     await queryInterface.dropTable('par_category');
-  }
+  },
 };

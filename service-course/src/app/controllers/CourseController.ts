@@ -95,8 +95,8 @@ class CourseController {
             console.log(authority);
 
             let status = authority === 2
-                            ? ['public', 'paid', 'private']
-                            : ['public', 'paid'];
+                ? ['public', 'paid', 'private']
+                : ['public', 'paid'];
 
             const categories: any[] = [];
 
@@ -106,7 +106,7 @@ class CourseController {
             const maxPrice = typeof req.query.maxPrice === 'string' ? parseInt(req.query.maxPrice) : undefined;
 
             if (!_class) {
-                
+
             } else if (Array.isArray(_class)) {
                 categories.push(..._class)
             } else {
@@ -194,9 +194,9 @@ class CourseController {
             if (typeof orderSort === "string" && Object.values(SortOrder).includes(orderSort)) {
                 defaultOrder = orderFactor[orderSort as SortOrder];
             }
-            
+
             const currentPage: number = +req.params.page;
-            
+
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const queryOption: any = {
@@ -221,7 +221,7 @@ class CourseController {
                     },
                 };
                 queryOption.group = ['Course.id'];
-                queryOption.having = sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`);
+                queryOption.having = sequelize.literal("COUNT(DISTINCT " + `Categories` + "." + `id` + `) = ${categories.length}`);
             }
 
             const count = await Course.count({
@@ -347,8 +347,8 @@ class CourseController {
             const authority = req.user?.authority;
 
             let status = authority === 0
-                            ? ['public', 'paid']
-                            : ['public', 'paid', 'private']
+                ? ['public', 'paid']
+                : ['public', 'paid', 'private']
 
             const course = await Course.findOne({
                 where: { id: req.params.courseId },
@@ -411,24 +411,24 @@ class CourseController {
                 let totalChapterDuration = 0;
                 let totalChapterLectures = 0;
                 let totalChapterExams = 0;
-                chapter.topics.forEach( async (topic: any) => {
+                chapter.topics.forEach(async (topic: any) => {
                     totalChapterDuration += topic.duration;
-                    topic.type === "lecture" ? totalChapterLectures++ : totalChapterExams++; 
+                    topic.type === "lecture" ? totalChapterLectures++ : totalChapterExams++;
 
                     if (authority === 0 && topic.status === "paid" && topic.type === "lecture") {
                         delete topic.dataValues.video;
                     }
-                    if (topic.type === "exam") {
-                        const exam = await axios.get(`${process.env.BASE_URL_EXAM_LOCAL}/exams/${topic.id_exam}`);
-                        topic.dataValues.exam = {
-                            quantity_question: exam.data.quantity_question,
-                            period: exam.data.period
-                        }
+                    // if (topic.type === "exam") {
+                    //     const exam = await axios.get(`${process.env.BASE_URL_EXAM_LOCAL}/exams/${topic.id_exam}`);
+                    //     topic.dataValues.exam = {
+                    //         quantity_question: exam.data.quantity_question,
+                    //         period: exam.data.period
+                    //     }
 
-                        if (topic.status === "paid" && authority === 0) {
-                            delete topic.dataValues.id_exam;
-                        }
-                    }
+                    //     if (topic.status === "paid" && authority === 0) {
+                    //         delete topic.dataValues.id_exam;
+                    //     }
+                    // }
                 });
                 chapter.dataValues.totalDuration = totalChapterDuration;
                 chapter.dataValues.totalChapterLectures = totalChapterLectures;
@@ -597,7 +597,7 @@ class CourseController {
     getRecordsOfStudentCourseTable = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const records = await StudentCourse.findAll();
-            
+
             res.status(200).json(records);
         } catch (error: any) {
             console.log(error.message);
@@ -610,7 +610,7 @@ class CourseController {
         try {
             const currentPage: number = +req.params.page;
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
-            
+
             const id_course = req.params.courseId;
 
             const records = await StudentCourse.findAll({
@@ -704,8 +704,9 @@ class CourseController {
     studentBuyACourse = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
-            const { id_student } = req.body.data;
+            const { id_student } = req.body;
             const id_course = req.params.courseId;
+            console.log(123);
 
             await StudentCourse.create({
                 id_student,
@@ -950,8 +951,8 @@ class CourseController {
                 }
             }
             console.log(totalDuration);
-            await newCourse.update({ 
-                total_lecture: totalLecture, 
+            await newCourse.update({
+                total_lecture: totalLecture,
                 total_exam: totalExam,
                 total_chapter: totalChapter,
                 total_duration: totalDuration

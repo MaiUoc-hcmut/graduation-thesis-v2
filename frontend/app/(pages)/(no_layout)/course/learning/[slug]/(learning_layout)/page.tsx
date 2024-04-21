@@ -7,7 +7,7 @@ import ReactPlayer from 'react-player'
 import courseApi from "@/app/api/courseApi"
 import TinyMceEditorComment from '@/app/_components/Editor/TinyMceEditorComment'
 import parse from 'html-react-parser';
-import { formatDateTime, convertTime } from '@/app/helper/FormatFunction';
+import { formatDateTime, convertTime, convertToVietnamTime } from '@/app/helper/FormatFunction';
 import { useForm, SubmitHandler, Controller } from "react-hook-form"
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import { useSearchParams } from 'next/navigation';
@@ -46,9 +46,11 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
         formState: { errors },
     } = useForm()
 
-    const lectureId = searchParams.get('lecture') || topic?.type === "lecture" ? topic?.id : null
-    const examId = searchParams.get('exam') || topic?.type === "exam" ? topic?.id : null
+    const lectureId = searchParams.get('lecture') || (topic?.type === "lecture" && !searchParams.get('exam') ? topic?.id : null)
+    const examId = searchParams.get('exam') || (topic?.type === "exam" && !searchParams.get('lecture') ? topic?.id_exam : null)
     const topicId = lectureId || examId;
+    console.log(lectureId, examId);
+
 
     for (let i = 1; i <= paginate; i++) {
         list.push(i)
@@ -99,6 +101,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
         }
         fetchData()
     }, [change, currentPageComment, lectureId]);
+    console.log(lectureId);
 
     if (lectureId) {
         return (
@@ -446,7 +449,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
 
                                 </div>
                                 <div className='h-1/2'>
-                                    <Link href={`attemp/${examId}`} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Làm bài</Link>
+                                    <Link href={`/course/learning/${params.slug}/exam/attemp/${examId}`} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Làm bài</Link>
                                 </div>
 
                             </section>
@@ -488,9 +491,9 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                                         >
                                                                             {index + 1}
                                                                         </th>
-                                                                        <td className="w-1/2 px-6 py-4">{assignment.time_end}</td>
+                                                                        <td className="w-1/2 px-6 py-4">{convertToVietnamTime(assignment.time_end)}</td>
                                                                         <td className="w/1/6 px-6 py-4 text-center">{assignment.score}</td>
-                                                                        <td className="w/1/6 px-6 py-4 text-center"><Link href={`result/${assignment.id}`} className='underline text-blue-500'>Xem lại</Link></td>
+                                                                        <td className="w/1/6 px-6 py-4 text-center"><Link href={`/course/learning/${params.slug}/exam/result/${assignment.id}`} className='underline text-blue-500'>Xem lại</Link></td>
                                                                     </tr>
                                                                 )
                                                             })
