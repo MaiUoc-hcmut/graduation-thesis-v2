@@ -405,11 +405,11 @@ class CourseController {
             });
 
             let apparentDuration = 0;
-            course.chapters.forEach((chapter: any) => {
+            for (const chapter of course.chapters) {
                 let totalChapterDuration = 0;
                 let totalChapterLectures = 0;
                 let totalChapterExams = 0;
-                chapter.topics.forEach( async (topic: any) => {
+                for (const topic of chapter.topics) {
                     totalChapterDuration += topic.duration;
                     topic.type === "lecture" ? totalChapterLectures++ : totalChapterExams++; 
 
@@ -417,23 +417,30 @@ class CourseController {
                         delete topic.dataValues.video;
                     }
                     if (topic.type === "exam") {
-                        const exam = await axios.get(`${process.env.BASE_URL_EXAM_LOCAL}/exams/${topic.id_exam}`);
-                        topic.dataValues.exam = {
-                            quantity_question: exam.data.quantity_question,
-                            period: exam.data.period
-                        }
+                        try {
+                            const exam = await axios.get(`${process.env.BASE_URL_EXAM_LOCAL}/exams/${topic.id_exam}`);
+                            topic.dataValues.exam = {
+                                quantity_question: exam.data.quantity_question,
+                                period: exam.data.period
+                            }
 
-                        if (topic.status === "paid" && authority === 0) {
-                            delete topic.dataValues.id_exam;
+                            if (topic.status === "paid" && authority === 0) {
+                                delete topic.dataValues.id_exam;
+                            }
+                        } catch (error) {
+                            topic.dataValues.exam = {
+                                quantity_question: 0,
+                                period: null
+                            };
                         }
                     }
-                });
+                };
                 chapter.dataValues.totalDuration = totalChapterDuration;
                 chapter.dataValues.totalChapterLectures = totalChapterLectures;
                 chapter.dataValues.totalChapterExams = totalChapterExams;
 
                 apparentDuration += totalChapterDuration;
-            });
+            };
 
             course.dataValues.authority = authority;
             course.dataValues.apparentDuration = apparentDuration;

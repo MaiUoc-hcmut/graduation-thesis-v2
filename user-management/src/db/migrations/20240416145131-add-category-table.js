@@ -52,7 +52,7 @@ module.exports = {
       },
     });
     await queryInterface.createTable('category-teacher', {
-      id_exam: {
+      id_teacher: {
         allowNull: false,
         type: Sequelize.UUID,
         references: {

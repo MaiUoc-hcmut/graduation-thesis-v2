@@ -5,6 +5,7 @@ const { ref, getDownloadURL, uploadBytesResumable, getStorage } = require('fireb
 const { initializeApp } = require('firebase/app');
 
 const Teacher = require('../models/teacher');
+const Category = require('../models/category');
 const createError = require('http-errors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
