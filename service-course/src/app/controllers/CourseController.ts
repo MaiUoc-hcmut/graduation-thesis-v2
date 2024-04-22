@@ -85,14 +85,14 @@ declare global {
 }
 
 class CourseController {
+    // If student have bought the course or the course already in the cart, do not let student add course to the cart and 
+    // response for FE know student have bought the course or add the course to cart
 
     // Get all courses
     // [GET] /courses/page/:page
     getAllCourse = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const authority = req.authority;
-
-            console.log(authority);
 
             let status = authority === 2
                 ? ['public', 'paid', 'private']
@@ -407,35 +407,42 @@ class CourseController {
             });
 
             let apparentDuration = 0;
-            course.chapters.forEach((chapter: any) => {
+            for (const chapter of course.chapters) {
                 let totalChapterDuration = 0;
                 let totalChapterLectures = 0;
                 let totalChapterExams = 0;
-                chapter.topics.forEach(async (topic: any) => {
+                for (const topic of chapter.topics) {
                     totalChapterDuration += topic.duration;
                     topic.type === "lecture" ? totalChapterLectures++ : totalChapterExams++;
 
                     if (authority === 0 && topic.status === "paid" && topic.type === "lecture") {
                         delete topic.dataValues.video;
                     }
-                    // if (topic.type === "exam") {
-                    //     const exam = await axios.get(`${process.env.BASE_URL_EXAM_LOCAL}/exams/${topic.id_exam}`);
-                    //     topic.dataValues.exam = {
-                    //         quantity_question: exam.data.quantity_question,
-                    //         period: exam.data.period
-                    //     }
+                    if (topic.type === "exam") {
+                        try {
+                            const exam = await axios.get(`${process.env.BASE_URL_EXAM_LOCAL}/exams/${topic.id_exam}`);
+                            topic.dataValues.exam = {
+                                quantity_question: exam.data.quantity_question,
+                                period: exam.data.period
+                            }
 
-                    //     if (topic.status === "paid" && authority === 0) {
-                    //         delete topic.dataValues.id_exam;
-                    //     }
-                    // }
-                });
+                            if (topic.status === "paid" && authority === 0) {
+                                delete topic.dataValues.id_exam;
+                            }
+                        } catch (error) {
+                            topic.dataValues.exam = {
+                                quantity_question: 0,
+                                period: null
+                            };
+                        }
+                    }
+                };
                 chapter.dataValues.totalDuration = totalChapterDuration;
                 chapter.dataValues.totalChapterLectures = totalChapterLectures;
                 chapter.dataValues.totalChapterExams = totalChapterExams;
 
                 apparentDuration += totalChapterDuration;
-            });
+            };
 
             course.dataValues.authority = authority;
             course.dataValues.apparentDuration = apparentDuration;
@@ -452,6 +459,12 @@ class CourseController {
     getCourseCreatedByTeacher = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_teacher = req.params.teacherId;
+
+            const authority = req.authority;
+
+            let status = (authority === 2 || req.user?.user.data.id === id_teacher)
+                ? ['public', 'paid', 'private']
+                : ['public', 'paid'];
 
             enum SortQuery {
                 Rating = 'rating',
@@ -494,12 +507,12 @@ class CourseController {
 
             // Count all the record that match the condition
             const count = await Course.count({
-                where: { id_teacher }
+                where: { id_teacher, status }
             });
 
             // Response the result with the limit for pagination
             const courses = await Course.findAll({
-                where: { id_teacher },
+                where: { id_teacher, status },
                 include: [
                     {
                         model: Category,
@@ -704,9 +717,12 @@ class CourseController {
     studentBuyACourse = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
-            const { id_student } = req.body;
+            console.log(req.student);
+            const id_student = req.student.data.id;
+
+
+
             const id_course = req.params.courseId;
-            console.log(123);
 
             await StudentCourse.create({
                 id_student,

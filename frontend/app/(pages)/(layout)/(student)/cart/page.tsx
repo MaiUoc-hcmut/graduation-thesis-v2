@@ -31,7 +31,7 @@ export default function Cart() {
             await paymentApi.getCartOfStudent().then((data: any) => {
                 setCartItems(data.data)
             }
-            )
+            ).catch((err: any) => { })
         }
         fetchData()
     }, [change, user.id])
@@ -67,7 +67,7 @@ export default function Cart() {
                                                 <Modal.Body>
                                                     <form className="space-y-6" onSubmit={async (e) => {
                                                         e.preventDefault()
-                                                        await paymentApi.deleteCart({ data: { id_course: item.id } })
+                                                        await paymentApi.deleteCart({ data: { id_course: item.id } }).catch((err: any) => {})
                                                         setChange(!change)
                                                     }}>
                                                         <ExclamationCircleIcon className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />

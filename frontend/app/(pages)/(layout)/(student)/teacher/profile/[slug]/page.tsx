@@ -40,7 +40,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
             await userApi.getProfileTeacher(params.slug).then((data: any) => {
                 setProfile(data.data)
             }
-            )
+            ).catch((err: any) => { })
             await userApi.getReviewOfTeacher(params.slug).then((data: any) => {
                 setReviews(data.data.reviews)
                 if (data.data.averageRating) {
@@ -50,10 +50,10 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                     setStarDetails(data.data.starDetails)
                 }
             }
-            )
+            ).catch((err: any) => { })
             await courseApi.getAllByTeacher(`${params.slug}`, '1').then((data: any) => {
                 setCourses(data.data.courses)
-            })
+            }).catch((err: any) => { })
         }
         fetchData()
     }, [changeData, params.slug])
@@ -362,7 +362,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                         rating
                                     }
                                 }
-                                await courseApi.createReview(formData)
+                                await courseApi.createReview(formData).catch((err: any) => { })
                                 reset()
                                 setRating(0)
                                 setChangeData(!changeData)

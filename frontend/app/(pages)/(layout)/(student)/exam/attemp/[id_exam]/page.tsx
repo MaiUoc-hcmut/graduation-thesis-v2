@@ -11,7 +11,7 @@ export default function Exam({ params }: { params: { slug: string, id_exam: stri
         const getExam = async () => {
             await examApi.get(params.id_exam).then((data) => {
                 setExam(data.data)
-            })
+            }).catch((err: any) => { })
         };
         getExam()
     }, [params.id_exam]);

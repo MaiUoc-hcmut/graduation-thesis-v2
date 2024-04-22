@@ -16,7 +16,7 @@ export default function CheckoutPage() {
                 setCartItems(data.data)
                 setTotal(data.data.reduce((total: any, item: any) => total + item.price, 0))
             }
-            )
+            ).catch((err: any) => { })
         }
         fetchData()
     }, [user.cart])
@@ -208,7 +208,7 @@ export default function CheckoutPage() {
                         let res: any
                         await paymentApi.getPayment(`${total}`).then((data) => {
                             res = data.data
-                        })
+                        }).catch((err: any) => { })
 
                         router.push(res?.payUrl);
 

@@ -60,7 +60,7 @@ export function BasicInfomationForm({
 
     useEffect(() => {
         async function fetchCategory() {
-            await categoryApi.getAll().then((data: any) => setCategory(data))
+            await categoryApi.getAll().then((data: any) => setCategory(data)).catch((err: any) => { })
         }
         fetchCategory()
     }, []);

@@ -60,7 +60,7 @@ export default function CourseList() {
             await courseApi.getAll(filterString).then((data: any) => {
                 setCourses(data.data.courses)
             }
-            )
+            ).catch((err: any) => { })
             await categoryApi.getAll().then((data: any) => {
                 setCategory([
                     {
@@ -91,7 +91,7 @@ export default function CourseList() {
                     }
 
                 ])
-            })
+            }).catch((err: any) => { })
 
         }
         fetchData()

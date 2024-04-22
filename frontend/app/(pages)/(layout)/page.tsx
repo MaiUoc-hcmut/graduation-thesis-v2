@@ -36,7 +36,7 @@ export default function Home() {
       await courseApi.getAll('').then((data: any) => {
         setCourses(data.data.courses)
       }
-      )
+      ).catch((err: any) => { })
     }
     fetchData()
   }, [])

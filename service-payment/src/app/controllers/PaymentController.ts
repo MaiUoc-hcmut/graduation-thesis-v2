@@ -219,8 +219,15 @@ class PaymentController {
                     id_student: id_user
                 }
 
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': req.headers.authorization
+                }
+
+                console.log(req.headers.authorization);
+
                 for (const course of courses) {
-                    const response = await axios.post(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${course}`, { data });
+                    const response = await axios.post(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${course}`, data, { headers });
                 }
             }
 

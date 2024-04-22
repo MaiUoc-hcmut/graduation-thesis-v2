@@ -29,6 +29,9 @@ router.route('/student-course')
 router.route('/:courseId')
     .get(courseController.getCourseById)
     .post(
+        Authorize.verifyStudent,
+        CheckingCourse.checkExistedCourse,
+        CheckingCourse.checkStudentBuyCourse,
         courseController.studentBuyACourse
     )
     .put(Authorize.authorizeTeacher, CheckingCourse.checkModifyCourse, courseController.updateCourse)
@@ -41,7 +44,7 @@ router.route('/full/:courseId')
     .get(Authorize.verifyUser, CheckingCourse.checkGetDetailCourse, courseController.getAllDetailCourse);
 
 router.route('/teacher/:teacherId/page/:page')
-    .get(Authorize.authorizeTeacher, courseController.getCourseCreatedByTeacher);
+    .get(Authorize.checkGetAll, Authorize.verifyUser, courseController.getCourseCreatedByTeacher);
 
 router.route('/all-student/teacher/:teacherId/page/:page')
     .get(courseController.getStudentsBuyCoursesOfTeacher);

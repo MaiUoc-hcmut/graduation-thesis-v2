@@ -58,7 +58,7 @@ export default function CourseDashboard() {
             await courseApi.getAllByTeacher(`${authUser.id}`, page || '1').then((data: any) => {
                 setCourses(data.data.courses)
                 setPaginate(Math.ceil(data.data.count / 10))
-            })
+            }).catch((err: any) => { })
         }
         fetchData()
     }, [authUser.id, change, page]);
@@ -77,7 +77,7 @@ export default function CourseDashboard() {
                             e.preventDefault()
                             await courseApi.searchCourseByCreateTeacher(`${user.id}`, { query: searchInput }).then((data: any) => {
                                 setCourses(data.data.result)
-                            })
+                            }).catch((err: any) => { })
                         }}
                     >
                         <label htmlFor="simple-search" className="sr-only">Search</label>
@@ -105,7 +105,7 @@ export default function CourseDashboard() {
                                         <Modal.Body>
                                             <form className="space-y-6" onSubmit={async (e) => {
                                                 e.preventDefault()
-                                                await courseApi.delete(course.id)
+                                                await courseApi.delete(course.id).catch((err: any) => { })
                                                 setChange(!change)
                                                 setModal(false)
                                             }}>

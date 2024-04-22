@@ -49,9 +49,9 @@ export default function TeacherList() {
 
 
             await userApi.getAllTeacher(filterString).then((data: any) => {
-                setTeachers(data.data.teachers)
+                setTeachers(data.data.response)
             }
-            )
+            ).catch((err: any) => { })
             await categoryApi.getAll().then((data: any) => {
                 setCategory([
                     {
@@ -69,7 +69,7 @@ export default function TeacherList() {
                         })
                     },
                 ])
-            })
+            }).catch((err: any) => { })
 
         }
         fetchData()

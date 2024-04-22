@@ -12,12 +12,11 @@ import { useSearchParams } from 'next/navigation';
 import { Dropdown } from 'flowbite-react';
 import { useAppSelector } from '@/redux/store';
 import courseApi from '@/app/api/courseApi';
-import paymentApi from '@/app/api/paymentApi';
 import { DataTable } from '@/app/_components/Table/TableFormat';
-import { columns } from "@/app/_components/Table/TransactionColumns/columns"
+import { columns } from "@/app/_components/Table/StudentColumns/columns"
 
 export default function FinanceDashboard() {
-    const [transactions, settransactions] = useState([])
+    const [students, setStudents] = useState([])
     const [modal, setModal] = useState<any>({})
     const [change, setChange] = useState(false)
     const searchParams = useSearchParams()
@@ -35,8 +34,8 @@ export default function FinanceDashboard() {
     const { user } = useAppSelector(state => state.authReducer);
     useEffect(() => {
         async function fetchData() {
-            await paymentApi.getTransactionOfTeacher(`${user.id}`).then((data: any) => {
-                settransactions(data.data)
+            await courseApi.getAllStudenBuyCourseOfTeacher(`${user.id}`, page).then((data: any) => {
+                setStudents(data.data)
             }).catch((err: any) => { })
         }
         fetchData()
@@ -48,9 +47,9 @@ export default function FinanceDashboard() {
     return (
         <div className='w-full'>
             <div>
-                <div className="font-bold text-[#171347] text-lg">Danh sách giao dịch</div>
+                <div className="font-bold text-[#171347] text-lg">Danh sách học sinh</div>
                 <div className="container mx-auto bg-white p-4 rounded-lg mt-4">
-                    <DataTable columns={columns} data={transactions} page={page} setPage={setPage} pageCount={pageCount} />
+                    <DataTable columns={columns} data={students} page={page} setPage={setPage} pageCount={pageCount} />
                 </div>
 
             </div>

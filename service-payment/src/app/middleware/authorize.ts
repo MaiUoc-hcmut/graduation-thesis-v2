@@ -65,12 +65,12 @@ class Authorize {
                 }
                 return next(createError.Unauthorized(info?.message ? info.message : err))
             }
-            
+
             let user: {
                 user?: any,
                 role?: string
             } = {};
-            
+
             try {
                 const student = await this.getUserFromAPI(`${process.env.BASE_URL_USER_LOCAL}/student/${id}`);
                 if (student) {
@@ -87,7 +87,7 @@ class Authorize {
                     req.user = user;
                     return next();
                 }
-                
+
                 const admin = await this.getUserFromAPI(`${process.env.BASE_URL_USER_LOCAL}/admin/${id}`);
                 if (admin) {
                     user.user = admin;
@@ -101,7 +101,7 @@ class Authorize {
             } catch (error: any) {
                 return next(createError.InternalServerError(error.message));
             }
-            
+
         })(req, res, next);
     }
 
@@ -111,6 +111,8 @@ class Authorize {
                 return next(createError.Unauthorized(info?.message ? info.message : err))
             }
             try {
+                console.log(114, id);
+
                 const student = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/student/${id}`);
                 req.student = student;
                 next();

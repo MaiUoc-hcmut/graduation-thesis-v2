@@ -38,10 +38,10 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
         async function fetchData() {
             await discountApi.getAllByCreateTeacher(`${user.id}`).then((data: any) => {
                 setDiscounts(data.data)
-            })
+            }).catch((err: any) => { })
             await courseApi.getAllByTeacher(`${user.id}`, '1').then((data: any) => {
                 setCourses(data.data.courses)
-            })
+            }).catch((err: any) => { })
 
         }
         fetchData()
@@ -80,7 +80,7 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
 
                             await discountApi.create(dataForm).then(() => {
 
-                            })
+                            }).catch((err: any) => { })
 
                             setChange(!change)
                             reset()
@@ -93,7 +93,7 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                                     htmlFor="name"
                                     className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
                                 >
-                                    Tiêu đề
+                                    Tên
                                 </label>
                                 <input
                                     {...register("name", {
@@ -142,18 +142,18 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                                     htmlFor="percent"
                                     className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
                                 >
-                                    Số lượng (%)
+                                    Phần trăm
                                 </label>
                                 <input
                                     {...register("percent", {
-                                        required: "Số lượng không thể trống.",
+                                        required: "Phần trăm không thể trống.",
                                         min: {
                                             value: 0,
-                                            message: "Số lượng không phù hợp."
+                                            message: "Phần trăm không phù hợp."
                                         },
                                         max: {
                                             value: 100,
-                                            message: "Số lượng không phù hợp."
+                                            message: "Phần trăm không phù hợp."
                                         }
                                     })}
                                     type="number"
@@ -258,7 +258,7 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                                                         <Modal.Body>
                                                             <form className="space-y-6" onSubmit={async (e) => {
                                                                 e.preventDefault()
-                                                                await discountApi.delete(item.id)
+                                                                await discountApi.delete(item.id).catch((err: any) => { })
                                                                 setChange(!change)
                                                                 setModal(false)
                                                             }}>
@@ -304,7 +304,7 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
 
                                                                 await discountApi.update(dataForm).then(() => {
 
-                                                                })
+                                                                }).catch((err: any) => { })
 
                                                                 setChange(!change)
                                                                 reset()

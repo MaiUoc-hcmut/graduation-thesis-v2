@@ -29,7 +29,7 @@ export default function TopicPage({ params }: { params: { id: string } }) {
             await courseApi.getTopicForum(params.id, 1).then((data: any) => {
                 setTopic(data.data.topic)
             }
-            )
+            ).catch((err: any) => { })
 
         }
         fetchData()
@@ -111,26 +111,26 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                         <div className='mb-6 rounded-lg border-[2px] border-[#ececec] bg-slate-100 p-4'>
                             <div className=' flex w-full'>
                                 <div className='flex w-full'>
-                                    <div className='flex-1 bg-[#f7fafd] p-4 rounded-lg pb-4'>
-                                        <div className=' flex-1 flex flex-col justify-center items-center p-2 pt-0'>
+                                    <div className='flex-1 bg-[#f7fafd] p-2 rounded-lg pb-4'>
+                                        <div className='flex flex-col justify-center items-center p-2 pt-0'>
                                             <div className='p-[6px] bg-white rounded-full'>
                                                 <Image
-                                                    src={`${topic?.user?.avatar ? topic?.user?.avatar : '/images/avatar.png'}`}
+                                                    src={`${topic?.author?.avatar ? topic?.author?.avatar : '/images/avatar.png'}`}
                                                     width={80}
                                                     height={80}
                                                     className='rounded-full'
                                                     alt="logo"
                                                 />
                                             </div>
-                                            <div className='text-center mt-4 flex flex-col items-center'>
-                                                <span className=' text-secondary font-bold'>
-                                                    {topic?.user?.name}
+                                            <div className='text-center mt-4 flex flex-col items-center '>
+                                                <span className=' text-secondary text-sm font-bold'>
+                                                    {topic?.author?.name}
                                                 </span>
-                                                <span className='text-[#818894] text-[0.75rem] mt-2]'>{topic?.user?.role == "teacher" ? "Giáo viên" : "Học sinh"}</span>
+                                                <span className='text-[#818894] text-[0.75rem] mt-2]'>{topic?.author?.role == "teacher" ? "Giáo viên" : "Học sinh"}</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className='ml-7 w-5/6 '>
+                                    <div className='ml-7 w-4/5'>
                                         <p className='text-black text-sm font-semibold'>{topic?.title}</p>
                                         <p className='text-[#818894] text-sm mt-5'>{topic?.description}</p>
                                         {
@@ -230,7 +230,7 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                                                                             },
                                                                             file: data[`file-${index}`][0]
                                                                         }
-                                                                        await courseApi.createAnswerOfTopic(formData)
+                                                                        await courseApi.createAnswerOfTopic(formData).catch((err: any) => { })
                                                                         setChange(!change)
                                                                         reset()
                                                                         setValue(`content-${index}`, '')
@@ -355,7 +355,7 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                                             },
                                             file: data.file[0]
                                         }
-                                        await courseApi.createAnswerOfTopic(formData)
+                                        await courseApi.createAnswerOfTopic(formData).catch((err: any) => { }).catch((err: any) => { })
                                         setChange(!change)
                                         reset()
                                     })}>

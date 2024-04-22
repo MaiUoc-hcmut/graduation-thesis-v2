@@ -25,7 +25,7 @@ export default function CheckoutResultPage() {
                         "courses": data.data.map((course: any) => course.id),
                         ...info
                     }
-                })
+                }).catch((err: any) => {})
             }
             )
 

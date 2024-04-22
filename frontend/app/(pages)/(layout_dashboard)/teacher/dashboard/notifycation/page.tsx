@@ -15,8 +15,8 @@ export default function NotifycationDashboard() {
             if (user) {
 
                 await notifyApi.getNotify(`${user.id}`).then((data) => {
-                    setNotifycations(data.data)
-                })
+                    setNotifycations(data.data).catch((err: any) => { })
+                }).catch((err: any) => { })
 
             }
         }

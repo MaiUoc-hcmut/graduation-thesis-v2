@@ -25,8 +25,8 @@ const examApi = {
         return await axiosConfig.get(url);
     },
 
-    getAssigmnentByTeacherId: async (id_teacher: string, page: number) => {
-        const url = `/assignments/teacher/${id_teacher}/page/${page}`;
+    getAssigmnentByTeacherId: async (id_teacher: string, page: number, filterString: string) => {
+        const url = `/assignments/teacher/${id_teacher}/page/${page}?${filterString}`;
         return await axiosConfig.get(url);
     },
 

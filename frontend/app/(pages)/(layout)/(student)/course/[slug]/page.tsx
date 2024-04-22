@@ -44,7 +44,9 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
             await courseApi.get(params.slug).then((data: any) => {
                 setCourse(data.data)
             }
-            )
+            ).catch((err) => {
+                console.log(err)
+            })
             await courseApi.getReview(params.slug).then((data: any) => {
                 setReviews(data.data.reviews)
                 if (data.data.averageRating) {
@@ -54,7 +56,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                     setStarDetails(data.data.starDetails)
                 }
             }
-            )
+            ).catch((err: any) => { })
         }
         fetchData()
     }, [changeData, params.slug])
@@ -335,7 +337,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                     "object": "course"
                                                 }
                                             }
-                                            await courseApi.createReview(formData)
+                                            await courseApi.createReview(formData).catch((err: any) => { })
                                             reset()
                                             setRating(0)
                                             setChangeData(!changeData)
@@ -443,6 +445,17 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
 
                                         await paymentApi.addToCart(course?.id).then(() => {
                                             toast.success('Thêm vào giỏ hàng thành công', {
+                                                position: "bottom-right",
+                                                autoClose: 800,
+                                                hideProgressBar: false,
+                                                closeOnClick: true,
+                                                pauseOnHover: true,
+                                                draggable: true,
+                                                progress: undefined,
+                                                theme: "colored",
+                                            });
+                                        }).catch((err) => {
+                                            toast.error('Đã xảy ra lỗi khi thêm vào giỏ hàng', {
                                                 position: "bottom-right",
                                                 autoClose: 800,
                                                 hideProgressBar: false,

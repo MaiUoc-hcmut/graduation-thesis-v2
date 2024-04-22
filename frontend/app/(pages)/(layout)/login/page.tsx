@@ -28,7 +28,7 @@ export default function Login() {
 
     const handleLoginSubmit: SubmitHandler<{ email: string, password: string }> = async (data) => {
         if (tab == "student") {
-            const res = await dispatch(login(data))
+            const res = await dispatch(login(data)).catch((err: any) => { })
             await fetch('/api/auth', {
                 method: 'POST',
                 body: JSON.stringify(

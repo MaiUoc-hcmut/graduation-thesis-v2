@@ -41,48 +41,6 @@ export const columns: ColumnDef<any>[] = [
     },
 
     {
-        accessorKey: "right_question",
-        header: ({ column }) => {
-            return (
-                <button
-                    className="flex justify-center items-center  font-semibold"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Số câu đúng
-                    <ArrowsUpDownIcon className="ml-2 h-4 w-4" />
-                </button>
-            )
-        },
-    },
-    {
-        accessorKey: "wrong_question",
-        header: ({ column }) => {
-            return (
-                <button
-                    className="flex justify-center items-center  font-semibold"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Số câu sai
-                    <ArrowsUpDownIcon className="ml-2 h-4 w-4" />
-                </button>
-            )
-        },
-    },
-    {
-        accessorKey: "empty_question",
-        header: ({ column }) => {
-            return (
-                <button
-                    className="flex justify-center items-center  font-semibold"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Số câu chưa làm
-                    <ArrowsUpDownIcon className="ml-2 h-4 w-4" />
-                </button>
-            )
-        },
-    },
-    {
         accessorKey: "score",
         header: ({ column }) => {
             return (

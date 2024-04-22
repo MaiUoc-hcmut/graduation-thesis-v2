@@ -34,7 +34,7 @@ export default function ExamDashboard() {
 
     useEffect(() => {
         async function fetchData() {
-            await examApi.getAllByTeacher(`${authUser.id}`, '1').then((data: any) => setExams(data.data.exams))
+            await examApi.getAllByTeacher(`${authUser.id}`, '1').then((data: any) => setExams(data.data.exams)).catch((err: any) => { })
         }
         fetchData()
     }, [change]);

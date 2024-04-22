@@ -85,7 +85,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
         })
 
         const submitAnswer = async () => {
-            await examApi.submitExam({ data })
+            await examApi.submitExam({ data }).catch((err: any) => { })
         };
 
         try {

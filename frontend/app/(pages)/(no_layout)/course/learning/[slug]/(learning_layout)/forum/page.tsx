@@ -45,7 +45,7 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                 setPaginate(Math.ceil(data.data.total_topic / 10))
                 setTopics(data.data.topics)
             }
-            )
+            ).catch((err: any) => { })
 
         }
         fetchData()
@@ -73,7 +73,7 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                 },
                                 file: data.file[0]
                             }
-                            await courseApi.createTopicForum(formData)
+                            await courseApi.createTopicForum(formData).catch((err: any) => { })
                             setChange(!change)
                             reset()
                             setModal({ ...modal, [`add-topic`]: false })
@@ -152,7 +152,7 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                         }).then((data: any) => {
                                             setTopics(data.data.result)
                                         }
-                                        )
+                                        ).catch((err: any) => { })
 
                                     }}>
                                         <label htmlFor="simple-search" className="sr-only">Search</label>
@@ -195,7 +195,7 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                                             progress: undefined,
                                                             theme: "colored",
                                                         });
-                                                    })
+                                                    }).catch((err: any) => { })
                                                     setChange(!change)
                                                     setModal(false)
                                                 }}>
@@ -240,7 +240,7 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                                             progress: undefined,
                                                             theme: "colored",
                                                         });
-                                                    })
+                                                    }).catch((err: any) => { })
                                                     setChange(!change)
                                                     reset()
                                                     setModal({ ...modal, [`edit-topic${topic.id}`]: false })

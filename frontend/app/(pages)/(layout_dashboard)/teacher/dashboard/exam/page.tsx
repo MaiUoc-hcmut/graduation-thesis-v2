@@ -35,7 +35,7 @@ export default function ExamDashboard() {
 
     useEffect(() => {
         async function fetchData() {
-            await examApi.getAllByTeacher(`${authUser.id}`, '1').then((data: any) => setExams(data.data.exams))
+            await examApi.getAllByTeacher(`${authUser.id}`, '1').then((data: any) => setExams(data.data.exams)).catch((err: any) => { })
         }
         fetchData()
     }, [authUser.id, change]);
@@ -49,7 +49,7 @@ export default function ExamDashboard() {
                         e.preventDefault()
                         await examApi.searchExam(searchInput).then((data: any) => {
                             setExams(data.data.result)
-                        })
+                        }).catch((err: any) => { })
                     }}>
                         <label htmlFor="simple-search" className="sr-only">Search</label>
                         <div className="relative w-full">
@@ -76,7 +76,7 @@ export default function ExamDashboard() {
                                         <Modal.Body>
                                             <form className="space-y-6" onSubmit={async (e) => {
                                                 e.preventDefault()
-                                                await examApi.delete(exam.id)
+                                                await examApi.delete(exam.id).catch((err: any) => { })
                                                 setChange(!change)
                                                 setModal(false)
                                             }}>

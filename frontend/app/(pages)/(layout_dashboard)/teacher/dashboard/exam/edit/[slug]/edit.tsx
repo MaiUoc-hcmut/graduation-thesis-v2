@@ -104,7 +104,7 @@ export default function EditExam({ id, exam }: any) {
 
     useEffect(() => {
         async function fetchCategory() {
-            await categoryApi.getAll().then((data: any) => setCategory(data))
+            await categoryApi.getAll().then((data: any) => setCategory(data)).catch((err: any) => { })
         }
         fetchCategory()
     }, []);
@@ -270,7 +270,7 @@ export default function EditExam({ id, exam }: any) {
                             data1.categories.push(dataForm.grade)
                             data1.categories.push(dataForm.subject)
                             data1.categories.push(dataForm.level)
-                            await examApi.update(id, { data: data1 })
+                            await examApi.update(id, { data: data1 }).catch((err: any) => { })
                         }
 
                     })

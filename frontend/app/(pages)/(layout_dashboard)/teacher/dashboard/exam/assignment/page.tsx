@@ -13,6 +13,8 @@ import { ExclamationCircleIcon, EllipsisVerticalIcon, MagnifyingGlassIcon } from
 import { Button, Modal } from 'flowbite-react';
 import { DataTable } from "@/app/_components/Table/TableFormat"
 import { columns } from "@/app/_components/Table/AssignmentColumns/columns"
+import courseApi from "@/app/api/courseApi"
+import { useSearchParams } from "next/navigation"
 
 
 export default function AssignmentDashboard() {
@@ -21,26 +23,66 @@ export default function AssignmentDashboard() {
     const [assignments, setAssignments] = useState<any>([])
     const [page, setPage] = useState(1)
     const [pageCount, setPageCount] = useState(1)
+    const [courses, setCourses] = useState<any>()
+    const searchParams = useSearchParams();
+    const queries = Object.fromEntries(searchParams.entries());
+    let filterString = ''
+    for (const key of Object.keys(queries)) {
+        filterString += `${key}=${queries[key]}&`
+    }
+
     useEffect(() => {
         async function fetchData() {
-            await examApi.getAssigmnentByTeacherId(`${user.id}`, page).then((data: any) => {
+            await examApi.getAssigmnentByTeacherId(`${user.id}`, page, filterString).then((data: any) => {
                 setAssignments(data.data.assignments)
                 setPageCount(Math.floor(data.data.count))
-            })
+            }).catch((err: any) => { })
+            await courseApi.getAllByTeacher(`${user.id}`, '1').then((data: any) => {
+                setCourses(data.data.courses)
+            }).catch((err: any) => { })
         }
         fetchData()
-    }, [page, user.id]);
+    }, [filterString, page, user.id]);
 
 
     return (
         <div>
-            {/* <div>
+            <div>
                 <div className="font-bold text-[#171347] text-lg">Lọc kết quả</div>
-                <div className="p-5 bg-white mt-4 rounded-lg">
-                    dfs
-                </div>
-            </div> */}
-            <div className="">
+                <form className="p-5 bg-white mt-4 rounded-lg flex justify-between items-center">
+                    <div>
+                        <div className="flex items-center">
+                            <div className="">
+                                <input date-rangepicker="true" defaultValue="" name="preDate" type="date" className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date start" />
+                            </div>
+                            <span className="mx-4 text-gray-500">đến</span>
+                            <div className="">
+
+                                <input date-rangepicker="true" defaultValue="" name="postDate" type="date" className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date end" />
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <select id="courses" name="id_course" className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option value="" defaultChecked>Chọn khóa học</option>
+                            {courses?.map((course: any, index: number) => {
+                                return (
+                                    <option key={course.id} value={`${course.id}`}>{course.name}</option>
+                                )
+                            })}
+                        </select>
+                    </div>
+                    <div>
+                        <select id="status" name="status" className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option value="" defaultChecked>Chọn trạng thái</option>
+                            <option value={`pass`}>Hoàn thành</option>
+                            <option value={`pass`}>Thất bại</option>
+                        </select>
+                    </div>
+                    <button type="submit">Lọc</button>
+                </form>
+            </div>
+            <div className="mt-5">
                 <div className="font-bold text-[#171347] text-lg">Kết quả làm bài</div>
                 <div className="container mx-auto rounded-lg mt-4">
                     <DataTable columns={columns} data={assignments.map((assignment: any) => { return { ...assignment, time_end: convertToVietnamTime(assignment.time_end) } })} page={page} setPage={setPage} pageCount={pageCount} />

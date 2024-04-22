@@ -45,7 +45,7 @@ export default function CourseDashboard() {
 
                 setCourses(data.data.records)
                 setPaginate(Math.ceil(data.data.count / 10))
-            })
+            }).catch((err: any) => {})
         }
         fetchData()
     }, [authUser.id, change, page]);

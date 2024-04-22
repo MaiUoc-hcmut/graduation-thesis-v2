@@ -95,7 +95,7 @@ export default function CreateExam() {
     }, [examData]);
     useEffect(() => {
         async function fetchCategory() {
-            await categoryApi.getAll().then((data: any) => setCategory(data))
+            await categoryApi.getAll().then((data: any) => setCategory(data)).catch((err: any) => { })
         }
         fetchCategory()
     }, []);
@@ -265,7 +265,7 @@ export default function CreateExam() {
                         data1.categories.push(dataForm.level)
                         setExamData(dataForm)
                         if (submit) {
-                            await examApi.create({ data: data1 })
+                            await examApi.create({ data: data1 }).catch((err: any) => { })
                         }
 
                     })

@@ -122,6 +122,10 @@ class Authorize {
                 return next(createError.Unauthorized(info?.message ? info.message : err))
             }
             try {
+                console.log(req.headers.authorization);
+
+                console.log(125, id);
+
                 const student = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${id}`);
                 req.student = student;
                 next();

@@ -15,7 +15,7 @@ export default function DemoPage() {
             await courseApi.getAllByTeacher(`${authUser.id}`, '1').then((data: any) => {
                 setCourses(data.data.courses)
 
-            })
+            }).catch((err: any) => { })
         }
         fetchData()
     }, [authUser.id]);

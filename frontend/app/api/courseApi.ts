@@ -135,6 +135,10 @@ const courseApi = {
     },
     getTopicForum: (id_topic: string, page: number) => {
         const url = `/topicsforum/${id_topic}/page/${page}`;
+        return axiosConfig.get(url)
+    },
+    getAllStudenBuyCourseOfTeacher: (id_teacher: string, page: number) => {
+        const url = `/courses/all-student/teacher/${id_teacher}/page/${page}`;
         return axiosConfig.get(url);
     },
 

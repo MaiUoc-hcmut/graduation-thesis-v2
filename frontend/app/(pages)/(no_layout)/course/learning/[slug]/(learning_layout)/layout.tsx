@@ -26,12 +26,12 @@ export default function LearninngLayout({
             await courseApi.get(params.slug).then((data: any) => {
                 setCourse(data.data)
             }
-            )
+            ).catch((err: any) => { })
 
             await courseApi.getProgress(`${user?.id}`, params.slug).then((data: any) => {
                 setProgress(data.data)
             }
-            )
+            ).catch((err: any) => { })
         }
         fetchData()
 

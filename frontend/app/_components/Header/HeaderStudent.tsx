@@ -24,7 +24,7 @@ export default function HeaderStudent() {
     const searchParams = useSearchParams()
 
     useEffect(() => {
-        async function fetchCategory() {
+        async function fetchData() {
             if (user) {
                 const socket = io("http://localhost:4003", { transports: ["websocket"] });
                 socket.emit("new_user_online", user.id);
@@ -33,10 +33,10 @@ export default function HeaderStudent() {
                 });
                 await notifyApi.getNotify(`${user.id}`).then((data) => {
                     setNotifycations(data.data)
-                })
+                }).catch((err: any) => { })
             }
         }
-        fetchCategory()
+        fetchData()
     }, [user]);
 
 
@@ -81,6 +81,13 @@ export default function HeaderStudent() {
                                         data-dropdown-toggle="dropdownNotification"
                                         className="relative flex justify-center items-center text-sm font-medium text-center text-gray-500 hover:text-gray-600 focus:outline-none dark:hover:text-white dark:text-gray-400"
                                         type="button"
+                                        onClick={async () => {
+                                            if (user) {
+                                                await notifyApi.getNotify(`${user.id}`).then((data) => {
+                                                    setNotifycations(data.data)
+                                                }).catch((err: any) => { })
+                                            }
+                                        }}
                                     >
                                         <BellIcon className='w-6 h-6' />
                                         <div className="absolute block w-3 h-3 bg-red-500 border-2 border-white rounded-full -top-0 start-3 dark:border-gray-900" />

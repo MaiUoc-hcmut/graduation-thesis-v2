@@ -44,7 +44,7 @@ export default function ExamDetail({ params }: { params: { slug: string } }) {
             await courseApi.get(params.slug).then((data: any) => {
                 setCourse(data.data)
             }
-            )
+            ).catch((err: any) => { })
             await courseApi.getReview(params.slug).then((data: any) => {
                 setReviews(data.data.reviews)
                 if (data.data.averageRating) {
@@ -54,7 +54,7 @@ export default function ExamDetail({ params }: { params: { slug: string } }) {
                     setStarDetails(data.data.starDetails)
                 }
             }
-            )
+            ).catch((err: any) => { })
         }
         fetchData()
     }, [changeData, params.slug])
@@ -334,7 +334,7 @@ export default function ExamDetail({ params }: { params: { slug: string } }) {
                                                     rating
                                                 }
                                             }
-                                            await courseApi.createReview(formData)
+                                            await courseApi.createReview(formData).catch((err: any) => { })
                                             reset()
                                             setRating(0)
                                             setChangeData(!changeData)
@@ -452,7 +452,7 @@ export default function ExamDetail({ params }: { params: { slug: string } }) {
                                                 progress: undefined,
                                                 theme: "colored",
                                             });
-                                        })
+                                        }).catch((err: any) => { })
                                     }} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Thêm vào giỏ hàng</button>
                                 </div>
                                 <div className='mt-9'>

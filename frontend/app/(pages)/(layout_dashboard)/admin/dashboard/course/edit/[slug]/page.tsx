@@ -8,7 +8,7 @@ export default function EditCourse({ params }: { params: { slug: string } }) {
     const [data, setData] = useState<any>()
     useEffect(() => {
         async function fetchData() {
-            await courseApi.get(params.slug).then((data: any) => setData(data.data))
+            await courseApi.get(params.slug).then((data: any) => setData(data.data)).catch((err: any) => { })
         }
         fetchData()
     }, []);

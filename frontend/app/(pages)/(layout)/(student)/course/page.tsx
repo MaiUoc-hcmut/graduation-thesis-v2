@@ -60,7 +60,7 @@ export default function CourseList() {
             await courseApi.getAll(filterString).then((data: any) => {
                 setCourses(data.data.courses)
             }
-            )
+            ).catch((err: any) => { })
             await categoryApi.getAll().then((data: any) => {
                 setCategory([
                     {
@@ -91,7 +91,7 @@ export default function CourseList() {
                     }
 
                 ])
-            })
+            }).catch((err: any) => { })
 
         }
         fetchData()
@@ -258,12 +258,29 @@ export default function CourseList() {
                                                             <h3 className="overflow-hidden text-[#17134] mt-4 h-8 font-bold">
                                                                 {course.name}
                                                             </h3>
-
-
-                                                            <div className="flex items-center mt-4">
+                                                            <div className="flex items-center">
                                                                 {renderStars(Math.floor(course?.average_rating))}
                                                                 <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{course?.average_rating.toFixed(1)}</span>
                                                             </div>
+                                                            <div className='mt-2'>
+                                                                Số người đăng ký khóa học: {course?.registration}
+                                                            </div>
+                                                            <div className='grid grid-cols-2 mt-4'>
+                                                                <div className='flex items-center'>
+                                                                    <span className='mr-1'>Lớp:</span>
+                                                                    <p className='font-semibold'>{course?.Categories[0]?.Class}</p>
+                                                                </div>
+                                                                <div className='flex items-center'>
+                                                                    <span className='mr-1'>Môn học:</span>
+                                                                    <p className='font-semibold'>{course?.Categories[1]?.Subject}</p>
+                                                                </div>
+                                                                <div className='flex items-center'>
+                                                                    <span className='mr-1'>Mức độ:</span>
+                                                                    <p className='font-semibold'>{course?.Categories[2]?.Level}</p>
+                                                                </div>
+                                                            </div>
+
+
                                                             <div className='mt-4 grid grid-cols-2 gap-2'>
                                                                 <div className='flex items-center'>
                                                                     <ClockIcon className='w-5 h-5 text-secondary font-medium mr-1' />

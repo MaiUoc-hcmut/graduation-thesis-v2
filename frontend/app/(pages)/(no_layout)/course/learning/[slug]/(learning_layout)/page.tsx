@@ -63,7 +63,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                 setCourse(data.data)
                 setTopic(data.data.chapters[0]?.topics[0])
             }
-            )
+            ).catch((err: any) => { })
         }
         fetchData()
 
@@ -75,7 +75,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
             await courseApi.getProgress(`${user?.id}`, params.slug).then((data: any) => {
                 setProgress(data.data)
             }
-            )
+            ).catch((err: any) => { })
         }
         fetchData()
     }, [params.slug, user?.id, change]);
@@ -97,7 +97,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                     setComments(data.data)
                     setPaginate(Math.ceil(data.data.count / 10))
                 }
-                )
+                ).catch((err: any) => { })
         }
         fetchData()
     }, [change, currentPageComment, lectureId]);
@@ -189,7 +189,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                             content: data['content'],
                                                         }
                                                     }
-                                                    await courseApi.createComment(formData)
+                                                    await courseApi.createComment(formData).catch((err: any) => { })
                                                     reset()
                                                     editorRef.current.setContent('')
                                                     setChange(!change)
@@ -236,7 +236,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                                             progress: undefined,
                                                                             theme: "colored",
                                                                         });
-                                                                    })
+                                                                    }).catch((err: any) => { })
                                                                     setChange(!change)
                                                                     setModal(false)
                                                                 }}>
@@ -316,7 +316,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                                         id_parent: cmt.id
                                                                     }
                                                                 }
-                                                                await courseApi.createComment(formData)
+                                                                await courseApi.createComment(formData).catch((err: any) => { })
                                                                 reset()
                                                                 setChange(!change)
                                                             }
