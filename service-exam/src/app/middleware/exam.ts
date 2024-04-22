@@ -42,16 +42,20 @@ class CheckingExam {
         }
     }
 
-    checkSearchExamOfTeacher = async (req: Request, _res: Response, next: NextFunction) => {
+    checkSearchExam = async (req: Request, _res: Response, next: NextFunction) => {
         try {
-            const id_user = req.user?.user.data.id;
+            if (req.authority === 0) {
+                return next();
+            }
             const role = req.user?.role;
+            const id_user = req.user?.user.data.id;
 
-            const id_teacher = req.params.teacherId;
+            const id_teacher = req.query.id_teacher;
 
-            if (role !== "admin" || id_teacher !== id_user) {
-                let error = "You do not have permission to get this data";
-                return next(createError.Unauthorized(error));
+            if (role !== "admin" || id_user === id_teacher) {
+                req.authority = 2;
+            } else {
+                req.authority = 1;
             }
             next();
         } catch (error: any) {
