@@ -258,7 +258,7 @@ class DocumentController {
 
             // If course is not created yet
             if (!course) {
-                return res.status(400).json({
+                return res.status(404).json({
                     message: "The course you want to update is not exist!"
                 });
             } else {

@@ -335,9 +335,12 @@ class ExamController {
             const currentPage: number = +req.params.page;
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
-            const { query } = req.query;
+            const { query, id_teacher } = req.query;
 
-            const filters = `id_course:0`;
+            let filters = `id_course:0`;
+            if (typeof id_teacher === "string") {
+                filters += ` AND id_teacher:${id_teacher}`
+            }
 
             const result = await index.search(query, {
                 hitsPerPage: pageSize,

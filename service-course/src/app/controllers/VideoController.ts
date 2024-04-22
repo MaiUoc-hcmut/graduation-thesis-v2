@@ -34,7 +34,7 @@ class VideoController {
             const video = req.file;
 
             if (!video) {
-                return res.status(400).json({
+                return res.status(404).json({
                     message: "Can not find video!"
                 })
             }
@@ -154,7 +154,7 @@ class VideoController {
             const video = req.file;
 
             if (!video) {
-                return res.status(400).json({
+                return res.status(404).json({
                     message: "Can not find video!"
                 })
             }
@@ -198,7 +198,7 @@ class VideoController {
             const course = await Course.findByPk(body.id_course);
 
             if (!course) {
-                return res.status(400).json({
+                return res.status(404).json({
                     message: "The course you want to update is not exist!"
                 });
             }

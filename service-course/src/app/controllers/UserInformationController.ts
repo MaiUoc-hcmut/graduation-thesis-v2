@@ -15,14 +15,14 @@ class UserInformationController {
                 where: { id_teacher }
             });
 
-            let total_submit = 0;
+            let total_registration = 0;
             for (const course of courses) {
-                let submits = await StudentCourse.count({
+                let registrations = await StudentCourse.count({
                     where: {
                         id_course: course.id
                     }
                 });
-                total_submit += submits.length;
+                total_registration += registrations;
             }
 
             const reviews = await Review.findAll({
@@ -41,7 +41,7 @@ class UserInformationController {
                 total_reviews,
                 average_rating,
                 course_quantity: courses.length,
-                total_submit
+                total_registration
             });
         } catch (error: any) {
             console.log(error.message);

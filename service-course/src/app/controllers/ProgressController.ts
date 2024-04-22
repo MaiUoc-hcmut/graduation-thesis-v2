@@ -14,7 +14,7 @@ class ProgressController {
             const course = await Course.findByPk(courseId);
 
             if (!course) {
-                return res.status(400).json({
+                return res.status(404).json({
                     message: "Course does not exist!"
                 });
             }
