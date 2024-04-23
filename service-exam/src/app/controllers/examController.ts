@@ -120,6 +120,11 @@ class ExamController {
             if (examQuery === "true") {
                 queryOption.where.id_course = null;
             }
+            if (examQuery === "false") {
+                queryOption.where.id_course = {
+                    [Op.ne]: null
+                }
+            }
 
             if (categories.length > 0) {
                 queryOption.include[0].where = {
@@ -186,6 +191,11 @@ class ExamController {
     // [GET] /api/v1/exams/teacher/:teacherId/page/:page
     getExamCreatedByTeacher = async (req: Request, res: Response, _next: NextFunction) => {
         try {
+            const authority = req.authority;
+
+            let status = authority === 2
+                            ? ['public', 'paid', 'private']
+                            : ['public', 'paid'];
             const teacherId = req.params.teacherId;
 
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
@@ -193,12 +203,19 @@ class ExamController {
 
             const { exam: examQuery } = req.query;
 
+
             const whereCondition: any = {
+                status,
                 id_teacher: teacherId
             }
 
             if (examQuery === "true") {
                 whereCondition.id_course = null;
+            }
+            if (examQuery === "false") {
+                whereCondition.id_course = {
+                    [Op.ne]: null
+                }
             }
 
             const count = await Exam.count({
