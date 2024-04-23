@@ -121,8 +121,11 @@ class ExamController {
             if (examQuery === "true") {
                 queryOption.where.id_course = null;
             }
-
-            console.log(queryOption);
+            if (examQuery === "false") {
+                queryOption.where.id_course = {
+                    [Op.ne]: null
+                }
+            }
 
             if (categories.length > 0) {
                 queryOption.include[0].where = {
@@ -143,8 +146,7 @@ class ExamController {
                 ...queryOption,
                 order: [[defaultQuery, defaultOrder]],
                 limit: pageSize,
-                offset: pageSize * (currentPage - 1),
-                subQuery: false
+                offset: pageSize * (currentPage - 1)
             });
 
 
@@ -152,12 +154,30 @@ class ExamController {
                 const user = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/teacher/get-teacher-by-id/${exam.id_teacher}`);
                 exam.dataValues.user = { id: user.data.id, name: user.data.name };
 
-                for (const category of exam.Categories) {
+                const exam_category = await Exam.findOne({
+                    where: {
+                        id: exam.id
+                    },
+                    attributes: [],
+                    include: [
+                        {
+                            model: Category,
+                            attributes: ['id', 'id_par_category', 'name'],
+                            through: {
+                                attributes: []
+                            }
+                        }
+                    ]
+                });
+
+                for (const category of exam_category.Categories) {
                     const parCategory = await ParentCategory.findByPk(category.id_par_category);
                     category.dataValues[`${parCategory.name}`] = category.name;
                     delete category.dataValues.name;
                     delete category.dataValues.id_par_category;
                 }
+
+                exam.dataValues.Categories = exam_category.dataValues.Categories;
             }
 
             res.status(200).json({
@@ -190,17 +210,39 @@ class ExamController {
     // [GET] /api/v1/exams/teacher/:teacherId/page/:page
     getExamCreatedByTeacher = async (req: Request, res: Response, _next: NextFunction) => {
         try {
+            const authority = req.authority;
+
+            let status = authority === 2
+                            ? ['public', 'paid', 'private']
+                            : ['public', 'paid'];
             const teacherId = req.params.teacherId;
 
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
             const currentPage: number = +req.params.page;
 
+            const { exam: examQuery } = req.query;
+
+
+            const whereCondition: any = {
+                status,
+                id_teacher: teacherId
+            }
+
+            if (examQuery === "true") {
+                whereCondition.id_course = null;
+            }
+            if (examQuery === "false") {
+                whereCondition.id_course = {
+                    [Op.ne]: null
+                }
+            }
+
             const count = await Exam.count({
-                where: { id_teacher: teacherId }
+                where: whereCondition
             });
 
             const exams = await Exam.findAll({
-                where: { id_teacher: teacherId },
+                where: whereCondition,
                 include: [
                     {
                         model: Category,

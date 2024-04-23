@@ -23,7 +23,12 @@ router.route('/full/:examId')
     .get(ExamController.getDetailExam);
 
 router.route('/teacher/:teacherId/page/:page')
-    .get(ExamController.getExamCreatedByTeacher);
+    .get(
+        Authorize.checkGetAll, 
+        Authorize.verifyUser, 
+        CheckingExam.checkGetExamCreatedByTeacher, 
+        ExamController.getExamCreatedByTeacher
+    );
 
 module.exports = router;
 export {}

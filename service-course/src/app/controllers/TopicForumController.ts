@@ -222,7 +222,8 @@ class TopicForumController {
                 id_course: forum.id_course,
                 name: body.title,
                 id_topic: topic.id,
-                course_name: course.name
+                course_name: course.name,
+                author: id_user
             }
 
             const response = await axios.post(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/create-topic`, { data });

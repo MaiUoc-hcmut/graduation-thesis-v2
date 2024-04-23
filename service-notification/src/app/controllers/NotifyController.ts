@@ -140,29 +140,32 @@ class NotificationController {
     notifyCreateTopic = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
-            const { id_forum, id_course, name, id_topic, course_name } = req.body.data;
+            const { id_forum, id_course, name, id_topic, course_name, author } = req.body.data;
 
             const io = socketInstance.getIoInstance();
 
             io.to(`${id_forum}`).emit("created_topic", {
                 message: "A user had have created a topic in forum",
-                forum: id_forum
+                forum: id_forum,
+                author
             });
 
             const usersInRoom = await RoomSocket.findAll({
                 where: { room: id_forum }
             });
 
-            const dataToCreate = usersInRoom.map((user: any) => ({
-                id_user: user.id_user,
-                content: "Có người vừa tạo topic mới ở trong forum",
-                type: "topic",
-                name,
-                id_topic,
-                id_forum,
-                id_course,
-                course_name
-            }));
+            const dataToCreate = usersInRoom
+                .filter((user: any) => user.id_user !== author)
+                .map((user: any) => ({
+                    id_user: user.id_user,
+                    content: "Có người vừa tạo topic mới ở trong forum",
+                    type: "topic",
+                    name,
+                    id_topic,
+                    id_forum,
+                    id_course,
+                    course_name
+                }));
 
             const notifications = await NotificationModel.bulkCreate(dataToCreate);
 
@@ -275,17 +278,30 @@ class NotificationController {
         }
     }
 
-    // [GET] /notification/get-noti/:userId
+    // [GET] /notification/get-noti/:userId/page/:page
     getNotificationOfUser = async (req: Request, res: Response, _next: NextFunction) => {
         try {
+            const currentPage: number = +req.params.page;
+            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+
             const id_user = req.params.userId;
+
+            const count = await NotificationModel.count({
+                where: { id_user },
+                distinct: true
+            })
 
             const notifications = await NotificationModel.findAll({
                 where: { id_user },
-                order: [['createdAt', 'DESC']]
+                order: [['createdAt', 'DESC']],
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1)
             });
 
-            res.status(200).json(notifications);
+            res.status(200).json({
+                count,
+                notifications
+            });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ message: error.message, error });

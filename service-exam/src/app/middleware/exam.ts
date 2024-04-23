@@ -63,6 +63,22 @@ class CheckingExam {
             next(createError.InternalServerError(error.message));
         }
     }
+
+    checkGetExamCreatedByTeacher = async (req: Request, _res: Response, next: NextFunction) => {
+        try {
+            const id_teacher = req.params.teacherId;
+            const id_user = req.user?.user.data.id;
+            const role = req.user?.role;
+
+            if (id_user === id_teacher || role === "admin") {
+                req.authority = 2;
+            }
+            next();
+        } catch (error: any) {
+            console.log(error.message);
+            next(createError.InternalServerError(error.message));
+        }
+    } 
 }
 
 

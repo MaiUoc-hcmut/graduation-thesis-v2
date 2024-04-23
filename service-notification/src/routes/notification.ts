@@ -24,10 +24,10 @@ router.route('/student-buy-course')
 router.route('/read-noti')
     .put(NotificationController.readNotification);
 
-router.route('/get-noti/:userId')
+router.route('/get-noti/:userId/page/:page')
     .get(NotificationController.getNotificationOfUser);
 
-router.post('/teacher-send')
+router.route('/teacher-send')
     .post(NotificationController.teacherSendNotification);
 
 router.route('/payment')
