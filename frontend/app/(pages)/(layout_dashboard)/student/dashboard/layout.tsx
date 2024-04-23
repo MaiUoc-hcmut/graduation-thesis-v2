@@ -11,7 +11,7 @@ import { useAppSelector } from "@/redux/store";
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
-export default function DashboardTeacherLayout({
+export default function DashboardStudentLayout({
   children,
 }: any) {
   const { user, accessToken } = useAppSelector(state => state.authReducer);

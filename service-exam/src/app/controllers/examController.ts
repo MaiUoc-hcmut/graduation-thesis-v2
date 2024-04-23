@@ -37,15 +37,15 @@ class ExamController {
             const authority = req.authority;
 
             let status = authority === 2
-                            ? ['public', 'paid', 'private']
-                            : ['public', 'paid'];
+                ? ['public', 'paid', 'private']
+                : ['public', 'paid'];
 
             const categories = [];
 
             const { class: _class, subject, level } = req.query;
 
             if (!_class) {
-                
+
             } else if (Array.isArray(_class)) {
                 categories.push(..._class)
             } else {
@@ -101,7 +101,7 @@ class ExamController {
             }
 
             const currentPage: number = +req.params.page;
-            
+
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const queryOption: any = {
@@ -131,7 +131,7 @@ class ExamController {
                     },
                 };
                 queryOption.group = ['Exam.id'];
-                queryOption.having = sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`);
+                queryOption.having = sequelize.literal("COUNT(DISTINCT " + `Categories` + "." + `id` + `) = ${categories.length}`);
             }
 
             const count = await Exam.count({
@@ -147,7 +147,7 @@ class ExamController {
                 subQuery: false
             });
 
-            
+
             for (const exam of exams) {
                 const user = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/teacher/get-teacher-by-id/${exam.id_teacher}`);
                 exam.dataValues.user = { id: user.data.id, name: user.data.name };
@@ -336,9 +336,17 @@ class ExamController {
             const currentPage: number = +req.params.page;
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
-            const { query } = req.query;
+            const authority = req.authority;
 
-            const filters = `id_course:0`;
+            const { query, id_teacher } = req.query;
+
+            let filters = `id_course:0`;
+            if (typeof id_teacher === "string") {
+                filters += ` AND id_teacher:${id_teacher}`
+            }
+            if (authority !== 2) {
+                filters += ` AND status:public`
+            }
 
             const result = await index.search(query, {
                 hitsPerPage: pageSize,
@@ -347,26 +355,9 @@ class ExamController {
             });
 
             res.status(200).json({
+                total: result.nbHits,
                 result: result.hits,
-                total: result.nbHits
             })
-        } catch (error: any) {
-            console.log(error.message);
-            res.status(500).json({ error: error.message });
-        }
-    }
-
-    // [GET] /api/v1/exams/search/teacher/:teacherId/page/:page
-    searchExamOfTeacher = async (req: Request, res: Response, _next: NextFunction) => {
-        const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);
-        const index = client.initIndex(process.env.ALGOLIA_INDEX_NAME);
-        try {
-            const currentPage: number = +req.params.page;
-            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
-
-            const { query } = req.query;
-
-
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
@@ -526,7 +517,7 @@ class ExamController {
                     id_exam: newExam.id,
                     name: newExam.title
                 }
-    
+
                 const response = await axios.get(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/create-exam`, { data });
             }
 

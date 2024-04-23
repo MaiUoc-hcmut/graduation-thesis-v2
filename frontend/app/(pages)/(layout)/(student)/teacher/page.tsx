@@ -233,20 +233,18 @@ export default function TeacherList() {
                                                             </div>
                                                             <div className='mt-4 grid grid-cols-2 gap-2'>
                                                                 <div className='flex items-center'>
-                                                                    <ClockIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{convertTime(teacher?.total_duration)} giờ</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>
+                                                                        {teacher?.course_quantity} khóa học
+                                                                    </span>
                                                                 </div>
                                                                 <div className='flex items-center'>
-                                                                    <Squares2X2Icon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_chapter} chương</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.exam_quantity} đề thi</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
-                                                                    <FilmIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_lecture} bài giảng</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_reviews} đánh giá</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
-                                                                    <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_exam} đề thi</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_registration} lượt mua</span>
                                                                 </div>
 
                                                             </div>

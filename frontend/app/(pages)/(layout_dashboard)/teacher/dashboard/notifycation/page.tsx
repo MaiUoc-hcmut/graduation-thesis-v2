@@ -15,7 +15,7 @@ export default function NotifycationDashboard() {
             if (user) {
 
                 await notifyApi.getNotify(`${user.id}`).then((data) => {
-                    setNotifycations(data.data).catch((err: any) => { })
+                    setNotifycations(data.data)
                 }).catch((err: any) => { })
 
             }
@@ -56,7 +56,7 @@ export default function NotifycationDashboard() {
                                     </div>
                                     {
                                         notify.type === 'course' && (<Link href={'/teacher/dashboard/course'} className="text-gray-500 text-sm w-1/12 flex justify-center items-center">
-                                            <button type='button' className='px-4 py-2 border-[1px] border-gray-200 rounded-md hover:text-white hover:bg-primary'>Xem</button>
+                                            <button type='button' onClick={async () => { if (!notify.read) await notifyApi.readNotify({ data: [notify.id] }) }} className='px-4 py-2 border-[1px] border-gray-200 rounded-md hover:text-white hover:bg-primary'>Xem</button>
                                         </Link>)
                                     }
                                     {

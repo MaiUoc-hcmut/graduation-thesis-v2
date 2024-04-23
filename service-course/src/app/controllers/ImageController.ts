@@ -24,7 +24,7 @@ class ImageController {
             let resUrl = ""
 
             if (!file) {
-                return res.status(400).json({
+                return res.status(404).json({
                     message: "Can not find file!"
                 });
             }
@@ -80,7 +80,7 @@ class ImageController {
             const file = req.file;
 
             if (!file) {
-                return res.status(400).json({
+                return res.status(404).json({
                     message: "Can not find file!"
                 });
             }

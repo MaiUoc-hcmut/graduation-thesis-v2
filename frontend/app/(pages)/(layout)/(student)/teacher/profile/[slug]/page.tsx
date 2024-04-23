@@ -107,7 +107,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                     </div>
                                 </div>
                                 <span className='font-bold text-[#171347] text-xl'>
-                                    {profile?.total_submit || 0}
+                                    {profile?.total_registration}
                                 </span>
                                 <span className='text-[#818894] text-sm'>
                                     Học viên
@@ -348,7 +348,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                 </div>
                             </div>
                         </div>
-                        <div className='mt-10 w-2/3'>
+                        <div className='mt-10'>
                             <div className="text-[#171347] font-bold flex items-center after:content-[''] after:flex after:grow after:shrink after:basis-4 after:h-[2px] after:ml-[10px] after:bg-[#f1f1f1]">
                                 Đánh giá ({reviews.length})
                             </div>
@@ -367,7 +367,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                 setRating(0)
                                 setChangeData(!changeData)
 
-                            })} className="flex flex-col items-start mt-5">
+                            })} className="flex flex-col items-start mt-5 w-2/3">
                                 <div className=''>
                                     <div className='flex items-center mb-4'>
                                         <div className=''>
@@ -412,7 +412,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                     Đánh giá
                                 </button>
                             </form>
-                            <div className='mt-12'>
+                            <div className='mt-12 w-2/3'>
                                 {
                                     reviews?.map((review: any) => (
                                         <div key={review.id} className="bg-white px-4 py-4 mb-5 border rounded-lg shadow-md">

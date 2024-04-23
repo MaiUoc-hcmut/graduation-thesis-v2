@@ -100,7 +100,7 @@ export default function SidebarLearning({ course, id_course, progress }: any) {
                                                                             </span>
                                                                             <div className='flex flex-col w-2/3'>
                                                                                 <span className='font-medium text-[#171347] text-ellipsis overflow-hidden whitespace-nowrap'>{topic.name}</span>
-                                                                                {/* <span className='text-[#818894] text-xs'>{convertTime(topic.duration)}</span> */}
+                                                                                <span className='text-[#818894] text-xs'>{topic.exam?.quantity_question} câu</span>
                                                                             </div>
 
                                                                         </Link>

@@ -263,7 +263,7 @@ export default function CourseList() {
                                                                 <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{course?.average_rating.toFixed(1)}</span>
                                                             </div>
                                                             <div className='mt-2'>
-                                                                Số người đăng ký khóa học: {course?.registration}
+                                                                Số người đăng ký khóa học: {course?.registrations}
                                                             </div>
                                                             <div className='grid grid-cols-2 mt-4'>
                                                                 <div className='flex items-center'>

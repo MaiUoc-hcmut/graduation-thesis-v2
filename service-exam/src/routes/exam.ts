@@ -17,10 +17,7 @@ router.route('/:examId')
     .delete(Authorize.authorizeTeacher, CheckingExam.checkModifyExam, ExamController.deleteExam);
 
 router.route('/search/page/:page')
-    .get(ExamController.searchExam);
-
-router.route('/search/teacher/:teacherId/page/:page')
-    .get(Authorize.verifyUser, CheckingExam.checkSearchExamOfTeacher, ExamController.searchExamOfTeacher);
+    .get(Authorize.checkGetAll, Authorize.verifyUser, ExamController.searchExam);
 
 router.route('/full/:examId')
     .get(ExamController.getDetailExam);

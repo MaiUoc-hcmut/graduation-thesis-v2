@@ -17,7 +17,6 @@ export default function LearninngLayout({
 }) {
     const [course, setCourse] = useState<any>()
     const [progress, setProgress] = useState<any>()
-    const [topic, setTopic] = useState<any>()
     const { user } = useAppSelector(state => state.authReducer);
 
 

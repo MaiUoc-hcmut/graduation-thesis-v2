@@ -241,6 +241,12 @@ class CourseController {
                 const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${course.id_teacher}`);
                 course.dataValues.user = { id: user.data.id, name: user.data.name };
 
+                const registrations = await StudentCourse.count({
+                    where: { id_course: course.id }
+                });
+
+                course.dataValues.registrations = registrations;
+
                 for (const category of course.Categories) {
                     const parCategory = await ParentCategory.findByPk(category.id_par_category);
                     category.dataValues[`${parCategory.name}`] = category.name;

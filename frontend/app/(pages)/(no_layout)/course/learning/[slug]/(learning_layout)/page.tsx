@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { DocumentIcon, EllipsisHorizontalIcon, ExclamationCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import ReactPlayer from 'react-player'
 import courseApi from "@/app/api/courseApi"
 import TinyMceEditorComment from '@/app/_components/Editor/TinyMceEditorComment'
@@ -17,6 +17,8 @@ import SidebarLearning from '@/app/_components/Sidebar/SidebarLearning';
 import { ToastContainer, toast } from 'react-toastify';
 import examApi from '@/app/api/examApi';
 import { HeaderLearning } from '@/app/_components/Header/HeaderLearning'
+import { stringify } from 'querystring';
+import { log } from 'console';
 
 export default function LearningPage({ params }: { params: { slug: string } }) {
     const searchParams = useSearchParams();
@@ -37,6 +39,32 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
     const editorRef = useRef<any>(null);
     const [assignments, setAssignments] = useState<any>()
     const [progress, setProgress] = useState<any>()
+
+    const lectureId = searchParams.get('lecture') || (topic?.type === "lecture" && !searchParams.get('exam') ? topic?.id : null)
+    const examId = searchParams.get('exam') || (topic?.type === "exam" && !searchParams.get('lecture') ? topic?.id_exam : null)
+    console.log(lectureId, examId);
+
+    const topicId = lectureId || examId;
+
+    let time: any = 0
+    const timeQuery = searchParams.get('time')
+    if (timeQuery) {
+        time = timeQuery
+    }
+    else {
+        time = JSON.parse(localStorage.getItem('time') || '{}')[params.slug]?.time || 0
+    }
+
+    const [isReady, setIsReady] = useState(false);
+    const onReady = useCallback(() => {
+        if (!isReady) {
+            if (playRef.current) {
+                playRef?.current?.seekTo(time);
+            }
+            setIsReady(true);
+        }
+    }, [isReady, time]);
+
     const {
         register,
         reset,
@@ -46,29 +74,94 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
         formState: { errors },
     } = useForm()
 
-    const lectureId = searchParams.get('lecture') || (topic?.type === "lecture" && !searchParams.get('exam') ? topic?.id : null)
-    const examId = searchParams.get('exam') || (topic?.type === "exam" && !searchParams.get('lecture') ? topic?.id_exam : null)
-    const topicId = lectureId || examId;
-    console.log(lectureId, examId);
-
-
     for (let i = 1; i <= paginate; i++) {
         list.push(i)
     }
 
 
+    function extractTimestamps(text: string) {
+        const regex = /(?:[01]\d|2[0-3]):(?:[0-5]\d):(?:[0-5]\d)|(?:[0-5]\d):(?:[0-5]\d)/g;
+        let timestamps = [];
+        // Fix: Add --downlevelIteration flag or set --target to 'es2015' or higher
+        // @ts-ignore
+        for (const element of text.matchAll(regex)) {
+            timestamps.push(element[0]);
+
+        }
+        return timestamps;
+    }
+
+    function convertTimestampToUrl(timestamp: any, topicId: string, courseId: string) {
+        const timeArray = timestamp.split(':');
+        const hours = parseInt(timeArray[0]);
+        const minutes = parseInt(timeArray[1]);
+        const seconds = parseInt(timeArray[2]);
+
+
+        let time = 0;
+        if (seconds)
+            time = hours * 3600 + minutes * 60 + seconds;
+        else
+            time = hours * 60 + minutes;
+
+        // Ví dụ URL video
+        const videoUrl = `http://localhost:3000/course/learning/${courseId}?lecture=${topicId}&time=${time}`;
+
+        return videoUrl;
+    }
+
+    function createLink(timestamp: any, url: any) {
+        // Tạo link với URL video và timestamp
+        const link = `<a href=${url} className="underline text-blue-500">${timestamp}</a>`;
+
+        return link;
+    }
+
+    function handleTimeStampe(content: string, topicId: string, courseId: string) {
+        // Lấy nội dung phần bình luận
+        const text = content;
+        let res = text
+        // Lấy tất cả timestamp trong text
+        const timestamps = extractTimestamps(text);
+
+        timestamps?.forEach(timestamp => {
+            // Chuyển đổi timestamp thành URL
+            const url = convertTimestampToUrl(timestamp, topicId, courseId);
+
+            // Tạo link
+            const link = createLink(timestamp, url);
+
+            // Thay thế timestamp bằng link
+            res = res.replace(timestamp, link);
+        });
+        return res
+    };
+
+
     useEffect(() => {
         async function fetchData() {
-            await courseApi.get(params.slug).then(async (data: any) => {
-                setCourse(data.data)
-                setTopic(data.data.chapters[0]?.topics[0])
+            try {
+                const data = await courseApi.get(params.slug);
+                setCourse(data.data);
+                if (!searchParams.get('lecture') && !searchParams.get('exam')) {
+                    setTopic(data.data?.chapters[0]?.topics[0])
+                }
+                else {
+                    data.data?.chapters?.map((chapter: any) => {
+                        chapter.topics?.map((topic: any) => {
+                            if (topic.id == topicId || topic.id_exam == topicId) {
+                                setTopic(topic);
+                            }
+                        });
+                    });
+                }
+            } catch (err) {
+                console.error(err);
             }
-            ).catch((err: any) => { })
         }
-        fetchData()
+        fetchData();
+    }, [params.slug, topicId]);
 
-
-    }, [params.slug]);
 
     useEffect(() => {
         async function fetchData() {
@@ -101,7 +194,6 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
         }
         fetchData()
     }, [change, currentPageComment, lectureId]);
-    console.log(lectureId);
 
     if (lectureId) {
         return (
@@ -111,32 +203,40 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                     <div className='flex bg-black p-4 h-full'>
                         <div className='w-full rounded-xl'>
                             <div className='flex flex-col h-full'>
-                                {
-                                    topic?.type == "lecture" ?
-                                        <ReactPlayer onEnded={() => {
-                                            let flag = false
-                                            progress.progress.map((p: any) => {
-                                                if (p.id_topic == topicId) {
-                                                    flag = true
-                                                    return
+                                <ReactPlayer
+                                    onProgress={(state) => {
+                                        const storedTime = JSON.parse(localStorage.getItem('time') || '{}');
+                                        localStorage.setItem('time', JSON.stringify({
+                                            ...storedTime,
+                                            [params.slug]: {
+                                                topicId: topicId,
+                                                time: state.playedSeconds
+                                            }
+                                        }));
+                                    }}
+                                    onReady={onReady}
+                                    onEnded={() => {
+                                        let flag = false
+                                        progress.progress.map((p: any) => {
+                                            if (p.id_topic == topicId) {
+                                                flag = true
+                                                return
+                                            }
+                                        })
+                                        if (!flag) {
+                                            const formData = {
+                                                data: {
+                                                    id_student: user.id,
+                                                    id_course: params.slug,
+                                                    id_topic: topicId
                                                 }
-                                            })
-                                            if (!flag) {
-                                                const formData = {
-                                                    data: {
-                                                        id_student: user.id,
-                                                        id_course: params.slug,
-                                                        id_topic: topicId
-                                                    }
-                                                }
-
-                                                courseApi.createProgress(formData)
-                                                setChange(!change)
                                             }
 
-                                        }} width='100%' height='100%' ref={playRef} controls={true} url={`${topic.video ? topic.video : '/'}`} />
-                                        : null
-                                }
+                                            courseApi.createProgress(formData)
+                                            setChange(!change)
+                                        }
+
+                                    }} width='100%' height='100%' ref={playRef} controls={true} url={`${topic?.video ? topic?.video : '/'}`} />
 
                             </div>
                         </div>
@@ -182,13 +282,18 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                         </div>
                                         <div className='flex-1'>
                                             <form onSubmit={handleSubmit(async (data) => {
+
+                                                const con = handleTimeStampe(data['content'], topicId, params.slug)
+
+
                                                 if (data['content'] != '') {
                                                     const formData = {
                                                         data: {
                                                             id_topic: topicId,
-                                                            content: data['content'],
+                                                            content: con,
                                                         }
                                                     }
+
                                                     await courseApi.createComment(formData).catch((err: any) => { })
                                                     reset()
                                                     editorRef.current.setContent('')
@@ -212,7 +317,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                         </div>
                                     </div>
                                 </div>
-                                <div className='mt-10  '>
+                                <div className='mt-10 '>
                                     <p className='font-medium text-lg mb-10'>{comments?.count} bình luận</p>
 
                                     {
@@ -300,15 +405,16 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                                         {cmt.replies?.length || 0} phản hồi
                                                                     </button>
                                                                     <button type='button' className='text-blue-600 hover:text-blue-800 text-md ' onClick={() => {
-                                                                        setToggle({ ...toggle, [`edit-cmt${cmt.id}`]: true })
+                                                                        setToggle({ ...toggle, [`form${cmt.id}`]: true, [`edit-cmt${cmt.id}`]: true })
                                                                     }}>Trả lời</button>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div className={`ml-32 w-4/5 mt-2 ${toggle[`edit-cmt${cmt.id}`] ? '' : 'hidden'}`}>
+                                                    <div className={`ml-32 w-4/5 mt-2 ${toggle[`form${cmt.id}`] ? '' : 'hidden'}`}>
                                                         <form onSubmit={handleSubmit(async (data) => {
                                                             if (data[cmt.id] != '') {
+
                                                                 const formData = {
                                                                     data: {
                                                                         id_topic: topicId,
@@ -322,49 +428,49 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                             }
                                                         })}>
 
-                                                            <TinyMceEditorComment value={content} setValue={setValue} position={`${cmt.id}`} />
+                                                            <TinyMceEditorComment value={getValues()[cmt.id]} setValue={setValue} position={`${cmt.id}`} />
                                                             <div className='flex justify-end mt-4'>
-                                                                <button type="button" className="py-2.5 px-5 mr-2 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-gray-200" onClick={() => (setToggle({ ...toggle, [`edit-cmt${cmt.id}`]: false }))}>Hủy</button>
+                                                                <button type="button" className="py-2.5 px-5 mr-2 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-gray-200" onClick={() => (setToggle({ ...toggle, [`form${cmt.id}`]: false }))}>Hủy</button>
                                                                 <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-2 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Bình luận</button>
                                                             </div>
                                                         </form>
-                                                        <div className='mt-5 '>
-                                                            {
-                                                                cmt.replies.map((reply: any) => {
-                                                                    return (
-                                                                        <div key={reply.id} className='mt-5' >
-                                                                            <div className='flex mb-2'>
-                                                                                <div className=''>
-                                                                                    <Image
-                                                                                        width={50}
-                                                                                        height={50}
-                                                                                        src={`${cmt.user.avatar ? cmt.user.avatar : '/images/avatar.png'}`}
-                                                                                        alt="avatar"
-                                                                                        className='rounded-full'
-                                                                                    />
-                                                                                </div>
-                                                                                <div className='mx-2'>
-                                                                                    <div className='w-full'>
-                                                                                        <div className='bg-[#f2f3f5] rounded-xl'>
-                                                                                            <div className='p-3'>
-                                                                                                <div className='flex items-center'>
-                                                                                                    <p className='mr-2 text-[#184983] font-medium'>{cmt.user.name}</p>
-                                                                                                    <p className='text-[#828282] text-sm'>{formatDateTime(reply.createdAt)}</p>
-                                                                                                </div>
-                                                                                                <div>
-                                                                                                    <div className='mt-2 max-w-3xl min-w-80'>{parse(reply.content)}</div>
-                                                                                                </div>
+                                                    </div>
+                                                    <div className={`ml-32 w-4/5 mt-2 ${toggle[`edit-cmt${cmt.id}`] ? '' : 'hidden'}`}>
+                                                        {
+                                                            cmt.replies.map((reply: any) => {
+                                                                return (
+                                                                    <div key={reply.id} className='mt-5' >
+                                                                        <div className='flex mb-2'>
+                                                                            <div className=''>
+                                                                                <Image
+                                                                                    width={50}
+                                                                                    height={50}
+                                                                                    src={`${cmt.user.avatar ? cmt.user.avatar : '/images/avatar.png'}`}
+                                                                                    alt="avatar"
+                                                                                    className='rounded-full'
+                                                                                />
+                                                                            </div>
+                                                                            <div className='mx-2'>
+                                                                                <div className='w-full'>
+                                                                                    <div className='bg-[#f2f3f5] rounded-xl'>
+                                                                                        <div className='p-3'>
+                                                                                            <div className='flex items-center'>
+                                                                                                <p className='mr-2 text-[#184983] font-medium'>{cmt.user.name}</p>
+                                                                                                <p className='text-[#828282] text-sm'>{formatDateTime(reply.createdAt)}</p>
+                                                                                            </div>
+                                                                                            <div>
+                                                                                                <div className='mt-2 max-w-3xl min-w-80'>{parse(reply.content)}</div>
                                                                                             </div>
                                                                                         </div>
-
                                                                                     </div>
+
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-                                                                    )
-                                                                })
-                                                            }
-                                                        </div>
+                                                                    </div>
+                                                                )
+                                                            })
+                                                        }
                                                     </div>
                                                 </div>
                                             )

@@ -3,66 +3,9 @@ import { Editor } from '@tinymce/tinymce-react';
 
 export default function TinyMceEditorComment({ setValue, value, position, editorRef }: any) {
 
-    function extractTimestamps(text: string): string[] {
-        // Regex to match timestamps in various formats (optional colons, leading zeros)
-        const regex = /^(((([0-1][0-9])|(2[0-3])):?[0-5][0-9]:?[0-5][0-9]+$))/;
-
-        const timestamps: string[] = [];
-        let match: RegExpExecArray | null;
-        console.log(regex.exec(text), text.match(regex));
-
-        // Loop through all matches (may have multiple timestamps)
-        while ((match = regex.exec(text)) !== null) {
-            // Extract captured groups (handles optional colons and leading zeros)
-            const hours = match[1] ? match[1] : "00";
-            const minutes = match[2].padStart(2, "0"); // Ensure two-digit format
-            const seconds = match[3].padStart(2, "0");
-            const timestamp = `[${hours}:${minutes}:${seconds}]`;
-
-            // Add formatted timestamp to the array
-            timestamps.push(timestamp);
-        }
-
-        return timestamps;
-    }
-
-    function convertTimestampToUrl(timestamp: any) {
-        // Chuyển đổi timestamp thành định dạng phù hợp với URL video
-        const hours = timestamp[1];
-        const minutes = timestamp[2];
-        const seconds = timestamp[3];
-
-        // Ví dụ URL video
-        const videoUrl = `https://www.youtube.com/watch?v=videoId&t=${hours}m${minutes}s`;
-
-        return videoUrl;
-    }
-
-    function createLink(timestamp: any, url: any) {
-        // Tạo link với URL video và timestamp
-        const link = `<a href="${url}" target="_blank">${timestamp}</a>`;
-
-        return link;
-    }
 
 
     const handleEditorChange = (content: any, editor: any) => {
-        // Lấy nội dung phần bình luận
-        const text = content;
-
-        // Lấy tất cả timestamp trong text
-        const timestamps = extractTimestamps(text);
-        // Duyệt qua từng timestamp
-        timestamps?.forEach(timestamp => {
-            // Chuyển đổi timestamp thành URL
-            const url = convertTimestampToUrl(timestamp);
-
-            // Tạo link
-            const link = createLink(timestamp, url);
-
-            // Thay thế timestamp bằng link
-            editor.setContent(editor.getContent().replace(timestamp, link));
-        });
         setValue(position, content)
     };
 
@@ -131,7 +74,6 @@ export default function TinyMceEditorComment({ setValue, value, position, editor
                 images_upload_handler: handleImageUpload,
                 images_upload_url: "http://localhost:4001/api/v1/images/single",
                 image_title: true,
-                extended_valid_elements: "span[class]",
                 file_picker_types: 'image',
             }}
             onEditorChange={handleEditorChange}

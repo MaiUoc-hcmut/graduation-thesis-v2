@@ -15,7 +15,7 @@ class TeacherInformationController {
                 where: {
                     id_teacher,
                     id_course: {
-                        [Op.in]: [null, ""]
+                        [Op.or]: [null, ""]
                     }
                 }
             });

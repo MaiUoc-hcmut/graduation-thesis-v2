@@ -5,6 +5,10 @@ const notifyApi = {
         const url = `/notification/get-noti/${id_user}`;
         return await axiosConfig.get(url);
     },
+    readNotify: async (data: object) => {
+        const url = `/notification/read-noti`;
+        return await axiosConfig.post(url, data);
+    },
 
 }
 

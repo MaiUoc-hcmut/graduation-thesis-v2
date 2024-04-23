@@ -187,16 +187,16 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                                                     <div className='w-1/3 flex flex-col justify-between items-end'>
                                                         <div className='text-[#818894] text-sm'>{formatDateTime(answer.createdAt)}</div>
                                                         <div className='flex text-sm'>
-                                                            <span className='mr-4 text-[#818894] underline cursor-pointer' onClick={() => setToggle({ ...toggle, [`reply-${answer.id}`]: true })}>{answer.replies?.length} phản hồi</span>
-                                                            <button className='text-blue-500' onClick={() => setToggle({ ...toggle, [`reply-${answer.id}`]: true })}>Phản hồi</button>
+                                                            <span className='mr-4 text-[#818894] underline cursor-pointer' onClick={() => setToggle({ ...toggle, [`reply-${answer.id}`]: !toggle[`reply-${answer.id}`] })}>{answer.replies?.length} phản hồi</span>
+                                                            <button className='text-blue-500' onClick={() => setToggle({ ...toggle, [`form-${answer.id}`]: true, [`reply-${answer.id}`]: true })}>Phản hồi</button>
                                                         </div>
 
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className={`${toggle[`reply-${answer.id}`] ? '' : 'hidden'}  border-t-[1px] border-[#ececec] pt-4 flex justify-end items-center mt-10`}>
+                                            <div className={`border-t-[1px] border-[#ececec] pt-4 flex justify-end items-center mt-10`}>
                                                 <div className='w-5/6'>
-                                                    <div className=''>
+                                                    <div className={`${toggle[`form-${answer.id}`] ? '' : 'hidden'}`}>
 
                                                         <div className='mb-6 flex w-full  border-b-[1px] border-[#ececec] pb-6'>
                                                             <div className='flex w-full'>
@@ -221,18 +221,22 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                                                                 </div>
                                                                 <div className='ml-7 w-5/6 '>
                                                                     <form onSubmit={handleSubmit(async (data: any) => {
-
-                                                                        const formData = {
-                                                                            data: {
-                                                                                id_topic_forum: params.id,
-                                                                                id_parent: answer.id,
-                                                                                content: data[`content-${index}`],
-                                                                            },
-                                                                            file: data[`file-${index}`][0]
+                                                                        if (
+                                                                            data[`content-${index}`] != '' && data[`content-${index}`]
+                                                                        ) {
+                                                                            const formData = {
+                                                                                data: {
+                                                                                    id_topic_forum: params.id,
+                                                                                    id_parent: answer.id,
+                                                                                    content: data[`content-${index}`],
+                                                                                },
+                                                                                file: data[`file-${index}`][0]
+                                                                            }
+                                                                            await courseApi.createAnswerOfTopic(formData).catch((err: any) => { })
+                                                                            setChange(!change)
+                                                                            reset()
                                                                         }
-                                                                        await courseApi.createAnswerOfTopic(formData).catch((err: any) => { })
-                                                                        setChange(!change)
-                                                                        reset()
+
                                                                         setValue(`content-${index}`, '')
                                                                     })}>
                                                                         <textarea
@@ -250,7 +254,8 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                                                                             <input  {...register(`file-${index}`)} className="block w-full mb-5 text-xs text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="file" type="file" />
                                                                         </div>
                                                                         <div className='flex justify-end mt-4'>
-                                                                            <button type='submit' className='h-[36px] px-[22px] bg-primary shadow-primary_btn_shadow border-primary text-white rounded-md hover:bg-primary_hover'>Đăng</button>
+                                                                            <button type='button' className='h-[36px] px-[22px] mr-2 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-gray-200' onClick={() => setToggle({ ...toggle, [`form-${answer.id}`]: false })}>Hủy</button>
+                                                                            <button type='submit' className='h-[36px] px-[22px] bg-primary shadow-primary_btn_shadow border-primary text-white rounded-md hover:bg-primary_hover'>Phản hồi</button>
                                                                         </div>
                                                                     </form>
                                                                 </div>
@@ -258,54 +263,53 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    <div className={`${toggle[`reply-${answer.id}`] ? '' : 'hidden'}`}>
 
-                                                    {
-                                                        answer.replies?.map((reply: any) => {
-                                                            return (
-                                                                <div key={reply.id} className=''>
-                                                                    <div className='mb-6 flex w-full border-b-[1px] border-[#ececec] pb-6'>
-                                                                        <div className='flex w-full'>
-                                                                            <div className='flex-1 bg-[#f7fafd] p-2 rounded-lg'>
-                                                                                <div className=' flex-1 flex flex-col justify-center items-center p-2 pt-0'>
-                                                                                    <div className='p-[6px] bg-white rounded-full'>
-                                                                                        <Image
-                                                                                            src={`${reply.user?.avatar ? reply.user?.avatar : '/images/avatar.png'}`}
-                                                                                            width={60}
-                                                                                            height={60}
-                                                                                            className='rounded-full'
-                                                                                            alt="logo"
-                                                                                        />
-                                                                                    </div>
-                                                                                    <div className='text-center mt-2 flex flex-col items-center'>
-                                                                                        <span className=' text-secondary font-bold'>
-                                                                                            {reply.user?.name}
-                                                                                        </span>
-                                                                                        <span className='text-[#818894] text-[0.75rem] mt-2]'>{answer.user?.role == "teacher" ? "Giáo viên" : "Học sinh"}</span>
+                                                        {
+                                                            answer.replies?.map((reply: any) => {
+                                                                return (
+                                                                    <div key={reply.id} className=''>
+                                                                        <div className='mb-6 flex w-full border-b-[1px] border-[#ececec] pb-6'>
+                                                                            <div className='flex w-full'>
+                                                                                <div className='flex-1 bg-[#f7fafd] p-2 rounded-lg'>
+                                                                                    <div className=' flex-1 flex flex-col justify-center items-center p-2 pt-0'>
+                                                                                        <div className='p-[6px] bg-white rounded-full'>
+                                                                                            <Image
+                                                                                                src={`${reply.user?.avatar ? reply.user?.avatar : '/images/avatar.png'}`}
+                                                                                                width={60}
+                                                                                                height={60}
+                                                                                                className='rounded-full'
+                                                                                                alt="logo"
+                                                                                            />
+                                                                                        </div>
+                                                                                        <div className='text-center mt-2 flex flex-col items-center'>
+                                                                                            <span className=' text-secondary font-bold'>
+                                                                                                {reply.user?.name}
+                                                                                            </span>
+                                                                                            <span className='text-[#818894] text-[0.75rem] mt-2]'>{answer.user?.role == "teacher" ? "Giáo viên" : "Học sinh"}</span>
+                                                                                        </div>
                                                                                     </div>
                                                                                 </div>
-                                                                            </div>
-                                                                            <div className='ml-7 w-4/6 '>
-                                                                                <p className='text-[#818894] text-sm'>{reply.content}</p>
-                                                                                {
-                                                                                    reply.file ? <Link href={reply.file} className='bg-[#f7fafd] text-sm mt-6 p-1 flex justify-center items-center rounded-xl text-[#818894] w-28'>
-                                                                                        <PaperClipIcon className='w-4 h-4 mr-2' />
-                                                                                        Đính kèm
-                                                                                    </Link> : null
-                                                                                }
+                                                                                <div className='ml-7 w-4/6 '>
+                                                                                    <p className='text-[#818894] text-sm'>{reply.content}</p>
+                                                                                    {
+                                                                                        reply.file ? <Link href={reply.file} className='bg-[#f7fafd] text-sm mt-6 p-1 flex justify-center items-center rounded-xl text-[#818894] w-28'>
+                                                                                            <PaperClipIcon className='w-4 h-4 mr-2' />
+                                                                                            Đính kèm
+                                                                                        </Link> : null
+                                                                                    }
 
-                                                                            </div>
-                                                                            <div className='w-1/6 flex flex-col justify-between items-end'>
-                                                                                <div className='text-[#818894] text-sm'>{formatDateTime(reply.createdAt)}</div>
+                                                                                </div>
+                                                                                <div className='w-1/6 flex flex-col justify-between items-end'>
+                                                                                    <div className='text-[#818894] text-sm'>{formatDateTime(reply.createdAt)}</div>
+                                                                                </div>
                                                                             </div>
                                                                         </div>
-                                                                    </div>
 
-                                                                </div>
-                                                            )
-                                                        })
-                                                    }
-                                                    <div className='flex justify-end'>
-                                                        <button className='h-[36px] px-[22px] bg-primary shadow-primary_btn_shadow border-primary text-white rounded-md hover:bg-primary_hover' onClick={() => setToggle({ ...toggle, [`reply-${answer.id}`]: false })}>Đóng</button>
+                                                                    </div>
+                                                                )
+                                                            })
+                                                        }
                                                     </div>
                                                 </div>
                                             </div>
@@ -347,15 +351,17 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                                 </div>
                                 <div className='ml-7 w-3/4 flex flex-col'>
                                     <form onSubmit={handleSubmit(async (data: any) => {
-                                        const formData = {
-                                            data: {
-                                                id_topic_forum: params.id,
-                                                content: data.content,
+                                        if (data.content != '' && data.content) {
+                                            const formData = {
+                                                data: {
+                                                    id_topic_forum: params.id,
+                                                    content: data.content,
 
-                                            },
-                                            file: data.file[0]
+                                                },
+                                                file: data.file[0]
+                                            }
+                                            await courseApi.createAnswerOfTopic(formData).catch((err: any) => { }).catch((err: any) => { })
                                         }
-                                        await courseApi.createAnswerOfTopic(formData).catch((err: any) => { }).catch((err: any) => { })
                                         setChange(!change)
                                         reset()
                                     })}>
@@ -371,7 +377,7 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                                         <div className='mt-2 w-full flex justify-between items-center'>
                                             <input  {...register('file')} className="block w-1/2 text-xs text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="file" type="file" />
                                             <div className='flex justify-end'>
-                                                <button type='submit' className='h-[36px] px-[22px] bg-primary shadow-primary_btn_shadow border-primary text-white rounded-md hover:bg-primary_hover'>Đăng</button>
+                                                <button type='submit' className='h-[36px] px-[22px] bg-primary shadow-primary_btn_shadow border-primary text-white rounded-md hover:bg-primary_hover'>Phản hồi</button>
                                             </div>
                                         </div>
                                     </form>

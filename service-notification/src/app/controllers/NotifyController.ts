@@ -281,7 +281,8 @@ class NotificationController {
             const id_user = req.params.userId;
 
             const notifications = await NotificationModel.findAll({
-                where: { id_user }
+                where: { id_user },
+                order: [['createdAt', 'DESC']]
             });
 
             res.status(200).json(notifications);
