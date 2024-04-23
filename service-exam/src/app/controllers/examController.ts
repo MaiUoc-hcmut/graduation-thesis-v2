@@ -121,8 +121,6 @@ class ExamController {
                 queryOption.where.id_course = null;
             }
 
-            console.log(queryOption);
-
             if (categories.length > 0) {
                 queryOption.include[0].where = {
                     id: {
@@ -142,8 +140,7 @@ class ExamController {
                 ...queryOption,
                 order: [[defaultQuery, defaultOrder]],
                 limit: pageSize,
-                offset: pageSize * (currentPage - 1),
-                subQuery: false
+                offset: pageSize * (currentPage - 1)
             });
 
             
@@ -194,12 +191,22 @@ class ExamController {
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
             const currentPage: number = +req.params.page;
 
+            const { exam: examQuery } = req.query;
+
+            const whereCondition: any = {
+                id_teacher: teacherId
+            }
+
+            if (examQuery === "true") {
+                whereCondition.id_course = null;
+            }
+
             const count = await Exam.count({
-                where: { id_teacher: teacherId }
+                where: whereCondition
             });
 
             const exams = await Exam.findAll({
-                where: { id_teacher: teacherId },
+                where: whereCondition,
                 include: [
                     {
                         model: Category,
