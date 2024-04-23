@@ -153,12 +153,30 @@ class ExamController {
                 const user = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/teacher/get-teacher-by-id/${exam.id_teacher}`);
                 exam.dataValues.user = { id: user.data.id, name: user.data.name };
 
-                for (const category of exam.Categories) {
+                const exam_category = await Exam.findOne({
+                    where: {
+                        id: exam.id
+                    },
+                    attributes: [],
+                    include: [
+                        {
+                            model: Category,
+                            attributes: ['id', 'id_par_category', 'name'],
+                            through: {
+                                attributes: []
+                            }
+                        }
+                    ]
+                });
+
+                for (const category of exam_category.Categories) {
                     const parCategory = await ParentCategory.findByPk(category.id_par_category);
                     category.dataValues[`${parCategory.name}`] = category.name;
                     delete category.dataValues.name;
                     delete category.dataValues.id_par_category;
                 }
+
+                exam.dataValues.Categories = exam_category.dataValues.Categories;
             }
 
             res.status(200).json({

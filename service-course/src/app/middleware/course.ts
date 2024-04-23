@@ -1,6 +1,7 @@
 const Course = require('../../db/models/course');
 const StudentCourse = require('../../db/models/student-course');
 
+const axios = require('axios');
 import { Request, Response, NextFunction } from "express";
 const createError = require('http-errors');
 
@@ -91,21 +92,21 @@ class CheckingCourse {
 
     checkGetDetailCourse = async (req: Request, _res: Response, next: NextFunction) => {
         try {
+            if (req.authority === 0) next();
             const id_user = req.user?.user.data.id;
             const role = req.user?.role;
             const id_course = req.params.courseId;
 
             let user: {
                 user?: any,
-                role?: string,
-                authority?: number
+                role?: string
             } = {
                 user: req.user?.user,
                 role: req.user?.role
             }
 
             if (role === "teacher" || role === "admin") {
-                user.authority = 2;
+                req.authority = 2;
                 req.user = user;
                 return next();
             }
@@ -117,12 +118,14 @@ class CheckingCourse {
                 }
             });
 
-            if (record) {
-                user.authority = 1;
+            const response = await axios.get(`${process.env.BASE_URL_PAYMENT_LOCAL}/cart/check/${id_course}/${id_user}`);
+
+            if (record || response.data.result) {
+                req.authority = 1;
                 req.user = user;
                 return next();
             }
-            user.authority = 0;
+            req.authority = 0;
             req.user = user;
             next();
         } catch (error: any) {

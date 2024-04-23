@@ -224,9 +224,8 @@ class CourseController {
                 queryOption.having = sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`);
             }
 
-            const count = await Course.count({
-                ...queryOption,
-                distinct: true
+            const count = await Course.findAll({
+                ...queryOption
             });
 
             const courses = await Course.findAll({
@@ -247,7 +246,22 @@ class CourseController {
 
                 course.dataValues.registrations = registrations;
 
-                for (const category of course.Categories) {
+                const course_category = await Course.findOne({
+                    where: { id: course.id },
+                    attributes: [],
+                    include: [
+                        {
+                            model: Category,
+                            attributes: ['id', 'id_par_category', 'name'],
+                            through: {
+                                attributes: []
+                            }
+                        }
+                    ]
+                });
+
+                for (const category of course_category.Categories) {
+                    console.log(264, category.id_par_category);
                     const parCategory = await ParentCategory.findByPk(category.id_par_category);
                     category.dataValues[`${parCategory.name}`] = category.name;
                     delete category.dataValues.name;
@@ -255,9 +269,10 @@ class CourseController {
                     delete category.dataValues.createdAt;
                     delete category.dataValues.updatedAt;
                 }
+                course.dataValues.Categories = course_category.dataValues.Categories;
             }
 
-            res.status(200).json({ count, courses });
+            res.status(200).json({ count: count.length, courses });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
@@ -350,7 +365,7 @@ class CourseController {
     // [GET] /courses/full/:courseId
     getAllDetailCourse = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const authority = req.user?.authority;
+            const authority = req.authority;
 
             let status = authority === 0
                             ? ['public', 'paid']
@@ -452,6 +467,10 @@ class CourseController {
 
             course.dataValues.authority = authority;
             course.dataValues.apparentDuration = apparentDuration;
+
+            if (req.authority === 1) {
+                course.dataValues.added = true;
+            }
 
             res.status(200).json(course);
         } catch (error: any) {

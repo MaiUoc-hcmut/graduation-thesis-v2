@@ -13,5 +13,8 @@ router.route('/student')
     .post(Authorize.verifyStudent, CheckingCart.checkAddCourseToCart, CartController.addCourseToCart)
     .delete(Authorize.verifyStudent, CheckingCart.checkDeleteCourseFromCart, CartController.deleteCourseFromCart);
 
+router.route('/check/:courseId/:studentId')
+    .get(CartController.checkCourseInCart);
 
+    
 module.exports = router;

@@ -41,7 +41,7 @@ router.route('/student/:studentId/page/:page')
     .get(Authorize.verifyUser, courseController.getCourseStudentPaid);
 
 router.route('/full/:courseId')
-    .get(Authorize.verifyUser, CheckingCourse.checkGetDetailCourse, courseController.getAllDetailCourse);
+    .get(Authorize.checkGetAll, Authorize.verifyUser, CheckingCourse.checkGetDetailCourse, courseController.getAllDetailCourse);
 
 router.route('/teacher/:teacherId/page/:page')
     .get(Authorize.checkGetAll, Authorize.verifyUser, courseController.getCourseCreatedByTeacher);

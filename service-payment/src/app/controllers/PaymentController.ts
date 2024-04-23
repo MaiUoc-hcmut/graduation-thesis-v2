@@ -223,8 +223,6 @@ class PaymentController {
                     'Authorization': req.headers.authorization
                 }
 
-                console.log(req.headers.authorization);
-
                 for (const course of courses) {
                     const response = await axios.post(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${course}`, data, { headers });
                 }
