@@ -79,6 +79,11 @@ const courseApi = {
         return axiosConfig.get(url);
     },
 
+    getAllReview: () => {
+        const url = `/reviews`;
+        return axiosConfig.get(url);
+    },
+
     getReviewOfTeacher: (id: string) => {
         const url = `/reviews/teacher/${id}/page/1`;
         return axiosConfig.get(url);
@@ -137,8 +142,8 @@ const courseApi = {
         const url = `/topicsforum/${id_topic}/page/${page}`;
         return axiosConfig.get(url)
     },
-    getAllStudenBuyCourseOfTeacher: (id_teacher: string, page: number) => {
-        const url = `/courses/all-student/teacher/${id_teacher}/page/${page}`;
+    getAllStudenBuyCourseOfTeacher: (id_course: string, id_teacher: string, page: string) => {
+        const url = `/courses/all-student/teacher/${id_teacher}/page/${page}?id_course=${id_course}`;
         return axiosConfig.get(url);
     },
 

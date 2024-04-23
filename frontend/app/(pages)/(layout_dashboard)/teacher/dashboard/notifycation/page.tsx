@@ -60,8 +60,8 @@ export default function NotifycationDashboard() {
                                         </Link>)
                                     }
                                     {
-                                        notify.type === 'topic' && (<Link href={`/course/learning/${notify.id_course}/forum`} className="text-gray-500 text-sm w-1/12 flex justify-center items-center">
-                                            <button type='button' className='px-4 py-2 border-[1px] border-gray-200 rounded-md hover:text-white hover:bg-primary'>Xem</button>
+                                        notify.type === 'topic' && (<Link href={`/course/learning/${notify.id_course}/forum/${notify.id_topic}`} className="text-gray-500 text-sm w-1/12 flex justify-center items-center">
+                                            <button type='button' onClick={async () => { if (!notify.read) await notifyApi.readNotify({ data: [notify.id] }) }} className='px-4 py-2 border-[1px] border-gray-200 rounded-md hover:text-white hover:bg-primary'>Xem</button>
                                         </Link>)
                                     }
 

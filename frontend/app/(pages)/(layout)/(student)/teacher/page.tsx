@@ -1,13 +1,11 @@
 "use client"
 import { Fragment, useEffect, useState } from 'react';
 import { Dialog, Disclosure, Menu, Transition } from '@headlessui/react';
-import { XMarkIcon, ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, StarIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
 import Image from 'next/image';
 import categoryApi from '@/app/api/category';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { formatCash, convertTime } from '@/app/helper/FormatFunction';
 import userApi from '@/app/api/userApi';
 
 
@@ -244,7 +242,7 @@ export default function TeacherList() {
                                                                     <span className='text-[#171347] font-medium text-sm'>{teacher?.total_reviews} đánh giá</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
-                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_registration} lượt mua</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_registration} học viên</span>
                                                                 </div>
 
                                                             </div>

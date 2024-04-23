@@ -106,7 +106,7 @@ class TopicController {
                 const originalFileName = video.originalname.substring(secondHyphen + 1);
 
                 const storageRef = ref(
-                    storage, 
+                    storage,
                     `video course/${originalFileName + "       " + dateTime}`
                 );
 
@@ -130,7 +130,7 @@ class TopicController {
                     url
                 })
             });
-            
+
             await Promise.all(uploadPromises);
 
             req.topicURL = urls;

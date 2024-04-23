@@ -11,19 +11,18 @@ import { Dropdown } from 'flowbite-react';
 import { ExclamationCircleIcon, EllipsisVerticalIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline"
 import { Button, Modal } from 'flowbite-react';
 import { useSearchParams } from 'next/navigation'
+import Paginate from '@/app/_components/Paginate/Paginate';
 
 export default function CourseDashboard() {
     const authUser = useAppSelector(state => state.authReducer.user);
     const [courses, setCourses] = useState<any>()
     const [modal, setModal] = useState<any>({})
     const [change, setChange] = useState<boolean>(false)
-    const [paginate, setPaginate] = useState(1)
-    const list: any = []
+    const [countPaginate, setCountPaginate] = useState(1)
     const searchParams = useSearchParams()
     const page = searchParams.get('page')
     const search = searchParams.get('search')
     const [searchInput, setSearchInput] = useState('')
-    const { user } = useAppSelector(state => state.authReducer);
 
     const renderStars = (rating: number) => {
         const stars = [];
@@ -41,20 +40,12 @@ export default function CourseDashboard() {
     useEffect(() => {
         async function fetchData() {
             await courseApi.studentGetCourse(`${authUser.id}`).then((data: any) => {
-                console.log(data.data);
-
                 setCourses(data.data.records)
-                setPaginate(Math.ceil(data.data.count / 10))
-            }).catch((err: any) => {})
+                setCountPaginate(Math.ceil(data.data.count / 10))
+            }).catch((err: any) => { })
         }
         fetchData()
     }, [authUser.id, change, page]);
-
-    for (let i = 1; i <= paginate; i++) {
-        list.push(i)
-    }
-
-    console.log(courses);
 
     return (
         <div className="">
@@ -111,43 +102,7 @@ export default function CourseDashboard() {
                     })
                 }
             </div>
-            {
-                paginate > 1 ?
-                    <div className="flex justify-center items-center pt-10 pb-5">
-                        <nav aria-label="Page navigation example">
-                            <ul className="flex items-center -space-x-px h-8 text-sm">
-                                <li>
-                                    <a href="#" className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                                        <span className="sr-only">Previous</span>
-                                        <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 1 1 5l4 4" />
-                                        </svg>
-                                    </a>
-                                </li>
-                                {
-                                    list.map((l: number) => {
-                                        return (
-                                            <div key={l} onClick={() => setChange(!change)}>
-                                                <li>
-                                                    <Link href={`course?page=${l}`} className={`flex items-center justify-center px-3 h-8 leading-tight ${page == `${l}` ? 'text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'} `}>{l}</Link>
-                                                </li>
-
-                                            </div>
-                                        )
-                                    })
-                                }
-                                <li>
-                                    <a href="#" className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                                        <span className="sr-only">Next</span>
-                                        <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m1 9 4-4-4-4" />
-                                        </svg>
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div> : null
-            }
+            < Paginate countPaginate={countPaginate} currentPage={page} />
 
         </div>
     )

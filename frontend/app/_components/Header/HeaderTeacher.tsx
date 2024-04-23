@@ -111,6 +111,7 @@ export default function HeaderTeacher() {
                                                 notifycations?.map((notify: any, index: any) => {
                                                     return (
                                                         <Link key={index}
+                                                            onClick={async () => { if (!notify.read) await notifyApi.readNotify({ data: [notify.id] }) }}
                                                             href={`${notify.type === "topic" ? `/course/learning/${notify.id_course}/forum/${notify.id_topic}` : '/teacher/dashboard/course'}`}
                                                             className="flex p-3 hover:bg-gray-100 dark:hover:bg-gray-700"
                                                         >
@@ -119,22 +120,29 @@ export default function HeaderTeacher() {
                                                                     <div className='w-1/6 flex justify-center items-center mr-2'>
                                                                         <InformationCircleIcon className='w-8 h-8 text-slate-500' />
                                                                     </div>
-                                                                    <div>
-                                                                        <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
-                                                                            Thông báo mới từ {" "}
-                                                                            <span className="">
-                                                                                hệ thống
-                                                                            </span>
-                                                                            {": "}
-                                                                            {notify.type === 'course' && (
-                                                                                <>Khóa học <span className='font-medium text-black'>{notify.name}</span>  vừa được tạo thành công</>
-                                                                            )}
-                                                                            {notify.type === 'topic' && (
-                                                                                <>Có người vừa tạo chủ đề <span className='font-medium text-black'>{notify.name}</span> trong khóa học <span className='font-medium text-black'>{notify.course_name}</span></>
-                                                                            )}
+                                                                    <div className=''>
+                                                                        <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400 relative">
+                                                                            {
+                                                                                notify.read ? null : <div className='rounded-full w-2 h-2 p-1 bg-[#f63c3c] absolute top-[5px] left-0'></div>
+                                                                            }
+
+                                                                            <div className='ml-3'>
+                                                                                Thông báo mới từ {" "}
+                                                                                <span className="">
+                                                                                    hệ thống
+                                                                                </span>
+
+                                                                                {": "}
+                                                                                {notify.type === 'course' && (
+                                                                                    <>Khóa học <span className='font-medium text-black'>{notify.name}</span>  vừa được tạo thành công</>
+                                                                                )}
+                                                                                {notify.type === 'topic' && (
+                                                                                    <>Có người vừa tạo chủ đề <span className='font-medium text-black'>{notify.name}</span> trong khóa học <span className='font-medium text-black'>{notify.course_name}</span></>
+                                                                                )}
+                                                                            </div>
 
                                                                         </div>
-                                                                        <div className="text-xs text-blue-600 dark:text-blue-500">
+                                                                        <div className="ml-3 text-xs text-blue-600 dark:text-blue-500">
                                                                             {convertToVietnamTime(notify.createdAt)}
                                                                         </div>
                                                                     </div>

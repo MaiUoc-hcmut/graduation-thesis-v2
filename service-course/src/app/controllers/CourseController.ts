@@ -656,14 +656,14 @@ class CourseController {
                 });
                 const course = await Course.findByPk(record.id_course);
                 const [
-                    start_time, 
-                    end_time, 
+                    start_time,
+                    end_time,
                     total_topic
                 ] = [
-                    new Date(course.start_time),
-                    new Date(course.end_time),
-                    course.total_exam + course.total_lecture
-                ]
+                        new Date(course.start_time),
+                        new Date(course.end_time),
+                        course.total_exam + course.total_lecture
+                    ]
                 const durationToLearn: number = (end_time.getTime() - start_time.getTime()) / (1000 * 60 * 60 * 24);
                 const today = new Date();
 
@@ -742,6 +742,8 @@ class CourseController {
             }[] = [];
             for (const record of records) {
                 const student = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${record.id_student}`);
+                console.log(student.data.id, 222);
+
                 students.push({
                     id: student.data.id,
                     email: student.data.email,
