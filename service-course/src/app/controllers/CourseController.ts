@@ -642,15 +642,54 @@ class CourseController {
                 id: string,
                 email: string,
                 name: string,
-                avatar: any
+                avatar: any,
+                progress: number,
+                on_schedule: boolean
             }[] = [];
             for (const record of records) {
                 const student = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${record.id_student}`);
+                const p_records = await StudentCourse.count({
+                    where: {
+                        id_student: record.id_student,
+                        id_course: record.id_course
+                    }
+                });
+                const course = await Course.findByPk(record.id_course);
+                const [
+                    start_time, 
+                    end_time, 
+                    total_topic
+                ] = [
+                    new Date(course.start_time),
+                    new Date(course.end_time),
+                    course.total_exam + course.total_lecture
+                ]
+                const durationToLearn: number = (end_time.getTime() - start_time.getTime()) / (1000 * 60 * 60 * 24);
+                const today = new Date();
+
+                // Rate that number of topic each day user should learn
+                const targetRate: number = total_topic / durationToLearn;
+
+                const restTopicToLearn: number = total_topic - p_records;
+                const restDayToLearn: number = (end_time.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+
+                // Each topic user should learn each day to complete the course on schedule
+                const restToLearnRate = restTopicToLearn / restDayToLearn;
+
+                let on_schedule = true;
+
+                if (restToLearnRate > targetRate) {
+                    on_schedule = false;
+                }
+
+                const progress = p_records / (total_topic);
                 students.push({
                     id: student.data.id,
                     email: student.data.email,
                     name: student.data.name,
-                    avatar: student.data.avatar
+                    avatar: student.data.avatar,
+                    progress,
+                    on_schedule
                 });
             }
 

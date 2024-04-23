@@ -70,7 +70,10 @@ class AssignmentController {
                 }];
             }
 
-            const count = await Assignment.count(queryOption);
+            const count = await Assignment.count({
+                ...queryOption,
+                distinct: true
+            });
             const assignments = await Assignment.findAll({
                 ...queryOption,
                 limit: pageSize,
@@ -212,9 +215,10 @@ class AssignmentController {
                 queryOption.include[0].where.id_course = id_course;
             }
 
-            console.log(68)
-
-            const count = await Assignment.count(queryOption);
+            const count = await Assignment.count({
+                ...queryOption,
+                distince: true
+            });
             const assignments = await Assignment.findAll({
                 ...queryOption,
                 limit: pageSize,
