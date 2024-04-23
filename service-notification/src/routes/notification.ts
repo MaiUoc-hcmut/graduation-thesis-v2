@@ -27,7 +27,7 @@ router.route('/read-noti')
 router.route('/get-noti/:userId/page/:page')
     .get(NotificationController.getNotificationOfUser);
 
-router.post('/teacher-send')
+router.route('/teacher-send')
     .post(NotificationController.teacherSendNotification);
 
 router.route('/payment')
