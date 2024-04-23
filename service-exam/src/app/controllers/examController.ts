@@ -521,10 +521,10 @@ class ExamController {
             const Categories = categoryInstances.map(({ id, name }) => ({ id, name }));
             const user = { id: id_teacher, name: req.teacher?.data.name };
 
-            const dataValues = newExam.dataValues;
+            let dataValues = newExam.dataValues;
 
-            if (newExam.id_course === null) {
-                newExam.dataValues.id_course = 0;
+            if (!newExam.id_course) {
+                dataValues.id_course = 0;
             }
 
             const algoliaDataSave = {
@@ -759,7 +759,7 @@ class ExamController {
 
             await t.commit();
 
-            index.deleteObject(examId);
+            await index.deleteObject(examId);
 
             res.status(200).json({
                 examId,
