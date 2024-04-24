@@ -805,14 +805,19 @@ class CourseController {
 
             const data = {
                 course: id_course,
-                id_user: course.id_teacher,
+                id_teacher: course.id_teacher,
+                id_student,
                 name: course.name,
                 id_forum: forum.id
             }
 
-            const response = await axios.post(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/student-buy-course`, {
-                data
-            });
+            try {
+                const response = await axios.post(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/student-buy-course`, {
+                    data
+                });
+            } catch (error) {
+                throw new Error("Error when create a room socket in service notification!")
+            }
 
             await t.commit();
 

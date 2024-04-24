@@ -187,12 +187,12 @@ class NotificationController {
     notifyStudentBuyCourse = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
-            const { course, name, id_user, id_forum } = req.body.data;
+            const { course, name, id_teacher, id_student, id_forum } = req.body.data;
 
             const io = socketInstance.getIoInstance();
             const clientConnected = socketInstance.getClientConnected();
 
-            const findUser = clientConnected.find(obj => obj.user === id_user);
+            const findUser = clientConnected.find(obj => obj.user === id_teacher);
             if (findUser) {
                 io.to(findUser.socket).emit("student_buy_course", {
                     message: "Một học sinh đã mua khóa học",
@@ -202,19 +202,19 @@ class NotificationController {
             }
 
             const newNoti = await NotificationModel.create({
-                id_user,
+                id_teacher,
                 content: "Một học sinh đã mua khóa học",
                 type: "course",
                 name
             });
 
             const userInRoom = await RoomSocket.findOne({
-                where: { id_user, room: id_forum }
+                where: { id_user: id_student, room: id_forum }
             });
 
             if (!userInRoom) {
                 await RoomSocket.create({
-                    id_user,
+                    id_user: id_student,
                     room: id_forum
                 });
             }
