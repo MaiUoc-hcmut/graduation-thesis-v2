@@ -22,17 +22,23 @@ class AssignmentController {
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
             const currentPage: number = +req.params.page;
 
-            let preDate: Date = new Date(0);;
+            let preDate: Date = new Date(0);
             let postDate: Date = new Date();
 
-            if (typeof req.query.postDate === 'string' || typeof req.query.postDate === 'number') {
-                postDate = new Date(req.query.postDate);
+            if (typeof req.query.postDate === 'string') {
+                const date1 = new Date(req.query.postDate);
+                if (!Number.isNaN(date1.getTime())) {
+                    postDate = date1;
+                }
             } else if (req.query.postDate instanceof Date) {
                 postDate = req.query.postDate;
             }
 
-            if (typeof req.query.preDate === 'string' || typeof req.query.preDate === 'number') {
-                preDate = new Date(req.query.preDate);
+            if (typeof req.query.preDate === 'string') {
+                const date2 = new Date(req.query.preDate);
+                if (!Number.isNaN(date2.getTime())) {
+                    postDate = date2;
+                }
             } else if (req.query.preDate instanceof Date) {
                 preDate = req.query.preDate;
             }
@@ -42,7 +48,7 @@ class AssignmentController {
             }
 
             const status = req.query.status;
-            const id_course = req.query.id_course;
+            let id_course;
 
             let status_condition = [];
 
@@ -52,6 +58,17 @@ class AssignmentController {
                 status_condition = [false];
             } else {
                 status_condition = [true, false];
+            }
+
+            const { exam: examQuery } = req.query;
+            if (examQuery === "true") {
+                id_course = null
+            } else if (examQuery === "false" && !!req.query.id_course) {
+                id_course = req.query.id_course
+            } else if (examQuery === "false" && !req.query.id_course) {
+                id_course = {
+                    [Op.ne]: null
+                }
             }
 
             const queryOption: any = {
@@ -97,17 +114,23 @@ class AssignmentController {
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
             const currentPage: number = +req.params.page;
 
-            let preDate: Date = new Date(0);;
+            let preDate: Date = new Date(0);
             let postDate: Date = new Date();
 
-            if (typeof req.query.postDate === 'string' || typeof req.query.postDate === 'number') {
-                postDate = new Date(req.query.postDate);
+            if (typeof req.query.postDate === 'string') {
+                const date1 = new Date(req.query.postDate);
+                if (!Number.isNaN(date1.getTime())) {
+                    postDate = date1;
+                }
             } else if (req.query.postDate instanceof Date) {
                 postDate = req.query.postDate;
             }
 
-            if (typeof req.query.preDate === 'string' || typeof req.query.preDate === 'number') {
-                preDate = new Date(req.query.preDate);
+            if (typeof req.query.preDate === 'string') {
+                const date2 = new Date(req.query.preDate);
+                if (!Number.isNaN(date2.getTime())) {
+                    postDate = date2;
+                }
             } else if (req.query.preDate instanceof Date) {
                 preDate = req.query.preDate;
             }
@@ -117,7 +140,7 @@ class AssignmentController {
             }
 
             const status = req.query.status;
-            const id_course = req.query.id_course;
+            let id_course;
 
             let status_condition = [];
 
@@ -127,6 +150,17 @@ class AssignmentController {
                 status_condition = [false];
             } else {
                 status_condition = [true, false];
+            }
+
+            const { exam: examQuery } = req.query;
+            if (examQuery === "true") {
+                id_course = null
+            } else if (examQuery === "false" && !!req.query.id_course) {
+                id_course = req.query.id_course
+            } else if (examQuery === "false" && !req.query.id_course) {
+                id_course = {
+                    [Op.ne]: null
+                }
             }
 
             const queryOption: any = {
@@ -164,17 +198,23 @@ class AssignmentController {
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
             const currentPage: number = +req.params.page;
 
-            let preDate: Date = new Date(0);;
+            let preDate: Date = new Date(0);
             let postDate: Date = new Date();
 
-            if (typeof req.query.postDate === 'string' || typeof req.query.postDate === 'number') {
-                postDate = new Date(req.query.postDate);
+            if (typeof req.query.postDate === 'string') {
+                const date1 = new Date(req.query.postDate);
+                if (!Number.isNaN(date1.getTime())) {
+                    postDate = date1;
+                }
             } else if (req.query.postDate instanceof Date) {
                 postDate = req.query.postDate;
             }
 
-            if (typeof req.query.preDate === 'string' || typeof req.query.preDate === 'number') {
-                preDate = new Date(req.query.preDate);
+            if (typeof req.query.preDate === 'string') {
+                const date2 = new Date(req.query.preDate);
+                if (!Number.isNaN(date2.getTime())) {
+                    postDate = date2;
+                }
             } else if (req.query.preDate instanceof Date) {
                 preDate = req.query.preDate;
             }
@@ -184,7 +224,7 @@ class AssignmentController {
             }
 
             const status = req.query.status;
-            const id_course = req.query.id_course;
+            let id_course;
 
             let status_condition = [];
 
@@ -194,6 +234,17 @@ class AssignmentController {
                 status_condition = [false];
             } else {
                 status_condition = [true, false];
+            }
+
+            const { exam: examQuery } = req.query;
+            if (examQuery === "true") {
+                id_course = null
+            } else if (examQuery === "false" && !!req.query.id_course) {
+                id_course = req.query.id_course
+            } else if (examQuery === "false" && !req.query.id_course) {
+                id_course = {
+                    [Op.ne]: null
+                }
             }
 
             const queryOption: any = {
@@ -254,17 +305,23 @@ class AssignmentController {
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
             const currentPage: number = +req.params.page;
 
-            let preDate: Date = new Date(0);;
+            let preDate: Date = new Date(0);
             let postDate: Date = new Date();
 
-            if (typeof req.query.postDate === 'string' || typeof req.query.postDate === 'number') {
-                postDate = new Date(req.query.postDate);
+            if (typeof req.query.postDate === 'string') {
+                const date1 = new Date(req.query.postDate);
+                if (!Number.isNaN(date1.getTime())) {
+                    postDate = date1;
+                }
             } else if (req.query.postDate instanceof Date) {
                 postDate = req.query.postDate;
             }
 
-            if (typeof req.query.preDate === 'string' || typeof req.query.preDate === 'number') {
-                preDate = new Date(req.query.preDate);
+            if (typeof req.query.preDate === 'string') {
+                const date2 = new Date(req.query.preDate);
+                if (!Number.isNaN(date2.getTime())) {
+                    postDate = date2;
+                }
             } else if (req.query.preDate instanceof Date) {
                 preDate = req.query.preDate;
             }
