@@ -118,12 +118,15 @@ class CheckingCourse {
                 }
             });
 
-            const response = await axios.get(`${process.env.BASE_URL_PAYMENT_LOCAL}/cart/check/${id_course}/${id_user}`);
-
-            if (record || response.data.result) {
+            if (record) {
                 req.authority = 1;
                 req.user = user;
                 return next();
+            }
+            
+            const response = await axios.get(`${process.env.BASE_URL_PAYMENT_LOCAL}/cart/check/${id_course}/${id_user}`);
+            if (response.data.result) {
+                req.authority = -1;
             }
             req.authority = 0;
             req.user = user;

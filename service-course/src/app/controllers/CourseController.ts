@@ -467,8 +467,13 @@ class CourseController {
             course.dataValues.authority = authority;
             course.dataValues.apparentDuration = apparentDuration;
 
-            if (req.authority === 1) {
+            if (authority === 1) {
                 course.dataValues.added = true;
+                course.dataValues.cart_or_bought = "bought";
+            }
+            if (authority === -1) {
+                course.dataValues.added = true;
+                course.dataValues.cart_or_bought = "cart";
             }
 
             res.status(200).json(course);
