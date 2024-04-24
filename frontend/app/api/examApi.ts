@@ -2,6 +2,10 @@ import axiosConfig from "@/redux/axios.config"
 
 const examApi = {
     getAllExamByTeacher: (id_teacher: string, page: string) => {
+        const url = `/exams/teacher/${id_teacher}/page/${page}?exam=true`;
+        return axiosConfig.get(url);
+    },
+    getAllQuizByTeacher: (id_teacher: string, page: string) => {
         const url = `/exams/teacher/${id_teacher}/page/${page}?exam=false`;
         return axiosConfig.get(url);
     },

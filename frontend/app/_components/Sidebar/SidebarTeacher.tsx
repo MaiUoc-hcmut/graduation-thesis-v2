@@ -95,6 +95,17 @@ export default function SidebarTeacher() {
 
                                         </Link>
                                     </li>
+                                    <li>
+                                        <Link
+                                            href="/teacher/dashboard/course/quizz"
+                                            className={`${pathname == '/teacher/dashboard/course/quizz' ? 'bg-slate-100' : ''} flex ml-4 items-center p-2 text-gray-900 transition duration-75 rounded-lg pl-4 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700`}
+                                        >
+                                            <div className='ml-2'>
+                                                Quản lý bài tập
+                                            </div>
+
+                                        </Link>
+                                    </li>
                                 </ul>
                             </li>
                             <li>

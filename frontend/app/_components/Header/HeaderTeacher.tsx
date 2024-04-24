@@ -32,8 +32,12 @@ export default function HeaderTeacher() {
                     audio.play();
                 });
                 socket.on("created_exam", (data) => {
+                    const audio = new Audio("/audio/audio-notification.mp3");
+                    audio.play();
                 });
                 socket.on("reported_error", (data) => {
+                    const audio = new Audio("/audio/audio-notification.mp3");
+                    audio.play();
                 });
                 socket.on("created_topic", (data) => {
                     const audio = new Audio("/audio/audio-notification.mp3");
@@ -90,8 +94,8 @@ export default function HeaderTeacher() {
                                         type="button"
                                         onClick={async () => {
                                             if (user) {
-                                                await notifyApi.getNotify(`${user.id}`).then((data) => {
-                                                    setNotifycations(data.data)
+                                                await notifyApi.getNotify(`${user.id}`, '1').then((data) => {
+                                                    setNotifycations(data.data.notifications)
                                                 }).catch((err: any) => { })
                                             }
                                         }}

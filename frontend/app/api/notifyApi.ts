@@ -2,8 +2,8 @@ import axiosConfig from "@/redux/axios.config"
 import { teacher } from "@/redux/features/teacherSlice";
 
 const notifyApi = {
-    getNotify: async (id_user: string) => {
-        const url = `/notification/get-noti/${id_user}`;
+    getNotify: async (id_user: string, page: string) => {
+        const url = `/notification/get-noti/${id_user}/page/${page}`;
         return await axiosConfig.get(url);
     },
     readNotify: async (data: object) => {

@@ -25,6 +25,8 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
         handleSubmit,
         setValue,
         getValues,
+        setError,
+        clearErrors,
         formState: { errors },
     } = hanldeForm
     const [files, setFiles] = useState([])
@@ -35,13 +37,38 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
                     <Modal.Header />
                     <Modal.Body>
                         <form className="space-y-6" onSubmit={handleSubmit((data: any) => {
-                            if (!(Object.entries(errors).length === 0)) return
+
                             if (data.questions[indexQuestion].modify != "create") {
                                 setValue(`questions.${indexQuestion}.modify`, "change")
+                            }
+
+                            const hasCorrectAnswer = getValues().questions[indexQuestion].answers.some((answer: any) => answer.is_correct);
+
+                            if (!hasCorrectAnswer) {
+                                // Đặt lỗi nếu không có đáp án nào được chọn là đáp án đúng
+                                setError(`questions.${indexQuestion}` as const, {
+                                    type: "manual",
+                                    message: "Câu hỏi cần ít nhất một đáp án đúng"
+                                });
+                                return;
+                            }
+                            else {
+                                clearErrors(`questions.${indexQuestion}`);
                             }
                             setChange(!change)
                             setValue(`questions.${indexQuestion}.modify`, "change")
                             setModal({ ...modal, [`edit_question_${question.id}`]: false })
+                        }, (errors: any) => {
+                            const hasCorrectAnswer = getValues().questions[indexQuestion].answers.some((answer: any) => answer.is_correct);
+
+                            if (hasCorrectAnswer) {
+                                clearErrors(`questions.${indexQuestion}`);
+                            }
+                            if (!(Object.entries(errors).length === 0)) {
+                                setChange(!change)
+                                setValue(`questions.${indexQuestion}.modify`, "change")
+                                setModal({ ...modal, [`edit_question_${question.id}`]: false })
+                            }
                         })}>
 
                             <h3 className="text-xl font-medium text-gray-900 dark:text-white">Sửa câu hỏi</h3>
@@ -57,7 +84,7 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
                                         {errors.questions?.[indexQuestion]?.content_text?.message}
                                     </div>
                                 </div>
-                                <div className="mb-10 ">
+                                <div className="mb-5">
                                     <div className="mb-2 block">
                                         <Label htmlFor="email" value="Ảnh (tùy chọn)" />
                                     </div>
@@ -125,7 +152,28 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
                                     </div>
 
                                 </div>
+                                <div className="mb-5">
+                                    <div className="mb-2 block">
+                                        <Label htmlFor="email" value="Giải thích" />
+                                    </div>
+
+                                    <CustomCKEditor className="h-50" setValue={setValue} value="" position={`questions.${indexQuestion}.explain`} />
+                                    <div className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                        {errors?.questions?.[indexQuestion]?.explain?.message}
+                                    </div>
+                                </div>
+                                <div className="mb-5">
+                                    <div className="flex-1 flex items-center justify-end">
+                                        <label htmlFor="default-checkbox" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300 mr-2">Câu hỏi có nhiều đáp án đúng</label>
+                                        <input  {...register(`questions.${indexQuestion}.multi_choice`)} id="default-checkbox" type="checkbox" className="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                                    </div>
+
+                                </div>
+
                                 <AnswerCard hanldeForm={hanldeForm} question={question} indexQuestion={indexQuestion} image={image} setImage={setImage} change={change} setChange={setChange} />
+                                <div className="text-sm text-red-600 dark:text-red-500">
+                                    {errors?.questions?.[indexQuestion]?.message}
+                                </div>
                             </div>
 
                             <div className="mt-6 flex justify-end">

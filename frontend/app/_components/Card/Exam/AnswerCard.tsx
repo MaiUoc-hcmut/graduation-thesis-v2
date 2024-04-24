@@ -11,6 +11,7 @@ import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import { useState } from "react";
 import Image from "next/image";
 import CustomCKEditor from "../../Editor/CKEditor";
+import { clear, log } from "console";
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
 
 export const AnswerCard = ({ hanldeForm, question, indexQuestion, image, setImage }: any) => {
@@ -20,6 +21,7 @@ export const AnswerCard = ({ hanldeForm, question, indexQuestion, image, setImag
         getValues,
         control,
         setValue,
+        clearErrors,
         formState: { errors },
     } = hanldeForm
 
@@ -27,7 +29,6 @@ export const AnswerCard = ({ hanldeForm, question, indexQuestion, image, setImag
         control,
         name: `questions.${indexQuestion}.answers`
     });
-    console.log(question);
 
     return (
         <div className='mt-5'>
@@ -36,7 +37,7 @@ export const AnswerCard = ({ hanldeForm, question, indexQuestion, image, setImag
                 appendAnswer({
                     id: uuid(),
                     content_text: "",
-                    isCorrect: false,
+                    is_correct: false,
                     answerModify: "create"
                 })
 
@@ -114,7 +115,6 @@ export const AnswerCard = ({ hanldeForm, question, indexQuestion, image, setImag
                                             };
                                             request.send(formData)
 
-                                            // courseApi.uploadVideo(formData)
                                         }
                                     }
                                     }
@@ -137,7 +137,10 @@ export const AnswerCard = ({ hanldeForm, question, indexQuestion, image, setImag
 
                             <div className=' mb-2'>
                                 <div className="flex-1 flex items-center ">
-                                    <input {...register(`questions.${indexQuestion}.answers.${indexAnswer}.isCorrect`)} id="default-checkbox" type="checkbox" className="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                                    <input {...register(`questions.${indexQuestion}.answers.${indexAnswer}.is_correct`, {
+
+                                    })}
+                                        id="default-checkbox" type="checkbox" className="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
                                     <label htmlFor="default-checkbox" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300 mr-2">Câu trả lời đúng</label>
                                 </div>
                             </div>

@@ -13,13 +13,39 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
     const intervalRef = useRef<any>(null);
     const alphabet = ['A', 'B', 'C', 'D', 'E', 'F'];
     const COUNTER_KEY = 'countdown';
+    const [answers, setAnswers] = useState(() => {
+        // Lấy các đáp án từ localStorage khi khởi tạo state
+        const savedAnswers = localStorage.getItem('answers');
+        return savedAnswers ? JSON.parse(savedAnswers) : {};
+    });
+    const router = useRouter()
+
+    const handleAnswerChange = (questionId: string, answer: any, checked: boolean) => {
+        // Cập nhật state và lưu đáp án vào localStorage mỗi khi người dùng chọn hoặc bỏ chọn một đáp án
+        setAnswers((prevAnswers: any) => {
+            const questionAnswers = prevAnswers[questionId] || [];
+            const newAnswers = {
+                ...prevAnswers,
+                [questionId]: checked
+                    ? [...questionAnswers, answer]
+                    : questionAnswers.filter((a: any) => a !== answer)
+            };
+            localStorage.setItem('answers', JSON.stringify(newAnswers));
+            return newAnswers;
+        });
+    };
+
+
     const {
         register,
         getValues,
         handleSubmit,
         reset,
         formState: { errors },
-    } = useForm()
+    } = useForm({
+        defaultValues: answers,
+    })
+
 
     function convertTime(i: number) {
         let hours = parseInt(`${i / 3600}`, 10);
@@ -54,6 +80,11 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
     }
 
     useEffect(() => {
+        // Lưu các đáp án vào localStorage mỗi khi state thay đổi
+        localStorage.setItem('answers', JSON.stringify(answers));
+    }, [answers])
+
+    useEffect(() => {
         if (exam?.period) {
             var countDownTime = Number(window.localStorage.getItem(COUNTER_KEY)) || exam?.period * 60;
             countDown(countDownTime, function () {
@@ -84,21 +115,18 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
             })
         })
 
-        const submitAnswer = async () => {
-            await examApi.submitExam({ data }).catch((err: any) => { })
-        };
-
-        try {
-            const response = await submitAnswer();
+        const response = examApi.submitExam({ data }).then(() => {
             clearInterval(intervalRef.current);
             intervalRef.current = null;
             window.localStorage.removeItem(`${COUNTER_KEY}`);
-        } catch (error) {
-            console.error('Error submitting answer:', error);
-        }
+            window.localStorage.removeItem('answers');
+            router.push(`/course/learning/${params.slug}?exam=${params.id_exam}`)
+        }).catch((err: any) => { });
     }
-    // console.log(formData, exam);
-    // console.log(errors);
+
+
+
+    console.log(getValues(), getValues().hasOwnProperty('bcf88d54-399d-98e3-0399-81188b34e5a9'));
 
     let listQuestion;
     let listNumber;
@@ -109,8 +137,17 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                     <div id={`question${index + 1}`} key={index} className="mb-4">
                         <div className="text-lg mb-[-10px] text-[#000]">
                             <div style={{ display: "flex" }}>
-                                <span style={{ marginRight: '8px' }} className="font-semibold text-[#153462]">Câu {index + 1}: </span>
-                                {parse(question.content_text)}
+                                <span className="font-semibold text-[#153462] flex">Câu {index + 1}: {parse(question.content_text)}</span>
+                                {
+                                    question.image && <div className='relative w-1/2 h-64 mt-2 z-0'>
+                                        <Image
+                                            src="/images/course-cover-1.jpg"
+                                            fill
+                                            className='w-full h-full overflow-hidden object-cover object-center'
+                                            alt="logo"
+                                        />
+                                    </div>
+                                }
                             </div>
                         </div>
                         <div>
@@ -122,12 +159,15 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                                         <li key={index} className="flex items-center mb-4">
 
                                             <input
-                                                {...register(`${question.id}`, { required: "Câu hỏi chưa hoàn thành." })}
+                                                {...register(`${question.id}`, {
+                                                    required: "Câu hỏi chưa hoàn thành.",
+                                                })}
                                                 id="checked-checkbox"
                                                 type="checkbox"
                                                 value={answer.id}
                                                 name={question.id}
                                                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAnswerChange(question.id, answer.id, e.target.checked)}
                                             />
                                             <label
                                                 htmlFor="checked-checkbox"
@@ -139,6 +179,9 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                                         </li>
                                     );
                                 })}
+                                {errors?.[question.id]?.message && (
+                                    <p className='text-sm text-red-400'>{`${errors?.[question.id]?.message}`}</p>
+                                )}
                             </ul>
                         </div>
                     </div>
@@ -148,21 +191,20 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                     <div id={`question${index + 1}`} key={index} className="mb-4">
                         <div className="text-lg  mb-[-10px] font-normal text-[#000]">
                             <span className="font-semibold text-[#153462] flex">Câu {index + 1}: {parse(question.content_text)}</span>
-                            {/* <div className='relative w-1/2 h-64 mt-2 z-0'>
-                                <Image
-                                    src="/images/course-cover-1.jpg"
-                                    fill
-                                    className='w-full h-full overflow-hidden object-cover object-center'
-                                    alt="logo"
-                                />
-                            </div> */}
+                            {
+                                question.image && <div className='relative w-1/2 h-64 mt-2 z-0'>
+                                    <Image
+                                        src="/images/course-cover-1.jpg"
+                                        fill
+                                        className='w-full h-full overflow-hidden object-cover object-center'
+                                        alt="logo"
+                                    />
+                                </div>
+                            }
                         </div >
                         <div>
                             <ul
                                 className="mt-6 text-base text-gray-900 rounded-lg dark:bg-gray-700 dark:text-white"
-                            // onChange={(e: any) => {
-                            //     handlerInput(question.id, e.target.id);
-                            // }}
 
                             >
                                 {question.answers.map((answer: any, index: number) => {
@@ -195,7 +237,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
             }
         });
         listNumber = exam?.questions?.map((question: any, index: number) => {
-            if (!getValues().hasOwnProperty(question.questionId)) {
+            if (getValues()[question.id]?.length == 0) {
                 return (
                     <Link
                         href={`#question${index + 1}`}
@@ -227,13 +269,11 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
             }
         });
     }
-    const router = useRouter()
+
 
     return (
         <form onSubmit={handleSubmit((data) => {
-            console.log(data, 1);
             submitTest('1', data)
-            router.push(`/course/learning/${params.slug}?exam=${params.id_exam}`)
 
         })} className="bg-[#FBFAF9] relative py-10 min-h-screen">
             <div className="px-10 py-5 bg-[#153462] fixed w-full top-0 left-0 z-10">
@@ -262,7 +302,39 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                     </button>
                     <div className="border-[1px] border-[#ececec] shadow-sm rounded-xl p-3 mt-4">
                         <p className="rounded-md text-center font-medium text-lg text-[#153462] mb-5">Điều hướng bài kiểm tra</p>
-                        <div className="grid grid-cols-5 justify-items-center gap-y-3">{listNumber}</div>
+                        <div className="grid grid-cols-5 justify-items-center gap-y-3">{
+                            exam?.questions?.map((question: any, index: number) => {
+                                if (getValues()[question.id]?.length == 0) {
+                                    return (
+                                        <Link
+                                            href={`#question${index + 1}`}
+                                            key={index}
+                                            className="bg-[#f0efef] p-2 w-9 h-9 rounded-xl flex justify-center items-center font-normal"
+                                            style={{
+                                                boxShadow: '0px 1px 4px 0px #00000033 -1px -1px 4px 0px #00000026 inset 1px 1px 4px 0px #0000001A inset',
+                                                textDecoration: 'none',
+                                            }}
+                                        >
+                                            {index + 1}
+                                        </Link>
+                                    );
+                                } else {
+                                    return (
+                                        <a
+                                            href={`#question${index + 1}`}
+                                            key={index}
+                                            className="p-2 w-10 h-10 rounded-xl flex justify-center items-center font-normal text-[#2FD790]"
+                                            style={{
+                                                background: 'rgba(47, 215, 144, 0.15)',
+                                                boxShadow: '1px 1px 2px 0px #2FD79040 1px 1px 3px 0px #2FD7905C inset -1px -1px 2px 0px #2FD79052 inset',
+                                                textDecoration: 'none',
+                                            }}
+                                        >
+                                            {index + 1}
+                                        </a>
+                                    );
+                                }
+                            })}</div>
                         <div className="text-center mt-10 mb-2">
                             <button
                                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"

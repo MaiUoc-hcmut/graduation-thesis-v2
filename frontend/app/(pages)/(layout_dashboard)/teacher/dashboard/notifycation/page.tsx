@@ -6,22 +6,29 @@ import notifyApi from '@/app/api/notifyApi';
 import { useAppSelector } from '@/redux/store';
 import { InformationCircleIcon } from '@heroicons/react/24/solid';
 import { convertToVietnamTime } from '@/app/helper/FormatFunction';
+import Paginate from '@/app/_components/Paginate/Paginate';
+import { useSearchParams } from 'next/navigation';
 
 export default function NotifycationDashboard() {
     const [notifycations, setNotifycations] = useState<any>([])
     const { user } = useAppSelector(state => state.authReducer);
+    const [countPaginate, setCountPaginate] = useState(1)
+    const searchParams = useSearchParams()
+    const page = searchParams.get('page') || '1'
+
     useEffect(() => {
         async function fetchData() {
             if (user) {
 
-                await notifyApi.getNotify(`${user.id}`).then((data) => {
-                    setNotifycations(data.data)
+                await notifyApi.getNotify(`${user.id}`, page).then((data) => {
+                    setNotifycations(data.data.notifications)
+                    setCountPaginate(Math.ceil(data.data.count / 10))
                 }).catch((err: any) => { })
 
             }
         }
         fetchData()
-    }, [user]);
+    }, [page, user]);
     return (
         <div>
             <div className="font-bold text-[#171347] text-lg">Thông báo</div>
@@ -72,6 +79,7 @@ export default function NotifycationDashboard() {
                 }
 
             </div>
+            < Paginate countPaginate={countPaginate} currentPage={page} />
         </div>
 
     )

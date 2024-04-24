@@ -29,11 +29,9 @@ export default function HeaderStudent() {
                 const socket = io("http://localhost:4003", { transports: ["websocket"] });
                 socket.emit("new_user_online", user.id);
                 socket.on("created_topic", (data) => {
-                    console.log(data);
+                    const audio = new Audio("/audio/audio-notification.mp3");
+                    audio.play();
                 });
-                await notifyApi.getNotify(`${user.id}`).then((data) => {
-                    setNotifycations(data.data)
-                }).catch((err: any) => { })
             }
         }
         fetchData()
@@ -83,8 +81,8 @@ export default function HeaderStudent() {
                                         type="button"
                                         onClick={async () => {
                                             if (user) {
-                                                await notifyApi.getNotify(`${user.id}`).then((data) => {
-                                                    setNotifycations(data.data)
+                                                await notifyApi.getNotify(`${user.id}`, '1').then((data) => {
+                                                    setNotifycations(data.data.notifications)
                                                 }).catch((err: any) => { })
                                             }
                                         }}
