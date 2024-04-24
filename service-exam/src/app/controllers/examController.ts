@@ -72,8 +72,8 @@ class ExamController {
                 Date = 'date',
             }
             enum SortOrder {
-                ASC = 'ASC',
-                DESC = 'DESC'
+                ASC = 'asc',
+                DESC = 'desc'
             }
 
             const sortFactor = {
@@ -81,8 +81,8 @@ class ExamController {
                 [SortQuery.Date]: 'createdAt',
             }
             const orderFactor = {
-                [SortOrder.ASC]: 'ASC',
-                [SortOrder.DESC]: 'DESC',
+                [SortOrder.ASC]: 'asc',
+                [SortOrder.DESC]: 'desc',
             }
 
 
@@ -90,7 +90,7 @@ class ExamController {
             const orderSort = req.query.order as SortOrder;
 
             let defaultQuery = 'createdAt';
-            let defaultOrder = 'DESC';
+            let defaultOrder = 'desc';
 
             if (typeof sortQuery === "string" && Object.values(SortQuery).includes(sortQuery)) {
                 defaultQuery = sortFactor[sortQuery as SortQuery];

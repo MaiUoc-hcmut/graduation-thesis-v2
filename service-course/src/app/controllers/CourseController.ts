@@ -166,27 +166,27 @@ class CourseController {
                 Registration = 'registration'
             }
             enum SortOrder {
-                ASC = 'ASC',
-                DESC = 'DESC'
+                ASC = 'asc',
+                DESC = 'desc'
             }
 
             const sortFactor = {
                 [SortQuery.Rating]: 'average_rating',
-                [SortQuery.Date]: 'createdAt',
+                [SortQuery.Date]: 'updatedAt',
                 [SortQuery.Price]: 'price',
                 [SortQuery.Registration]: 'registration'
             }
             const orderFactor = {
-                [SortOrder.ASC]: 'ASC',
-                [SortOrder.DESC]: 'DESC',
+                [SortOrder.ASC]: 'asc',
+                [SortOrder.DESC]: 'desc',
             }
 
 
             const sortQuery = req.query.sort as SortQuery;
             const orderSort = req.query.order as SortOrder;
 
-            let defaultQuery = 'createdAt';
-            let defaultOrder = 'DESC';
+            let defaultQuery = 'updatedAt';
+            let defaultOrder = 'desc';
 
             if (typeof sortQuery === "string" && Object.values(SortQuery).includes(sortQuery)) {
                 defaultQuery = sortFactor[sortQuery as SortQuery];
@@ -261,7 +261,6 @@ class CourseController {
                 });
 
                 for (const category of course_category.Categories) {
-                    console.log(264, category.id_par_category);
                     const parCategory = await ParentCategory.findByPk(category.id_par_category);
                     category.dataValues[`${parCategory.name}`] = category.name;
                     delete category.dataValues.name;
