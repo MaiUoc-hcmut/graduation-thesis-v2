@@ -38,33 +38,35 @@ class ExamController {
             let status = authority === 2
                             ? ['public', 'paid', 'private']
                             : ['public', 'paid'];
-
-            const categories = [];
+            
+            const levelCondition: any[] = [];
+            const subjectCondition: any[] = [];
+            const classCondition: any[] = [];
 
             const { class: _class, subject, level } = req.query;
 
             if (!_class) {
                 
             } else if (Array.isArray(_class)) {
-                categories.push(..._class)
+                classCondition.push(..._class);
             } else {
-                categories.push(_class)
+                classCondition.push(_class);
             }
 
             if (!subject) {
 
             } else if (Array.isArray(subject)) {
-                categories.push(...subject)
+                subjectCondition.push(...subject);
             } else {
-                categories.push(subject)
+                subjectCondition.push(subject);
             }
 
             if (!level) {
 
             } else if (Array.isArray(level)) {
-                categories.push(...level)
+                levelCondition.push(...level);
             } else {
-                categories.push(level)
+                levelCondition.push(level)
             }
 
             enum SortQuery {
@@ -126,19 +128,33 @@ class ExamController {
                 }
             }
 
-            if (categories.length > 0) {
+            let categoryLength = 0;
+
+            if (classCondition.length > 0 || levelCondition.length > 0 || subjectCondition.length > 0) {
                 queryOption.include[0].where = {
                     id: {
-                        [Op.in]: categories,
-                    },
-                };
-                queryOption.group = ['Exam.id'];
-                queryOption.having = sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`);
+                        [Op.or]: [
+                            { [Op.or]: classCondition },
+                            { [Op.or]: levelCondition },
+                            { [Op.or]: subjectCondition }
+                        ]
+                    }
+                }
+                if (levelCondition.length > 0) {
+                    categoryLength++;
+                }
+                if (classCondition.length > 0) {
+                    categoryLength++;
+                }
+                if (subjectCondition.length > 0) {
+                    categoryLength++;
+                }
+                queryOption.group = ['Course.id'];
+                queryOption.having = sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categoryLength}`);
             }
 
-            const count = await Exam.count({
-                ...queryOption,
-                distinct: true
+            const count = await Exam.findAll({
+                ...queryOption
             });
 
             const exams = await Exam.findAll({
@@ -180,7 +196,7 @@ class ExamController {
             }
 
             res.status(200).json({
-                count,
+                count: count.length,
                 exams
             });
         } catch (error: any) {
