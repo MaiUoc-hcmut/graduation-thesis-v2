@@ -366,9 +366,9 @@ class CourseController {
         try {
             const authority = req.authority;
 
-            let status = authority === 0
-                            ? ['public', 'paid']
-                            : ['public', 'paid', 'private']
+            let status = authority === 2
+                            ? ['public', 'paid', 'private']
+                            : ['public', 'paid']
 
             const course = await Course.findOne({
                 where: { id: req.params.courseId },
