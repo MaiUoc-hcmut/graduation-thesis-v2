@@ -7,6 +7,24 @@ import { socketInstance } from "../..";
 
 const { sequelize } = require('../../config/db/index');
 
+declare global {
+    namespace Express {
+        interface Request {
+            teacher?: any;
+            student?: any;
+            admin?: any;
+            user?: USER;
+            getAll?: boolean;
+            authority?: number;
+        }
+        type USER = {
+            user?: any,
+            role?: string,
+        }
+    }
+
+}
+
 class NotificationController {
     // Add name of course, exam and related information when create notification
 
@@ -328,6 +346,8 @@ class NotificationController {
                 body = JSON.parse(body);
             }
 
+            const teacher_name = req.user?.user.data.name;
+
             let { users, ...message } = body;
 
             const io = socketInstance.getIoInstance();
@@ -339,13 +359,15 @@ class NotificationController {
 
             sockets.forEach(socket => {
                 io.to(socket).emit("teacher_send_notification", {
-                    ...message
+                    ...message,
+                    name: teacher_name
                 });
             });
 
             const dataToCreate = users.map((id_user: string) => ({
                 id_user,
-                content: message.message
+                content: message.message,
+                name: teacher_name
             }));
 
             const notifications = await NotificationModel.bulkCreate(dataToCreate);
