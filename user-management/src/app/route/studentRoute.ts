@@ -16,3 +16,5 @@ router.route('/reset-password/:resetToken').put(StudentController.resetPassword)
 router.route('/upload-avatar/:studentId').post(Authorize.protectedAPI, Photo.upload, StudentController.uploadAvatar);
 
 module.exports = router;
+
+export {}

@@ -1,14 +1,29 @@
 const Student = require('../models/student');
 const Teacher = require('../models/teacher');
 const Admin = require('../models/admin');
+const Category = require('../models/category');
 const createError = require('http-errors');
 const SignToken = require('../../utils/jwt');
 const bcrypt = require('bcryptjs');
 
 const axios = require('axios');
 
+import { Request, Response, NextFunction } from 'express';
+
+const sequelize = require('../../config/db');
+
+declare global {
+    namespace Express {
+        interface Request {
+            student?: any;
+            teacher?: any;
+            admin?: any;
+        }
+    }
+}
+
 class Auth {
-    registerStudent = async (req, res, next) => {
+    registerStudent = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { email, password, confirmPassword, name, grade, gender, address } = req.body;
             const existedStudent = await Student.findOne({
@@ -39,7 +54,7 @@ class Auth {
                 refreshToken
             })
 
-        } catch (error) {
+        } catch (error: any) {
             if (error?.code === 11000) {
                 return next(createError.BadRequest('Email already exists'));
             }
@@ -48,38 +63,53 @@ class Auth {
         }
     }
 
-    registerTeacher = async (req, res, next) => {
+    registerTeacher = async (req: Request, res: Response, next: NextFunction) => {
+        const t = await sequelize.transaction();
         try {
-            const { name, email, password, confirmPassword, grade, gender, address, subject, phone } = req.body;
+            const { name, email, password, confirmPassword, gender, address, subjects, phone } = req.body;
             const existedTeacher = await Teacher.findOne({
                 where: { email: email }
             });
             if (existedTeacher) return res.send(createError.Conflict("The email already exist!"));
             if (password !== confirmPassword) return res.send(createError.BadRequest("Password does not match!"));
             const hashPassword = await bcrypt.hash(password, 12);
+
+            const subjectIntances: any[] = [];
+
+            for (const subject of subjects) {
+                const subjectIntance = await Category.findByPk(subject);
+                if (subjectIntance) subjectIntances.push(subjectIntance);
+            }
             const newTeacher = await Teacher.create({
                 email,
                 password: hashPassword,
                 name,
-                grade,
                 gender,
                 address,
-                subject,
                 phone,
                 biostory: '',
                 degree: 'bachelor'
+            }, {
+                transaction: t
+            });
+
+            await newTeacher.addCategories(subjectIntances, {
+                transaction: t
             });
 
             const accessToken = SignToken.signAccessToken(newTeacher.id);
             const refreshToken = SignToken.signRefreshToken(newTeacher.id);
 
+            await t.commit();
+
             res.status(201).send({
                 teacher: newTeacher,
                 accessToken,
                 refreshToken
-            })
+            });
 
-        } catch (error) {
+        } catch (error: any) {
+            await t.rollback();
             if (error?.code === 11000) {
                 return next(createError.BadRequest('Email already exists'));
             }
@@ -88,7 +118,7 @@ class Auth {
         }
     }
 
-    registerAdmin = async (req, res, _next) => {
+    registerAdmin = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const { email, name, password, confirmPassword } = req.body.data;
 
@@ -103,7 +133,7 @@ class Auth {
             }
 
             if (password !== confirmPassword) {
-                res.statu(400).json({
+                res.status(400).json({
                     message: "Password and confirm password does not match!"
                 });
             }
@@ -116,7 +146,7 @@ class Auth {
             });
 
             res.status(201).json(admin);
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
             res.status(500).json({
                 error,
@@ -125,7 +155,7 @@ class Auth {
         }
     }
 
-    loginStudent = async (req, res, _next) => {
+    loginStudent = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const accessToken = SignToken.signAccessToken(req.student.id);
             const refreshToken = SignToken.signRefreshToken(req.student.id);
@@ -142,16 +172,16 @@ class Auth {
                 refreshToken,
                 user
             });
-        } catch (error) {
+        } catch (error: any) {
             console.log(error?.message);
             res.status(500).json({
                 error,
                 message: error.message
-            })
+            });
         }
     }
 
-    loginTeacher = async (req, res, _next) => {
+    loginTeacher = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const accessToken = SignToken.signAccessToken(req.teacher.id);
             const refreshToken = SignToken.signRefreshToken(req.teacher.id);
@@ -168,16 +198,19 @@ class Auth {
                 refreshToken,
                 user
             });
-        } catch (error) {
+        } catch (error: any) {
             console.log(error?.message);
-            res.status(500).json({ error })
+            res.status(500).json({
+                error,
+                message: error.message
+            });
         }
     }
 
-    loginAdmin = async (req, res, _next) => {
+    loginAdmin = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const accessToken = SignToken.signAccessToken(req.student.id);
-            const refreshToken = SignToken.signRefreshToken(req.student.id);
+            const accessToken = SignToken.signAccessToken(req.admin.id);
+            const refreshToken = SignToken.signRefreshToken(req.admin.id);
 
             const admin = req.admin.dataValues;
             const user = {
@@ -191,16 +224,16 @@ class Auth {
                 refreshToken,
                 user
             });
-        } catch (error) {
+        } catch (error: any) {
             console.log(error?.message);
             res.status(500).json({
                 error,
                 message: error.message
-            })
+            });
         }
     }
 
-    refreshToken = async (req, res, next) => {
+    refreshToken = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { parsedRefreshToken } = req.body;
             if (!parsedRefreshToken) return next(createError.BadRequest('Refresh token are required'));
@@ -212,7 +245,7 @@ class Auth {
                 accessToken,
                 refreshToken: refToken,
             });
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
         }
     }

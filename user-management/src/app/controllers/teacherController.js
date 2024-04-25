@@ -6,6 +6,7 @@ const { initializeApp } = require('firebase/app');
 
 const Teacher = require('../models/teacher');
 const Category = require('../models/category');
+const ParentCategory = require('../models/par_category');
 const createError = require('http-errors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -18,46 +19,15 @@ require('dotenv').config();
 initializeApp(firebaseConfig);
 const storage = getStorage();
 
+const { Op } = require('sequelize');
 
 class TeacherController {
 
-    getAllTeacher = async (_req, res, _next) => {
-        try {
-            const teachers = await Teacher.findAll();
-            res.status(200).json(teachers);
-        } catch (error) {
-            console.log(error.message);
-            res.status(400).json({ error: error.message });
-        }
-    }
-
-    getTeacherById = async (req, res, _next) => {
-        try {
-            const id_teacher = req.params.teacherId;
-            const teacher = await Teacher.findByPk(id_teacher);
-
-            if (!teacher) return res.status(404).json({ message: "Teacher not found!" });
-
-            res.status(200).json(teacher);
-        } catch (error) {
-            console.log(error.message);
-            res.status(400).json(error.message);
-        }
-    }
-
-    getFilteredTeacher = async (req, res, _next) => {
+    getAllTeacher = async (req, res, _next) => {
         try {
             const categories = [];
 
-            const { class: _class, subject } = req.query;
-
-            if (!_class) {
-                
-            } else if (Array.isArray(_class)) {
-                categories.push(..._class)
-            } else {
-                categories.push(_class)
-            }
+            const { subject } = req.query;
 
             if (!subject) {
 
@@ -79,21 +49,20 @@ class TeacherController {
                             attributes: [],
                         },
                     },
-                ],
-                group: ['Teacher.id']
+                ]
             }
 
             if (categories.length > 0) {
                 queryOption.include[0].where = {
                     id: {
-                        [Op.in]: categories,
+                        [Op.or]: categories,
                     },
                 }
-                queryOption.having = sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categories.length}`)
             }
 
-            const count = await Teacher.count({
+            const count = await Teacher.findAll({
                 ...queryOption,
+                attributes: ['id'],
                 distinct: true
             });
 
@@ -110,6 +79,27 @@ class TeacherController {
                 const courseServiceInformation = await axios.get(`${process.env.BASE_URL_COURSE_LOCAL}/informations/teacher/${teacher.id}`);
                 const examServiceInformation = await axios.get(`${process.env.BASE_URL_EXAM_LOCAL}/informations/teacher/${teacher.id}`);
 
+                const teacher_category = await Teacher.findOne({
+                    where: { id: teacher.id },
+                    include: [
+                        {
+                            model: Category,
+                            attributes: ['id', 'id_par_category', 'name'],
+                            through: {
+                                attributes: []
+                            }
+                        }
+                    ]
+                })
+
+                for (const category of teacher_category.Categories) {
+                    const parCategory = await ParentCategory.findByPk(category.id_par_category);
+                    category.dataValues[`${parCategory.name}`] = category.name;
+                    delete category.dataValues.name;
+                    delete category.dataValues.id_par_category;
+                }
+                teacher.dataValues.Categories = teacher_category.dataValues.Categories;
+
                 response.push({
                     ...teacher.dataValues,
                     ...courseServiceInformation.data,
@@ -118,8 +108,8 @@ class TeacherController {
             }
 
             res.status(200).json({
-                count,
-                response
+                count: count.length,
+                teachers: response
             });
         } catch (error) {
             console.log(error.message);
@@ -127,6 +117,20 @@ class TeacherController {
                 error,
                 message: error.message
             });
+        }
+    }
+
+    getTeacherById = async (req, res, _next) => {
+        try {
+            const id_teacher = req.params.teacherId;
+            const teacher = await Teacher.findByPk(id_teacher);
+
+            if (!teacher) return res.status(404).json({ message: "Teacher not found!" });
+
+            res.status(200).json(teacher);
+        } catch (error) {
+            console.log(error.message);
+            res.status(400).json(error.message);
         }
     }
 
