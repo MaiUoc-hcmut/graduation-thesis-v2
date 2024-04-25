@@ -103,8 +103,7 @@ class ExamController {
             }
 
             const currentPage: number = +req.params.page;
-
-            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+            const pageSize: number = authority === 2 ? 20 : parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const queryOption: any = {
                 where: { status },
@@ -233,7 +232,7 @@ class ExamController {
                 : ['public', 'paid'];
             const teacherId = req.params.teacherId;
 
-            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+            const pageSize: number = authority === 2 ? 20 : parseInt(process.env.SIZE_OF_PAGE || '10');
             const currentPage: number = +req.params.page;
 
             const { exam: examQuery } = req.query;
@@ -391,10 +390,10 @@ class ExamController {
         const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);
         const index = client.initIndex(process.env.ALGOLIA_INDEX_NAME);
         try {
-            const currentPage: number = +req.params.page;
-            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
-
             const authority = req.authority;
+            const currentPage: number = +req.params.page;
+            const pageSize: number = authority === 2 ? 20 : parseInt(process.env.SIZE_OF_PAGE || '10');
+
 
             const { query, id_teacher } = req.query;
 
@@ -453,7 +452,7 @@ class ExamController {
                 return res.status(400).json({ message: "Questions missed!" });
             }
 
-            if (!pass_score) {
+            if (!pass_score && id_course) {
                 return res.status(400).json({ message: "Pass score missed!" });
             }
 

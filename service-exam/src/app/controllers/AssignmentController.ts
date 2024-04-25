@@ -14,12 +14,22 @@ const { Op } = require('sequelize');
 
 require('dotenv').config();
 
+declare global {
+    namespace Express {
+        interface Request {
+            teacher?: any;
+            student?: any;
+            authority?: number
+        }
+    }
+}
+
 class AssignmentController {
 
     // [GET] /assignments/page/:page
     getAllAssignments = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+            const pageSize: number = 20;
             const currentPage: number = +req.params.page;
 
             let preDate: Date = new Date(0);
@@ -86,9 +96,8 @@ class AssignmentController {
                 ]
             }
 
-            const count = await Assignment.count({
-                ...queryOption,
-                distinct: true
+            const count = await Assignment.findAll({
+                ...queryOption
             });
             const assignments = await Assignment.findAll({
                 ...queryOption,
@@ -97,7 +106,7 @@ class AssignmentController {
                 order: [['createdAt', 'DESC']]
             });
 
-            res.status(200).json({ count, assignments });
+            res.status(200).json({ count: count.length, assignments });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
@@ -110,7 +119,9 @@ class AssignmentController {
         try {
             const id_student = req.params.studentId;
 
-            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+            const authority = req.authority;
+
+            const pageSize: number = authority === 2 ? 20 : parseInt(process.env.SIZE_OF_PAGE || '10');
             const currentPage: number = +req.params.page;
 
             let preDate: Date = new Date(0);
@@ -165,7 +176,8 @@ class AssignmentController {
             const queryOption: any = {
                 where: {
                     passed: status_condition,
-                    createdAt: date_condition
+                    createdAt: date_condition,
+                    id_student
                 },
                 include: [
                     {
@@ -197,7 +209,7 @@ class AssignmentController {
         try {
             const id_teacher = req.params.teacherId;
 
-            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+            const pageSize: number = 20;
             const currentPage: number = +req.params.page;
 
             let preDate: Date = new Date(0);
@@ -304,7 +316,9 @@ class AssignmentController {
             const id_student = req.params.studentId;
             const id_exam = req.params.examId;
 
-            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+            const authority = req.authority;
+
+            const pageSize: number = authority === 2 ? 20 : parseInt(process.env.SIZE_OF_PAGE || '10');
             const currentPage: number = +req.params.page;
 
             let preDate: Date = new Date(0);
@@ -373,7 +387,7 @@ class AssignmentController {
         try {
             const id_exam = req.params.examId;
 
-            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+            const pageSize: number = 20;
             const currentPage: number = +req.params.page;
 
             let preDate: Date = new Date(0);;
@@ -396,7 +410,6 @@ class AssignmentController {
             }
 
             const status = req.query.status;
-            const id_course = req.query.id_course;
 
             let status_condition = [];
 

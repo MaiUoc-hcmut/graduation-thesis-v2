@@ -1,5 +1,5 @@
-const Review = require('../../db/models/review');
-const Course = require('../../db/models/course');
+const Review = require('../../db/model/review');
+const Exam = require('../../db/model/exam');
 
 const axios = require('axios');
 require('dotenv').config();
@@ -21,6 +21,16 @@ const { initializeApp } = require('firebase/app');
 initializeApp(firebaseConfig);
 const storage = getStorage();
 
+declare global {
+    namespace Express {
+        interface Request {
+            ImageUrl: string;
+            user?: USER
+        }
+    
+    }
+}
+
 class ReviewController {
 
     // [GET] /reviews
@@ -35,39 +45,10 @@ class ReviewController {
         }
     }
 
-
-    // [GET] /reviews/basic/teacher/:teacherId
-    getBasicReviewInforOfTeacher = async (req: Request, res: Response, _next: NextFunction) => {
+    // [GET] /reviews/exam/:examId/page/:page
+    getReviewsForExam = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const id_teacher = req.params.teacherId;
-            const reviews = await Review.findAll({
-                where: { id_teacher },
-                attributes: ['rating']
-            });
-
-            const total_review = reviews.length;
-            let total_rating = 0;
-
-            for (const review of reviews) {
-                total_rating += review.rating;
-            }
-
-            const average_rating = total_rating / total_review;
-
-            res.status(200).json({
-                total_rating,
-                average_rating
-            });
-        } catch (error: any) {
-            console.log(error.message);
-            res.status(500).json({ error, message: error.message });
-        }
-    }
-
-    // [GET] /reviews/course/:courseId/page/:page
-    getReviewsForCourse = async (req: Request, res: Response, _next: NextFunction) => {
-        try {
-            const id_course = req.params.courseId;
+            const id_exam = req.params.examId;
 
             const currentPage: number = +req.params.page;
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
@@ -113,23 +94,23 @@ class ReviewController {
             }
 
             const count = await Review.findAll({
-                where: { id_course, createdAt: date_condition, rating: rating_condition }
+                where: { id_exam, createdAt: date_condition, rating: rating_condition }
             });
 
             const reviews = await Review.findAll({
-                where: { id_course, createdAt: date_condition, rating: rating_condition },
+                where: { id_exam, createdAt: date_condition, rating: rating_condition },
                 limit: pageSize,
                 offset: pageSize * (currentPage - 1)
             });
 
             let totalRating = 0;
-            let starCount: { [key: number]: number } = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+            let starCount: { [key: number]: number } = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
 
             for (const review of reviews) {
                 totalRating += review.rating;
                 starCount[review.rating]++;
-
-                const user = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${review.id_student}`);
+                
+                const user = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/student/${review.id_student}`);
 
                 review.dataValues.user = { avatar: user.data.avatar, name: user.data.name };
             }
@@ -145,60 +126,6 @@ class ReviewController {
 
             let response = {
                 count: count.length,
-                reviews,
-                averageRating: totalRating / reviews.length,
-                starDetails
-            }
-
-            res.status(200).json(response);
-        } catch (error: any) {
-            console.log(error.message);
-            res.status(500).json({ error });
-        }
-    }
-
-    // [GET] /reviews/exam/:examId/page/:page
-    getReviewsForExam = async (req: Request, res: Response, _next: NextFunction) => {
-        try {
-            const id_exam = req.params.examId;
-
-            const currentPage: number = +req.params.page;
-
-            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
-
-            const count = await Review.count({
-                where: { id_exam }
-            });
-
-            const reviews = await Review.findAll({
-                where: { id_exam },
-                limit: pageSize,
-                offset: pageSize * (currentPage - 1)
-            });
-
-            let totalRating = 0;
-            let starCount: { [key: number]: number } = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-
-            for (const review of reviews) {
-                totalRating += review.rating;
-                starCount[review.rating]++;
-
-                const user = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${review.id_student}`);
-
-                review.dataValues.user = { avatar: user.data.avatar, name: user.data.name };
-            }
-
-            let starDetails: { [key: string]: { quantity: number, percentage: number } } = {};
-
-            for (let i = 1; i <= 5; i++) {
-                starDetails[`${i}star`] = {
-                    quantity: starCount[i],
-                    percentage: (starCount[i] / reviews.length) * 100
-                };
-            }
-
-            let response = {
-                count,
                 reviews,
                 averageRating: totalRating / reviews.length,
                 starDetails
@@ -231,7 +158,7 @@ class ReviewController {
             const id_student = req.params.studentId;
 
             const currentPage: number = +req.params.page;
-
+            
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const count = await Review.count({
@@ -276,34 +203,26 @@ class ReviewController {
                 body = JSON.parse(body);
             }
 
-            const course = await Course.findByPk(body.id_course);
-
-            let total_review: number = course.total_review;
-            let average_rating: number = course.average_rating;
+            const exam = await Exam.findByPk(body.id_exam);
+            let total_review: number = exam.total_review;
+            let average_rating: number = exam.average_rating;
 
             const review = await Review.findOne({
                 where: {
                     id_student,
-                    id_course: body.id_course
+                    id_exam: body.id_exam
                 }
             });
 
             if (review) {
                 const deletedRating = review.rating;
-                average_rating = ((course.average_rating * course.total_review) - deletedRating + body.rating) / total_review;
+                average_rating = ((exam.average_rating * exam.total_review) - deletedRating + body.rating) / total_review;
                 await review.destroy({ transaction: t });
             } else {
-                total_review = course.total_review + 1;
-                average_rating = ((course.average_rating * course.total_review) + body.rating) / total_review;
+                total_review = exam.total_review + 1;
+                average_rating = ((exam.average_rating * exam.total_review) + body.rating) / total_review;
             }
-
-            await course.update({
-                total_review,
-                average_rating: average_rating,
-            }, {
-                transaction: t
-            });
-
+            
             const newReview = await Review.create({
                 id_student,
                 ...body
@@ -328,24 +247,24 @@ class ReviewController {
 
             if (file) {
                 const dateTime = fileUpload.giveCurrentDateTime();
-
+    
                 const storageRef = ref(
                     storage,
                     `reviews/${file?.originalname + '       ' + dateTime}`
                 );
-
+    
                 // Create file metadata including the content type
                 const metadata = {
                     contentType: file?.mimetype,
                 };
-
+    
                 // Upload the file in the bucket storage
                 const snapshot = await uploadBytesResumable(
                     storageRef,
                     file?.buffer,
                     metadata
                 );
-
+    
                 // Grab the public url
                 const downloadURL = await getDownloadURL(snapshot.ref);
                 req.ImageUrl = downloadURL;

@@ -5,6 +5,7 @@ const knowledgeRouter = require('./knowledge');
 const errorRouter = require('./error');
 const reportRouter = require('./report');
 const informationRouter = require('./information');
+const reviewRouter = require('./review');
 
 function route(app: any) {
     app.use('/api/v1/exams', examRouter);
@@ -14,6 +15,7 @@ function route(app: any) {
     app.use('/api/v1/errors', errorRouter);
     app.use('/api/v1/reports', reportRouter);
     app.use('/api/v1/informations', informationRouter);
+    app.use('/api/v1/reviews', reviewRouter);
 }
 
 module.exports = route;

@@ -85,8 +85,6 @@ declare global {
 }
 
 class CourseController {
-    // If student have bought the course or the course already in the cart, do not let student add course to the cart and 
-    // response for FE know student have bought the course or add the course to cart
 
     // Get all courses
     // [GET] /courses/page/:page
@@ -198,8 +196,7 @@ class CourseController {
             }
 
             const currentPage: number = +req.params.page;
-
-            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+            const pageSize: number = authority === 2 ? 20 : parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const queryOption: any = {
                 where: {
@@ -550,7 +547,7 @@ class CourseController {
             }
 
             const currentPage: number = +req.params.page;
-            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+            const pageSize: number = authority === 2 ? 20 : parseInt(process.env.SIZE_OF_PAGE || '10');
 
             // Count all the record that match the condition
             const count = await Course.count({

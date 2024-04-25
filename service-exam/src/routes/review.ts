@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const reviewController = require("../app/controllers/ReviewController");
 const Authorize = require('../app/middleware/authorize');
-const CheckingReview = require('../app/middleware/review');
 const FileUpload = require('../config/firebase/fileUpload');
+const CheckingReview = require('../app/middleware/review');
 
 router.route('/')
     .get(reviewController.getAllReviews)
@@ -26,10 +26,9 @@ router.route('/:reviewId')
 router.route('/student/:studentId/page/:page')
     .get(reviewController.getReviewsBelongToStudent);
 
-router.route('/basic/teacher/:teacherId')
-    .get(reviewController.getBasicReviewInforOfTeacher);
-
-router.route('/course/:courseId/page/:page')
-    .get(reviewController.getReviewsForCourse);
+router.route('/exam/:examId/page/:page')
+    .get(reviewController.getReviewsForExam);
 
 module.exports = router;
+
+export {}

@@ -55,9 +55,21 @@ Teacher.init(
       allowNull: false,
       defaultValue: true,
     },
-    // rating: {
-    //   type: DataTypes.FLOAT
-    // },
+    total_review: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      defaultValue: 0,
+      allowNull: false,
+    },
+    average_rating: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0,
+      allowNull: false,
+    },
+    total_registration: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      defaultValue: 0,
+      allowNull: false,
+    },
     createdAt: {
       type: DataTypes.TIME,
       allowNull: false,
