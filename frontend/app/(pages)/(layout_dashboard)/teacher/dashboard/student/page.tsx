@@ -34,9 +34,9 @@ export default function FinanceDashboard() {
     const { user } = useAppSelector(state => state.authReducer);
     useEffect(() => {
         async function fetchData() {
-            // await courseApi.getAllStudenBuyCourseOfTeacher(`${user.id}`, page).then((data: any) => {
-            //     setStudents(data.data)
-            // }).catch((err: any) => { })
+            await courseApi.getAllStudenBuyCourseOfTeacher(`${user.id}`, `${page}`).then((data: any) => {
+                setStudents(data.data)
+            }).catch((err: any) => { })
         }
         fetchData()
 

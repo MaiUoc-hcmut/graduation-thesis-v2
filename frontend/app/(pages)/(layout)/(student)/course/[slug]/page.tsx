@@ -441,33 +441,41 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                     <span className='text-3xl text-primary font-bold'>{formatCash(`${course?.price}`)} VNĐ</span>
                                 </div>
                                 <div className='mt-5 flex flex-col'>
-                                    <button onClick={async () => {
+                                    {
+                                        course?.cart_or_bought ? (
+                                            course?.cart_or_bought === 'bought' ?
+                                                <Link href={`/course/learning/${course.id}`} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Đi đến trang học</Link>
+                                                : <button disabled className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Khóa học đã được thêm vào giỏ hàng</button>
+                                        )
+                                            : <button onClick={async () => {
 
-                                        await paymentApi.addToCart(course?.id).then(() => {
-                                            toast.success('Thêm vào giỏ hàng thành công', {
-                                                position: "bottom-right",
-                                                autoClose: 800,
-                                                hideProgressBar: false,
-                                                closeOnClick: true,
-                                                pauseOnHover: true,
-                                                draggable: true,
-                                                progress: undefined,
-                                                theme: "colored",
-                                            });
-                                        }).catch((err) => {
-                                            toast.error('Đã xảy ra lỗi khi thêm vào giỏ hàng', {
-                                                position: "bottom-right",
-                                                autoClose: 800,
-                                                hideProgressBar: false,
-                                                closeOnClick: true,
-                                                pauseOnHover: true,
-                                                draggable: true,
-                                                progress: undefined,
-                                                theme: "colored",
-                                            });
-                                        })
+                                                await paymentApi.addToCart(course?.id).then(() => {
+                                                    toast.success('Thêm vào giỏ hàng thành công', {
+                                                        position: "bottom-right",
+                                                        autoClose: 800,
+                                                        hideProgressBar: false,
+                                                        closeOnClick: true,
+                                                        pauseOnHover: true,
+                                                        draggable: true,
+                                                        progress: undefined,
+                                                        theme: "colored",
+                                                    });
+                                                }).catch((err) => {
+                                                    toast.error('Đã xảy ra lỗi khi thêm vào giỏ hàng', {
+                                                        position: "bottom-right",
+                                                        autoClose: 800,
+                                                        hideProgressBar: false,
+                                                        closeOnClick: true,
+                                                        pauseOnHover: true,
+                                                        draggable: true,
+                                                        progress: undefined,
+                                                        theme: "colored",
+                                                    });
+                                                })
 
-                                    }} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Thêm vào giỏ hàng</button>
+                                            }} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Thêm vào giỏ hàng</button>
+                                    }
+
                                 </div>
                                 <div className='mt-9'>
                                     <strong className='text-[#343434]'>Khóa học này bao gồm</strong>

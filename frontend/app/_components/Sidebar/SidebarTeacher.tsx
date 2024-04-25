@@ -174,8 +174,8 @@ export default function SidebarTeacher() {
                                 <button
                                     type="button"
                                     className="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                                    aria-controls="exam"
-                                    data-collapse-toggle="exam"
+                                    aria-controls="student"
+                                    data-collapse-toggle="student"
                                 >
                                     <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">
                                         Quản lý học sinh
@@ -196,7 +196,7 @@ export default function SidebarTeacher() {
                                         />
                                     </svg>
                                 </button>
-                                <ul id="exam" className="hidden py-2 space-y-2">
+                                <ul id="student" className="hidden py-2 space-y-2">
                                     <li>
                                         <Link
                                             href="/teacher/dashboard/student"

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const NotificationController = require('../app/controllers/NotifyController');
+const Authorize = require('../app/middleware/authorize');
 
 router.route('/create-course')
     .get(NotificationController.notifyCreateCourse);
@@ -28,7 +29,7 @@ router.route('/get-noti/:userId/page/:page')
     .get(NotificationController.getNotificationOfUser);
 
 router.route('/teacher-send')
-    .post(NotificationController.teacherSendNotification);
+    .post(Authorize.authorizeTeacher, NotificationController.teacherSendNotification);
 
 router.route('/payment')
     .get(NotificationController.notifyPayment);

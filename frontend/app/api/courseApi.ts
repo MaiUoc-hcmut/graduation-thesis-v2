@@ -142,8 +142,16 @@ const courseApi = {
         const url = `/topicsforum/${id_topic}/page/${page}`;
         return axiosConfig.get(url)
     },
-    getAllStudenBuyCourseOfTeacher: (id_course: string, id_teacher: string, page: string) => {
+    getAllStudenBuyCourseOfTeacher: (id_teacher: string, page: string) => {
+        const url = `/courses/all-student/teacher/${id_teacher}/page/${page}`;
+        return axiosConfig.get(url);
+    },
+    getAllStudenBuySpecificCourseOfTeacher: (id_course: string, id_teacher: string, page: string) => {
         const url = `/courses/all-student/teacher/${id_teacher}/page/${page}?id_course=${id_course}`;
+        return axiosConfig.get(url);
+    },
+    getAllStudenBuySpecificCourse: (id_course: string, page: string) => {
+        const url = `/courses/${id_course}/student-course/page/${page}`;
         return axiosConfig.get(url);
     },
 

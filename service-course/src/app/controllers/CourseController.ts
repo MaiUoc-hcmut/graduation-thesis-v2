@@ -366,9 +366,9 @@ class CourseController {
         try {
             const authority = req.authority;
 
-            let status = authority === 0
-                ? ['public', 'paid']
-                : ['public', 'paid', 'private']
+            let status = authority === 2
+                ? ['public', 'paid', 'private']
+                : ['public', 'paid']
 
             const course = await Course.findOne({
                 where: { id: req.params.courseId },
@@ -467,8 +467,13 @@ class CourseController {
             course.dataValues.authority = authority;
             course.dataValues.apparentDuration = apparentDuration;
 
-            if (req.authority === 1) {
+            if (authority === 1) {
                 course.dataValues.added = true;
+                course.dataValues.cart_or_bought = "bought";
+            }
+            if (authority === -1) {
+                course.dataValues.added = true;
+                course.dataValues.cart_or_bought = "cart";
             }
 
             res.status(200).json(course);

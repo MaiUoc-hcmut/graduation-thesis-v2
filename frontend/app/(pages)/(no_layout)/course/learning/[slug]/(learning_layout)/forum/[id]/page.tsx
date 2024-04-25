@@ -8,7 +8,7 @@ import { useForm, SubmitHandler, Controller } from "react-hook-form"
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import { formatDateTime } from '@/app/helper/FormatFunction';
 
-export default function TopicPage({ params }: { params: { id: string } }) {
+export default function TopicPage({ params }: { params: { id: string, slug: string } }) {
     const [topic, setTopic] = useState<any>()
     const [toggle, setToggle] = useState<any>({})
     const [change, setChange] = useState(false)
@@ -44,38 +44,15 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                 <div className='bg-white rounded-[10px] p-4'>
                     <section className='rounded-lg border-[1px] border-[#ececec] p-3 flex flex-col justify-center'>
                         <h3 className='text-xl text-secondary font-bold'>{topic?.title}</h3>
-                        <span className='mt-2 text-[#818894] text-sm'>By <span className='font-bold'>Cameron Schofield</span> in {formatDateTime(topic?.createdAt)}</span>
+                        <span className='mt-2 text-[#818894] text-sm'>Tạo bởi <span className='font-bold'>{topic?.author?.name}</span> in {formatDateTime(topic?.createdAt)}</span>
                         <nav className="flex mt-2 text-[#818894]" aria-label="Breadcrumb">
                             <ol className="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
-                                <li className="inline-flex items-center">
-                                    <Link
-                                        href="#"
-                                        className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
-                                    >
-
-                                        Khóa học
-                                    </Link>
-                                </li>
                                 <li>
                                     <div className="flex items-center">
-                                        <svg
-                                            className="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1"
-                                            aria-hidden="true"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 6 10"
-                                        >
-                                            <path
-                                                stroke="currentColor"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="m1 9 4-4-4-4"
-                                            />
-                                        </svg>
+
                                         <Link
-                                            href="#"
-                                            className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white"
+                                            href={`/course/learning/${params.slug}/forum`}
+                                            className="text-sm font-medium text-gray-700 hover:text-blue-500  dark:text-gray-400 dark:hover:text-white"
                                         >
                                             Thảo luận
                                         </Link>
@@ -131,7 +108,6 @@ export default function TopicPage({ params }: { params: { id: string } }) {
                                         </div>
                                     </div>
                                     <div className='ml-7 w-4/5'>
-                                        <p className='text-black text-sm font-semibold'>{topic?.title}</p>
                                         <p className='text-[#818894] text-sm mt-5'>{topic?.description}</p>
                                         {
                                             topic?.file ?
