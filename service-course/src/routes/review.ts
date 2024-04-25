@@ -26,9 +26,6 @@ router.route('/:reviewId')
 router.route('/student/:studentId/page/:page')
     .get(reviewController.getReviewsBelongToStudent);
 
-router.route('/teacher/:teacherId/page/:page')
-    .get(reviewController.getReviewsForTeacher);
-
 router.route('/basic/teacher/:teacherId')
     .get(reviewController.getBasicReviewInforOfTeacher);
 

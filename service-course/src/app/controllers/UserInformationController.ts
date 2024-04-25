@@ -14,34 +14,9 @@ class UserInformationController {
             const courses = await Course.findAll({
                 where: { id_teacher }
             });
-
-            let total_registration = 0;
-            for (const course of courses) {
-                let registrations = await StudentCourse.count({
-                    where: {
-                        id_course: course.id
-                    }
-                });
-                total_registration += registrations;
-            }
-
-            const reviews = await Review.findAll({
-                where: { id_teacher }
-            });
-
-            const total_reviews = reviews.length;
-            let total_rating = 0;
-            for (const review of reviews) {
-                total_rating += review.rating;
-            }
-
-            const average_rating = total_rating / total_reviews;
-
+            
             res.status(200).json({
-                total_reviews,
-                average_rating,
-                course_quantity: courses.length,
-                total_registration
+                course_quantity: courses.length
             });
         } catch (error: any) {
             console.log(error.message);

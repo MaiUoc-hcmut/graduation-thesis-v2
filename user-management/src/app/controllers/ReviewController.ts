@@ -285,12 +285,27 @@ class ReviewController {
 
     // [DELETE] /reviews/:reviewId
     deleteReview = async (req: Request, res: Response, _next: NextFunction) => {
+        const t = await sequelize.transaction();
         try {
             const review = await Review.findByPk(req.params.reviewId);
 
             if (!review) return res.status(404).json({ message: "Review does not exist" });
 
-            await review.destroy();
+            const teacher = await Teacher.findByPk(review.id_teacher);
+
+            const pre_total_review = teacher.total_review;
+            const pre_average_rating = teacher.average_rating;
+            const pre_total_rating = pre_average_rating * pre_total_review;
+
+            if (pre_total_review === 1) await teacher.update({ total_review: 0, average_rating: 0 });
+            else {
+                const average_rating = (pre_total_rating - review.rating) / (pre_total_review - 1);
+                await teacher.update({ total_review: pre_average_rating - 1, average_rating }, { transaction: t });
+            }
+
+            await review.destroy({ transaction: t });
+
+            await t.commit();
 
             res.status(200).json({
                 id: req.params.reviewId,
@@ -299,6 +314,8 @@ class ReviewController {
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
+
+            await t.rollback();
         }
     }
 }
