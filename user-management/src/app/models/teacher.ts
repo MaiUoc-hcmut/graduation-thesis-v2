@@ -39,18 +39,6 @@ Teacher.init(
     address: DataTypes.STRING,
     avatar: DataTypes.STRING,
     gender: DataTypes.STRING(10),
-    grade: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      validate: {
-        min: 10,
-        max: 12,
-      },
-    },
-    subject: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-    },
     biostory: {
       type: DataTypes.STRING(1000),
       allowNull: false,

@@ -69,12 +69,10 @@ export default function CreateNotify() {
 
             <form onSubmit={handleSubmit(async (data: any) => {
                 let studentIds: any = []
-                if (isAllStudent)
+                if (isAllStudent || currentCourse === 'all_course')
                     studentIds = students?.map((student: any) => student.id) || [];
                 else
                     studentIds = Object.keys(listStudent).filter(key => listStudent[key]) || students?.map((student: any) => student.id);
-
-                console.log(currentCourse, studentIds, data.content);
 
                 const formData = {
                     data: {

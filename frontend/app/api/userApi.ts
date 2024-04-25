@@ -2,7 +2,7 @@ import axiosConfig from "@/redux/axios.config"
 
 const userApi = {
     getAllTeacher: (filterstring: string) => {
-        const url = `/teacher/filter/page/1?${filterstring}`;
+        const url = `/teacher/page/1?${filterstring}`;
         return axiosConfig.get(url);
     },
 

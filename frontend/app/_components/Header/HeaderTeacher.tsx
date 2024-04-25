@@ -109,7 +109,7 @@ export default function HeaderTeacher() {
                                         className="z-20 hidden w-96 max-w-sm bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-800 dark:divide-gray-700"
                                         aria-labelledby="dropdownNotificationButton"
                                     >
-                                        <div className="divide-y divide-gray-100 overflow-y-scroll h-auto">
+                                        <div className="divide-y divide-gray-100 overflow-y-scroll h-[400px]">
                                             {
                                                 notifycations?.map((notify: any, index: any) => {
                                                     return (

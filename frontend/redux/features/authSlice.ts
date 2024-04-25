@@ -16,7 +16,7 @@ interface SignUpData {
     grade: number,
 }
 
-export const signup = createAsyncThunk('auth/register', async (user: SignUpData, thunkAPI) => {
+export const signup: any = createAsyncThunk('auth/register', async (user: SignUpData, thunkAPI) => {
     try {
         const response = await axiosConfig.post('auth/register', user);
         if (response.data) {

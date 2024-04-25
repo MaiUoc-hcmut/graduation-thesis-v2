@@ -127,7 +127,6 @@ export default function CreateExam() {
                         <form className="space-y-6" onSubmit={handleSubmit(async (dataForm: any) => {
                             if (!(Object.entries(errors).length === 0)) return
                             setQuestions(dataForm.questions)
-
                             setModal({ ...modal, [`add_question`]: false })
                         })}>
 
@@ -147,7 +146,7 @@ export default function CreateExam() {
                                                     required: "Tiêu đề câu hỏi không thể thiếu."
                                                 })}
                                             /> */}
-                                            {/* <CustomCKEditor className="h-50" setValue={setValue} value="" position={`questions.${indexQuestion}.content_text`} /> */}
+                                            <CustomCKEditor className="h-50" setValue={setValue} value="" position={`questions.${indexQuestion}.content_text`} />
 
                                             <div className="mt-2 text-sm text-red-600 dark:text-red-500">
                                                 {errors?.questions?.[indexQuestion]?.content_text?.message}
@@ -263,6 +262,7 @@ export default function CreateExam() {
                         data1.categories.push(dataForm.grade)
                         data1.categories.push(dataForm.subject)
                         data1.categories.push(dataForm.level)
+                        data1.pass_score = 8
                         setExamData(dataForm)
                         if (submit) {
                             await examApi.create({ data: data1 }).catch((err: any) => { })
@@ -405,7 +405,7 @@ export default function CreateExam() {
                                                     <input
                                                         id="inline-radio"
                                                         type="radio"
-                                                        defaultChecked
+
                                                         {...register(`status`)}
                                                         value="public"
                                                         className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
@@ -415,6 +415,22 @@ export default function CreateExam() {
                                                         className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                                                     >
                                                         Công khai
+                                                    </label>
+                                                </div>
+                                                <div className="flex items-center me-4" >
+                                                    <input
+                                                        id="inline-radio"
+                                                        type="radio"
+                                                        defaultChecked
+                                                        {...register(`status`)}
+                                                        value="paid"
+                                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                    />
+                                                    <label
+                                                        htmlFor="inline-radio"
+                                                        className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                    >
+                                                        Tính phí
                                                     </label>
                                                 </div>
                                                 <div className="flex items-center me-4">
@@ -512,7 +528,7 @@ export default function CreateExam() {
                         </div>
                     </div>
 
-                    <div className="flex flex-row justify-between mt-5 pt-4 border-t-[1px] border-[#ececec]">
+                    <div className="flex flex-row justify-end mt-5 pt-4 border-t-[1px] border-[#ececec]">
                         <button onClick={() => setSubmit(true)} type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover">Hoàn thành</button>
                     </div>
                 </form>

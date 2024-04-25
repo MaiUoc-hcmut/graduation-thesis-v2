@@ -327,67 +327,70 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                         <div className="text-[#171347] font-bold flex items-center after:content-[''] after:flex after:grow after:shrink after:basis-4 after:h-[2px] after:ml-[10px] after:bg-[#f1f1f1]">
                                             Đánh giá ({reviews.length})
                                         </div>
-                                        <form onSubmit={handleSubmit(async (dataReview) => {
-                                            if (rating == 0) return
-                                            const formData = {
-                                                data: {
-                                                    ...dataReview,
-                                                    "id_course": params.slug,
-                                                    rating,
-                                                    "object": "course"
+                                        {
+                                            course?.cart_or_bought === 'bought' ? <form onSubmit={handleSubmit(async (dataReview) => {
+                                                if (rating == 0) return
+                                                const formData = {
+                                                    data: {
+                                                        ...dataReview,
+                                                        "id_course": params.slug,
+                                                        rating,
+                                                        "object": "course"
+                                                    }
                                                 }
-                                            }
-                                            await courseApi.createReview(formData).catch((err: any) => { })
-                                            reset()
-                                            setRating(0)
-                                            setChangeData(!changeData)
+                                                await courseApi.createReview(formData).catch((err: any) => { })
+                                                reset()
+                                                setRating(0)
+                                                setChangeData(!changeData)
 
-                                        })} className="flex flex-col items-start mt-5">
-                                            <div className=''>
-                                                <div className='flex items-center mb-4'>
-                                                    <div className=''>
-                                                        <Image
-                                                            src={`${user.avatar ? user.avatar : '/images/avatar.png'}`}
-                                                            width={40}
-                                                            height={40}
-                                                            className='w-10 h-10 rounded-full'
-                                                            alt="logo"
-                                                        />
-                                                    </div>
-                                                    <div className='flex flex-col ml-2'>
-                                                        <span className='font-medium text-secondary'>
-                                                            {user.name}
-                                                        </span>
-                                                        <div className="flex items-center">
-                                                            {[1, 2, 3, 4, 5].map((star) => (
-                                                                <StarIcon
-                                                                    key={star}
-                                                                    className={`h-5 w-5 cursor-pointer ${(hoverRating || rating) >= star ? 'text-yellow-300' : 'text-gray-300'
-                                                                        }`}
-                                                                    onMouseEnter={() => handleHover(star)}
-                                                                    onMouseLeave={() => handleHover(0)}
-                                                                    onClick={() => setRating(star)}
-                                                                />
-                                                            ))}
+                                            })} className="flex flex-col items-start mt-5">
+                                                <div className=''>
+                                                    <div className='flex items-center mb-4'>
+                                                        <div className=''>
+                                                            <Image
+                                                                src={`${user.avatar ? user.avatar : '/images/avatar.png'}`}
+                                                                width={40}
+                                                                height={40}
+                                                                className='w-10 h-10 rounded-full'
+                                                                alt="logo"
+                                                            />
+                                                        </div>
+                                                        <div className='flex flex-col ml-2'>
+                                                            <span className='font-medium text-secondary'>
+                                                                {user.name}
+                                                            </span>
+                                                            <div className="flex items-center">
+                                                                {[1, 2, 3, 4, 5].map((star) => (
+                                                                    <StarIcon
+                                                                        key={star}
+                                                                        className={`h-5 w-5 cursor-pointer ${(hoverRating || rating) >= star ? 'text-yellow-300' : 'text-gray-300'
+                                                                            }`}
+                                                                        onMouseEnter={() => handleHover(star)}
+                                                                        onMouseLeave={() => handleHover(0)}
+                                                                        onClick={() => setRating(star)}
+                                                                    />
+                                                                ))}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <textarea
-                                                placeholder="Nhập đánh giá của bạn..."
-                                                {...register("content")}
-                                                className="w-full p-2 border rounded focus:ring-0 focus:border-primary_border"
-                                                rows={4}
-                                            ></textarea>
-                                            <button
-                                                type="submit"
+                                                <textarea
+                                                    placeholder="Nhập đánh giá của bạn..."
+                                                    {...register("content")}
+                                                    className="w-full p-2 border rounded focus:ring-0 focus:border-primary_border"
+                                                    rows={4}
+                                                ></textarea>
+                                                <button
+                                                    type="submit"
 
-                                                className="mt-3 px-4 py-2 bg-primary text-white rounded hover:bg-primary_hover"
-                                            >
-                                                Đánh giá
-                                            </button>
-                                        </form>
-                                        <div className='mt-12'>
+                                                    className="mt-3 px-4 py-2 bg-primary text-white rounded hover:bg-primary_hover"
+                                                >
+                                                    Đánh giá
+                                                </button>
+                                            </form> : null
+                                        }
+
+                                        <div className='mt-5'>
                                             {
                                                 reviews?.map((review: any) => (
                                                     <div key={review.id} className="bg-white px-4 py-4 mb-5 border rounded-lg shadow-md">
@@ -445,7 +448,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                         course?.cart_or_bought ? (
                                             course?.cart_or_bought === 'bought' ?
                                                 <Link href={`/course/learning/${course.id}`} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Đi đến trang học</Link>
-                                                : <button disabled className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Khóa học đã được thêm vào giỏ hàng</button>
+                                                : <button disabled className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Đã thêm vào giỏ hàng</button>
                                         )
                                             : <button onClick={async () => {
 

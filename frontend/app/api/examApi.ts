@@ -10,15 +10,11 @@ const examApi = {
         return axiosConfig.get(url);
     },
 
-    getAll: () => {
-        const url = '/courses';
-        return axiosConfig.get(url);
-    },
-
     get: async (id: string) => {
         const url = `/exams/full/${id}`;
         return await axiosConfig.get(url);
     },
+
     searchExam: async (query: string) => {
         const url = `/exams/search/page/1?query=${query}`;
         return await axiosConfig.get(url);
@@ -29,8 +25,12 @@ const examApi = {
         return await axiosConfig.get(url);
     },
 
-    getAssigmnentByTeacherId: async (id_teacher: string, page: number, filterString: string) => {
-        const url = `/assignments/teacher/${id_teacher}/page/${page}?${filterString}`;
+    getAssigmnentOfQuizzByTeacherId: async (id_teacher: string, page: number, filterString: string) => {
+        const url = `/assignments/teacher/${id_teacher}/page/${page}?${filterString}exam=false`;
+        return await axiosConfig.get(url);
+    },
+    getAssigmnentOfExamByTeacherId: async (id_teacher: string, page: number, filterString: string) => {
+        const url = `/assignments/teacher/${id_teacher}/page/${page}?${filterString}exam=true`;
         return await axiosConfig.get(url);
     },
 
