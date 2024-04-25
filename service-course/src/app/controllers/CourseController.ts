@@ -196,8 +196,7 @@ class CourseController {
             }
             
             const currentPage: number = +req.params.page;
-            
-            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+            const pageSize: number = authority === 2 ? 20 : parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const queryOption: any = {
                 where: {
@@ -548,7 +547,7 @@ class CourseController {
             }
 
             const currentPage: number = +req.params.page;
-            const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
+            const pageSize: number = authority === 2 ? 20 : parseInt(process.env.SIZE_OF_PAGE || '10');
 
             // Count all the record that match the condition
             const count = await Course.count({

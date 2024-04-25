@@ -21,6 +21,7 @@ class CheckingAssignment {
         try {
             const id_student = req.params.studentId;
             const id_assignment = req.params.assignmentId;
+            const id_exam = req.params.examId;
 
             const id_user = req.user?.user?.data.id;
             const role = req.user?.role;
@@ -45,6 +46,23 @@ class CheckingAssignment {
                     let error = "You do not have permission to get this data!";
                     return next(createError.Unauthorized(error));
                 }
+
+                if (role === "admin" || id_user === exam.id_teacher) req.authority = 2;
+            }
+
+            // For API get assignment of exam
+            if (id_exam) {
+                const exam = await Exam.findByPk(id_exam);
+                if (!exam) {
+                    let error = "Exam does not exist!";
+                    return next(createError.BadRequest(error));
+                }
+                if (role !== admin && id_user !== id_student) {
+                    let error = "You do not have permission to get this data!";
+                    return next(createError.Unauthorized(error));
+                }
+
+                if (role === "admin") req.authority = 2;
             }
             next();
         } catch (error: any) {

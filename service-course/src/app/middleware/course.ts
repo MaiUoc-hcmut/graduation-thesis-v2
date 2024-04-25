@@ -46,6 +46,20 @@ class CheckingCourse {
         }
     }
 
+    checkGetCourseCreatedByTeacher = async (req: Request, _res: Response, next: NextFunction) => {
+        try {
+            if (req.authority === 0) next();
+            const id_user = req.user?.user.data.id;
+            const role = req.user?.role;
+            const id_teacher = req.params.teacherId;
+
+            if (id_user === id_teacher || role === "admin") req.authority = 2;
+        } catch (error: any) {
+            console.log(error.message);
+            next(createError.InternalServerError(error.message));
+        }
+    }
+
     checkExistedCourse = async (req: Request, _res: Response, next: NextFunction) => {
         try {
             const id_course = req.params.courseId;

@@ -9,7 +9,7 @@ router.route('/')
     .post(Authorize.verifyStudent, AssignmentController.submitAssignment);
 
 router.route('/page/:page')
-    .get(AssignmentController.getAllAssignments)
+    .get(Authorize.verifyAdmin, AssignmentController.getAllAssignments)
 
 router.route('/full/:assignmentId')
     .get(Authorize.verifyUser, CheckingAssignment.checkGetAssignmentsOfStudent, AssignmentController.getDetailOfAssignment);
