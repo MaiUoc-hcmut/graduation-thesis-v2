@@ -48,7 +48,7 @@ class AssignmentController {
             }
 
             const status = req.query.status;
-            let id_course;
+            let id_course: any = null;
 
             let status_condition = [];
 
@@ -75,16 +75,15 @@ class AssignmentController {
                 where: {
                     passed: status_condition,
                     createdAt: date_condition
-                }
-            }
-
-            if (id_course && typeof id_course === "string") {
-                queryOption.include = [{
-                    model: Exam,
-                    where: {
-                        id_course
+                },
+                include: [
+                    {
+                        model: Exam,
+                        where: {
+                            id_course
+                        }
                     }
-                }];
+                ]
             }
 
             const count = await Assignment.count({
@@ -140,7 +139,7 @@ class AssignmentController {
             }
 
             const status = req.query.status;
-            let id_course;
+            let id_course: any = null;
 
             let status_condition = [];
 
@@ -166,13 +165,16 @@ class AssignmentController {
             const queryOption: any = {
                 where: {
                     passed: status_condition,
-                    createdAt: date_condition,
-                    id_student
-                }
-            }
-
-            if (id_course && typeof id_course === "string") {
-                queryOption.include[0].where.id_course = id_course;
+                    createdAt: date_condition
+                },
+                include: [
+                    {
+                        model: Exam,
+                        where: {
+                            id_course
+                        }
+                    }
+                ]
             }
 
             const count = await Assignment.count(queryOption);
@@ -594,6 +596,13 @@ class AssignmentController {
                     }
                 });
             }
+
+            const quantity_assignment = exam.quantity_assignment;
+            await exam.update({
+                quantity_assignment: quantity_assignment + 1
+            }, {
+                transaction: t
+            });
 
             await t.commit();
 
