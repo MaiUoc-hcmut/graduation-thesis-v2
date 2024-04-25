@@ -86,9 +86,8 @@ class AssignmentController {
                 ]
             }
 
-            const count = await Assignment.count({
-                ...queryOption,
-                distinct: true
+            const count = await Assignment.findAll({
+                ...queryOption
             });
             const assignments = await Assignment.findAll({
                 ...queryOption,
@@ -97,7 +96,7 @@ class AssignmentController {
                 order: [['createdAt', 'DESC']]
             });
 
-            res.status(200).json({ count, assignments });
+            res.status(200).json({ count: count.length, assignments });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });

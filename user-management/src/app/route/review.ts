@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const reviewController = require("../app/controllers/ReviewController");
-const Authorize = require('../app/middleware/authorize');
-const CheckingReview = require('../app/middleware/review');
-const FileUpload = require('../config/firebase/fileUpload');
+const reviewController = require("../controllers/ReviewController");
+const Authorize = require('../middleware/studentAuth');
+const CheckingReview = require('../middleware/review');
+const FileUpload = require('../../config/firebase/fileUpload');
 
 router.route('/')
     .get(reviewController.getAllReviews)
     .post(
-        Authorize.verifyStudent, 
+        Authorize.protectedAPI, 
         CheckingReview.checkCreateReview, 
         FileUpload.uploadImage,
         reviewController.uploadReviewImage,
@@ -18,7 +18,7 @@ router.route('/')
 router.route('/:reviewId')
     .get(reviewController.getReviewById)
     .delete(
-        Authorize.verifyUser,
+        Authorize.protectedAPI,
         CheckingReview.checkDeleteReview,
         reviewController.deleteReview
     );
@@ -29,10 +29,6 @@ router.route('/student/:studentId/page/:page')
 router.route('/teacher/:teacherId/page/:page')
     .get(reviewController.getReviewsForTeacher);
 
-router.route('/basic/teacher/:teacherId')
-    .get(reviewController.getBasicReviewInforOfTeacher);
-
-router.route('/course/:courseId/page/:page')
-    .get(reviewController.getReviewsForCourse);
-
 module.exports = router;
+
+export {}

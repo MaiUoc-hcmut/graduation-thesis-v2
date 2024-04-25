@@ -450,7 +450,7 @@ class ExamController {
                 return res.status(400).json({ message: "Questions missed!" });
             }
 
-            if (!pass_score) {
+            if (!pass_score && id_course) {
                 return res.status(400).json({ message: "Pass score missed!"});
             }
 

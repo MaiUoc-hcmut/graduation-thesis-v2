@@ -1,4 +1,5 @@
 const StudentCourse = require('../../db/models/student-course');
+const Review = require('../../db/models/review');
 
 import axios from "axios";
 import { Request, Response, NextFunction } from "express";
@@ -53,22 +54,26 @@ class CheckingReview {
                     return next(createError.BadRequest(e));
                 }
             }
-
-            if (object === "exam") {
-                if (!body.id_exam) {
-                    let error = "You must provide id_exam to review a course!";
-                    return next(createError.BadRequest(error));
-                }
-                
-                try {
-                    const exam = await axios.get(`${process.env.BASE_URL_EXAM_LOCAL}/exams/${body.id_exam}`);
-                } catch (error) {
-                    let e = "Exam does not exist!";
-                    return next(createError.BadRequest(e));
-                }
-            }
             
             next();
+        } catch (error: any) {
+            console.log(error.message);
+            next(createError.InternalServerError(error.message));
+        }
+    }
+    
+    checkDeleteReview = async (req: Request, _res: Response, next: NextFunction) => {
+        try {
+            const id_user = req.user?.user.data.id;
+            const role = req.user?.role;
+            const id_review = req.params.reviewId;
+
+            const review = await Review.findByPk(id_review);
+
+            if (id_user !== review.id_student && role !== "admin") {
+                let error = "You do not have permission to delete this review!"
+                return next(createError.Unauthorized(error));
+            }
         } catch (error: any) {
             console.log(error.message);
             next(createError.InternalServerError(error.message));

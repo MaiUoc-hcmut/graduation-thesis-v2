@@ -48,6 +48,16 @@ Exam.init({
         allowNull: false,
         defaultValue: 0,
     },
+    total_review: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        defaultValue: 0,
+        allowNull: false
+    },
+    average_rating: {
+        type: DataTypes.NUMBER,
+        defaultValue: 0,
+        allowNull: false
+    }
 }, {
     sequelize,
     tableName: 'exam',

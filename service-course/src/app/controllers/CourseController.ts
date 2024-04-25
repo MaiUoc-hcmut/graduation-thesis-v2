@@ -85,8 +85,6 @@ declare global {
 }
 
 class CourseController {
-    // If student have bought the course or the course already in the cart, do not let student add course to the cart and 
-    // response for FE know student have bought the course or add the course to cart
 
     // Get all courses
     // [GET] /courses/page/:page

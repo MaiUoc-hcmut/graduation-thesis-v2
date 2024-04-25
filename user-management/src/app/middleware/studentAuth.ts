@@ -6,7 +6,7 @@ const { ExtractJwt } = require('passport-jwt');
 const Student = require('../models/student');
 const createError = require('http-errors');
 const bcrypt = require('bcryptjs');
-const dotenv = require('dotenv').config();
+require('dotenv').config();
 
 import { Request, Response, NextFunction } from "express";
 

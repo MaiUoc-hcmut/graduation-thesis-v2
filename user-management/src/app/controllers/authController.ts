@@ -10,7 +10,7 @@ const axios = require('axios');
 
 import { Request, Response, NextFunction } from 'express';
 
-const sequelize = require('../../config/db');
+const { sequelize } = require('../../config/db/index');
 
 declare global {
     namespace Express {

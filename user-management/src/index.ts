@@ -9,6 +9,7 @@ const studentRouter = require('./app/route/studentRoute');
 const teacherAuthRouter = require('./app/route/teacherAuthRoute');
 const teacherRouter = require('./app/route/teacherRoute');
 const adminRouter = require('./app/route/admin');
+const reviewRouter = require('./app/route/review');
 
 const db = require('./config/db');
 db.connect();
@@ -26,6 +27,7 @@ app.use('/api/v1/student', studentRouter);
 app.use('/api/v1/auth-teacher', teacherAuthRouter);
 app.use('/api/v1/teacher', teacherRouter);
 app.use('/api/v1/admin', adminRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 
 // wrong api
