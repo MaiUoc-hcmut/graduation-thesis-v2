@@ -346,7 +346,7 @@ class NotificationController {
                 body = JSON.parse(body);
             }
 
-            const teacher_name = req.user?.user.data.name;
+            const teacher_name = req.teacher?.data.name;
 
             let { users, ...message } = body;
 
@@ -367,7 +367,8 @@ class NotificationController {
             const dataToCreate = users.map((id_user: string) => ({
                 id_user,
                 content: message.message,
-                name: teacher_name
+                name: teacher_name,
+                type: "teacher"
             }));
 
             const notifications = await NotificationModel.bulkCreate(dataToCreate);
