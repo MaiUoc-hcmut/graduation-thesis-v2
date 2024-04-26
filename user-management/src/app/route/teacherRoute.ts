@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const TeacherController = require('../controllers/teacherController');
+const TeacherController = require('../controllers/TeacherController');
 const Authorize = require('../middleware/teacherAuth');
 const Photo = require('../../config/firebase/photo');
 

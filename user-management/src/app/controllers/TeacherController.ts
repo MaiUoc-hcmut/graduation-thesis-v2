@@ -19,11 +19,33 @@ require('dotenv').config();
 initializeApp(firebaseConfig);
 const storage = getStorage();
 
+import { Request, Response, NextFunction } from 'express';
+
+const { sequelize } = require('../../config/db/index');
+
 const { Op } = require('sequelize');
+
+declare global {
+    namespace Express {
+        interface Request {
+            teacher?: any;
+            student?: any;
+            admin?: any;
+            // user?: USER;
+            getAll?: boolean;
+            authority?: number;
+        }
+    }
+
+    // type USER = {
+    //     user?: any,
+    //     role?: string,
+    // }
+}
 
 class TeacherController {
 
-    getAllTeacher = async (req, res, _next) => {
+    getAllTeacher = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const categories = [];
 
@@ -37,11 +59,42 @@ class TeacherController {
                 categories.push(subject)
             }
 
+            enum SortQuery {
+                Rating = 'rating',
+                Registration = 'registration'
+            }
+            enum SortOrder {
+                ASC = 'asc',
+                DESC = 'desc'
+            }
+
+            const sortFactor = {
+                [SortQuery.Rating]: 'average_rating',
+                [SortQuery.Registration]: 'total_registration'
+            }
+            const orderFactor = {
+                [SortOrder.ASC]: 'asc',
+                [SortOrder.DESC]: 'desc',
+            }
+
+
+            const sortQuery = req.query.sort as SortQuery;
+            const orderSort = req.query.order as SortOrder;
+
+            let defaultQuery = 'average_rating';
+            let defaultOrder = 'desc';
+
+            if (typeof sortQuery === "string" && Object.values(SortQuery).includes(sortQuery)) {
+                defaultQuery = sortFactor[sortQuery as SortQuery];
+            }
+            if (typeof orderSort === "string" && Object.values(SortOrder).includes(orderSort)) {
+                defaultOrder = orderFactor[orderSort as SortOrder];
+            }
+
             const currentPage = +req.params.page;
-            
             const pageSize = parseInt(process.env.SIZE_OF_PAGE || '10');
 
-            const queryOption = {
+            const queryOption: any = {
                 include: [
                     {
                         model: Category,
@@ -68,6 +121,7 @@ class TeacherController {
 
             const teachers = await Teacher.findAll({
                 ...queryOption,
+                order: [[defaultQuery, defaultOrder]],
                 limit: pageSize,
                 offset: pageSize * (currentPage - 1),
                 subQuery: false
@@ -111,7 +165,7 @@ class TeacherController {
                 count: count.length,
                 teachers: response
             });
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
             res.status(500).json({
                 error,
@@ -120,7 +174,7 @@ class TeacherController {
         }
     }
 
-    getTeacherById = async (req, res, _next) => {
+    getTeacherById = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_teacher = req.params.teacherId;
             const teacher = await Teacher.findByPk(id_teacher);
@@ -128,13 +182,13 @@ class TeacherController {
             if (!teacher) return res.status(404).json({ message: "Teacher not found!" });
 
             res.status(200).json(teacher);
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
             res.status(400).json(error.message);
         }
     }
 
-    getProfileTeacher = async (req, res, _next) => {
+    getProfileTeacher = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_teacher = req.params.teacherId;
             const teacher = await Teacher.findByPk(id_teacher);
@@ -151,13 +205,13 @@ class TeacherController {
             }
 
             res.status(200).json(response);
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
             res.status(400).json(error.message);
         }
     }
 
-    getTeacherByEmail = async (req, res, _next) => {
+    getTeacherByEmail = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const teacher = await Teacher.findOne({
                 where: { email: req.body.email }
@@ -166,13 +220,13 @@ class TeacherController {
             if (!teacher) return res.status(404).json({ message: "Teacher not found!" });
 
             res.status(200).json(teacher);
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
             res.status(400).json(error.message);
         }
     }
 
-    updateTeacher = async (req, res, _next) => {
+    updateTeacher = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const teacher = Teacher.findOne({
                 where: {
@@ -186,84 +240,86 @@ class TeacherController {
                 updated: true,
                 teacher
             });
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
         }
     }
 
-    uploadAvatar = async (req, res, _next) => {
+    uploadAvatar = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const teacherId = req.params.teacherId;
-            if (req.teacher.dataValues.id !== teacherId) return res.status(401).json(createError.Unauthorized('You do not have permission to do this action!'));
-            const teacher = await Teacher.findOne({
-                where: {
-                    id: teacherId
-                }
-            })
+            const file = req.file;
+            let downloadURL = "";
+            if (file) {
+                const teacherId = req.params.teacherId;
+                if (req.teacher.dataValues.id !== teacherId) return res.status(401).json(createError.Unauthorized('You do not have permission to do this action!'));
+                const teacher = await Teacher.findOne({
+                    where: {
+                        id: teacherId
+                    }
+                })
 
-            if (!teacher) return res.status(404).json(createError.NotFound("teacher doesn't exist"));
+                if (!teacher) return res.status(404).json(createError.NotFound("teacher doesn't exist"));
 
-            const dateTime = Photo.giveCurrentDateTime();
+                const dateTime = Photo.giveCurrentDateTime();
 
-            const storageRef = ref(storage, `files/${req.file.originalname + "       " + dateTime}`);
+                const storageRef = ref(storage, `files/${file.originalname + "       " + dateTime}`);
 
-            // Create file metadata including the content type
-            const metadata = {
-                contentType: req.file.mimetype,
-            };
+                // Create file metadata including the content type
+                const metadata = {
+                    contentType: file.mimetype,
+                };
 
-            // Upload the file in the bucket storage
-            const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata);
-            //by using uploadBytesResumable we can control the progress of uploading like pause, resume, cancel
+                // Upload the file in the bucket storage
+                const snapshot = await uploadBytesResumable(storageRef, file.buffer, metadata);
+                //by using uploadBytesResumable we can control the progress of uploading like pause, resume, cancel
 
-            // Grab the public url
-            const downloadURL = await getDownloadURL(snapshot.ref);
+                // Grab the public url
+                const downloadURL = await getDownloadURL(snapshot.ref);
 
-            teacher.update({
-                avatar: downloadURL
-            })
+                await teacher.update({
+                    avatar: downloadURL
+                });
+            }
+            
 
             res.status(200).json({
                 avatar: downloadURL
             })
             
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
             res.json(error.message);
         }
     }
 
-    changePassword = async (req, res, _next) => {
+    changePassword = async (req: Request, res: Response, _next: NextFunction) => {
+        const t = await sequelize.transaction();
         try {
-            const { oldPassword, newPassword, confirmPassword } = req.body;
+            const { oldPassword, newPassword, confirmPassword } = req.body.data;
+            if (!oldPassword) return res.status(400).json({ message: "You must provide old password!" });
             if (newPassword !== confirmPassword) return res.status(400).json({ message: 'Your new password does not match!' });
 
-            const accessToken = req.headers.authorization;
-            const accessTokenSecretKey = process.env.ACCESS_TOKEN_SECRET;
-
-            const verifyTeacher = jwt.verify(accessToken, accessTokenSecretKey);
-
-            const teacher = Teacher.findOne({
-                where: { id: verifyTeacher.id }
-            });
+            const teacher = req.teacher;
 
             const verifyPassword = await bcrypt.compare(oldPassword, teacher.password);
             if (verifyPassword) {
                 const hashPassword = await bcrypt.hash(newPassword, 12);
-                await teacher.update({ password: hashPassword });
+                await teacher.update({ password: hashPassword }, { transaction: t });
             }
+
+            await t.commit();
 
             res.status(200).json({
                 message: "Password updated!",
                 teacher
             })
 
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
         }
     }
 
-    forgotPassword = async (req, res, _next) => {
+    forgotPassword = async (req: Request, res: Response, _next: NextFunction) => {
         // 1. Find teacher
         const teacher = await Teacher.findOne({
             where: { email: req.body.email }
@@ -296,14 +352,14 @@ class TeacherController {
             res.status(200).json({
                 resetToken
             })  
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
             teacher.resetToken = undefined;
             teacher.resetTokenExpiry = undefined;
         }
     }
 
-    resetPassword = async (req, res, _next) => {
+    resetPassword = async (req: Request, res: Response, _next: NextFunction) =>{
         try {
             const teacher = Teacher.findOne({
                 where: {
@@ -326,7 +382,7 @@ class TeacherController {
                 refreshToken,
                 teacher
             })
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
         }
     }
