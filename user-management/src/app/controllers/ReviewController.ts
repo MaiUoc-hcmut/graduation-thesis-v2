@@ -1,5 +1,6 @@
 const Review = require('../models/review');
 const Teacher = require('../models/teacher');
+const Student = require('../models/student');
 
 const axios = require('axios');
 require('dotenv').config();
@@ -109,9 +110,9 @@ class ReviewController {
                 totalRating += review.rating;
                 starCount[review.rating]++;
                 
-                const user = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/student/${review.id_student}`);
+                const user = await Student.findByPk(review.id_student);
 
-                review.dataValues.user = { avatar: user.data.avatar, name: user.data.name };
+                review.dataValues.user = { avatar: user.avatar, name: user.name };
             }
 
             let starDetails: { [key: string]: { quantity: number, percentage: number } } = {};

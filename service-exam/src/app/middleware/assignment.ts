@@ -57,7 +57,7 @@ class CheckingAssignment {
                     let error = "Exam does not exist!";
                     return next(createError.BadRequest(error));
                 }
-                if (role !== admin && id_user !== id_student) {
+                if (role !== "admin" && id_user !== id_student) {
                     let error = "You do not have permission to get this data!";
                     return next(createError.Unauthorized(error));
                 }

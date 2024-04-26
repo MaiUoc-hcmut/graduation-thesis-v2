@@ -68,6 +68,7 @@ class ReviewController {
     getReviewsForCourse = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_course = req.params.courseId;
+            const course = await Course.findByPk(id_course);
 
             const currentPage: number = +req.params.page;
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
@@ -132,6 +133,7 @@ class ReviewController {
                 const user = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${review.id_student}`);
 
                 review.dataValues.user = { avatar: user.data.avatar, name: user.data.name };
+                review.dataValues.course = course.name
             }
 
             let starDetails: { [key: string]: { quantity: number, percentage: number } } = {};
