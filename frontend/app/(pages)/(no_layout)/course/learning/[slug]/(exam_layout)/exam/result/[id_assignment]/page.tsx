@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { XMarkIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
 import examApi from '@/app/api/examApi';
 
-export default function ResultExam({ params }: { params: { slug: string, id_exam: string } }) {
+export default function ResultExam({ params }: { params: { slug: string, id_assignment: string } }) {
     const [open, setOpen] = useState(false);
     const [assignment, setAssignment] = useState<any>()
     const [openSidebar, setOpenSideBar] = useState(true);
@@ -15,12 +15,12 @@ export default function ResultExam({ params }: { params: { slug: string, id_exam
 
     useEffect(() => {
         async function fetchData() {
-            examApi.getDetailAssigmnent(params.id_exam).then((data) => {
+            examApi.getDetailAssigmnent(params.id_assignment).then((data) => {
                 setAssignment(data.data)
             })
         }
         fetchData()
-    }, [params.id_exam]);
+    }, [params.id_assignment]);
 
 
     let listQuestion;
@@ -103,19 +103,19 @@ export default function ResultExam({ params }: { params: { slug: string, id_exam
                                 <span style={{ marginRight: '8px' }} className="font-semibold text-[#153462]">Câu {index + 1}: </span>
                                 {parse(question.content_text)}
                             </div>
-                            {question.isCorrect ? (
+                            {question.is_correct ? (
                                 <span
                                     key={index}
                                     className="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300"
                                 >
-                                    correct
+                                    đúng
                                 </span>
                             ) : (
                                 <span
                                     key={index}
                                     className="bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300"
                                 >
-                                    wrong
+                                    sai
                                 </span>
                             )}
                         </div>
@@ -125,8 +125,8 @@ export default function ResultExam({ params }: { params: { slug: string, id_exam
                                     return (
                                         <li key={index} className="flex items-center mb-2 ">
                                             <div className="flex items-center mb-2">
-                                                <input id="default-radio-1" disabled defaultChecked={answer.selected_answer.is_selected} type="radio" value="" name="default-radio" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-                                                <label htmlFor="default-radio-1" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{parse(answer.content_text)}</label>
+                                                <input id={answer.id} disabled defaultChecked={answer.selected_answer?.is_selected} type="radio" name={question.id} className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                                                <label htmlFor={answer.id} className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{parse(answer.content_text)}</label>
                                             </div>
 
                                         </li>
@@ -182,42 +182,59 @@ export default function ResultExam({ params }: { params: { slug: string, id_exam
                 );
             }
         });
-        // listNumber = assignment.details.map((question: any, index: number) => {
-        //     if (!formData.hasOwnProperty(question.questionId)) {
-        //         return (
-        //             <Link
-        //                 href={`#question${index + 1}`}
-        //                 key={index}
-        //                 className="bg-[#f0efef] p-2 w-9 h-9 rounded-xl flex justify-center items-center font-normal"
-        //                 style={{
-        //                     boxShadow: '0px 1px 4px 0px #00000033 -1px -1px 4px 0px #00000026 inset 1px 1px 4px 0px #0000001A inset',
-        //                     textDecoration: 'none',
-        //                 }}
-        //             >
-        //                 {index + 1}
-        //             </Link>
-        //         );
-        //     } else {
-        //         return (
-        //             <a
-        //                 href={`#question${index + 1}`}
-        //                 key={index}
-        //                 className="p-2 w-10 h-10 rounded-xl flex justify-center items-center font-normal text-[#2FD790]"
-        //                 style={{
-        //                     background: 'rgba(47, 215, 144, 0.15)',
-        //                     boxShadow: '1px 1px 2px 0px #2FD79040 1px 1px 3px 0px #2FD7905C inset -1px -1px 2px 0px #2FD79052 inset',
-        //                     textDecoration: 'none',
-        //                 }}
-        //             >
-        //                 {index + 1}
-        //             </a>
-        //         );
-        //     }
-        // });
+        listNumber = assignment.details?.map((question: any, index: number) => {
+            if (!question.is_correct) {
+                return (
+                    <Link
+                        href={`#question${index + 1}`}
+                        key={index}
+                        className="bg-[#f0efef] p-2 w-9 h-9 rounded-xl flex justify-center items-center font-normal"
+                        style={{
+                            boxShadow: '0px 1px 4px 0px #00000033 -1px -1px 4px 0px #00000026 inset 1px 1px 4px 0px #0000001A inset',
+                            textDecoration: 'none',
+                        }}
+                    >
+                        {index + 1}
+                    </Link>
+                );
+            }
+            else if (2) {
+                return (
+                    <Link
+                        href={`#question${index + 1}`}
+                        key={index}
+                        className="p-2 w-9 h-9 rounded-xl flex justify-center items-center font-normal text-[#E44848]"
+                        style={{
+                            boxShadow: '0px 1px 4px 0px rgba(207, 56, 56, 0.25) -1px -1px 4px 0px rgba(207, 56, 56, 0.36) inset 1px 1px 4px 0px rgba(207, 56, 56, 0.32 inset',
+                            backgroundColor: 'rgba(228, 72, 72, 0.15)',
+                            textDecoration: 'none',
+                        }}
+                    >
+                        {index + 1}
+                    </Link>
+                );
+            }
+            else {
+                return (
+                    <a
+                        href={`#question${index + 1}`}
+                        key={index}
+                        className="p-2 w-10 h-10 rounded-xl flex justify-center items-center font-normal text-[#2FD790]"
+                        style={{
+                            background: 'rgba(47, 215, 144, 0.15)',
+                            boxShadow: '1px 1px 2px 0px #2FD79040 1px 1px 3px 0px #2FD7905C inset -1px -1px 2px 0px #2FD79052 inset',
+                            textDecoration: 'none',
+                        }}
+                    >
+                        {index + 1}
+                    </a>
+                );
+            }
+        });
     }
 
     return (
-        <div className="bg-[#FBFAF9] relative py-10">
+        <div className="bg-[#FBFAF9] relative pt-10">
             <div className="px-10 py-5 bg-[#153462] fixed w-full top-0 left-0">
                 <div className="flex justify-between h-full items-center">
                     <div className="text-[#fff] text-[22px] font-medium text-center ">dsfaaaaaaaaa</div>
@@ -226,7 +243,7 @@ export default function ResultExam({ params }: { params: { slug: string, id_exam
             <div className='mx-3 '>
                 <div className="flex flex-row">
                     <div
-                        className={`px-2 ${openSidebar ? "w-[74%]" : "flex-1 px-10 mr-12 ml-10"} bg-white `}
+                        className={`px-2 ${openSidebar ? "w-[74%]" : "flex-1 px-10 mr-12 ml-10"} bg-white pb-5 `}
 
                     >
                         <div
@@ -347,9 +364,9 @@ export default function ResultExam({ params }: { params: { slug: string, id_exam
                         </button>
                         <div className="border-[1px] border-[#ececec] shadow-sm rounded-xl p-3 mt-4">
                             <p className="rounded-md text-center font-medium text-lg text-[#153462] mb-5">Điều hướng bài kiểm tra</p>
-                            {/* <div className="grid grid-cols-5 justify-items-center gap-y-3">{listNumber}</div> */}
+                            <div className="grid grid-cols-5 justify-items-center gap-y-3">{listNumber}</div>
                             <div className="text-center mt-10 mb-2">
-                                <Link href={`/course/learning/${params.slug}`}>
+                                <Link href={`/course/learning/${params.slug}?exam=${assignment?.id_assignment}`}>
                                     <button
                                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                                         onClick={() => {

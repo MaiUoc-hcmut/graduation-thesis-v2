@@ -477,8 +477,9 @@ class AssignmentController {
                     });
                 }
                 let is_correct = true;
+
                 for (let answer of question.Answers) {
-                    if (answer.is_correct && answer.selected_answer.is_selected) is_correct = false;
+                    if (answer.is_correct && !answer.selected_answer.is_selected) is_correct = false;
                 }
 
                 question.dataValues.content_text = q.content_text;

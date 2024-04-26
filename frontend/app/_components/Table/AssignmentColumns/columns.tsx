@@ -108,7 +108,7 @@ export const columns: ColumnDef<any>[] = [
             )
         },
         cell: ({ cell }) => {
-            return <Link href={`assignment/${cell.getValue()}/review`} className="underline text-blue-500">Đánh giá</Link>
+            return <Link href={`/teacher/assignment/${cell.getValue()}/review`} className="underline text-blue-500">Đánh giá</Link>
         },
     },
 ]

@@ -20,17 +20,32 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
     });
     const router = useRouter()
 
-    const handleAnswerChange = (questionId: string, answer: any, checked: boolean) => {
-        // Cập nhật state và lưu đáp án vào localStorage mỗi khi người dùng chọn hoặc bỏ chọn một đáp án
+    const handleAnswerChange = (questionId: string, answer: any, checked: boolean, multi_choice: boolean) => {
         setAnswers((prevAnswers: any) => {
-            const questionAnswers = prevAnswers[questionId] || [];
-            const newAnswers = {
-                ...prevAnswers,
-                [questionId]: checked
-                    ? [...questionAnswers, answer]
-                    : questionAnswers.filter((a: any) => a !== answer)
-            };
+            let newAnswers = { ...prevAnswers };
+            if (multi_choice) {
+                // Nếu câu hỏi cho phép chọn nhiều đáp án
+                if (checked) {
+                    // Nếu đáp án được chọn, thêm nó vào danh sách các đáp án cho câu hỏi này
+                    newAnswers[questionId] = [...(newAnswers[questionId] || []), answer];
+                } else {
+                    // Nếu đáp án bị bỏ chọn, loại bỏ nó khỏi danh sách các đáp án cho câu hỏi này
+                    newAnswers[questionId] = newAnswers[questionId].filter((a: any) => a !== answer);
+                }
+            } else {
+                // Nếu câu hỏi chỉ cho phép chọn một đáp án
+                if (checked) {
+                    // Nếu đáp án được chọn, đặt nó làm đáp án cho câu hỏi này
+                    newAnswers[questionId] = answer;
+                } else {
+                    // Nếu đáp án bị bỏ chọn, xóa đáp án cho câu hỏi này
+                    delete newAnswers[questionId];
+                }
+            }
+
+            // Lưu các đáp án vào localStorage
             localStorage.setItem('answers', JSON.stringify(newAnswers));
+
             return newAnswers;
         });
     };
@@ -126,7 +141,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
 
 
 
-    console.log(getValues(), getValues().hasOwnProperty('bcf88d54-399d-98e3-0399-81188b34e5a9'));
+    console.log(getValues());
 
     let listQuestion;
     let listNumber;
@@ -135,21 +150,21 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
             if (question.multi_choice) {
                 return (
                     <div id={`question${index + 1}`} key={index} className="mb-4">
-                        <div className="text-lg mb-[-10px] text-[#000]">
-                            <div style={{ display: "flex" }}>
-                                <span className="font-semibold text-[#153462] flex">Câu {index + 1}: {parse(question.content_text)}</span>
-                                {
-                                    question.image && <div className='relative w-1/2 h-64 mt-2 z-0'>
-                                        <Image
-                                            src="/images/course-cover-1.jpg"
-                                            fill
-                                            className='w-full h-full overflow-hidden object-cover object-center'
-                                            alt="logo"
-                                        />
-                                    </div>
-                                }
+                        <div className="text-lg  mb-[-10px] font-normal text-[#000] flex">
+                            <span className="font-semibold text-[#153462] flex mr-1">Câu {index + 1}: </span>
+
+                            {parse(question.content_text)}
+                        </div >
+                        {
+                            question.content_image && <div className='relative w-1/2 h-64 mt-5 z-0'>
+                                <Image
+                                    src={question.content_image}
+                                    fill
+                                    className='w-full h-full overflow-hidden object-cover object-center'
+                                    alt="logo"
+                                />
                             </div>
-                        </div>
+                        }
                         <div>
                             <ul
                                 className="mt-4 text-base text-gray-900 rounded-lg dark:bg-gray-700 dark:text-white"
@@ -162,20 +177,30 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                                                 {...register(`${question.id}`, {
                                                     required: "Câu hỏi chưa hoàn thành.",
                                                 })}
-                                                id="checked-checkbox"
+                                                id={question.id}
                                                 type="checkbox"
                                                 value={answer.id}
                                                 name={question.id}
                                                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAnswerChange(question.id, answer.id, e.target.checked)}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAnswerChange(question.id, answer.id, e.target.checked, true)}
                                             />
+                                            <p className='ml-2 mr-1'>{alphabet[index]}.</p>
                                             <label
-                                                htmlFor="checked-checkbox"
-                                                className="ms-2 font-medium text-gray-900 dark:text-gray-300"
+                                                htmlFor={question.id}
+                                                className="font-medium text-gray-900 dark:text-gray-300"
                                             >
                                                 {parse(answer.content_text)}
                                             </label>
-
+                                            {
+                                                answer.content_image && <div className='relative w-1/2 h-64 mt-5 z-0'>
+                                                    <Image
+                                                        src={answer.content_image}
+                                                        fill
+                                                        className='w-full h-full overflow-hidden object-cover object-center'
+                                                        alt="logo"
+                                                    />
+                                                </div>
+                                            }
                                         </li>
                                     );
                                 })}
@@ -189,19 +214,19 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
             } else {
                 return (
                     <div id={`question${index + 1}`} key={index} className="mb-4">
-                        <div className="text-lg  mb-[-10px] font-normal text-[#000]">
-                            <span className="font-semibold text-[#153462] flex">Câu {index + 1}: {parse(question.content_text)}</span>
-                            {
-                                question.image && <div className='relative w-1/2 h-64 mt-2 z-0'>
-                                    <Image
-                                        src="/images/course-cover-1.jpg"
-                                        fill
-                                        className='w-full h-full overflow-hidden object-cover object-center'
-                                        alt="logo"
-                                    />
-                                </div>
-                            }
+                        <div className="text-lg  mb-[-10px] font-normal text-[#000] flex">
+                            <span className="font-semibold text-[#153462] flex mr-1">Câu {index + 1}: </span> {parse(question.content_text)}
                         </div >
+                        {
+                            question.content_image && <div className='relative w-1/2 h-64 mt-5 z-0'>
+                                <Image
+                                    src={question.content_image}
+                                    fill
+                                    className='w-full h-full overflow-hidden object-cover object-center'
+                                    alt="logo"
+                                />
+                            </div>
+                        }
                         <div>
                             <ul
                                 className="mt-6 text-base text-gray-900 rounded-lg dark:bg-gray-700 dark:text-white"
@@ -211,7 +236,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                                     return (
                                         <li key={index} className=" mb-5">
                                             <div className="flex items-center mb-2">
-                                                <input  {...register(`${question.id}`, { required: "Câu hỏi chưa hoàn thành." })} id={answer.id} type="radio" value={answer.id} name={question.id} className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                                                <input  {...register(`${question.id}`, { required: "Câu hỏi chưa hoàn thành." })} id={answer.id} type="radio" value={answer.id} name={question.id} className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAnswerChange(question.id, answer.id, e.target.checked, false)} />
                                                 <p className='ml-2 mr-1'>{alphabet[index]}.</p>
 
                                                 <label htmlFor="default-radio-1" className="font-medium text-gray-900 dark:text-gray-300">{parse(answer.content_text)}</label>
@@ -237,7 +262,9 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
             }
         });
         listNumber = exam?.questions?.map((question: any, index: number) => {
-            if (getValues()[question.id]?.length == 0) {
+            console.log(getValues()[question.id]);
+
+            if (!getValues()[question.id] || getValues()[question.id]?.length === 0) {
                 return (
                     <Link
                         href={`#question${index + 1}`}
@@ -253,7 +280,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                 );
             } else {
                 return (
-                    <a
+                    <Link
                         href={`#question${index + 1}`}
                         key={index}
                         className="p-2 w-10 h-10 rounded-xl flex justify-center items-center font-normal text-[#2FD790]"
@@ -264,7 +291,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                         }}
                     >
                         {index + 1}
-                    </a>
+                    </Link>
                 );
             }
         });

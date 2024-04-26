@@ -15,7 +15,7 @@ import courseApi from '@/app/api/courseApi';
 import { DataTable } from '@/app/_components/Table/TableFormat';
 import { columns } from "@/app/_components/Table/StudentColumns/columns"
 
-export default function FinanceDashboard() {
+export default function ListStudentOfCourse() {
     const [students, setStudents] = useState([])
     const [modal, setModal] = useState<any>({})
     const [change, setChange] = useState(false)
@@ -34,7 +34,7 @@ export default function FinanceDashboard() {
     const { user } = useAppSelector(state => state.authReducer);
     useEffect(() => {
         async function fetchData() {
-            await courseApi.getAllStudenBuyCourseOfTeacher(`${user.id}`, `${page}`).then((data: any) => {
+            await courseApi.getAllStudenBuySpecificCourse(`${user.id}`, `${page}`).then((data: any) => {
                 setStudents(data.data)
             }).catch((err: any) => { })
         }
