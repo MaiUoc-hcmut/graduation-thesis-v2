@@ -692,7 +692,8 @@ class AssignmentController {
             const exam = await Exam.findByPk(assignment.id_exam);
             
             await assignment.update({
-                comment
+                comment,
+                reviewed: 2
             }, {
                 transaction: t
             });
