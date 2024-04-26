@@ -446,15 +446,20 @@ class AssignmentController {
 
     // [GET] /assignments/full/:assignmentId
     getDetailOfAssignment = async (req: Request, res: Response, _next: NextFunction) => {
+        const t = await sequelize.transaction();
         try {
             const id_assignment = req.params.assignmentId;
+
+            const authority = req.authority;
+            const role = req.user?.role;
+
 
             const assignment = await Assignment.findByPk(id_assignment, {
                 include: [
                     {
                         model: DetailQuestion,
                         as: 'details',
-                        attributes: ['id_question'],
+                        attributes: ['id', 'id_question', 'comment'],
                         include: [
                             {
                                 model: Answer,
@@ -468,6 +473,8 @@ class AssignmentController {
                 ]
             });
 
+            const exam = await Exam.findByPk(assignment.id_exam);
+
             for (let question of assignment.details) {
                 const q = await Question.findByPk(question.id_question);
 
@@ -478,7 +485,7 @@ class AssignmentController {
                 }
                 let is_correct = true;
                 for (let answer of question.Answers) {
-                    if (answer.is_correct && answer.selected_answer.is_selected) is_correct = false;
+                    if (answer.is_correct && !answer.selected_answer.dataValues.is_selected) is_correct = false;
                 }
 
                 question.dataValues.content_text = q.content_text;
@@ -487,10 +494,54 @@ class AssignmentController {
                 question.dataValues.is_correct = is_correct;
             }
 
+            if (authority === 2 && role === "teacher") {
+                if (assignment.reviewed === 0) {
+                    await assignment.update({
+                        reviewed: 1
+                    }, {
+                        transaction: t
+                    });
+                }
+            }
+
+            await t.commit();
+
+            assignment.dataValues.exam_name = exam.title;
+
+            // Count time to do assignment
+            {
+                const time_start = new Date(assignment.time_start);
+                const time_end = new Date(assignment.time_end);
+
+                const time_in_sec = Math.floor(time_end.getTime() - time_start.getTime()) / 1000;
+                let hour: any = 0;
+                let sec: any = time_in_sec % 60;
+                let min: any = Math.floor(time_in_sec / 60);
+            
+                if (min > 60) {
+                    hour = Math.floor(min / 60);
+                    min = min % 60;
+                }
+                if (hour < 10) {
+                    hour = `0${hour}`;
+                }
+                if (min < 10) {
+                    min = `0${min}`
+                }
+                if (sec < 10) {
+                    sec = `0${sec}`
+                }
+
+                let time_to_do = `${hour}:${min}:${sec}`;
+                assignment.dataValues.time_to_do = time_to_do;
+            }
+
             res.status(200).json(assignment);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
+
+            await t.rollback();
         }
     }
 
@@ -579,7 +630,6 @@ class AssignmentController {
                         });
                     }
 
-                    // await answerToAdd.addDetailQuestion(newDetailQuestion, { through: { is_selected: true }, transaction: t });
                     await SelectedAnswer.create({
                         id_answer,
                         id_detail_question: newDetailQuestion.id,
@@ -592,8 +642,8 @@ class AssignmentController {
                 }
                 right_question = right_flag ? ++right_question : right_question;
                 empty_question = empty_flag ? ++empty_question : empty_question;
-                wrong_question = assignment.length - right_question - empty_question;
             }
+            wrong_question = assignment.length - right_question - empty_question;
 
             score = (right_question / assignment.length) * 10;
             passed = score >= exam.pass_score ? true : false;
@@ -621,6 +671,63 @@ class AssignmentController {
 
             res.status(201).json(newAssignment);
 
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error, message: error.message });
+
+            await t.rollback();
+        }
+    }
+
+    // [PUT] /assignments/:assignmentId/comments
+    commentOnAssignment = async (req: Request, res: Response, _next: NextFunction) => {
+        const t = await sequelize.transaction();
+        try {
+            const teacher_name = req.user?.user.data.name;
+            const body = req.body.data;
+            const { comment, detail_questions } = body;
+
+            const id_assignment = req.params.assignmentId;
+            const assignment = await Assignment.findByPk(id_assignment);
+            const exam = await Exam.findByPk(assignment.id_exam);
+            
+            await assignment.update({
+                comment
+            }, {
+                transaction: t
+            });
+
+            for (const detail_question of detail_questions) {
+                await DetailQuestion.update({
+                    comment: detail_question.comment
+                }, {
+                    where: {
+                        id: detail_question.id
+                    }
+                }, {
+                    transaction: t
+                });
+            }
+
+            try {
+                const data = {
+                    id_assignment,
+                    exam_name: exam.title,
+                    id_course: exam.id_course,
+                    teacher_name
+                }
+                const response = await axios.post(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/comment-on-assignment`, { data });
+                console.log(response.data);
+            } catch (error: any) {
+                console.log(error.message);
+            }
+
+            await t.commit();
+
+            res.status(200).json({
+                success: true,
+                message: "You just commented on the assignment!"
+            });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error, message: error.message });

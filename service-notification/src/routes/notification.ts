@@ -34,6 +34,9 @@ router.route('/teacher-send')
 router.route('/payment')
     .get(NotificationController.notifyPayment);
 
+router.route('/comment-on-assignment')
+    .post(NotificationController.notifyTeacherCommentOnAssignment);
+
 module.exports = router;
 
 export {}

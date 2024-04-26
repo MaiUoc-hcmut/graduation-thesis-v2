@@ -53,6 +53,18 @@ Assignment.init({
         type: DataTypes.DATE,
         allowNull: false,
     },
+    comment: {
+        type: DataTypes.STRING(300),
+        defaultValue: ""
+    },
+    reviewed: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        defaultValue: 0,
+        validate: {
+            min: 0,
+            max: 2
+        }
+    } 
 }, {
     sequelize,
     tableName: 'assignment',
