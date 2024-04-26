@@ -736,7 +736,9 @@ class ExamController {
                                 continue;
                             }
 
-                            let answerUrl = "";
+                            const answerToUpdate = await Answer.findByPk(answer.id);
+
+                            let answerUrl = answerToUpdate.content_image;
                             const answerDraft = await ExamDraft.findOne({
                                 where: { id_answer: answer.id, type: "answer" }
                             });
