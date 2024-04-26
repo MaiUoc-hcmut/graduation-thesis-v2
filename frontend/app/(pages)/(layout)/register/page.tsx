@@ -9,6 +9,7 @@ import { useDispatch } from 'react-redux';
 import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import categoryApi from "@/app/api/category";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function RegisterPage() {
     const [tab, setTab] = useState("student")
@@ -16,7 +17,18 @@ export default function RegisterPage() {
     const dispatch = useDispatch<AppDispatch>();
 
     const handleRegisterSubmit = async (data: any) => {
-        dispatch(signup(data));
+        dispatch(signup(data)).then(() => {
+            toast.success('Tài khoản đã được tạo thành công', {
+                position: "bottom-right",
+                autoClose: 800,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
+        });
     };
     const handleRegisterTeacherSubmit = async (data: any) => {
         data.subjects = [data.subject]
@@ -26,6 +38,7 @@ export default function RegisterPage() {
     useEffect(() => {
         dispatch(reset());
         if (isSuccess) {
+
             redirect('/login');
         }
         dispatch(reset());
@@ -72,6 +85,7 @@ export default function RegisterPage() {
 
     return (
         <div className="container px-4 w-full mx-auto flex justify-center">
+            <ToastContainer />
             <div className="flex flex-wrap mt-20 mb-16 w-[600px] rounded-2xl border-[1px] border-[#ececec] shadow-lg">
                 <div className="w-full">
                     <div className="py-[25px] px-[45px]">
@@ -159,7 +173,7 @@ export default function RegisterPage() {
 
                                                 {category?.Class?.map((cl: any, index: number) => {
                                                     return (
-                                                        <option key={index} value={`${cl.id}`}>{cl.name}</option>
+                                                        <option key={index} value={`${cl.name}`}>{cl.name}</option>
                                                     )
                                                 })}
                                             </select>

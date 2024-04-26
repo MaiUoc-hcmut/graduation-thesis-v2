@@ -47,7 +47,7 @@ export default function TeacherList() {
 
 
             await userApi.getAllTeacher(filterString).then((data: any) => {
-                setTeachers(data.data.response)
+                setTeachers(data.data.teachers)
             }
             ).catch((err: any) => { })
             await categoryApi.getAll().then((data: any) => {
@@ -232,17 +232,17 @@ export default function TeacherList() {
                                                             <div className='mt-4 grid grid-cols-2 gap-2'>
                                                                 <div className='flex items-center'>
                                                                     <span className='text-[#171347] font-medium text-sm'>
-                                                                        {teacher?.course_quantity} khóa học
+                                                                        {teacher?.course_quantity || 0} khóa học
                                                                     </span>
                                                                 </div>
                                                                 <div className='flex items-center'>
-                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.exam_quantity} đề thi</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.exam_quantity || 0} đề thi</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
-                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_reviews} đánh giá</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_reviews || 0} đánh giá</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
-                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_registration} học viên</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_registration || 0} học viên</span>
                                                                 </div>
 
                                                             </div>

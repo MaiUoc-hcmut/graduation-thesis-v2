@@ -54,6 +54,7 @@ class CheckingCourse {
             const id_teacher = req.params.teacherId;
 
             if (id_user === id_teacher || role === "admin") req.authority = 2;
+            next();
         } catch (error: any) {
             console.log(error.message);
             next(createError.InternalServerError(error.message));
@@ -78,7 +79,7 @@ class CheckingCourse {
     }
 
     checkGetCourseStudentPaid = async (req: Request, _res: Response, next: NextFunction) => {
-        
+
     }
 
     checkStudentBuyCourse = async (req: Request, _res: Response, next: NextFunction) => {
@@ -137,7 +138,7 @@ class CheckingCourse {
                 req.user = user;
                 return next();
             }
-            
+
             const response = await axios.get(`${process.env.BASE_URL_PAYMENT_LOCAL}/cart/check/${id_course}/${id_user}`);
             if (response.data.result) {
                 req.authority = -1;

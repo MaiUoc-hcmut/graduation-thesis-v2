@@ -118,14 +118,17 @@ export default function ExamDashboard() {
                                         </Link>
 
                                         <Dropdown label="" renderTrigger={() => <EllipsisVerticalIcon className="w-7 h-7" />} placement="left">
-                                            <Dropdown.Item onClick={() => {
-
-                                            }}>
+                                            <Dropdown.Item >
                                                 <Link href={`/teacher/dashboard/course/quizz/edit/${exam.id}`} >
-                                                    Sửa đề thi
+                                                    Sửa bài tập
                                                 </Link>
                                             </Dropdown.Item>
-                                            <Dropdown.Item><p className="text-red-600" onClick={() => setModal({ ...modal, [`delete-exam${exam.id}`]: true })}>Xóa đề thi</p></Dropdown.Item>
+                                            <Dropdown.Item>
+                                                <Link href={`/teacher/dashboard/course/quizz/${exam.id}/assignment`} >
+                                                    Kết quả bài tập
+                                                </Link>
+                                            </Dropdown.Item>
+                                            <Dropdown.Item><p className="text-red-600" onClick={() => setModal({ ...modal, [`delete-exam${exam.id}`]: true })}>Xóa bài tập</p></Dropdown.Item>
                                         </Dropdown>
                                     </div>
                                     <div className="flex items-center mt-4">

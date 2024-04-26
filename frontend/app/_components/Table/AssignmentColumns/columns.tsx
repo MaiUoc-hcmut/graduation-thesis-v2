@@ -3,6 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowsUpDownIcon } from "@heroicons/react/24/outline"
 import { ReactNode } from "react"
+import Link from "next/link"
 
 // export type Assignment = {
 //     name: string,
@@ -20,6 +21,20 @@ export const columns: ColumnDef<any>[] = [
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
                     Tên bài kiểm tra
+                    <ArrowsUpDownIcon className="ml-2 h-4 w-4" />
+                </button>
+            )
+        },
+    },
+    {
+        accessorKey: "Exam.title",
+        header: ({ column }) => {
+            return (
+                <button
+                    className="flex justify-center items-center font-semibold"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Tên khóa học
                     <ArrowsUpDownIcon className="ml-2 h-4 w-4" />
                 </button>
             )
@@ -83,6 +98,17 @@ export const columns: ColumnDef<any>[] = [
                 return <span className="bg-yellow-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">Chưa hoàn thành</span>
             else
                 return <span className="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Hoàn thành</span>
+        },
+    },
+    {
+        accessorKey: "id",
+        header: ({ column }) => {
+            return (
+                <div className=" font-semibold">Tác vụ</div>
+            )
+        },
+        cell: ({ cell }) => {
+            return <Link href={`assignment/${cell.getValue()}/review`} className="underline text-blue-500">Đánh giá</Link>
         },
     },
 ]

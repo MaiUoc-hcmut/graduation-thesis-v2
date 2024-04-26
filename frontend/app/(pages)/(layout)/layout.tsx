@@ -24,7 +24,7 @@ export default function StudentLayout({
         {children}
       </div>
       <Footer />
-      <FlowbiteClient />
+      {/* <FlowbiteClient /> */}
 
     </section>
   )

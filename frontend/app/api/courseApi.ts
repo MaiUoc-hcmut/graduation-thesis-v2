@@ -70,13 +70,17 @@ const courseApi = {
     createReview: async (data: object) => {
         const url = `/reviews`;
 
-        await axiosConfig.post(url, data);
+        await axiosConfig.post(url, data, {
+            baseURL: 'http://localhost:4001/api/v1'
+        });
         return
     },
 
     getReview: (id: string) => {
         const url = `/reviews/course/${id}/page/1`;
-        return axiosConfig.get(url);
+        return axiosConfig.get(url, {
+            baseURL: 'http://localhost:4001/api/v1'
+        });
     },
 
     getAllReview: () => {

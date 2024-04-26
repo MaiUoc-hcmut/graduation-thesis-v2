@@ -107,7 +107,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                     </div>
                                 </div>
                                 <span className='font-bold text-[#171347] text-xl'>
-                                    {profile?.total_registration}
+                                    {profile?.total_registration || 0}
                                 </span>
                                 <span className='text-[#818894] text-sm'>
                                     Học viên
@@ -125,7 +125,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                     </div>
                                 </div>
                                 <span className='font-bold text-[#171347] text-xl'>
-                                    {profile?.course_quantity}
+                                    {profile?.course_quantity || 0}
                                 </span>
                                 <span className='text-[#818894] text-sm'>
                                     Khóa học
@@ -143,7 +143,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                     </div>
                                 </div>
                                 <span className='font-bold text-[#171347] text-xl'>
-                                    {profile?.total_reviews}
+                                    {profile?.total_reviews || 0}
                                 </span>
                                 <span className='text-[#818894] text-sm'>
                                     Đánh giá
@@ -161,7 +161,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                     </div>
                                 </div>
                                 <span className='font-bold text-[#171347] text-xl'>
-                                    {profile?.exam_quantity}
+                                    {profile?.exam_quantity || 0}
                                 </span>
                                 <span className='text-[#818894] text-sm'>
                                     Đề thi
@@ -358,11 +358,10 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                     data: {
                                         ...dataReview,
                                         id_teacher: params.slug,
-                                        "object": "teacher",
                                         rating
                                     }
                                 }
-                                await courseApi.createReview(formData).catch((err: any) => { })
+                                await userApi.createReviewTeacher(formData).catch((err: any) => { })
                                 reset()
                                 setRating(0)
                                 setChangeData(!changeData)

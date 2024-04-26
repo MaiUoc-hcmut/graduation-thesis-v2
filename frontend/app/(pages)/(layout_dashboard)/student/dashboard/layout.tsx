@@ -28,7 +28,7 @@ export default function DashboardStudentLayout({
             </Suspense>
           </div>
         </div>
-        <FlowbiteClient />
+        {/* <FlowbiteClient /> */}
       </section>
   )
 }

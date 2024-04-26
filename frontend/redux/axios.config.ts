@@ -28,7 +28,7 @@ instance.interceptors.request.use(
 
             // // Request to course service
             if (
-                config.url.indexOf('/reviews') >= 0 ||
+                // config.url.indexOf('/reviews') >= 0 ||
                 config.url.indexOf('/comments') >= 0 ||
                 config.url.indexOf('/courses') >= 0 ||
                 config.url.indexOf('/coupons') >= 0 ||
