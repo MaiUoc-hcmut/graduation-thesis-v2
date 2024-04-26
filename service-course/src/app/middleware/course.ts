@@ -54,6 +54,7 @@ class CheckingCourse {
             const id_teacher = req.params.teacherId;
 
             if (id_user === id_teacher || role === "admin") req.authority = 2;
+            next();
         } catch (error: any) {
             console.log(error.message);
             next(createError.InternalServerError(error.message));
