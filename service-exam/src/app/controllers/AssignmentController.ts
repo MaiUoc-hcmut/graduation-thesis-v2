@@ -270,14 +270,11 @@ class AssignmentController {
                     {
                         model: Exam,
                         where: {
-                            id_teacher
+                            id_teacher,
+                            id_course
                         }
                     }
                 ]
-            }
-
-            if (id_course && typeof id_course === "string") {
-                queryOption.include[0].where.id_course = id_course;
             }
 
             const count = await Assignment.count({
