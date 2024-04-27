@@ -141,7 +141,8 @@ class NotificationController {
             const newNoti = await NotificationModel.create({
                 id_user,
                 content: "Student has reported about the question",
-                type: "report"
+                type: "report",
+                id_exam
             });
 
             res.status(200).json({
@@ -220,7 +221,7 @@ class NotificationController {
             }
 
             const newNoti = await NotificationModel.create({
-                id_teacher,
+                id_user: id_teacher,
                 content: "Một học sinh đã mua khóa học",
                 type: "course",
                 name
@@ -396,6 +397,41 @@ class NotificationController {
             res.status(200).json({
                 mesasge: "Notification has been sent to user!"
             });
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ message: error.message, error });
+        }
+    }
+
+    // [POST] /notification/comment-on-assignment
+    notifyTeacherCommentOnAssignment = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const { id_assignment, id_course, exam_name, teacher_name, id_student } = req.body.data;
+
+            const io = socketInstance.getIoInstance();
+            const clientConnected = socketInstance.getClientConnected();
+            
+            const findUser = clientConnected.find(obj => obj.user === id_student);
+            if (findUser) {
+                io.to(findUser.socket).emit("student_buy_course", {
+                    message: "Giáo viên đã nhận xét bài làm của bạn",
+                    exam: exam_name,
+                    teacher: teacher_name,
+                    id_course
+                });
+            }
+
+            const newNoti = await NotificationModel.create({
+                id_user: id_student,
+                content: "Giáo viên đã nhận xét bài làm",
+                type: "assignment",
+                exam_name,
+                id_assignment,
+                id_course,
+                name: teacher_name
+            });
+
+            res.status(201).json(newNoti);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ message: error.message, error });

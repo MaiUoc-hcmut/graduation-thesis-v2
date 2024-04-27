@@ -49,9 +49,9 @@ export default function CourseList() {
     useEffect(() => {
         async function fetchData() {
             let filterString = ''
-            subjectFilters?.map((s) => { filterString += `subject=${s}` })
-            levelFilters?.map((l) => { filterString += `&level=${l}` })
-            classFilters?.map((c) => { filterString += `&class=${c}` })
+            subjectFilters?.map((s) => { filterString += `subject=${s}&` })
+            levelFilters?.map((l) => { filterString += `&level=${l}&` })
+            classFilters?.map((c) => { filterString += `&class=${c}&` })
             priceFilters ? filterString += `&minPrice=0&maxPrice=${priceFilters}` : null
 
             sortFilters && orderFilters ? filterString += `&sort=${sortFilters}&order=${orderFilters}` : null

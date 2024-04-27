@@ -37,7 +37,10 @@ export function DataTable<TData, TValue>({
     setPage,
     pageCount,
 }: any) {
-
+    const [pagination, setPagination] = useState({
+        pageIndex: 0, //initial page index
+        pageSize: 20, //default page size
+    });
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
         []
@@ -55,22 +58,12 @@ export function DataTable<TData, TValue>({
         state: {
             sorting,
             columnFilters,
+            pagination
         },
     })
 
     return (
         <div>
-            {/* <div className="flex items-center py-4">
-                <Input
-                    placeholder="Lọc theo tên khóa học..."
-                    defaultValue={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-                    onChange={(event) => {
-                        table.getColumn("name")?.setFilterValue(event.target.value)
-                    }
-                    }
-                    className="max-w-sm"
-                />
-            </div> */}
             <div className="rounded-md border bg-white">
                 <Table>
                     <TableHeader>
@@ -131,11 +124,11 @@ export function DataTable<TData, TValue>({
                 >
                     Trước
                 </Button>
-                <span>Trang {page} / {Math.ceil(pageCount / 10)}</span>
+                <span>Trang {page} / {Math.ceil(pageCount / 20)}</span>
                 <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setPage(page + 1)} disabled={page === Math.ceil(pageCount / 10)}
+                    onClick={() => setPage(page + 1)} disabled={page === Math.ceil(pageCount / 20)}
                 // onClick={() => table.nextPage()}
                 // disabled={!table.getCanNextPage()}
                 >

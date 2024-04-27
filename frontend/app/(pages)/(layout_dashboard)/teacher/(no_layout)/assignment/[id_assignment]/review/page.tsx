@@ -84,7 +84,7 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
                             {
                                 question?.Answers?.map((answer: any, index: number) => {
                                     return (
-                                        <li key={index} className="flex items-center mb-2 ">
+                                        <li key={index} className="items-center mb-2 ">
                                             <div className="flex items-center mb-2">
                                                 {
                                                     question.multi_choice ? <input
@@ -106,7 +106,16 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
 
                                                 </div>
                                             </div>
-
+                                            {
+                                                answer.content_image && <div className='relative w-1/2 h-64 mt-5 z-0'>
+                                                    <Image
+                                                        src={answer.content_image}
+                                                        fill
+                                                        className='w-full h-full overflow-hidden object-cover object-center'
+                                                        alt="logo"
+                                                    />
+                                                </div>
+                                            }
                                         </li>
                                     );
                                 })
@@ -131,10 +140,11 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
                             Thêm nhận xét
                         </button>
                     </div>
-                    <div className={`${toggle[`form-${question.id_question}`] ? '' : 'hidden'}`}>
+                    <div className={`${question.comment != '' || toggle[`form-${question.id_question}`] ? '' : 'hidden'}`}>
                         <textarea
+                            defaultValue={question.comment}
                             placeholder="Nhập nhận xét của bạn..."
-                            {...register(`${question.id_question}`)}
+                            {...register(`${question.id}`)}
                             className="w-full mt-5 p-2 border rounded focus:ring-0 focus:border-primary_border"
                             rows={4}
                         ></textarea>
@@ -143,27 +153,27 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
             );
         });
         listNumber = assignment.details?.map((question: any, index: number) => {
+            // if (question.is_correct) {
+            //     return (
+            //         <Link
+            //             href={`#question${index + 1}`}
+            //             key={index}
+            //             className="bg-[#f0efef] p-2 w-9 h-9 rounded-xl flex justify-center items-center font-normal"
+            //             style={{
+            //                 boxShadow: '0px 1px 4px 0px #00000033 -1px -1px 4px 0px #00000026 inset 1px 1px 4px 0px #0000001A inset',
+            //                 textDecoration: 'none',
+            //             }}
+            //         >
+            //             {index + 1}
+            //         </Link>
+            //     );
+            // }
             if (!question.is_correct) {
                 return (
                     <Link
                         href={`#question${index + 1}`}
                         key={index}
-                        className="bg-[#f0efef] p-2 w-9 h-9 rounded-xl flex justify-center items-center font-normal"
-                        style={{
-                            boxShadow: '0px 1px 4px 0px #00000033 -1px -1px 4px 0px #00000026 inset 1px 1px 4px 0px #0000001A inset',
-                            textDecoration: 'none',
-                        }}
-                    >
-                        {index + 1}
-                    </Link>
-                );
-            }
-            else if (2) {
-                return (
-                    <Link
-                        href={`#question${index + 1}`}
-                        key={index}
-                        className="p-2 w-9 h-9 rounded-xl flex justify-center items-center font-normal text-[#E44848]"
+                        className="p-2 w-10 h-10 rounded-xl flex justify-center items-center font-normal text-[#E44848]"
                         style={{
                             boxShadow: '0px 1px 4px 0px rgba(207, 56, 56, 0.25) -1px -1px 4px 0px rgba(207, 56, 56, 0.36) inset 1px 1px 4px 0px rgba(207, 56, 56, 0.32 inset',
                             backgroundColor: 'rgba(228, 72, 72, 0.15)',
@@ -176,7 +186,7 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
             }
             else {
                 return (
-                    <a
+                    <Link
                         href={`#question${index + 1}`}
                         key={index}
                         className="p-2 w-10 h-10 rounded-xl flex justify-center items-center font-normal text-[#2FD790]"
@@ -187,7 +197,7 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
                         }}
                     >
                         {index + 1}
-                    </a>
+                    </Link>
                 );
             }
         });
@@ -312,13 +322,31 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
                         }}>
                             <div className="text-lg text-[#000] font-semibold">Đáp án</div>
                             <form onSubmit={handleSubmit(async (data: any) => {
-                                console.log(data);
+                                const detail_questions = []
+
+                                for (const key in data) {
+                                    if (data.hasOwnProperty(key)) {
+                                        detail_questions.push({
+                                            id: key,
+                                            comment: data[key]
+                                        });
+                                    }
+                                }
+                                detail_questions.shift();
+                                const formData = {
+                                    data: {
+                                        comment: data.comment,
+                                        detail_questions: detail_questions
+                                    }
+                                }
+                                await examApi.commentAssigmnent(params.id_assignment, formData)
 
 
                             })} className='mt-2'>{listQuestion}
                                 <div className='mt-5'>
                                     <h3 className='text-secondary font-bold text-xl'>Nhận xét bài làm</h3>
                                     <textarea
+                                        defaultValue={assignment?.comment}
                                         placeholder="Nhập nhận xét của bạn..."
                                         {...register(`comment`)}
                                         className="w-full mt-5 p-2 border rounded focus:ring-0 focus:border-primary_border"

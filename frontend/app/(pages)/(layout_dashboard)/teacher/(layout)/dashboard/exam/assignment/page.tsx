@@ -39,7 +39,7 @@ export default function AssignmentDashboard() {
     };
     useEffect(() => {
         async function fetchData() {
-            await examApi.getAssigmnentOfQuizzByTeacherId(`${user.id}`, page, filterString).then((data: any) => {
+            await examApi.getAssigmnentOfExamByTeacherId(`${user.id}`, page, filterString).then((data: any) => {
                 setAssignments(data.data.assignments)
                 setPageCount(Math.floor(data.data.count))
             }).catch((err: any) => { })
@@ -50,6 +50,7 @@ export default function AssignmentDashboard() {
         fetchData()
     }, [filterString, page, user.id]);
 
+    console.log(assignments.length);
 
     return (
         <div>

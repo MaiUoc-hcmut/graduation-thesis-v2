@@ -19,7 +19,6 @@ export default function LearninngLayout({
     const [progress, setProgress] = useState<any>()
     const { user } = useAppSelector(state => state.authReducer);
 
-
     useEffect(() => {
         async function fetchData() {
             await courseApi.get(params.slug).then((data: any) => {

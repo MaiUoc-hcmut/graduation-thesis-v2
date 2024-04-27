@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ReduxProvider } from '@/redux/provider';
 import { store, persistor } from '@/redux/store';
 import '@/node_modules/react-multi-carousel/lib/styles.css'
-
+import('flowbite')
 
 // export const metadata: Metadata = {
 //   title: 'Study365',
@@ -19,7 +19,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-
+  // <FlowbiteClient />
   return (
     <html lang="en">
       <body >
@@ -28,7 +28,7 @@ export default function RootLayout({
             {children}
           </ReduxProvider>
         </Suspense>
-        <FlowbiteClient />
+
       </body>
 
     </html>

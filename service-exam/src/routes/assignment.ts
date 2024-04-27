@@ -12,18 +12,45 @@ router.route('/page/:page')
     .get(Authorize.verifyAdmin, AssignmentController.getAllAssignments)
 
 router.route('/full/:assignmentId')
-    .get(Authorize.verifyUser, CheckingAssignment.checkGetAssignmentsOfStudent, AssignmentController.getDetailOfAssignment);
+    .get(
+        Authorize.verifyUser, 
+        CheckingAssignment.checkGetAssignmentsOfStudent, 
+        AssignmentController.getDetailOfAssignment
+    );
 
 router.route('/student/:studentId/page/:page')
-    .get(Authorize.verifyUser, CheckingAssignment.checkGetAssignmentsOfStudent, AssignmentController.getAssignmentsOfStudent);
+    .get(
+        Authorize.verifyUser, 
+        CheckingAssignment.checkGetAssignmentsOfStudent, 
+        AssignmentController.getAssignmentsOfStudent
+    );
 
 router.route('/teacher/:teacherId/page/:page')
-    .get(Authorize.verifyUser, CheckingAssignment.checkGetAssignmentsOfExamsOfTeacher, AssignmentController.getAssignmentsOfExamsOfTeacher);
+    .get(
+        Authorize.verifyUser, 
+        CheckingAssignment.checkGetAssignmentsOfExamsOfTeacher, 
+        AssignmentController.getAssignmentsOfExamsOfTeacher
+    );
 
 router.route('/student/:studentId/exam/:examId/page/:page')
-    .get(Authorize.verifyUser, CheckingAssignment.checkGetAssignmentsOfStudent, AssignmentController.getAssignmentsOfStudentOfExam);
+    .get(
+        Authorize.verifyUser, 
+        CheckingAssignment.checkGetAssignmentsOfStudent, 
+        AssignmentController.getAssignmentsOfStudentOfExam
+    );
 
 router.route('/exam/:examId/page/:page')
-    .get(Authorize.verifyUser, CheckingAssignment.checkGetAssignmentsOfExam, AssignmentController.getAssignmentsOfExam);
+    .get(
+        Authorize.verifyUser, 
+        CheckingAssignment.checkGetAssignmentsOfExam, 
+        AssignmentController.getAssignmentsOfExam
+    );
+
+router.route('/:assignmentId/comments')
+    .put(
+        Authorize.verifyUser,
+        CheckingAssignment.checkCommentOnAssignment,
+        AssignmentController.commentOnAssignment
+    );
 
 module.exports = router;

@@ -33,7 +33,6 @@ export default function DashboardTeacherLayout({
             </Suspense>
           </div>
         </div>
-        {/* <FlowbiteClient /> */}
       </section>
   )
 }

@@ -39,6 +39,11 @@ const examApi = {
         return await axiosConfig.get(url);
     },
 
+    commentAssigmnent: async (id_assignment: string, data: object) => {
+        const url = `/assignments/${id_assignment}/comments`;
+        return await axiosConfig.put(url, data);
+    },
+
 
 
     update: (id: string, data: object) => {

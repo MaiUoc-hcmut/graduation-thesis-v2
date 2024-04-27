@@ -23,6 +23,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
     const handleAnswerChange = (questionId: string, answer: any, checked: boolean, multi_choice: boolean) => {
         setAnswers((prevAnswers: any) => {
             let newAnswers = { ...prevAnswers };
+
             if (multi_choice) {
                 // Nếu câu hỏi cho phép chọn nhiều đáp án
                 if (checked) {
@@ -37,6 +38,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                 if (checked) {
                     // Nếu đáp án được chọn, đặt nó làm đáp án cho câu hỏi này
                     newAnswers[questionId] = answer;
+
                 } else {
                     // Nếu đáp án bị bỏ chọn, xóa đáp án cho câu hỏi này
                     delete newAnswers[questionId];
@@ -49,7 +51,6 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
             return newAnswers;
         });
     };
-
 
     const {
         register,
@@ -104,7 +105,12 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
             var countDownTime = Number(window.localStorage.getItem(COUNTER_KEY)) || exam?.period * 60;
             countDown(countDownTime, function () {
                 alert('Hết giờ làm bài!!!');
-                // submitTest(convertTime(state.currentTest.period));
+                submitTest('1', getValues());
+                // clearInterval(intervalRef.current);
+                // intervalRef.current = null;
+                // window.localStorage.removeItem(`${COUNTER_KEY}`);
+                // window.localStorage.removeItem('answers');
+                // router.push(`/course/learning/${params.slug}?exam=${params.id_exam}`)
             });
         }
 
@@ -141,10 +147,8 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
 
 
 
-    console.log(getValues());
 
     let listQuestion;
-    let listNumber;
     if (exam) {
         listQuestion = exam?.questions?.map((question: any, index: number) => {
             if (question.multi_choice) {
@@ -241,14 +245,16 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
 
                                                 <label htmlFor="default-radio-1" className="font-medium text-gray-900 dark:text-gray-300">{parse(answer.content_text)}</label>
                                             </div>
-                                            {/* <div className='relative w-1/2 h-64 mt-3 z-0'>
-                                                <Image
-                                                    src="/images/course-cover-1.jpg"
-                                                    fill
-                                                    className='w-full h-full overflow-hidden object-cover object-center'
-                                                    alt="logo"
-                                                />
-                                            </div> */}
+                                            {
+                                                answer.content_image && <div className='relative w-1/2 h-64 mt-5 z-0'>
+                                                    <Image
+                                                        src={answer.content_image}
+                                                        fill
+                                                        className='w-full h-full overflow-hidden object-cover object-center'
+                                                        alt="logo"
+                                                    />
+                                                </div>
+                                            }
                                         </li>
                                     );
                                 })}
@@ -258,40 +264,6 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                             </ul>
                         </div>
                     </div >
-                );
-            }
-        });
-        listNumber = exam?.questions?.map((question: any, index: number) => {
-            console.log(getValues()[question.id]);
-
-            if (!getValues()[question.id] || getValues()[question.id]?.length === 0) {
-                return (
-                    <Link
-                        href={`#question${index + 1}`}
-                        key={index}
-                        className="bg-[#f0efef] p-2 w-9 h-9 rounded-xl flex justify-center items-center font-normal"
-                        style={{
-                            boxShadow: '0px 1px 4px 0px #00000033 -1px -1px 4px 0px #00000026 inset 1px 1px 4px 0px #0000001A inset',
-                            textDecoration: 'none',
-                        }}
-                    >
-                        {index + 1}
-                    </Link>
-                );
-            } else {
-                return (
-                    <Link
-                        href={`#question${index + 1}`}
-                        key={index}
-                        className="p-2 w-10 h-10 rounded-xl flex justify-center items-center font-normal text-[#2FD790]"
-                        style={{
-                            background: 'rgba(47, 215, 144, 0.15)',
-                            boxShadow: '1px 1px 2px 0px #2FD79040 1px 1px 3px 0px #2FD7905C inset -1px -1px 2px 0px #2FD79052 inset',
-                            textDecoration: 'none',
-                        }}
-                    >
-                        {index + 1}
-                    </Link>
                 );
             }
         });
@@ -331,12 +303,12 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                         <p className="rounded-md text-center font-medium text-lg text-[#153462] mb-5">Điều hướng bài kiểm tra</p>
                         <div className="grid grid-cols-5 justify-items-center gap-y-3">{
                             exam?.questions?.map((question: any, index: number) => {
-                                if (getValues()[question.id]?.length == 0) {
+                                if (answers[question.id]?.length === 0 || !answers[question.id]) {
                                     return (
                                         <Link
                                             href={`#question${index + 1}`}
                                             key={index}
-                                            className="bg-[#f0efef] p-2 w-9 h-9 rounded-xl flex justify-center items-center font-normal"
+                                            className="bg-[#f0efef] p-2 w-10 h-10 rounded-xl flex justify-center items-center font-normal"
                                             style={{
                                                 boxShadow: '0px 1px 4px 0px #00000033 -1px -1px 4px 0px #00000026 inset 1px 1px 4px 0px #0000001A inset',
                                                 textDecoration: 'none',
@@ -347,7 +319,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                                     );
                                 } else {
                                     return (
-                                        <a
+                                        <Link
                                             href={`#question${index + 1}`}
                                             key={index}
                                             className="p-2 w-10 h-10 rounded-xl flex justify-center items-center font-normal text-[#2FD790]"
@@ -358,7 +330,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                                             }}
                                         >
                                             {index + 1}
-                                        </a>
+                                        </Link>
                                     );
                                 }
                             })}</div>

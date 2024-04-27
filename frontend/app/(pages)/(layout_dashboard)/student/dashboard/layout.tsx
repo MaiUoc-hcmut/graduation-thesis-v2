@@ -15,6 +15,7 @@ export default function DashboardStudentLayout({
   children,
 }: any) {
   const { user, accessToken } = useAppSelector(state => state.authReducer);
+  // <FlowbiteClient />
   if (user.id == 0) redirect('/login')
   return (
     user?.role != "student" ? <div className='h-svh w-full flex justify-center items-center text-xl'> <p className='mr-2'>Bạn không có quyền truy cập vào trang này.</p> <Link className='underline text-blue-500' href="/">Quay lại</Link></div> :
@@ -28,7 +29,7 @@ export default function DashboardStudentLayout({
             </Suspense>
           </div>
         </div>
-        {/* <FlowbiteClient /> */}
+
       </section>
   )
 }

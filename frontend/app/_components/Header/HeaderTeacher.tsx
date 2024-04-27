@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import notifyApi from '@/app/api/notifyApi';
 import { convertToVietnamTime } from '@/app/helper/FormatFunction';
 
+
 export default function HeaderTeacher() {
     const dispatch = useDispatch<AppDispatch>();
     const router = useRouter()
@@ -48,7 +49,6 @@ export default function HeaderTeacher() {
         }
         fetchData()
     }, [user]);
-
     return (
         <header className="antialiased fixed top-0 left-0 w-full z-50 shadow- border-b-[1px] border-b-[#ececec] shadow-header_teacher">
             <nav className="bg-white border-gray-200 px-10 py-5 dark:bg-gray-800">

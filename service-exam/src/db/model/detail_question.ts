@@ -22,6 +22,10 @@ DetailQuestion.init({
         type: DataTypes.UUID,
         allowNull: false,
     },
+    comment: {
+        type: DataTypes.STRING(300),
+        defaultValue: ""
+    }
 }, {
     sequelize,
     tableName: 'detail_question',

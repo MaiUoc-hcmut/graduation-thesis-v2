@@ -6,7 +6,7 @@ import { Suspense, useEffect } from 'react'
 import HeaderTeacher from '@/app/_components/Header/HeaderTeacher'
 import HeaderStudent from '@/app/_components/Header/HeaderStudent';
 import FlowbiteClient from '@/app/_components/Flowbite/FlowbiteClient';
-import Loading from './loading'
+import Loading from '../../loading'
 import { useAppSelector } from "@/redux/store";
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -14,6 +14,7 @@ import { redirect } from 'next/navigation';
 export default function DashboardTeacherLayout({
   children,
 }: any) {
+  <FlowbiteClient />
   const { user } = useAppSelector(state => state.authReducer);
   if (user.id == 0) redirect('/login')
   return (
@@ -32,7 +33,7 @@ export default function DashboardTeacherLayout({
             </Suspense>
           </div>
         </div>
-        <FlowbiteClient />
+
       </section>
   )
 }

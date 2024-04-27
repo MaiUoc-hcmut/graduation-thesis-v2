@@ -40,6 +40,15 @@ NotificationModel.init({
     },
     course_name: {
         type: DataTypes.STRING
+    },
+    id_exam: {
+        type: DataTypes.UUID
+    },
+    exam_name: {
+        type: DataTypes.STRING,
+    },
+    id_assignment: {
+        type: DataTypes.UUID
     }
 }, {
     sequelize,

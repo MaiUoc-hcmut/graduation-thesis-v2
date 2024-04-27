@@ -26,20 +26,20 @@ export const columns: ColumnDef<any>[] = [
             )
         },
     },
-    {
-        accessorKey: "Exam.title",
-        header: ({ column }) => {
-            return (
-                <button
-                    className="flex justify-center items-center font-semibold"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Tên khóa học
-                    <ArrowsUpDownIcon className="ml-2 h-4 w-4" />
-                </button>
-            )
-        },
-    },
+    // {
+    //     accessorKey: "Exam.title",
+    //     header: ({ column }) => {
+    //         return (
+    //             <button
+    //                 className="flex justify-center items-center font-semibold"
+    //                 onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    //             >
+    //                 Tên khóa học
+    //                 <ArrowsUpDownIcon className="ml-2 h-4 w-4" />
+    //             </button>
+    //         )
+    //     },
+    // },
     {
         accessorKey: "student.name",
         header: ({ column }) => {
