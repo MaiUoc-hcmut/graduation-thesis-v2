@@ -33,6 +33,10 @@ export default function HeaderStudent() {
                     const audio = new Audio("/audio/audio-notification.mp3");
                     audio.play();
                 });
+                socket.on("teacher_review_assignment", (data) => {
+                    const audio = new Audio("/audio/audio-notification.mp3");
+                    audio.play();
+                });
                 socket.on("teacher_send_notification", (data) => {
                     const audio = new Audio("/audio/audio-notification.mp3");
                     audio.play();
@@ -106,7 +110,7 @@ export default function HeaderStudent() {
                                                     return (
                                                         <Link key={index}
                                                             onClick={async () => { if (!notify.read) await notifyApi.readNotify({ data: [notify.id] }) }}
-                                                            href={`${notify.type === "topic" ? `/course/learning/${notify.id_course}/forum/${notify.id_topic}` : '/teacher/dashboard/course'}`}
+                                                            href={`${notify.type === "topic" ? `/course/learning/${notify.id_course}/forum/${notify.id_topic}` : ''}`}
                                                             className="flex p-3 hover:bg-gray-100 dark:hover:bg-gray-700"
                                                         >
                                                             <div className='flex'>
@@ -127,8 +131,11 @@ export default function HeaderStudent() {
                                                                                 </span>
 
                                                                                 {": "}
-                                                                                {notify.type === 'course' && (
-                                                                                    <>Khóa học <span className='font-medium text-black'>{notify.name}</span>  vừa được tạo thành công</>
+                                                                                {notify.type === 'teacher' && (
+                                                                                    <>Giáo viên <span className='font-medium text-black'>{notify.name}</span> thông báo {notify.content}</>
+                                                                                )}
+                                                                                {notify.type === 'teacher' && (
+                                                                                    <>Giáo viên <span className='font-medium text-black'>{notify.name}</span> thông báo {notify.content}</>
                                                                                 )}
                                                                                 {notify.type === 'topic' && (
                                                                                     <>Có người vừa tạo chủ đề <span className='font-medium text-black'>{notify.name}</span> trong khóa học <span className='font-medium text-black'>{notify.course_name}</span></>

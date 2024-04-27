@@ -7,7 +7,6 @@ import { usePathname } from 'next/navigation'
 export default function SidebarTeacher() {
     const { user } = useAppSelector(state => state.authReducer);
     const pathname = usePathname()
-
     return (
         <div className=''>
             <aside

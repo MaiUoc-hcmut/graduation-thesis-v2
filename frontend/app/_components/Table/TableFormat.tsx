@@ -58,9 +58,11 @@ export function DataTable<TData, TValue>({
         state: {
             sorting,
             columnFilters,
-            pagination
+            pagination,
         },
     })
+
+
 
     return (
         <div>

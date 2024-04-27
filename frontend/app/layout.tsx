@@ -19,7 +19,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  // <FlowbiteClient />
+  <FlowbiteClient />
   return (
     <html lang="en">
       <body >

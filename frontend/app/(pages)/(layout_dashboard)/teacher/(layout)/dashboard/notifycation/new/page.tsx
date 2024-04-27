@@ -117,7 +117,7 @@ export default function CreateNotify() {
                             )}
                         </div>
                     </div>
-                    <div className={`${currentCourse.length != 0 ? '' : 'hidden'} w-full`}>
+                    <div className={`w-full`}>
                         <button
                             id="dropdownSearchButton"
                             data-dropdown-toggle="dropdownSearch"

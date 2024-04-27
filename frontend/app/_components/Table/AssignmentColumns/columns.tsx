@@ -26,20 +26,20 @@ export const columns: ColumnDef<any>[] = [
             )
         },
     },
-    // {
-    //     accessorKey: "Exam.title",
-    //     header: ({ column }) => {
-    //         return (
-    //             <button
-    //                 className="flex justify-center items-center font-semibold"
-    //                 onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-    //             >
-    //                 Tên khóa học
-    //                 <ArrowsUpDownIcon className="ml-2 h-4 w-4" />
-    //             </button>
-    //         )
-    //     },
-    // },
+    {
+        accessorKey: "course_name",
+        header: ({ column }) => {
+            return (
+                <button
+                    className="flex justify-center items-center font-semibold"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Tên khóa học
+                    <ArrowsUpDownIcon className="ml-2 h-4 w-4" />
+                </button>
+            )
+        },
+    },
     {
         accessorKey: "student.name",
         header: ({ column }) => {
@@ -101,6 +101,22 @@ export const columns: ColumnDef<any>[] = [
         },
     },
     {
+        accessorKey: "reviewed",
+        header: ({ column }) => {
+            return (
+                <div className=" font-semibold">Đánh giá</div>
+            )
+        },
+        cell: ({ cell }) => {
+            if (cell.getValue() === 2)
+                return <span className="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Đã đánh giá</span>
+            else if (cell.getValue() === 1)
+                return <span className="bg-yellow-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">Đang đánh giá</span>
+            else
+                return <span className="bg-red-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">Chưa đánh giá</span>
+        },
+    },
+    {
         accessorKey: "id",
         header: ({ column }) => {
             return (
@@ -108,7 +124,7 @@ export const columns: ColumnDef<any>[] = [
             )
         },
         cell: ({ cell }) => {
-            return <Link href={`/teacher/assignment/${cell.getValue()}/review`} className="underline text-blue-500">Đánh giá</Link>
+            return <Link href={`/teacher/quizz/assignment/${cell.getValue()}/review`} className="underline text-blue-500">Đánh giá</Link>
         },
     },
 ]

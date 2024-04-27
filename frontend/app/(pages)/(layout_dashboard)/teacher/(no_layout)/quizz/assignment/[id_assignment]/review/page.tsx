@@ -9,14 +9,17 @@ import { XMarkIcon, ChevronLeftIcon, CheckIcon } from '@heroicons/react/24/outli
 import examApi from '@/app/api/examApi';
 import { useForm } from 'react-hook-form';
 import { convertToHourMinuteSecond, convertToVietnamTime } from '@/app/helper/FormatFunction';
+import { useRouter } from 'next/navigation';
 
 
 export default function ReviewExam({ params }: { params: { slug: string, id_assignment: string } }) {
+    const router = useRouter()
     const [open, setOpen] = useState(false);
     const [assignment, setAssignment] = useState<any>()
     const [openSidebar, setOpenSideBar] = useState(true);
     const alphabet = ['A', 'B', 'C', 'D', 'E', 'F'];
     const [toggle, setToggle] = useState<any>({})
+
     const {
         register,
         reset,
@@ -342,7 +345,9 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
                                         detail_questions: detail_questions
                                     }
                                 }
-                                await examApi.commentAssigmnent(params.id_assignment, formData)
+                                await examApi.commentAssigmnent(params.id_assignment, formData).then((data) => {
+                                    router.push(`/teacher/dashboard/course/quizz/${assignment?.id_exam}/assignment`)
+                                }).catch((err) => { })
 
 
                             })} className='mt-2'>{listQuestion}
@@ -375,7 +380,7 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
                             <p className="rounded-md text-center font-medium text-lg text-[#153462] mb-5">Điều hướng bài kiểm tra</p>
                             <div className="grid grid-cols-5 justify-items-center gap-y-3">{listNumber}</div>
                             <div className="text-center mt-10 mb-2">
-                                <Link href={`/course/learning/${params.slug}?exam=${assignment?.id_assignment}`}>
+                                <Link href={`/teacher/dashboard/course/quizz/${assignment?.id_exam}/assignment`}>
                                     <button
                                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                                         onClick={() => {

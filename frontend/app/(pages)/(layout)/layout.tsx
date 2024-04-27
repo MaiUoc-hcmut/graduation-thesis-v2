@@ -14,7 +14,7 @@ export default function StudentLayout({
   children: React.ReactNode
 }) {
   const { user } = useAppSelector(state => state.authReducer);
-  // <FlowbiteClient />
+  <FlowbiteClient />
   return (
     <section className="">
       {

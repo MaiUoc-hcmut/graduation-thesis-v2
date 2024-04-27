@@ -6,7 +6,6 @@ import { initFlowbite } from "flowbite";
 export default function FlowbiteClient() {
     useEffect(() => {
         initFlowbite();
-        import('flowbite')
     }, []);
     return null
 }
