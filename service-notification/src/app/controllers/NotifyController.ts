@@ -412,6 +412,7 @@ class NotificationController {
             const clientConnected = socketInstance.getClientConnected();
             
             const findUser = clientConnected.find(obj => obj.user === id_student);
+            console.log(id_student);
             if (findUser) {
                 io.to(findUser.socket).emit("teacher_review_assignment", {
                     message: "Giáo viên đã nhận xét bài làm của bạn",
