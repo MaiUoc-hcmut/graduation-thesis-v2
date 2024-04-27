@@ -239,6 +239,53 @@ class AssignmentController {
                 ]
             }
 
+            let order = [['reviewed', 'asc'], ['createdAt', 'desc']];
+
+            let reviewed: any = req.query.reviewed;
+            let score: any = req.query.score;
+
+            if (typeof reviewed === "string" && !Number.isNaN(parseInt(reviewed))) {
+                if (parseInt(reviewed) >= 0 && parseInt(reviewed) <= 2) {
+                    queryOption.where.reviewed = parseInt(reviewed);
+                } else {
+                    queryOption.where.reviewed = [0, 1, 2];
+                }
+            } else if (Array.isArray(reviewed)) {
+                let reviewed_condition = [];
+                for (const r of reviewed) {
+                    if (parseInt(r) >= 0 && parseInt(r) <= 2) {
+                        reviewed_condition.push(parseInt(r));
+                    } else {
+                        continue
+                    }
+                }
+                if (reviewed_condition.length > 0) {
+                    queryOption.where.reviewed = reviewed_condition
+                } else {
+                    queryOption.where.reviewed = [0, 1, 2];
+                }
+
+            } 
+
+            if (typeof score === "string" && !Number.isNaN(parseInt(score))) {
+                if (parseInt(score) >= 0 && parseInt(score) <= 10) {
+                    queryOption.where.score = parseInt(score);
+                } 
+            } else if (Array.isArray(score)) {
+                let score_condition = []
+                for (const s of score) {
+                    if (parseInt(s) >= 0 && parseInt(s) <= 10) {
+                        score_condition.push(parseInt(s));
+                    } else {
+                        continue
+                    }
+                }
+                if (score_condition.length > 0) {
+                    queryOption.where.score = score_condition;
+                    order.unshift(['score', 'desc']);
+                }
+            }
+
             const count = await Assignment.count(queryOption);
             const assignments = await Assignment.findAll({
                 ...queryOption,
