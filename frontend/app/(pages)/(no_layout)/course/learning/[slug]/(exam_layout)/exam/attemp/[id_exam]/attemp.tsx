@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation'
 export default function AttempExam({ params, exam }: { params: { slug: string, id_exam: string }, exam: any }) {
     const [open, setOpen] = useState(true);
+    const [countDownTime, setCountDownTime] = useState('00:00');
     const [openSidebar, setOpenSideBar] = useState(true);
     const intervalRef = useRef<any>(null);
     const alphabet = ['A', 'B', 'C', 'D', 'E', 'F'];
@@ -81,10 +82,11 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
 
     function countDown(i: number, callback: any) {
         intervalRef.current = setInterval(function () {
-            let tmp = document.getElementById('displayDiv')
-            if (tmp) {
-                tmp.innerHTML = convertTime(i);
-            }
+            // let tmp = document.getElementById('displayDiv')
+            // if (tmp) {
+            //     tmp.innerHTML = convertTime(i);
+            // }
+            setCountDownTime(convertTime(i));
             if (i-- > 0) {
                 window.localStorage.setItem(`${COUNTER_KEY}`, `${i}`);
             } else {
@@ -119,7 +121,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
     async function submitTest(time: string, formData: any) {
         let data: any = {
             id_exam: params.id_exam,
-            time_start: "2024-03-12 16:38:55",
+            time_start: localStorage.getItem(`${COUNTER_KEY}`) ? Date.now() - Number(localStorage.getItem(`${COUNTER_KEY}`)) * 1000 : Date.now() - exam.period * 60 * 1000,
             time_end: Date.now(),
             assignment: []
         }
@@ -278,7 +280,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
             <div className="px-10 py-5 bg-[#153462] fixed w-full top-0 left-0 z-10">
                 <div className="flex justify-between h-full items-center">
                     <div className="text-[#fff] text-[22px] font-medium text-center ">{exam?.title}</div>
-                    <div className="text-white text-[22px] font-medium" id="displayDiv"></div>
+                    <div className="text-white text-[22px] font-medium" id="displayDiv">{countDownTime}</div>
                 </div>
             </div>
 

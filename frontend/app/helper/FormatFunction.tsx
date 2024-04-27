@@ -4,6 +4,26 @@ export function formatCash(str: string) {
     })
 }
 
+export function convertToHourMinuteSecond(time: string) {
+    const [hours, minutes, seconds] = time.split(':');
+
+    let formattedTime = '';
+
+    if (hours !== '00') {
+        formattedTime += `${parseInt(hours)} giờ `;
+    }
+
+    if (minutes !== '00') {
+        formattedTime += `${parseInt(minutes)} phút `;
+    }
+
+    if (seconds !== '00') {
+        formattedTime += `${parseInt(seconds)} giây`;
+    }
+
+    return formattedTime.trim();
+}
+
 export function convertToVietnamTime(dateTime: string) {
     // Create a new Date object from the provided data time
     const date = new Date(dateTime);

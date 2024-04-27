@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { XMarkIcon, ChevronLeftIcon, CheckIcon } from '@heroicons/react/24/outline';
 import examApi from '@/app/api/examApi';
 import { useForm } from 'react-hook-form';
+import { convertToHourMinuteSecond, convertToVietnamTime } from '@/app/helper/FormatFunction';
 
 
 export default function ReviewExam({ params }: { params: { slug: string, id_assignment: string } }) {
@@ -207,7 +208,7 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
         <div className="bg-[#FBFAF9] relative pt-10">
             <div className="px-10 py-5 bg-[#153462] fixed w-full top-0 left-0 z-10">
                 <div className="flex justify-between h-full items-center">
-                    <div className="text-[#fff] text-[22px] font-medium text-center ">dsfaaaaaaaaa</div>
+                    <div className="text-[#fff] text-[22px] font-medium text-center ">{assignment?.exam_name}</div>
                 </div>
             </div>
             <div className='mx-3 '>
@@ -223,7 +224,7 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
                             }}
                         >
                             <div
-                                className="w-32 h-32 py-3 px-7 rounded-full text-4xl text-[#2FD790] font-normal flex justify-center items-center mr-5"
+                                className="w-32 h-32 py-3 px-7 bg-slate-50 rounded-full text-4xl text-[#2FD790] font-normal flex justify-center items-center mr-5"
                                 style={{
                                     borderImageSource: 'radial-gradient(100% 2743.76% at 100% 84.52%, #2FD790 0%, rgba(47, 215, 144, 0) 100%)',
                                     boxShadow: '1px 2px 4px 0px #00000040 -1px -2px 4px 0px #00000040 inset',
@@ -233,15 +234,17 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
                             </div>
                             <div className="flex">
                                 <div className="flex flex-col justify-between mr-4">
-                                    {/* <div className="py-1 text-[#757575]">Bài kiểm tra:</div>
-                                    <div className="py-1 text-[#757575]">Thời gian làm bài:</div> */}
+                                    <div className="py-1 text-[#757575]">Bài kiểm tra:</div>
+                                    <div className="py-1 text-[#757575]">Thời gian hoàn thành:</div>
+                                    <div className="py-1 text-[#757575]">Thời gian làm bài:</div>
                                     <div className="py-1 text-[#757575]">Số câu bỏ trống</div>
                                     <div className="py-1 text-[#757575]">Số câu trả lời đúng:</div>
                                     <div className="py-1 text-[#757575]">Số câu trả lời sai:</div>
                                 </div>
                                 <div className="flex flex-col justify-between">
-                                    {/* <div className="py-1 text-[#000]">0</div>
-                                    <div className="py-1 text-[#000]">0</div> */}
+                                    <div className="py-1 text-[#000]">{assignment?.exam_name}</div>
+                                    <div className="py-1 text-[#000]">{convertToVietnamTime(assignment?.time_end)}</div>
+                                    <div className="py-1 text-[#000]">{convertToHourMinuteSecond(assignment?.time_to_do || '')}</div>
                                     <div className="py-1 text-[#000]">{assignment?.empty_question}</div>
                                     <div className="py-1 text-[#000]">{assignment?.right_question}</div>
                                     <div className="py-1 text-[#000]">{assignment?.wrong_question}</div>

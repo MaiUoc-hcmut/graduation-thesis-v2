@@ -270,14 +270,11 @@ class AssignmentController {
                     {
                         model: Exam,
                         where: {
-                            id_teacher
+                            id_teacher,
+                            id_course
                         }
                     }
                 ]
-            }
-
-            if (id_course && typeof id_course === "string") {
-                queryOption.include[0].where.id_course = id_course;
             }
 
             const count = await Assignment.count({
@@ -700,6 +697,9 @@ class AssignmentController {
             });
 
             for (const detail_question of detail_questions) {
+                const detailQ = await DetailQuestion.findByPk(detail_question.id);
+                if (!detailQ) return res.status(400).json({ message: "This question does not exist the assignment!" });
+                if (detailQ.id_assignment !== assignment.id) return res.status(400).json({ message: "This question does not belong to assignment!" })
                 await DetailQuestion.update({
                     comment: detail_question.comment
                 }, {
