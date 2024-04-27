@@ -106,6 +106,56 @@ class AssignmentController {
                 order: [['createdAt', 'DESC']]
             });
 
+            for (const assignment of assignments) {
+
+                // Count time to do assignment
+                {
+                    const time_start = new Date(assignment.time_start);
+                    const time_end = new Date(assignment.time_end);
+
+                    const time_in_sec = Math.floor(time_end.getTime() - time_start.getTime()) / 1000;
+                    let hour: any = 0;
+                    let sec: any = time_in_sec % 60;
+                    let min: any = Math.floor(time_in_sec / 60);
+                
+                    if (min > 60) {
+                        hour = Math.floor(min / 60);
+                        min = min % 60;
+                    }
+                    if (hour < 10) {
+                        hour = `0${hour}`;
+                    }
+                    if (min < 10) {
+                        min = `0${min}`
+                    }
+                    if (sec < 10) {
+                        sec = `0${sec}`
+                    }
+
+                    let time_to_do = `${hour}:${min}:${sec}`;
+                    assignment.dataValues.time_to_do = time_to_do;
+                }
+
+                const user = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/student/${assignment.id_student}`);
+                assignment.dataValues.student = {
+                    id: user.data.id,
+                    avatar: user.data.avatar,
+                    name: user.data.name
+                }
+                delete assignment.dataValues.id_student
+
+                if (examQuery === "false") {
+                    const exam = await Exam.findByPk(assignment.id_exam);
+
+                    try {
+                        const course = await axios.get(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${exam.id_course}`);
+                        assignment.dataValues.course_name = course.data.name;
+                    } catch (error) {
+                        assignment.dataValues.course_name = "Error";
+                    }
+                }
+            }
+
             res.status(200).json({ count: count.length, assignments });
         } catch (error: any) {
             console.log(error.message);
@@ -189,6 +239,53 @@ class AssignmentController {
                 ]
             }
 
+            let order = [['reviewed', 'asc'], ['createdAt', 'desc']];
+
+            let reviewed: any = req.query.reviewed;
+            let score: any = req.query.score;
+
+            if (typeof reviewed === "string" && !Number.isNaN(parseInt(reviewed))) {
+                if (parseInt(reviewed) >= 0 && parseInt(reviewed) <= 2) {
+                    queryOption.where.reviewed = parseInt(reviewed);
+                } else {
+                    queryOption.where.reviewed = [0, 1, 2];
+                }
+            } else if (Array.isArray(reviewed)) {
+                let reviewed_condition = [];
+                for (const r of reviewed) {
+                    if (parseInt(r) >= 0 && parseInt(r) <= 2) {
+                        reviewed_condition.push(parseInt(r));
+                    } else {
+                        continue
+                    }
+                }
+                if (reviewed_condition.length > 0) {
+                    queryOption.where.reviewed = reviewed_condition
+                } else {
+                    queryOption.where.reviewed = [0, 1, 2];
+                }
+
+            } 
+
+            if (typeof score === "string" && !Number.isNaN(parseInt(score))) {
+                if (parseInt(score) >= 0 && parseInt(score) <= 10) {
+                    queryOption.where.score = parseInt(score);
+                } 
+            } else if (Array.isArray(score)) {
+                let score_condition = []
+                for (const s of score) {
+                    if (parseInt(s) >= 0 && parseInt(s) <= 10) {
+                        score_condition.push(parseInt(s));
+                    } else {
+                        continue
+                    }
+                }
+                if (score_condition.length > 0) {
+                    queryOption.where.score = score_condition;
+                    order.unshift(['score', 'desc']);
+                }
+            }
+
             const count = await Assignment.count(queryOption);
             const assignments = await Assignment.findAll({
                 ...queryOption,
@@ -196,6 +293,56 @@ class AssignmentController {
                 offset: pageSize * (currentPage - 1),
                 order: [['createdAt', 'DESC']]
             });
+
+            for (const assignment of assignments) {
+
+                // Count time to do assignment
+                {
+                    const time_start = new Date(assignment.time_start);
+                    const time_end = new Date(assignment.time_end);
+
+                    const time_in_sec = Math.floor(time_end.getTime() - time_start.getTime()) / 1000;
+                    let hour: any = 0;
+                    let sec: any = time_in_sec % 60;
+                    let min: any = Math.floor(time_in_sec / 60);
+                
+                    if (min > 60) {
+                        hour = Math.floor(min / 60);
+                        min = min % 60;
+                    }
+                    if (hour < 10) {
+                        hour = `0${hour}`;
+                    }
+                    if (min < 10) {
+                        min = `0${min}`
+                    }
+                    if (sec < 10) {
+                        sec = `0${sec}`
+                    }
+
+                    let time_to_do = `${hour}:${min}:${sec}`;
+                    assignment.dataValues.time_to_do = time_to_do;
+                }
+
+                const user = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/student/${assignment.id_student}`);
+                assignment.dataValues.student = {
+                    id: user.data.id,
+                    avatar: user.data.avatar,
+                    name: user.data.name
+                }
+                delete assignment.dataValues.id_student
+
+                if (examQuery === "false") {
+                    const exam = await Exam.findByPk(assignment.id_exam);
+
+                    try {
+                        const course = await axios.get(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${exam.id_course}`);
+                        assignment.dataValues.course_name = course.data.name;
+                    } catch (error) {
+                        assignment.dataValues.course_name = "Error";
+                    }
+                }
+            }
 
             res.status(200).json({ count, assignments });
         } catch (error: any) {
@@ -277,6 +424,53 @@ class AssignmentController {
                 ]
             }
 
+            let order = [['reviewed', 'asc'], ['createdAt', 'desc']];
+
+            let reviewed: any = req.query.reviewed;
+            let score: any = req.query.score;
+
+            if (typeof reviewed === "string" && !Number.isNaN(parseInt(reviewed))) {
+                if (parseInt(reviewed) >= 0 && parseInt(reviewed) <= 2) {
+                    queryOption.where.reviewed = parseInt(reviewed);
+                } else {
+                    queryOption.where.reviewed = [0, 1, 2];
+                }
+            } else if (Array.isArray(reviewed)) {
+                let reviewed_condition = [];
+                for (const r of reviewed) {
+                    if (parseInt(r) >= 0 && parseInt(r) <= 2) {
+                        reviewed_condition.push(parseInt(r));
+                    } else {
+                        continue
+                    }
+                }
+                if (reviewed_condition.length > 0) {
+                    queryOption.where.reviewed = reviewed_condition
+                } else {
+                    queryOption.where.reviewed = [0, 1, 2];
+                }
+
+            } 
+
+            if (typeof score === "string" && !Number.isNaN(parseInt(score))) {
+                if (parseInt(score) >= 0 && parseInt(score) <= 10) {
+                    queryOption.where.score = parseInt(score);
+                } 
+            } else if (Array.isArray(score)) {
+                let score_condition = []
+                for (const s of score) {
+                    if (parseInt(s) >= 0 && parseInt(s) <= 10) {
+                        score_condition.push(parseInt(s));
+                    } else {
+                        continue
+                    }
+                }
+                if (score_condition.length > 0) {
+                    queryOption.where.score = score_condition;
+                    order.unshift(['score', 'desc']);
+                }
+            }
+
             const count = await Assignment.count({
                 ...queryOption,
                 distince: true
@@ -285,19 +479,57 @@ class AssignmentController {
                 ...queryOption,
                 limit: pageSize,
                 offset: pageSize * (currentPage - 1),
-                order: [['createdAt', 'DESC']]
+                order
             });
 
             for (const assignment of assignments) {
-                const user = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/student/${assignment.id_student}`);
 
+                // Count time to do assignment
+                {
+                    const time_start = new Date(assignment.time_start);
+                    const time_end = new Date(assignment.time_end);
+
+                    const time_in_sec = Math.floor(time_end.getTime() - time_start.getTime()) / 1000;
+                    let hour: any = 0;
+                    let sec: any = time_in_sec % 60;
+                    let min: any = Math.floor(time_in_sec / 60);
+                
+                    if (min > 60) {
+                        hour = Math.floor(min / 60);
+                        min = min % 60;
+                    }
+                    if (hour < 10) {
+                        hour = `0${hour}`;
+                    }
+                    if (min < 10) {
+                        min = `0${min}`
+                    }
+                    if (sec < 10) {
+                        sec = `0${sec}`
+                    }
+
+                    let time_to_do = `${hour}:${min}:${sec}`;
+                    assignment.dataValues.time_to_do = time_to_do;
+                }
+
+                const user = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/student/${assignment.id_student}`);
                 assignment.dataValues.student = {
                     id: user.data.id,
                     avatar: user.data.avatar,
                     name: user.data.name
                 }
-
                 delete assignment.dataValues.id_student
+
+                if (examQuery === "false") {
+                    const exam = await Exam.findByPk(assignment.id_exam);
+
+                    try {
+                        const course = await axios.get(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${exam.id_course}`);
+                        assignment.dataValues.course_name = course.data.name;
+                    } catch (error) {
+                        assignment.dataValues.course_name = "Error";
+                    }
+                }
             }
 
             res.status(200).json({ count, assignments });
@@ -312,6 +544,7 @@ class AssignmentController {
         try {
             const id_student = req.params.studentId;
             const id_exam = req.params.examId;
+            const exam = await Exam.findByPk(id_exam);
 
             const authority = req.authority;
 
@@ -372,6 +605,44 @@ class AssignmentController {
                 order: [['createdAt', 'DESC']]
             });
 
+            for (const assignment of assignments) {
+                const time_start = new Date(assignment.time_start);
+                const time_end = new Date(assignment.time_end);
+
+                const time_in_sec = Math.floor(time_end.getTime() - time_start.getTime()) / 1000;
+                let hour: any = 0;
+                let sec: any = time_in_sec % 60;
+                let min: any = Math.floor(time_in_sec / 60);
+            
+                if (min > 60) {
+                    hour = Math.floor(min / 60);
+                    min = min % 60;
+                }
+                if (hour < 10) {
+                    hour = `0${hour}`;
+                }
+                if (min < 10) {
+                    min = `0${min}`
+                }
+                if (sec < 10) {
+                    sec = `0${sec}`
+                }
+
+                let time_to_do = `${hour}:${min}:${sec}`;
+                assignment.dataValues.time_to_do = time_to_do;
+
+                if (exam.id_course) {
+                    const exam = await Exam.findByPk(assignment.id_exam);
+
+                    try {
+                        const course = await axios.get(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${exam.id_course}`);
+                        assignment.dataValues.course_name = course.data.name;
+                    } catch (error) {
+                        assignment.dataValues.course_name = "Error";
+                    }
+                }
+            }
+
             res.status(200).json({ count, assignments });
         } catch (error: any) {
             console.log(error.message);
@@ -383,6 +654,7 @@ class AssignmentController {
     getAssignmentsOfExam = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_exam = req.params.examId;
+            const exam = await Exam.findByPk(id_exam);
 
             const pageSize: number = 20;
             const currentPage: number = +req.params.page;
@@ -433,6 +705,54 @@ class AssignmentController {
                 offset: pageSize * (currentPage - 1),
                 order: [['createdAt', 'DESC']]
             });
+
+            for (const assignment of assignments) {
+                const user = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/student/${assignment.id_student}`);
+                assignment.dataValues.student = {
+                    id: user.data.id,
+                    avatar: user.data.avatar,
+                    name: user.data.name
+                }
+
+                delete assignment.dataValues.id_student;
+
+                // Count time to do assignment
+                {
+                    const time_start = new Date(assignment.time_start);
+                    const time_end = new Date(assignment.time_end);
+
+                    const time_in_sec = Math.floor(time_end.getTime() - time_start.getTime()) / 1000;
+                    let hour: any = 0;
+                    let sec: any = time_in_sec % 60;
+                    let min: any = Math.floor(time_in_sec / 60);
+                
+                    if (min > 60) {
+                        hour = Math.floor(min / 60);
+                        min = min % 60;
+                    }
+                    if (hour < 10) {
+                        hour = `0${hour}`;
+                    }
+                    if (min < 10) {
+                        min = `0${min}`
+                    }
+                    if (sec < 10) {
+                        sec = `0${sec}`
+                    }
+
+                    let time_to_do = `${hour}:${min}:${sec}`;
+                    assignment.dataValues.time_to_do = time_to_do;
+                }
+
+                if (exam.id_course) {
+                    try {
+                        const course = await axios.get(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${exam.id_course}`);
+                        assignment.dataValues.course_name = course.data.name;
+                    } catch (error) {
+                        assignment.dataValues.course_name = "Error";
+                    }
+                }
+            }
 
             res.status(200).json({ count, assignments });
         } catch (error: any) {
