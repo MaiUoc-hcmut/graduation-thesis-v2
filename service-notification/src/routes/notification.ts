@@ -37,6 +37,9 @@ router.route('/payment')
 router.route('/comment-on-assignment')
     .post(NotificationController.notifyTeacherCommentOnAssignment);
 
+router.route('/comment-on-lecture')
+    .post(NotificationController.notificationStudentCommentOnLecture);
+
 module.exports = router;
 
 export {}

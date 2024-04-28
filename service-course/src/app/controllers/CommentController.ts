@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { Op } from 'sequelize';
 const Comment = require('../../db/models/comment');
+const Topic = require('../../db/models/topic');
+const Chapter = require('../../db/models/chapter');
+const Course = require('../../db/models/course');
 const axios = require('axios');
 
 require('dotenv').config();
@@ -149,19 +152,44 @@ class CommentController {
     createComment = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
-            const data = req.body.data;
+            let body = req.body.data;
+
+            if (typeof body === "string") {
+                body = JSON.parse(body);
+            }
+
+            const topic = await Topic.findByPk(body.id_topic);
+            const chapter = await Chapter.findByPk(topic.id_chapter);
+            const course = await Course.findByPk(chapter.id_course);
 
             const id_user = req.user?.user.data.id;
+            const name = req.user?.user.data.name;
             const role = req.user?.role;
 
             const newComment = await Comment.create({
                 id_user,
-                ...data,
+                ...body,
                 role,
                 image: req.ImageUrl
             }, {
                 transaction: t
             });
+
+            if (role === "student") {
+                try {
+                    const data = {
+                        id_teacher: course.id_teacher,
+                        id_topic: body.id_topic,
+                        id_course: course.id_id,
+                        course_name: course.name,
+                        student_name: name
+                    }
+    
+                    const response = await axios.post(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/comment-on-lecture`, { data });
+                } catch (error: any) {
+                    console.log(error.message);
+                }
+            }
 
             await t.commit();
             

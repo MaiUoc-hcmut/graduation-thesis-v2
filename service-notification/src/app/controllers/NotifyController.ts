@@ -412,7 +412,6 @@ class NotificationController {
             const clientConnected = socketInstance.getClientConnected();
             
             const findUser = clientConnected.find(obj => obj.user === id_student);
-            console.log(id_student);
             if (findUser) {
                 io.to(findUser.socket).emit("teacher_review_assignment", {
                     message: "Giáo viên đã nhận xét bài làm của bạn",
@@ -433,6 +432,48 @@ class NotificationController {
             });
 
             res.status(201).json(newNoti);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ message: error.message, error });
+        }
+    }
+
+    // [POST] /notification/comment-on-lecture
+    notificationStudentCommentOnLecture = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const {
+                id_teacher,
+                id_topic,
+                id_course,
+                course_name,
+                student_name
+            } = req.body.data;
+
+            const io = socketInstance.getIoInstance();
+            const clientConnected = socketInstance.getClientConnected();
+            
+            const findUser = clientConnected.find(obj => obj.user === id_teacher);
+            if (findUser) {
+                io.to(findUser.socket).emit("student_comment_on_topic", {
+                    message: "Học sinh đã bình luận trong một bài giảng",
+                    student_name,
+                    course_name,
+                    id_course
+                });
+            }
+
+            const newNoti = await NotificationModel.create({
+                id_user: id_teacher,
+                id_topic,
+                course_name,
+                id_course,
+                name: student_name,
+                content: "Học sinh đã bình luận trong một bài giảng",
+                type: "comment"
+            });
+
+            res.status(201).json(newNoti);
+
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ message: error.message, error });
