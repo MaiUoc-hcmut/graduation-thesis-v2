@@ -1,11 +1,14 @@
 const NotificationModel = require('../../db/model/notification');
 const RoomSocket = require('../../db/model/room');
+const StudentNotification = require('../../db/model/student-noti');
 
 import { Request, Response, NextFunction } from "express";
 import { socketInstance } from "../..";
 
 
 const { sequelize } = require('../../config/db/index');
+
+const axios = require('axios');
 
 declare global {
     namespace Express {
@@ -341,6 +344,7 @@ class NotificationController {
 
     // [POST] /notification/teacher-send
     teacherSendNotification = async (req: Request, res: Response, _next: NextFunction) => {
+        const t = await sequelize.transaction();
         try {
             let body = req.body.data;
             if (typeof body === "string") {
@@ -348,6 +352,7 @@ class NotificationController {
             }
 
             const teacher_name = req.teacher?.data.name;
+            const id_teacher = req.teacher?.data.id;
 
             let { users, ...message } = body;
 
@@ -372,12 +377,32 @@ class NotificationController {
                 type: "teacher"
             }));
 
-            const notifications = await NotificationModel.bulkCreate(dataToCreate);
+            const notifications = await NotificationModel.bulkCreate(dataToCreate, { transaction: t });
+            const teacherNoti = await NotificationModel.create({
+                id_user: id_teacher,
+                content: message.message,
+                type: "send"
+            }, {
+                transaction: t
+            });
 
-            res.status(201).json(notifications);
+            const studentRecords = users.map((id_user: string) => ({
+                id_student: id_user,
+                id_notification: teacherNoti.id
+            }));
+
+            const students = await StudentNotification.bulkCreate(studentRecords, { transaction: t });
+
+            teacherNoti.dataValues.students = students;
+
+            await t.commit();
+
+            res.status(201).json(teacherNoti);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ message: error.message, error });
+
+            await t.rollback();
         }
     }
 
@@ -474,6 +499,68 @@ class NotificationController {
 
             res.status(201).json(newNoti);
 
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ message: error.message, error });
+        }
+    }
+
+    // [GET] /notification/teacher/:teacherId
+    getNotifyTeacherSent = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const id_user = req.params.teacherId;
+            
+            const notifications = await NotificationModel.findAll({
+                where: {
+                    id_user,
+                    type: "send"
+                }
+            });
+
+            res.status(200).json(notifications);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ message: error.message, error });
+        }
+    }
+
+    // [GET] /notification/list-student/:notificationId
+    getListStudentOfNotiTeacherSent = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const id_notification = req.params.notificationId;
+            const students = await StudentNotification.findAll({
+                where: {
+                    id_notification
+                }
+            });
+
+            let studentList: {
+                name: string,
+                avatar: string,
+                id: string,
+                email: string
+            }[] = [];
+
+            for (const student of students) {
+                try {
+                    const s = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/student/${student.id_student}`);
+                    studentList.push({
+                        name: s.data.name,
+                        avatar: s.data.avatar,
+                        id: s.data.id,
+                        email: s.data.email
+                    });
+                } catch (error) {
+                    studentList.push({
+                        id: student.id_student,
+                        avatar: "error",
+                        name: "error",
+                        email: "error"
+                    });
+                }
+            }
+
+            res.status(200).json(studentList);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ message: error.message, error });
