@@ -140,6 +140,47 @@ class ReviewController {
         }
     }
 
+    // [GET] /reviews/teacher/:teacherId
+    getAllReviewsOfAllExamsOfTeacher = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const id_teacher = req.params.teacherId;
+
+            const reviewsList: any[] = [];
+
+            const exams = await Exam.findAll({
+                where: {
+                    id_teacher,
+                    id_course: null
+                }
+            });
+
+            for (const exam of exams) {
+                const reviews = await Review.findAll({
+                    where: {
+                        id_exam: exam.id
+                    }
+                });
+
+                for (const review of reviews) {
+                    review.dataValues.exam_name = exam.title;
+
+                    const student = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/student/${review.id_student}`);
+                    review.dataValues.user = {
+                        id: student.data.id,
+                        name: student.data.name,
+                        avatar: student.data.avatar
+                    }
+                }
+                reviewsList.push(...reviews);
+            }
+
+            res.status(200).json(reviewsList);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error });
+        }
+    }
+
     // [GET] /reviews/:reviewId
     getReviewById = async (req: Request, res: Response, _next: NextFunction) => {
         try {

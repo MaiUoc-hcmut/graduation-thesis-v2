@@ -445,11 +445,11 @@ class ExamController {
                 return res.status(400).json({ message: "Information missed!" });
             }
                 
-            if (!categories) {
+            if (!categories || categories.length === 0) {
                 return res.status(400).json({ message: "Category missed!" });
             }
 
-            if (!questions) {
+            if (!questions || questions.length === 0) {
                 return res.status(400).json({ message: "Questions missed!" });
             }
 
