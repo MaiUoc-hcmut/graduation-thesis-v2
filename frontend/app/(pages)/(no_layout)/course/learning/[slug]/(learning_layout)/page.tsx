@@ -37,7 +37,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
     const { user } = useAppSelector(state => state.authReducer);
     const [modal, setModal] = useState<any>({})
     const editorRef = useRef<any>(null);
-    const [assignments, setAssignments] = useState<any>()
+    const [assignments, setAssignments] = useState<any>([])
     const [progress, setProgress] = useState<any>()
 
     const lectureId = searchParams.get('lecture') || (topic?.type === "lecture" && !searchParams.get('exam') ? topic?.id : null)
@@ -176,12 +176,13 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
     useEffect(() => {
         async function fetchData() {
             if (examId)
-                examApi.getAssigmnentByExamId(`${user.id}`, examId).then((data) => {
+                examApi.getAssigmnentByExamId(`${user.id}`, examId, currentPageComment).then((data) => {
                     setAssignments(data.data.assignments)
+                    setPaginate(Math.ceil(data.data.count / 10))
                 })
         }
         fetchData()
-    }, [examId, user.id]);
+    }, [currentPageComment, examId, user.id]);
 
     useEffect(() => {
         async function fetchData() {
@@ -306,7 +307,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                     }} type="text" className="bg-gray-50 border-b border-[#ccc] mb-2 text-gray-900 text-sm rounded-lg block w-full p-2.5" placeholder="Bạn có thắc mắc gì trong bài học này?" />
                                                 </div>
                                                 <div className={`${toggle[`edit-cmt`] ? '' : 'hidden'}`}>
-                                                    <TinyMceEditorComment value={content} setValue={setValue} position={'content'} editorRef={editorRef} />
+                                                    <TinyMceEditorComment value={content} setValue={setValue} position={'content'} editorRef={editorRef} link={'http://localhost:4001/api/v1/images/single'} />
                                                 </div>
                                                 <div className='flex justify-end mt-4'>
                                                     <button type="button" className="py-2.5 px-5 mr-2 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-gray-200" onClick={() => (setToggle({ ...toggle, [`edit-cmt`]: false }))}>Hủy</button>
@@ -428,7 +429,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                             }
                                                         })}>
 
-                                                            <TinyMceEditorComment value={getValues()[cmt.id]} setValue={setValue} position={`${cmt.id}`} />
+                                                            <TinyMceEditorComment value={getValues()[cmt.id]} setValue={setValue} position={`${cmt.id}`} editorRef={editorRef} link={'http://localhost:4001/api/v1/images/single'} />
                                                             <div className='flex justify-end mt-4'>
                                                                 <button type="button" className="py-2.5 px-5 mr-2 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-gray-200" onClick={() => (setToggle({ ...toggle, [`form${cmt.id}`]: false }))}>Hủy</button>
                                                                 <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-2 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Bình luận</button>
@@ -571,16 +572,20 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                 <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                                                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                                         <tr>
-                                                            <th scope="col" className="w-1/6 px-6 py-3 text-center">
-                                                                Làm bài
+                                                            <th scope="col" className="flex-1 px-6 py-3 text-center">
+                                                                STT
                                                             </th>
-                                                            <th scope="col" className="w-1/2 px-6 py-3">
+                                                            <th scope="col" className="w-1/4 px-6 py-3">
                                                                 Thời gian hoàn thành
                                                             </th>
                                                             <th scope="col" className="w-1/6 px-6 py-3 text-center">
                                                                 Điểm
                                                             </th>
-                                                            <th scope="col" className="w-1/6 px-6 py-3 text-center">
+                                                            <th scope="col" className="w-1/3 px-6 py-3 text-center">
+                                                                Hoàn thành
+                                                            </th>
+
+                                                            <th scope="col" className="w-1/4 px-6 py-3 text-center">
                                                                 Xem lại
                                                             </th>
                                                         </tr>
@@ -593,13 +598,19 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                                     <tr key={assignment.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                                                                         <th
                                                                             scope="row"
-                                                                            className="px-6 py-4 w-1/6 text-center font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                                                                            className="px-6 py-4 flex-1 text-center font-medium text-gray-900 whitespace-nowrap dark:text-white"
                                                                         >
                                                                             {index + 1}
                                                                         </th>
-                                                                        <td className="w-1/2 px-6 py-4">{convertToVietnamTime(assignment.time_end)}</td>
-                                                                        <td className="w/1/6 px-6 py-4 text-center">{assignment.score}</td>
-                                                                        <td className="w/1/6 px-6 py-4 text-center"><Link href={`/course/learning/${params.slug}/exam/result/${assignment.id}`} className='underline text-blue-500'>Xem lại</Link></td>
+                                                                        <td className="w-1/3 px-6 py-4">{convertToVietnamTime(assignment.time_end)}</td>
+                                                                        <td className="w-1/6 px-6 py-4 text-center">{assignment.score}</td>
+                                                                        <td className="w-1/3 px-6 py-4 text-center">
+                                                                            {assignment.passed ?
+                                                                                <span className="bg-red-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">Chưa hoàn thành</span>
+                                                                                :
+                                                                                <span className="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Hoàn thành</span>}
+                                                                        </td>
+                                                                        <td className="w-1/4 px-6 py-4 text-center"><Link href={`/course/learning/${params.slug}/exam/result/${assignment.id}`} className='underline text-blue-500'>Xem lại</Link></td>
                                                                     </tr>
                                                                 )
                                                             })
@@ -612,7 +623,40 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                         </div>
                                     </div>
                                 }
-
+                                {
+                                    paginate > 1 ?
+                                        <div className="flex justify-center items-center pt-10 pb-5">
+                                            <nav aria-label="Page navigation example">
+                                                <ul className="flex items-center -space-x-px h-8 text-sm">
+                                                    <li>
+                                                        <button disabled className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                                                            <span className="sr-only">Previous</span>
+                                                            <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 1 1 5l4 4" />
+                                                            </svg>
+                                                        </button>
+                                                    </li>
+                                                    {
+                                                        list.map((l: number) => {
+                                                            return (
+                                                                <div key={l} onClick={() => setChange(!change)}>
+                                                                    <button onClick={() => setCurrentPageComment(l)} className={`flex items-center justify-center px-3 h-8 leading-tight ${currentPageComment == l ? 'text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'} `}>{l}</button>
+                                                                </div>
+                                                            )
+                                                        })
+                                                    }
+                                                    <li>
+                                                        <button disabled className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                                                            <span className="sr-only">Next</span>
+                                                            <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m1 9 4-4-4-4" />
+                                                            </svg>
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </nav>
+                                        </div> : null
+                                }
                             </div>
                         </div>
                     </div >

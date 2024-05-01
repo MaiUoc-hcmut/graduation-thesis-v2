@@ -1,18 +1,16 @@
 import React, { useRef } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 
-export default function TinyMceEditorComment({ setValue, value, position, editorRef }: any) {
-
-
-
+export default function TinyMceEditorComment({ setValue, value, position, editorRef, link }: any) {
     const handleEditorChange = (content: any, editor: any) => {
         setValue(position, content)
     };
 
+
     const handleImageUpload: any = (blobInfo: any, success: any, failure: any) => {
         return new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
-            xhr.open("POST", "http://localhost:4001/api/v1/images/single", true);
+            xhr.open("POST", link, true);
 
             const formData = new FormData();
             formData.append("image", blobInfo.blob(), blobInfo.filename());
@@ -72,7 +70,7 @@ export default function TinyMceEditorComment({ setValue, value, position, editor
                     help: { title: 'Help', items: 'help' }
                 },
                 images_upload_handler: handleImageUpload,
-                images_upload_url: "http://localhost:4001/api/v1/images/single",
+                images_upload_url: link,
                 image_title: true,
                 file_picker_types: 'image',
             }}

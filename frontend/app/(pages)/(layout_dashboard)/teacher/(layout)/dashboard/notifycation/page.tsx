@@ -39,21 +39,21 @@ export default function NotifycationDashboard() {
                             <div key={notify.id} className='rounded-md bg-white shadow-sm mb-5 px-10 py-5'>
 
                                 <div className='flex items-center justify-between'>
-                                    <div className="text-[#171347] text-sm font-semibold w-1/4 flex flex-col justify-center items-start">
+                                    <div className="text-[#171347] text-sm font-semibold w-1/3 flex flex-col justify-center items-start">
                                         <div className='mb-2 flex justify-center items-center'>
-                                            {
-                                                notify.read ? null : <div className='rounded-full w-3 h-3 p-1 bg-[#f63c3c] mr-1'>
+                                            <div>
+                                                {
+                                                    notify.read ? null : <span className="mr-1 inline-block rounded-full bg-red-500 h-[10px] w-[10px]"></span>
+                                                }
+                                                Thông báo mới từ hệ thống
 
-                                                </div>
-                                            }
-
-                                            Thông báo mới từ hệ thống
+                                            </div>
                                         </div>
                                         <span className='text-[#818894] text-xs'>
                                             {convertToVietnamTime(notify.createdAt)}
                                         </span>
                                     </div>
-                                    <div className="text-gray-500 text-sm flex-1 text-center">
+                                    <div className="text-gray-500 text-sm flex-1 text-center px-5">
                                         {notify.type === 'course' && (
                                             <>Khóa học <span className='font-medium text-black'>{notify.name}</span>  vừa được tạo thành công</>
                                         )}
@@ -61,16 +61,18 @@ export default function NotifycationDashboard() {
                                             <>Có người vừa tạo chủ đề <span className='font-medium text-black'>{notify.name}</span> trong khóa học <span className='font-medium text-black'>{notify.course_name}</span></>
                                         )}
                                     </div>
-                                    {
-                                        notify.type === 'course' && (<Link href={'/teacher/dashboard/course'} className="text-gray-500 text-sm w-1/12 flex justify-center items-center">
-                                            <button type='button' onClick={async () => { if (!notify.read) await notifyApi.readNotify({ data: [notify.id] }) }} className='px-4 py-2 border-[1px] border-gray-200 rounded-md hover:text-white hover:bg-primary'>Xem</button>
-                                        </Link>)
-                                    }
-                                    {
-                                        notify.type === 'topic' && (<Link href={`/course/learning/${notify.id_course}/forum/${notify.id_topic}`} className="text-gray-500 text-sm w-1/12 flex justify-center items-center">
-                                            <button type='button' onClick={async () => { if (!notify.read) await notifyApi.readNotify({ data: [notify.id] }) }} className='px-4 py-2 border-[1px] border-gray-200 rounded-md hover:text-white hover:bg-primary'>Xem</button>
-                                        </Link>)
-                                    }
+                                    <div className='w-1/12 flex justify-center items-center'>
+                                        {
+                                            notify.type === 'course' && (<Link href={'/teacher/dashboard/course'} className="text-gray-500 text-sm w-1/12 flex justify-center items-center">
+                                                <button type='button' onClick={async () => { if (!notify.read) await notifyApi.readNotify({ data: [notify.id] }) }} className='px-4 py-2 border-[1px] border-gray-200 rounded-md hover:text-white hover:bg-primary'>Xem</button>
+                                            </Link>)
+                                        }
+                                        {
+                                            notify.type === 'topic' && (<Link href={`/course/learning/${notify.id_course}/forum/${notify.id_topic}`} className="text-gray-500 text-sm w-1/12 flex justify-center items-center">
+                                                <button type='button' onClick={async () => { if (!notify.read) await notifyApi.readNotify({ data: [notify.id] }) }} className='px-4 py-2 border-[1px] border-gray-200 rounded-md hover:text-white hover:bg-primary'>Xem</button>
+                                            </Link>)
+                                        }
+                                    </div>
 
                                 </div>
                             </div>

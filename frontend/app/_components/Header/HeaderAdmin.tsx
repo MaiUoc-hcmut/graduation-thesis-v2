@@ -9,6 +9,8 @@ import { useDispatch } from "react-redux";
 import { useRouter } from 'next/navigation'
 import { BellIcon } from "@heroicons/react/24/solid"
 import { InformationCircleIcon } from "@heroicons/react/24/outline"
+import { initFlowbite } from 'flowbite';
+import { useEffect } from 'react';
 
 export default function HeaderAdmin() {
     const dispatch = useDispatch<AppDispatch>();
@@ -16,7 +18,9 @@ export default function HeaderAdmin() {
     const authReducer = JSON.parse(localStorage.getItem('persist:authReducer') || '{}')
     const isAuth = (authReducer?.isAuth == "true" || authReducer?.isAuthTeacher == "true") ? true : false
     const { user } = useAppSelector(state => state.authReducer);
-
+    useEffect(() => {
+        initFlowbite();
+    }, []);
     return (
         <header className="antialiased fixed top-0 left-0 w-full z-50 shadow- border-b-[1px] border-b-[#ececec] shadow-header_teacher">
             <nav className="bg-white border-gray-200 px-10 py-5 dark:bg-gray-800">

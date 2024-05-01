@@ -3,11 +3,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useAppSelector } from "@/redux/store";
 import { usePathname } from 'next/navigation'
+import { initFlowbite } from 'flowbite';
+import { useEffect } from 'react';
 export default function SidebarStudent() {
     const { user } = useAppSelector(state => state.authReducer);
     const pathname = usePathname()
-    console.log(pathname);
-
+    useEffect(() => {
+        initFlowbite();
+    }, []);
     return (
         <div className=''>
             <aside
@@ -46,15 +49,32 @@ export default function SidebarStudent() {
                                 </Link>
                             </li>
                             <li>
+                                <Link
+                                    href="/student/dashboard/course"
+                                    className={`${pathname == '/student/dashboard/course' ? 'bg-slate-100' : ''} flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group`}
+                                >
+
+                                    <span className="ms-3">Khóa học của tôi</span>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/student/dashboard/course"
+                                    className={`${pathname == '/student/dashboard/exam' ? 'bg-slate-100' : ''} flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group`}
+                                >
+
+                                    <span className="ms-3">Đề thi của tôi</span>
+                                </Link>
+                            </li>
+                            {/* <li>
                                 <button
                                     type="button"
                                     className="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                                    aria-controls="dropdown-example"
-                                    data-collapse-toggle="dropdown-example"
+                                    aria-controls="exam"
+                                    data-collapse-toggle="exam"
                                 >
-
                                     <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">
-                                        Quản lý khóa học
+                                        Kết quả làm bài
                                     </span>
                                     <svg
                                         className="w-3 h-3"
@@ -72,21 +92,50 @@ export default function SidebarStudent() {
                                         />
                                     </svg>
                                 </button>
-                                <ul id="dropdown-example" className="hidden py-2 space-y-2">
+                                <ul id="exam" className="hidden py-2 space-y-2">
                                     <li>
                                         <Link
-                                            href="/student/dashboard/course"
-                                            className={`${pathname == '/student/dashboard/course' ? 'bg-slate-100' : ''} flex ml-4 items-center p-2 text-gray-900 transition duration-75 rounded-lg pl-4 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700`}
+                                            href="/student/dashboard/exam"
+                                            className={`${pathname == '/student/dashboard/exam' ? 'bg-slate-100' : ''} ml-4 flex items-center p-2 text-gray-900 transition duration-75 rounded-lg pl-2 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700`}
                                         >
                                             <div className='ml-2'>
-                                                Khóa học của tôi
+                                                Kết quả bài tập
+                                            </div>
+
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link
+                                            href="/student/dashboard/exam"
+                                            className={`${pathname == '/student/dashboard/exam' ? 'bg-slate-100' : ''} ml-4 flex items-center p-2 text-gray-900 transition duration-75 rounded-lg pl-2 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700`}
+                                        >
+                                            <div className='ml-2'>
+                                                Kết quả đề thi
                                             </div>
 
                                         </Link>
                                     </li>
                                 </ul>
+                            </li> */}
+                            <li>
+                                <Link
+                                    href="/student/dashboard/notifycation"
+                                    className={`${pathname == '/student/dashboard/notifycation' ? 'bg-slate-100' : ''} flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group`}
+                                >
+
+                                    <span className="ms-3">Thông báo</span>
+                                </Link>
                             </li>
                             <li>
+                                <Link
+                                    href="/student/dashboard/profile"
+                                    className={`${pathname == '/student/dashboard/profile' ? 'bg-slate-100' : ''} flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group`}
+                                >
+
+                                    <span className="ms-3">Hồ sơ của tôi</span>
+                                </Link>
+                            </li>
+                            {/* <li>
                                 <button
                                     type="button"
                                     className="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
@@ -125,7 +174,7 @@ export default function SidebarStudent() {
                                         </Link>
                                     </li>
                                 </ul>
-                            </li>
+                            </li> */}
 
                         </ul>
                     </div>

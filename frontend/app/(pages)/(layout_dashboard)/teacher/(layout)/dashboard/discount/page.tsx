@@ -7,7 +7,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Controller, useForm } from "react-hook-form"
 import { Label, Modal, TextInput, Textarea, Button } from 'flowbite-react';
 import discountApi from '@/app/api/discountApi';
-import { formatDateTime, formatDateTimeEng } from '@/app/helper/FormatFunction';
+import { convertToVietnamTime, formatDateTime, formatDateTimeEng } from '@/app/helper/FormatFunction';
 import { useSearchParams } from 'next/navigation';
 import { Dropdown } from 'flowbite-react';
 import { useAppSelector } from '@/redux/store';
@@ -52,6 +52,8 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
     for (let i = 1; i <= paginate; i++) {
         list.push(i)
     }
+
+
     return (
         <div className='w-full'>
             <>
@@ -93,11 +95,11 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                                     htmlFor="name"
                                     className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
                                 >
-                                    Tên
+                                    Tên khuyến mãi
                                 </label>
                                 <input
                                     {...register("name", {
-                                        required: "Tiêu đề không thể trống."
+                                        required: "Tên khuyến mãi không thể trống."
                                     })}
                                     type="text"
                                     id="name"
@@ -239,9 +241,9 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                                 <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
                                     <thead>
                                         <tr>
-                                            <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Tên</th>
+                                            <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Tên khuyến mãi</th>
                                             <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Khóa học</th>
-                                            <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Số lượng</th>
+                                            <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Phần trăm</th>
                                             <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Trạng thái</th>
                                             <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Ngày bắt đầu</th>
                                             <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Ngày kết thúc</th>
@@ -302,7 +304,7 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                                                                     courses: [data.courses]
                                                                 }
 
-                                                                await discountApi.update(dataForm).then(() => {
+                                                                await discountApi.update(dataForm, item.id).then(() => {
 
                                                                 }).catch((err: any) => { })
 
@@ -317,12 +319,12 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                                                                         htmlFor="name"
                                                                         className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
                                                                     >
-                                                                        Tiêu đề
+                                                                        Tên khuyến mãi
                                                                     </label>
                                                                     <input
                                                                         defaultValue={item.name}
                                                                         {...register("name", {
-                                                                            required: "Tiêu đề không thể trống."
+                                                                            required: "Tên khuyến mãi không thể trống."
                                                                         })}
                                                                         type="text"
                                                                         id="name"
@@ -368,19 +370,19 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                                                                         htmlFor="percent"
                                                                         className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
                                                                     >
-                                                                        Số lượng (%)
+                                                                        Phần trăm
                                                                     </label>
                                                                     <input
                                                                         defaultValue={item.percent}
                                                                         {...register("percent", {
-                                                                            required: "Số lượng không thể trống.",
+                                                                            required: "Phần trăm không thể trống.",
                                                                             min: {
                                                                                 value: 0,
-                                                                                message: "Số lượng không phù hợp."
+                                                                                message: "Phần trăm không phù hợp."
                                                                             },
                                                                             max: {
                                                                                 value: 100,
-                                                                                message: "Số lượng không phù hợp."
+                                                                                message: "Phần trăm không phù hợp."
                                                                             }
                                                                         })}
                                                                         type="number"
@@ -400,19 +402,19 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                                                                     >
                                                                         Thời gian diễn ra khuyến mãi
                                                                     </label>
-                                                                    <div date-rangepicker className="flex items-center">
+                                                                    <div className="flex items-center">
                                                                         <div className="">
 
                                                                             <input defaultValue={`${formatDateTimeEng(item.createdAt)}`} {...register("start_time", {
                                                                                 required: "Thời gian bắt đầu và thời gian kết thúc không thể thiếu."
-                                                                            })} date-rangepicker={true} type="date" className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date start" />
+                                                                            })} date-rangepicker="true" type="date" className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date start" />
                                                                         </div>
                                                                         <span className="mx-4 text-gray-500">đến</span>
                                                                         <div className="">
 
                                                                             <input defaultValue={`${formatDateTimeEng(item.expire)}`} {...register("end_time", {
                                                                                 required: "Thời gian bắt đầu và thời gian kết thúc không thể thiếu."
-                                                                            })} date-rangepicker={true} type="date" className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date end" />
+                                                                            })} date-rangepicker="true" type="date" className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date end" />
                                                                         </div>
                                                                     </div>
                                                                     <p className="mt-2 text-sm text-red-600 dark:text-red-500">
@@ -440,7 +442,7 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                                                                             type="submit"
                                                                             className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                                                         >
-                                                                            Tạo
+                                                                            Lưu
                                                                         </button>
                                                                     </div>
                                                                 </div>
@@ -452,16 +454,15 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm  text-gray-800 dark:text-neutral-200">{item.name}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">{item.Courses[0]?.name}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">{item.percent}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">Đang diễn ra</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">{(new Date(item.expire).getTime()) > Date.now() ? "Đang diễn ra" : "Hết hạn"}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">{formatDateTime(item.createdAt)}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">{formatDateTime(item.expire)}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                                     <Dropdown label="" renderTrigger={() => <button className='text-center'><EllipsisVerticalIcon className="w-7 h-7" /></button>} placement="left">
-                                                        <Dropdown.Item onClick={() => {
-
-                                                        }}>
-                                                            <button onClick={() => setModal({ ...modal, [`edit-discount${item.id}`]: true })}>Sửa</button>
-
+                                                        <Dropdown.Item
+                                                            onClick={() => setModal({ ...modal, [`edit-discount${item.id}`]: true })}
+                                                        >
+                                                            Sửa
                                                         </Dropdown.Item>
                                                         <Dropdown.Item><button type="button" className="text-red-600" onClick={() => setModal({ ...modal, [`delete-discount${item.id}`]: true })}>Xóa</button></Dropdown.Item>
                                                     </Dropdown>
@@ -475,8 +476,8 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
 
     )
 }

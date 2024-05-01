@@ -8,13 +8,14 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useAppSelector } from "@/redux/store";
 
 
+
 export default function StudentLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+
   const { user } = useAppSelector(state => state.authReducer);
-  <FlowbiteClient />
   return (
     <section className="">
       {

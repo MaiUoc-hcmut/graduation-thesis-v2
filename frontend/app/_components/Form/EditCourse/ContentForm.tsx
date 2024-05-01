@@ -106,13 +106,12 @@ export function ContentForm({
                                         </div>
                                         <div className="mt-2">
                                             <label className="relative inline-flex items-center me-5 cursor-pointer">
-                                                <div className="flex">
+                                                <div className="flex w-[400px]">
 
-                                                    <div className="flex items-center me-4" >
+                                                    <div className="flex items-center me-4 " >
                                                         <input
                                                             id="inline-radio"
                                                             type="radio"
-                                                            defaultChecked
                                                             {...register(`chapters.${index}.status`)}
                                                             value="public"
                                                             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
@@ -122,6 +121,22 @@ export function ContentForm({
                                                             className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                                                         >
                                                             Công khai
+                                                        </label>
+                                                    </div>
+                                                    <div className="flex items-center me-4" >
+                                                        <input
+                                                            id="inline-radio"
+                                                            type="radio"
+                                                            defaultChecked
+                                                            {...register(`chapters.${index}.status`)}
+                                                            value="paid"
+                                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                        />
+                                                        <label
+                                                            htmlFor="inline-radio"
+                                                            className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                        >
+                                                            Tính phí
                                                         </label>
                                                     </div>
                                                     <div className="flex items-center me-4">

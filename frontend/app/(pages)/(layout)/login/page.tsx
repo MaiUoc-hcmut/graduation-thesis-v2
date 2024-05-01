@@ -29,22 +29,9 @@ export default function Login() {
     const handleLoginSubmit: SubmitHandler<{ email: string, password: string }> = async (data) => {
         if (tab == "student") {
             const res = await dispatch(login(data)).catch((err: any) => { })
-            await fetch('/api/auth', {
-                method: 'POST',
-                body: JSON.stringify(
-                    res
-                )
-            })
         }
         else {
             await dispatch(loginTeacher(data)).then(async (res) => {
-                await fetch('/api/auth', {
-                    method: 'POST',
-                    body: JSON.stringify(
-                        res
-                    )
-                })
-                redirect('/teacher/dashboard')
             })
         }
 
@@ -60,7 +47,6 @@ export default function Login() {
                 redirect('/teacher/dashboard')
         }
         if (isFailed) {
-            console.log(message);
             dispatch(reset());
             redirect('/login');
         }

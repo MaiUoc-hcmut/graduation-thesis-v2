@@ -135,7 +135,7 @@ export default function ExamDashboard() {
                                         <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{0}</span>
                                     </div>
                                     <div className="mt-4">
-                                        <span className="text-[20px] font-bold text-primary">{formatCash(`${exam.price}`)} VNĐ</span>
+                                        {/* <span className="text-[20px] font-bold text-primary">{formatCash(`${exam.price}`)} VNĐ</span> */}
                                     </div>
                                     <div className="mt-auto flex items-center justify-between flex-wrap">
                                         <div className="flex items-center flex-col mt-[20px] mr-[15px]">

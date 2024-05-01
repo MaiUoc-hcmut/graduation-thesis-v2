@@ -8,7 +8,7 @@ import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orien
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import CustomCKEditor from "../../Editor/CKEditor";
 import { clear, log } from "console";
@@ -29,6 +29,18 @@ export const AnswerCard = ({ hanldeForm, question, indexQuestion, image, setImag
         control,
         name: `questions.${indexQuestion}.answers`
     });
+    useEffect(() => {
+        if (fieldsAnswer.length === 0) {
+            for (let i = 0; i < 4; i++) {
+                appendAnswer({
+                    id: uuid(),
+                    content_text: "",
+                    is_correct: false,
+                    answerModify: "create"
+                });
+            }
+        }
+    }, [fieldsAnswer, appendAnswer]);
 
     return (
         <div className='mt-5'>
@@ -144,19 +156,21 @@ export const AnswerCard = ({ hanldeForm, question, indexQuestion, image, setImag
                                     <label htmlFor="default-checkbox" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300 mr-2">Câu trả lời đúng</label>
                                 </div>
                             </div>
-                            <button onClick={() => {
-                                if (getValues().questions[indexQuestion]?.modify != "create" || getValues().questions[indexQuestion]?.answers[indexAnswer].modify == "create") {
-                                    removeAnswer(indexAnswer)
-                                }
-                                else {
-                                    setValue(`questions.${indexQuestion}.answers.${indexAnswer}.modify
+                            {fieldsAnswer.length > 1 && (
+                                <button type="button" onClick={() => {
+                                    if (getValues().questions[indexQuestion]?.modify != "create" || getValues().questions[indexQuestion]?.answers[indexAnswer].modify == "create") {
+                                        removeAnswer(indexAnswer)
+                                    }
+                                    else {
+                                        setValue(`questions.${indexQuestion}.answers.${indexAnswer}.modify
                                     `, "delete")
-                                    setValue(`questions.${indexQuestion}..modify`, "change")
-                                }
+                                        setValue(`questions.${indexQuestion}..modify`, "change")
+                                    }
 
-                            }} className='w-8 h-8 flex justify-center items-center rounded-full bg-[#f63c3c] absolute right-2 top-[-16px]'>
-                                <XMarkIcon className='w-5 h-5 text-white' />
-                            </button>
+                                }} className='w-8 h-8 flex justify-center items-center rounded-full bg-[#f63c3c] absolute right-2 top-[-16px]'>
+                                    <XMarkIcon className='w-5 h-5 text-white' />
+                                </button>
+                            )}
                         </div>
                     )
                 })}

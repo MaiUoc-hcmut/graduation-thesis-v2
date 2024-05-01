@@ -480,7 +480,7 @@ class ExamController {
                 transaction: t
             });
 
-            // await newExam.addCategories(categoryInstances, { transaction: t });
+            await newExam.addCategories(categoryInstances, { transaction: t });
 
 
             for (const question of questions) {

@@ -85,12 +85,9 @@ const courseApi = {
 
     getAllReview: () => {
         const url = `/reviews`;
-        return axiosConfig.get(url);
-    },
-
-    getReviewOfTeacher: (id: string) => {
-        const url = `/reviews/teacher/${id}/page/1`;
-        return axiosConfig.get(url);
+        return axiosConfig.get(url, {
+            baseURL: 'http://localhost:4001/api/v1'
+        });
     },
 
     getCommentByTopic: (id: string, page: number) => {

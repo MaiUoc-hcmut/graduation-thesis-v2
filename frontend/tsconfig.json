@@ -34,7 +34,8 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "app/_components/Editor/customUploadAdapter.js",
-    "app.js"
+    "app.js",
+    "app/_components/Charts/ChartFourtsx"
   ],
   "exclude": [
     "node_modules"

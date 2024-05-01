@@ -2,13 +2,17 @@
 
 import type { Metadata } from 'next'
 import './globals.css'
+import "@/css/satoshi.css";
+// import "@/css/style.css";
 import FlowbiteClient from './_components/Flowbite/FlowbiteClient'
-import { Suspense, useEffect } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import 'react-toastify/dist/ReactToastify.css';
 import { ReduxProvider } from '@/redux/provider';
 import { store, persistor } from '@/redux/store';
 import '@/node_modules/react-multi-carousel/lib/styles.css'
+import { initFlowbite } from 'flowbite';
 import('flowbite')
+import Loader from './loading';
 
 // export const metadata: Metadata = {
 //   title: 'Study365',
@@ -19,7 +23,10 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  <FlowbiteClient />
+
+  useEffect(() => {
+    initFlowbite();
+  }, []);
   return (
     <html lang="en">
       <body >

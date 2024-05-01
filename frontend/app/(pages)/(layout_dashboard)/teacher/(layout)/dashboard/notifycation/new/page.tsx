@@ -9,6 +9,7 @@ import courseApi from '@/app/api/courseApi';
 import { teacher } from '@/redux/features/teacherSlice';
 import notifyApi from '@/app/api/notifyApi';
 import { ToastContainer, toast } from 'react-toastify';
+import { initFlowbite } from 'flowbite';
 
 export default function CreateNotify() {
     const [students, setStudents] = useState<any>()
@@ -61,7 +62,9 @@ export default function CreateNotify() {
         fetchData()
     }, [page, user.id, currentCourse]);
 
-
+    useEffect(() => {
+        initFlowbite();
+    }, []);
     return (
         <div>
             <ToastContainer />

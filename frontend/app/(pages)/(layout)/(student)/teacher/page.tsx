@@ -18,13 +18,12 @@ export default function TeacherList() {
     const [category, setCategory] = useState<any[]>([]);
     const searchParams = useSearchParams();
     const subjectFilters = searchParams.getAll('subject');
-    const classFilters = searchParams.getAll('class');
+    // const classFilters = searchParams.getAll('class');
     const sortFilters = searchParams.get('sort');
     const orderFilters = searchParams.get('order');
 
 
     const sortOptions = [
-        { name: 'Mới nhất', href: '?sort=date&order=desc', current: sortFilters === 'date' },
         { name: 'Phổ biến nhất', href: '?sort=registration&order=desc', current: sortFilters === 'registration' },
         { name: 'Đánh giá tốt nhất', href: '?sort=rating&order=desc', current: sortFilters === 'rating' },
     ];
@@ -41,8 +40,8 @@ export default function TeacherList() {
     useEffect(() => {
         async function fetchData() {
             let filterString = ''
-            subjectFilters?.map((s) => { filterString += `subject=${s}` })
-            classFilters?.map((c) => { filterString += `&class=${c}` })
+            subjectFilters?.map((s) => { filterString += `&subject=${s}` })
+            // classFilters?.map((c) => { filterString += `&class=${c}` })
             sortFilters && orderFilters ? filterString += `&sort=${sortFilters}&order=${orderFilters}` : null
 
 
@@ -59,13 +58,13 @@ export default function TeacherList() {
                             return { ...subject, checked: subjectFilters.includes(subject.id) }
                         })
                     },
-                    {
-                        id: "class",
-                        name: "Lớp",
-                        options: data?.Class?.map((grade: any) => {
-                            return { ...grade, checked: classFilters.includes(grade.id) }
-                        })
-                    },
+                    // {
+                    //     id: "class",
+                    //     name: "Lớp",
+                    //     options: data?.Class?.map((grade: any) => {
+                    //         return { ...grade, checked: classFilters.includes(grade.id) }
+                    //     })
+                    // },
                 ])
             }).catch((err: any) => { })
 
@@ -207,7 +206,7 @@ export default function TeacherList() {
                                         teachers?.map((teacher: any) => {
                                             return (
                                                 <Link key={teacher.id} href={`teacher/profile/${teacher.id}`} className=''>
-                                                    <div className='bg-white shadow-card_teacher rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300 border-[1px] border-slate-200'>
+                                                    <div className='bg-white shadow-md rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300 border-[1px] border-slate-200'>
                                                         <div className='flex justify-center items-center bg-slate-50 py-5'>
                                                             <div className='relative w-40 h-40'>
                                                                 <Image
@@ -220,28 +219,62 @@ export default function TeacherList() {
                                                         </div>
                                                         <div className='px-3 py-4'>
 
-                                                            <h3 className="overflow-hidden text-[#17134] h-8 font-bold">
-                                                                Giáo viên: {teacher.name}
+                                                            <h3 className="overflow-hidden text-[#17134] h-8">
+                                                                Giáo viên: <span className='font-semibold'>{teacher.name}</span>
                                                             </h3>
-
-
+                                                            <div className="overflow-hidden text-[#17134] h-8">
+                                                                Môn học: <span className='font-semibold'>{teacher?.Categories[0]?.Subject}</span>
+                                                            </div>
                                                             <div className="flex items-center mt-2">
                                                                 {renderStars(Math.floor(teacher?.average_rating))}
                                                                 <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{(teacher?.average_rating || 0).toFixed(1)}</span>
                                                             </div>
+
                                                             <div className='mt-4 grid grid-cols-2 gap-2'>
                                                                 <div className='flex items-center'>
+                                                                    <div className='w-5 h-5 relative mr-1'>
+                                                                        <Image
+                                                                            src={`/images/webinars.svg`}
+                                                                            fill
+                                                                            className='overflow-hidden object-cover object-center'
+                                                                            alt="logo"
+                                                                        />
+                                                                    </div>
                                                                     <span className='text-[#171347] font-medium text-sm'>
                                                                         {teacher?.course_quantity || 0} khóa học
                                                                     </span>
                                                                 </div>
                                                                 <div className='flex items-center'>
+                                                                    <div className='w-5 h-5 relative mr-1'>
+                                                                        <Image
+                                                                            src={`/images/appointments.svg`}
+                                                                            fill
+                                                                            className='overflow-hidden object-cover object-center'
+                                                                            alt="logo"
+                                                                        />
+                                                                    </div>
                                                                     <span className='text-[#171347] font-medium text-sm'>{teacher?.exam_quantity || 0} đề thi</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
+                                                                    <div className='w-5 h-5 relative mr-1'>
+                                                                        <Image
+                                                                            src={`/images/reviews.svg`}
+                                                                            fill
+                                                                            className='overflow-hidden object-cover object-center'
+                                                                            alt="logo"
+                                                                        />
+                                                                    </div>
                                                                     <span className='text-[#171347] font-medium text-sm'>{teacher?.total_reviews || 0} đánh giá</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
+                                                                    <div className='w-5 h-5 relative mr-1'>
+                                                                        <Image
+                                                                            src={`/images/students.svg`}
+                                                                            fill
+                                                                            className='overflow-hidden object-cover object-center'
+                                                                            alt="logo"
+                                                                        />
+                                                                    </div>
                                                                     <span className='text-[#171347] font-medium text-sm'>{teacher?.total_registration || 0} học viên</span>
                                                                 </div>
 

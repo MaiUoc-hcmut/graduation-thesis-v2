@@ -107,7 +107,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                             </div>
                             <div className='mt-4 text-white text-sm font-medium'>
                                 <span className='mr-2'>Tạo bởi</span>
-                                <Link href="#" className='underline decoration-1'>Việt Lê</Link>
+                                <Link href={`/teacher/profile/${course?.id_teacher}`} className='underline decoration-1'>Việt Lê</Link>
                             </div>
                         </div>
                         <div className='mt-9'>
@@ -429,7 +429,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                         </div>
                     </div>
                     <div className='flex-1 mx-4'>
-                        <div className='rounded-2xl shadow-card_course pb-8'>
+                        <div className='rounded-2xl shadow-card_course'>
                             <div className='h-[200px] relative'>
                                 <Image
                                     src={`${course?.thumbnail ? course?.thumbnail : '/'}`}
@@ -438,7 +438,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                     alt="logo"
                                 />
                             </div>
-                            <div className='px-5'>
+                            <div className='px-5  border-[1px] border-slate-200 pb-5  rounded-bl-2xl rounded-br-2xl shadow-md'>
                                 <div className='flex items-center justify-center mt-5'>
                                     <span className='text-3xl text-primary font-bold'>{formatCash(`${course?.price}`)} VNĐ</span>
                                 </div>

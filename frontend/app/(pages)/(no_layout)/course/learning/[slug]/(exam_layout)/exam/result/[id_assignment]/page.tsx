@@ -373,7 +373,7 @@ export default function ResultExam({ params }: { params: { slug: string, id_assi
                             <p className="rounded-md text-center font-medium text-lg text-[#153462] mb-5">Điều hướng bài kiểm tra</p>
                             <div className="grid grid-cols-5 justify-items-center gap-y-3">{listNumber}</div>
                             <div className="text-center mt-10 mb-2">
-                                <Link href={`/course/learning/${params.slug}?exam=${assignment?.id_assignment}`}>
+                                <Link href={`/course/learning/${params.slug}?exam=${assignment?.id_exam}`}>
                                     <button
                                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                                         onClick={() => {

@@ -16,8 +16,8 @@ const categoryApi = {
         return axiosConfig.post(url, { data });
     },
 
-    update: (data: object) => {
-        const url = `/coupons`;
+    update: (data: object, id_coupon: string) => {
+        const url = `/coupons/${id_coupon}`;
         return axiosConfig.put(url, { data });
     },
 

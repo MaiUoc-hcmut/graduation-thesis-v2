@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { useAppSelector } from "@/redux/store";
 import { convertToVietnamTime, formatCash } from "@/app/helper/FormatFunction"
 import { DataTable } from "@/app/_components/Table/TableFormat"
-import { columns } from "@/app/_components/Table/ReviewColumns/columns"
+import { columns } from "@/app/_components/Table/ReviewColumns/teacher_columns"
 import courseApi from "@/app/api/courseApi"
 import { useSearchParams } from "next/navigation"
 

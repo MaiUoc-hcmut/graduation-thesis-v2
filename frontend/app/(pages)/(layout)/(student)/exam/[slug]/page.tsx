@@ -1,488 +1,166 @@
 "use client"
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { useEffect, useState } from 'react';
-import { ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon, CheckIcon } from '@heroicons/react/24/outline'
-import { ChevronDownIcon, ChevronUpIcon, StarIcon } from '@heroicons/react/20/solid'
-import courseApi from '@/app/api/courseApi';
-import paymentApi from '@/app/api/paymentApi';
-import { useForm, SubmitHandler } from "react-hook-form"
-import parse from 'html-react-parser';
-import { formatCash, convertTime, formatDateTime } from '@/app/helper/FormatFunction';
-// import { useSession } from 'next-auth/react';
-import { ToastContainer, toast } from 'react-toastify';
-import { useAppSelector } from '@/redux/store';
-type Review = {
-    content: string
-    rating: number
-}
+import examApi from "@/app/api/examApi"
+import { convertToVietnamTime } from "@/app/helper/FormatFunction"
+import { useAppSelector } from "@/redux/store"
+import { DocumentIcon } from "@heroicons/react/24/outline"
+import Link from "next/link"
+import { useEffect, useState } from "react"
+import Image from "next/image"
 
 export default function ExamDetail({ params }: { params: { slug: string } }) {
-    const [tab, setTab] = useState(1)
-    const [toggle, setToggle] = useState<any>({})
-
-    const [reviews, setReviews] = useState([]);
-    const [changeData, setChangeData] = useState(false);
-    const [course, setCourse] = useState<any>();
-    const [rating, setRating] = useState(0);
-    const [avgReview, setAvgReview] = useState(0);
-    const [starDetails, setStarDetails] = useState<any>();
-    const [hoverRating, setHoverRating] = useState(0);
+    const [assignments, setAssignments] = useState<any>([])
     const { user } = useAppSelector(state => state.authReducer);
 
 
-    const {
-        register,
-        handleSubmit,
-        reset,
-        formState: { errors },
-    } = useForm<Review>()
+    const [paginate, setPaginate] = useState(0)
+    const [currentPageComment, setCurrentPageComment] = useState(1)
+    let list: any = []
 
     useEffect(() => {
         async function fetchData() {
-            await courseApi.get(params.slug).then((data: any) => {
-                setCourse(data.data)
-            }
-            ).catch((err: any) => { })
-            await courseApi.getReview(params.slug).then((data: any) => {
-                setReviews(data.data.reviews)
-                if (data.data.averageRating) {
-                    setAvgReview(data.data.averageRating)
-                }
-                if (data.data.starDetails) {
-                    setStarDetails(data.data.starDetails)
-                }
-            }
-            ).catch((err: any) => { })
+            if (params.slug)
+                examApi.getAssigmnentByExamId(`${user.id}`, params.slug, currentPageComment).then((data) => {
+                    setAssignments(data.data.assignments)
+                    setPaginate(Math.ceil(data.data.count / 10))
+                })
         }
         fetchData()
-    }, [changeData, params.slug])
+    }, [currentPageComment, paginate, params.slug, user.id]);
 
+    for (let i = 1; i <= paginate; i++) {
+        list.push(i)
+    }
 
-    const handleHover = (hoverRating: any) => {
-        setHoverRating(hoverRating);
-    };
-
-    const renderStars = (rating: number) => {
-        const stars = [];
-        for (let i = 1; i <= 5; i++) {
-            stars.push(
-                <StarIcon
-                    key={i}
-                    className={`text-${i <= rating ? 'yellow-300' : 'gray-300'} w-5 h-5`}
-                />
-            );
-        }
-        return stars;
-    };
 
     return (
-        <div className="">
-            <ToastContainer />
-            <div className="relative h-[530px] block overflow-hidden">
-                <Image
-                    src={`${course?.cover_image ? course?.cover_image : '/'}`}
-                    fill={true}
-                    className='w-full h-full absolute top-0 left-0 object-cover object-center'
-                    alt="logo"
-                />
-                <div className='h-full w-full'>
-                    <div className="relative z-0 after:content-['*'] after:absolute after:top-0 after:left-0 after:right-0 after:bottom-0 after:bg-black after:opacity-60 after:h-[530px]"></div>
-                </div>
-            </div>
-            <div className='container relative top-[-200px] mx-auto px-16 w-full'>
-                <div className='flex'>
-                    <div className='px-4 w-2/3 flex flex-col'>
-                        <div className=''>
-                            <h1 className='font-black text-3xl text-white h-22 ovet text-ellipsis overflow-hidden'>
-                                {course?.name}
-                            </h1>
-                            <div className="flex items-center mt-10">
-                                {renderStars(Math.floor(avgReview))}
-                                <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-2 py-0.5 rounded">{avgReview.toFixed(1)}</span>
-                                <span className='text-white'>({reviews.length} Đánh giá)</span>
-                            </div>
-                            <div className='mt-4 text-white text-sm font-medium'>
-                                <span className='mr-2'>Tạo bởi</span>
-                                <Link href="#" className='underline decoration-1'>Việt Lê</Link>
-                            </div>
-                        </div>
-                        <div className='mt-9'>
-                            <div className="bg-secondary rounded-lg border-b border-gray-200 dark:border-gray-700">
-                                <ul className="flex flex-wrap justify-between px-2 text-sm font-semibold text-center text-gray-500 dark:text-gray-400">
-                                    <li className="me-2">
-                                        <button
-                                            onClick={() => setTab(1)}
-                                            className={`text-white inline-flex items-center justify-center p-4 ${tab == 1 ? 'border-b-2 border-primary rounded-t-lg active' : 'border-b-4 border-transparent rounded-t-lg hover:text-gray-300'} group`}
-                                        >
-                                            Thông tin chung
-                                        </button>
-                                    </li>
-                                    <li className="me-2">
-                                        <button
-                                            onClick={() => setTab(2)}
-                                            type='button'
-                                            className={`text-white inline-flex items-center justify-center p-4 ${tab == 2 ? 'border-b-2 border-primary rounded-t-lg active' : 'border-b-4 border-transparent rounded-t-lg hover:text-gray-300'} group`}
-                                            aria-current="page"
-                                        >
-                                            Nội dung khóa học ({course?.chapters?.length})
-                                        </button>
-                                    </li>
-                                    <li className="me-2">
-                                        <button
-                                            onClick={() => setTab(3)}
-                                            className={`text-white inline-flex items-center justify-center p-4 ${tab == 3 ? 'border-b-2 border-primary rounded-t-lg active' : 'border-b-4 border-transparent rounded-t-lg hover:text-gray-300'} group`}
-                                        >
-                                            Đánh giá ({reviews?.length})
-                                        </button>
-                                    </li>
-
-                                </ul>
-                            </div>
-                            <div className='pt-5'>
-                                <div className={`${tab == 1 ? '' : 'hidden'}`}>
-                                    <div className='rounded-md p-4 bg-[#f7fafd]'>
-                                        <h3 className='text-secondary font-bold mb-4'>Bạn sẽ học được gì?</h3>
-                                        <p className='flex items-start mt-2 text-[14px] text-[#818894]'>
-                                            <CheckIcon className='w-[18px] h-[18px] mr-2' />
-                                            {parse(course?.goal || '')}
-                                        </p>
-
+        <div className="mx-20">
+            <div className='w-full'>
+                <div className='relative flex'>
+                    <div className='p-4 flex-1' >
+                        <div className='bg-white rounded-[10px] p-4'>
+                            <section className='flex justify-between items-center border-[1px] border-[#ececec] p-3 rounded-lg'>
+                                <div className='flex items-center justify-center'>
+                                    <div className='p-4 h-[88px] w-[88px] bg-slate-100 rounded-md mr-5 flex justify-center items-center'>
+                                        <Image
+                                            width={48}
+                                            height={32}
+                                            src={`/images/exam_icon.png`}
+                                            alt="avatar"
+                                        />
                                     </div>
-                                    <div className='mt-5'>
-                                        <h2 className="text-[#171347] font-bold flex items-center after:content-[''] after:flex after:grow after:shrink after:basis-4 after:h-[2px] after:ml-[10px] after:bg-[#f1f1f1]">
-                                            Thông tin về khóa học
-                                        </h2>
-                                        <div className='mt-5 text-[#818894]'>
-                                            <p>
-                                                {parse(course?.description || '')}
-                                            </p>
-                                        </div>
+                                    <div className="h-[88px] pr-10">
+                                        <div className='text-[#818894] text-2xl'>Đề thi THPT quốc gia môn toán năm 2022-2023</div>
                                         <div className='mt-5'>
-                                            <h3 className='font-bold text-secondary'>Yêu cầu</h3>
-                                            <p className='flex items-start mt-2 text-[14px] text-[#818894]'>
-                                                <CheckIcon className='w-[18px] h-[18px] mr-2' />
-                                                {parse(course?.requirement || "")}
-                                            </p>
+                                            <Link href={`/course/learning/${params.slug}/exam/attemp/${params.slug}`} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Làm bài</Link>
                                         </div>
                                     </div>
+
                                 </div>
-                                <div className={`${tab == 2 ? '' : 'hidden'}`}>
-                                    <ul>
-                                        {course?.chapters?.map((chapter: any) => {
-                                            return (
-                                                <li key={chapter.id} className='bg-white py-3 pl-[20px] pr-6 rounded-lg mb-5 list-none border-[1px] border-[#ececec]'>
-                                                    <div className='flex items-center justify-between'>
-                                                        <div className="flex justify-between items-center">
-                                                            <div className="flex justify-center items-center">
-                                                                <span className="flex justify-center items-center w-10 h-10 min-w-10 min-h-10 bg-primary rounded-full mr-[10px]">
-                                                                    <Squares2X2Icon className="w-6 h-6 text-white" />
-                                                                </span>
-                                                                <div>
-                                                                    <span className="font-bold text-[rgb(23,19,71)] text-base">
-                                                                        {chapter.name}
-                                                                    </span>
-                                                                    <span className="font-normal text-[818894] text-xs flex">
-                                                                        {chapter.topics?.length} chủ đề
-                                                                        | {convertTime(chapter.totalDuration)}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div className="ml-5 flex items-center justify-center">
 
-                                                            <div className="mr-[10px]" >
-                                                                {
-                                                                    !toggle[`open_chapter_${chapter.id}`] ?
-                                                                        <button type="button" className="mr-[10px] text-[#818894]" onClick={() => {
-                                                                            setToggle({ ...toggle, [`open_chapter_${chapter.id}`]: true })
-                                                                        }}>
-                                                                            <ChevronDownIcon className="w-5 h-5" />
-                                                                        </button>
-                                                                        :
-                                                                        <button type="button" className="mr-[10px] text-[#818894]" onClick={() => {
-                                                                            setToggle({ ...toggle, [`open_chapter_${chapter.id}`]: false })
-                                                                        }}>
-                                                                            <ChevronUpIcon className="w-5 h-5" />
-                                                                        </button>
-                                                                }
+                            </section>
+                            <div className='mt-10'>
+                                <h3 className='font-bold text-lg'>
+                                    Tóm tắt kết quả các lần làm bài trước của bạn.
+                                </h3>
+                                {
+                                    assignments?.length === 0 ? <p className='mt-4 text-[#818894]'>Chưa có lần làm bài nào</p> : <div>
 
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <ul className={`${toggle[`open_chapter_${chapter.id}`] ? '' : 'hidden'} mt-4 pt-8 border-t-[1px] border-[#ececec]`}>
+                                        <div className='mt-5'>
+                                            <div className="relative overflow-x-auto">
+                                                <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                                                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                                        <tr>
+                                                            <th scope="col" className="flex-1 px-6 py-3 text-center">
+                                                                STT
+                                                            </th>
+                                                            <th scope="col" className="w-1/4 px-6 py-3">
+                                                                Thời gian hoàn thành
+                                                            </th>
+                                                            <th scope="col" className="w-1/6 px-6 py-3 text-center">
+                                                                Điểm
+                                                            </th>
+                                                            <th scope="col" className="w-1/3 px-6 py-3 text-center">
+                                                                Hoàn thành
+                                                            </th>
+
+                                                            <th scope="col" className="w-1/4 px-6 py-3 text-center">
+                                                                Xem lại
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
                                                         {
-                                                            chapter.topics?.map((topic: any) => {
+                                                            assignments?.map((assignment: any, index: number) => {
+
                                                                 return (
-                                                                    <li key={topic.id} className='bg-white py-3 pl-[20px] pr-6 rounded-lg mb-5 list-none border-[1px] border-[#ececec]'>
-                                                                        <div className='flex items-center justify-between'>
-                                                                            <div className="flex justify-between items-center">
-                                                                                <div className="flex justify-center items-center">
-                                                                                    <span className='mr-3 bg-[#ececec] w-10 h-10 rounded-full flex justify-center items-center'>
-                                                                                        <FilmIcon className='w-4 h-4' />
-                                                                                    </span>
-                                                                                    <span className="font-bold text-[rgb(23,19,71)] text-base">
-                                                                                        {topic.name}
-                                                                                    </span>
-
-                                                                                </div>
-                                                                            </div>
-
-                                                                        </div>
-                                                                    </li>
+                                                                    <tr key={assignment.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                                                        <th
+                                                                            scope="row"
+                                                                            className="px-6 py-4 flex-1 text-center font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                                                                        >
+                                                                            {index + 1}
+                                                                        </th>
+                                                                        <td className="w-1/3 px-6 py-4">{convertToVietnamTime(assignment.time_end)}</td>
+                                                                        <td className="w-1/6 px-6 py-4 text-center">{assignment.score}</td>
+                                                                        <td className="w-1/3 px-6 py-4 text-center">
+                                                                            {assignment.passed ?
+                                                                                <span className="bg-red-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">Chưa hoàn thành</span>
+                                                                                :
+                                                                                <span className="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Hoàn thành</span>}
+                                                                        </td>
+                                                                        <td className="w-1/4 px-6 py-4 text-center"><Link href={`/course/learning/${params.slug}/exam/result/${assignment.id}`} className='underline text-blue-500'>Xem lại</Link></td>
+                                                                    </tr>
                                                                 )
                                                             })
                                                         }
-                                                    </ul>
-                                                </li>
-                                            )
 
-                                        })}
-                                    </ul>
 
-                                </div>
-                                <div className={`${tab == 3 ? '' : 'hidden'}`}>
-                                    <div className='flex items-center text-center'>
-                                        <div className='w-1/4 px-4'>
-                                            <div className='font-bold text-4xl text-primary text-center'>
-                                                {avgReview.toFixed(1)}
-                                            </div>
-                                            <div className="flex items-center justify-center mt-2">
-                                                {renderStars(Math.floor(avgReview))}
-                                            </div>
-                                            <div className='mt-4 text-[#343434]'>{reviews?.length} đánh giá</div>
-                                        </div>
-                                        <div className='flex-1'>
-                                            <div className="flex items-center mt-4">
-                                                <div
-                                                    className="text-sm font-medium text-primary"
-                                                >
-                                                    5 sao
-                                                </div>
-                                                <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['5star']?.quantity == 0 ? 0 : starDetails?.['5star'].percentage}%` }} />
-                                                </div>
-                                                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    {0 || Math.floor(starDetails?.['5star'].percentage)}%
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center mt-4">
-                                                <div
-                                                    className="text-sm font-medium text-primary"
-                                                >
-                                                    4 sao
-                                                </div>
-                                                <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['4star']?.quantity == 0 ? 0 : starDetails?.['4star'].percentage}%` }} />
-                                                </div>
-                                                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    {0 || Math.floor(starDetails?.['4star'].percentage)}%
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center mt-4">
-                                                <div
-                                                    className="text-sm font-medium text-primary"
-                                                >
-                                                    3 sao
-                                                </div>
-                                                <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['3star']?.quantity == 0 ? 0 : starDetails?.['3star'].percentage}%` }} />
-                                                </div>
-                                                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    {0 || Math.floor(starDetails?.['3star'].percentage)}%
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center mt-4">
-                                                <div
-                                                    className="text-sm font-medium text-primary"
-                                                >
-                                                    2 sao
-                                                </div>
-                                                <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['2star']?.quantity == 0 ? 0 : starDetails?.['2star'].percentage}%` }} />
-                                                </div>
-                                                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    {0 || Math.floor(starDetails?.['2star'].percentage)}%
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center mt-4">
-                                                <div
-                                                    className="text-sm font-medium text-primary"
-                                                >
-                                                    1 sao
-                                                </div>
-                                                <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['1star']?.quantity == 0 ? 0 : starDetails?.['1star'].percentage}%` }} />
-                                                </div>
-                                                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    {0 || Math.floor(starDetails?.['1star'].percentage)}%
-                                                </span>
+                                                    </tbody>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className='mt-10'>
-                                        <div className="text-[#171347] font-bold flex items-center after:content-[''] after:flex after:grow after:shrink after:basis-4 after:h-[2px] after:ml-[10px] after:bg-[#f1f1f1]">
-                                            Đánh giá ({reviews.length})
-                                        </div>
-                                        <form onSubmit={handleSubmit(async (dataReview) => {
-                                            if (rating == 0) return
-                                            const formData = {
-                                                data: {
-                                                    ...dataReview,
-                                                    "id_course": params.slug,
-                                                    rating
-                                                }
-                                            }
-                                            await courseApi.createReview(formData).catch((err: any) => { })
-                                            reset()
-                                            setRating(0)
-                                            setChangeData(!changeData)
-
-                                        })} className="flex flex-col items-start mt-5">
-                                            <div className=''>
-                                                <div className='flex items-center mb-4'>
-                                                    <div className=''>
-                                                        <Image
-                                                            src={`${user.avatar ? user.avatar : '/images/avatar.png'}`}
-                                                            width={40}
-                                                            height={40}
-                                                            className='w-10 h-10 rounded-full'
-                                                            alt="logo"
-                                                        />
-                                                    </div>
-                                                    <div className='flex flex-col ml-2'>
-                                                        <span className='font-medium text-secondary'>
-                                                            {user.name}
-                                                        </span>
-                                                        <div className="flex items-center">
-                                                            {[1, 2, 3, 4, 5].map((star) => (
-                                                                <StarIcon
-                                                                    key={star}
-                                                                    className={`h-5 w-5 cursor-pointer ${(hoverRating || rating) >= star ? 'text-yellow-300' : 'text-gray-300'
-                                                                        }`}
-                                                                    onMouseEnter={() => handleHover(star)}
-                                                                    onMouseLeave={() => handleHover(0)}
-                                                                    onClick={() => setRating(star)}
-                                                                />
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <textarea
-                                                placeholder="Nhập đánh giá của bạn..."
-                                                {...register("content")}
-                                                className="w-full p-2 border rounded focus:ring-0 focus:border-primary_border"
-                                                rows={4}
-                                            ></textarea>
-                                            <button
-                                                type="submit"
-
-                                                className="mt-3 px-4 py-2 bg-primary text-white rounded hover:bg-primary_hover"
-                                            >
-                                                Đánh giá
-                                            </button>
-                                        </form>
-                                        <div className='mt-12'>
-                                            {
-                                                reviews?.map((review: any) => (
-                                                    <div key={review.id} className="bg-white px-4 py-4 mb-5 border rounded-lg shadow-md">
-                                                        <div className='flex items-center justify-between'>
-                                                            <div className='flex items-center mt-2'>
-                                                                <div>
-                                                                    <Image
-                                                                        src={`${review?.user?.avatar ? review?.user?.avatar : '/images/avatar.png'}`}
-                                                                        width={40}
-                                                                        height={40}
-                                                                        className='w-10 h-10 rounded-full'
-                                                                        alt="logo"
-                                                                    />
+                                }
+                                {
+                                    paginate > 1 ?
+                                        <div className="flex justify-center items-center pt-10 pb-5">
+                                            <nav aria-label="Page navigation example">
+                                                <ul className="flex items-center -space-x-px h-8 text-sm">
+                                                    <li>
+                                                        <button disabled className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                                                            <span className="sr-only">Previous</span>
+                                                            <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 1 1 5l4 4" />
+                                                            </svg>
+                                                        </button>
+                                                    </li>
+                                                    {
+                                                        list.map((l: number) => {
+                                                            return (
+                                                                <div key={l}>
+                                                                    <button onClick={() => setCurrentPageComment(l)} className={`flex items-center justify-center px-3 h-8 leading-tight ${currentPageComment == l ? 'text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'} `}>{l}</button>
                                                                 </div>
-                                                                <div className='flex flex-col ml-2'>
-                                                                    <span className='font-medium text-secondary'>
-                                                                        {review?.user?.name}
-                                                                    </span>
-                                                                    <div className="flex items-center">{renderStars(review.rating)}</div>
-                                                                </div>
-                                                            </div>
-                                                            <div>
-                                                                <span className='text-[#818894] text-sm'>
-                                                                    {formatDateTime(review.createdAt)}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                        <div className='text-[#818894] mt-4 font-normal'>
-                                                            {review.content}
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                        </div>
-                                    </div>
-                                </div>
+                                                            )
+                                                        })
+                                                    }
+                                                    <li>
+                                                        <button disabled className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                                                            <span className="sr-only">Next</span>
+                                                            <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m1 9 4-4-4-4" />
+                                                            </svg>
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </nav>
+                                        </div> : null
+                                }
                             </div>
                         </div>
-                    </div>
-                    <div className='flex-1 mx-4'>
-                        <div className='rounded-2xl shadow-card_course pb-8'>
-                            <div className='h-[200px] relative'>
-                                <Image
-                                    src={`${course?.thumbnail ? course?.thumbnail : '/'}`}
-                                    fill={true}
-                                    className='w-full h-full overflow-hidden object-center object-cover rounded-tl-2xl rounded-tr-2xl'
-                                    alt="logo"
-                                />
-                            </div>
-                            <div className='px-5'>
-                                <div className='flex items-center justify-center mt-5'>
-                                    <span className='text-3xl text-primary font-bold'>{formatCash(`${course?.price}`)} VNĐ</span>
-                                </div>
-                                <div className='mt-5 flex flex-col'>
-                                    <button onClick={async () => {
-                                        let id_cart = ''
-
-                                        await paymentApi.addToCart(course?.id).then(() => {
-                                            toast.success('Thêm vào giỏ hàng thành công', {
-                                                position: "bottom-right",
-                                                autoClose: 800,
-                                                hideProgressBar: false,
-                                                closeOnClick: true,
-                                                pauseOnHover: true,
-                                                draggable: true,
-                                                progress: undefined,
-                                                theme: "colored",
-                                            });
-                                        }).catch((err: any) => { })
-                                    }} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Thêm vào giỏ hàng</button>
-                                </div>
-                                <div className='mt-9'>
-                                    <strong className='text-[#343434]'>Khóa học này bao gồm</strong>
-                                    <div className='mt-4 grid grid-cols-2 gap-2'>
-                                        <div className='flex items-center'>
-                                            <ClockIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                            <span className='text-[#171347] font-medium text-sm'>{convertTime(course?.total_duration)}</span>
-                                        </div>
-                                        <div className='flex items-center'>
-                                            <Squares2X2Icon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                            <span className='text-[#171347] font-medium text-sm'>{course?.chapters?.length} chương</span>
-                                        </div>
-                                        <div className='flex items-center'>
-                                            <FilmIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                            <span className='text-[#171347] font-medium text-sm'>{course?.total_lecture} bài giảng</span>
-                                        </div>
-                                        <div className='flex items-center'>
-                                            <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                            <span className='text-[#171347] font-medium text-sm'>{course?.total_exam} đề thi</span>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    </div >
                 </div>
             </div>
         </div>
     )
 }
-

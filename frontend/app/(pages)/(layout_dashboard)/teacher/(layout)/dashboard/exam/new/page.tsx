@@ -21,6 +21,7 @@ import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import CustomCKEditor from "@/app/_components/Editor/CKEditor"
+import { ToastContainer, toast } from "react-toastify"
 
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
 
@@ -38,6 +39,7 @@ type QuestionData = {
     id: string
     content_text: string
     multi_choice: boolean
+    explain: string
     answers: Array<AnswerData>
 }
 
@@ -120,12 +122,15 @@ export default function CreateExam() {
 
     return (
         < div className="" >
+            <ToastContainer />
             <>
                 <Modal show={modal[`add_question`]} size="3xl" onClose={() => setModal({ ...modal, [`add_question`]: false })} popup>
                     <Modal.Header />
                     <Modal.Body>
                         <form className="space-y-6" onSubmit={handleSubmit(async (dataForm: any) => {
                             if (!(Object.entries(errors).length === 0)) return
+
+
                             setQuestions(dataForm.questions)
                             setModal({ ...modal, [`add_question`]: false })
                         })}>
@@ -136,21 +141,33 @@ export default function CreateExam() {
 
                                 indexQuestion == fieldsQuestion?.length - 1 ?
                                     <div key={field.id}>
-                                        <div>
+                                        <div className="mb-5">
                                             <div className="mb-2 block">
                                                 <Label htmlFor="email" value="Tiêu đề câu hỏi" />
                                             </div>
-                                            {/* <TextInput
-                                                type="text"
-                                                {...register(`questions.${indexQuestion}.content_text`, {
-                                                    required: "Tiêu đề câu hỏi không thể thiếu."
-                                                })}
-                                            /> */}
+
                                             <CustomCKEditor className="h-50" setValue={setValue} value="" position={`questions.${indexQuestion}.content_text`} />
 
                                             <div className="mt-2 text-sm text-red-600 dark:text-red-500">
                                                 {errors?.questions?.[indexQuestion]?.content_text?.message}
                                             </div>
+                                        </div>
+                                        <div className="mb-5">
+                                            <div className="mb-2 block">
+                                                <Label htmlFor="email" value="Giải thích" />
+                                            </div>
+
+                                            <CustomCKEditor className="h-50" setValue={setValue} value="" position={`questions.${indexQuestion}.explain`} />
+                                            <div className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                                {errors?.questions?.[indexQuestion]?.explain?.message}
+                                            </div>
+                                        </div>
+                                        <div className="mb-5">
+                                            <div className="flex-1 flex items-center justify-end">
+                                                <label htmlFor="default-checkbox" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300 mr-2">Câu hỏi có nhiều đáp án đúng</label>
+                                                <input  {...register(`questions.${indexQuestion}.multi_choice`)} id="default-checkbox" type="checkbox" className="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                                            </div>
+
                                         </div>
                                         <div className="mb-10 ">
                                             <div className="mb-2 block">
@@ -255,17 +272,31 @@ export default function CreateExam() {
                 <form onSubmit={
                     handleSubmit(async (dataForm: any) => {
                         if (!(Object.entries(errors).length === 0)) return
-                        console.log(dataForm);
-                        const { thumbnail, cover, ...data1 } = dataForm
+                        if (dataForm.questions.length == 0) {
+                            toast.error('Đề thi cần ít nhất một câu hỏi', {
+                                position: "bottom-right",
+                                autoClose: 1000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                                progress: undefined,
+                                theme: "colored",
+                            });
+                            return
+                        }
+                        const { grade, level, subject, ...data1 } = dataForm
                         data1.categories = []
 
                         data1.categories.push(dataForm.grade)
                         data1.categories.push(dataForm.subject)
                         data1.categories.push(dataForm.level)
-                        data1.pass_score = 8
+                        // data1.pass_score = 8
                         setExamData(dataForm)
                         if (submit) {
-                            await examApi.create({ data: data1 }).catch((err: any) => { })
+                            await examApi.create({ data: data1 }).then(() => {
+                                router.push("/teacher/dashboard/exam")
+                            }).catch((err: any) => { })
                         }
 
                     })
@@ -477,6 +508,7 @@ export default function CreateExam() {
                                         id: uuid(),
                                         content_text: "",
                                         multi_choice: false,
+                                        explain: "",
                                         answers: [],
                                     })
                                 }}

@@ -2,7 +2,7 @@
 
 import SidebarTeacher from '@/app/_components/Sidebar/SidebarTeacher'
 import SidebarStudent from '@/app/_components/Sidebar/SidebarStudent';
-import { Suspense, useEffect } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import HeaderTeacher from '@/app/_components/Header/HeaderTeacher'
 import HeaderStudent from '@/app/_components/Header/HeaderStudent';
 import FlowbiteClient from '@/app/_components/Flowbite/FlowbiteClient';
@@ -11,11 +11,12 @@ import { useAppSelector } from "@/redux/store";
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
+
 export default function DashboardTeacherLayout({
   children,
 }: any) {
-  <FlowbiteClient />
   const { user } = useAppSelector(state => state.authReducer);
+
   if (user.id == 0) redirect('/login')
   return (
     user?.role != "teacher" ? <div className='h-svh w-full flex justify-center items-center text-xl'> <p className='mr-2'>Bạn không có quyền truy cập vào trang này.</p> <Link className='underline text-blue-500' href="/">Quay lại</Link></div> :

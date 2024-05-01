@@ -82,10 +82,6 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
 
     function countDown(i: number, callback: any) {
         intervalRef.current = setInterval(function () {
-            // let tmp = document.getElementById('displayDiv')
-            // if (tmp) {
-            //     tmp.innerHTML = convertTime(i);
-            // }
             setCountDownTime(convertTime(i));
             if (i-- > 0) {
                 window.localStorage.setItem(`${COUNTER_KEY}`, `${i}`);
@@ -97,28 +93,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
         }, 1000);
     }
 
-    useEffect(() => {
-        // Lưu các đáp án vào localStorage mỗi khi state thay đổi
-        localStorage.setItem('answers', JSON.stringify(answers));
-    }, [answers])
-
-    useEffect(() => {
-        if (exam?.period) {
-            var countDownTime = Number(window.localStorage.getItem(COUNTER_KEY)) || exam?.period * 60;
-            countDown(countDownTime, function () {
-                alert('Hết giờ làm bài!!!');
-                submitTest('1', getValues());
-                // clearInterval(intervalRef.current);
-                // intervalRef.current = null;
-                // window.localStorage.removeItem(`${COUNTER_KEY}`);
-                // window.localStorage.removeItem('answers');
-                // router.push(`/course/learning/${params.slug}?exam=${params.id_exam}`)
-            });
-        }
-
-    }, [exam?.period]);
-
-    async function submitTest(time: string, formData: any) {
+    async function submitTest(formData: any) {
         let data: any = {
             id_exam: params.id_exam,
             time_start: localStorage.getItem(`${COUNTER_KEY}`) ? Date.now() - Number(localStorage.getItem(`${COUNTER_KEY}`)) * 1000 : Date.now() - exam.period * 60 * 1000,
@@ -131,14 +106,14 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                 answers: question.answers.map((answer: any) => {
                     return {
                         id_answer: answer.id,
-                        is_selected: formData[question.id].includes(answer.id)
+                        is_selected: formData[question.id] ? formData[question.id].includes(answer.id) : false
                     }
                 })
 
             })
         })
 
-        const response = examApi.submitExam({ data }).then(() => {
+        examApi.submitExam({ data }).then(() => {
             clearInterval(intervalRef.current);
             intervalRef.current = null;
             window.localStorage.removeItem(`${COUNTER_KEY}`);
@@ -146,6 +121,27 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
             router.push(`/course/learning/${params.slug}?exam=${params.id_exam}`)
         }).catch((err: any) => { });
     }
+
+
+    useEffect(() => {
+        // Lưu các đáp án vào localStorage mỗi khi state thay đổi
+        localStorage.setItem('answers', JSON.stringify(answers));
+    }, [answers])
+
+    useEffect(() => {
+        if (exam?.period) {
+            var countDownTime = Number(window.localStorage.getItem(COUNTER_KEY)) || exam?.period * 60;
+            countDown(countDownTime, function () {
+                alert('Hết giờ làm bài!!!');
+                console.log(getValues());
+
+                submitTest(getValues());
+
+            });
+        }
+
+    }, [exam?.period]);
+
 
 
 
@@ -274,7 +270,8 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
 
     return (
         <form onSubmit={handleSubmit((data) => {
-            submitTest('1', data)
+
+            submitTest(data)
 
         })} className="bg-[#FBFAF9] relative py-10 min-h-screen">
             <div className="px-10 py-5 bg-[#153462] fixed w-full top-0 left-0 z-10">

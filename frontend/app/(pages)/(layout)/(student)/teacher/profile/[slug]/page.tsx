@@ -41,7 +41,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                 setProfile(data.data)
             }
             ).catch((err: any) => { })
-            await userApi.getReviewOfTeacher(params.slug).then((data: any) => {
+            await userApi.getReviewOfTeacher(params.slug, '1').then((data: any) => {
                 setReviews(data.data.reviews)
                 if (data.data.averageRating) {
                     setAvgReview(data.data.averageRating)
@@ -114,7 +114,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                 </span>
                             </div>
                             <div className='w/1/4 flex flex-col items-center mr-10'>
-                                <div className='p-3 rounded-md border-2 border-[#4fb949]'>
+                                <div className='p-3 rounded-md border-2 border-[#00a1d9]'>
                                     <div className='w-8 h-8 relative'>
                                         <Image
                                             src={`/images/webinars.svg`}
@@ -132,7 +132,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                 </span>
                             </div>
                             <div className='w/1/4 flex flex-col items-center mr-10'>
-                                <div className='p-3 rounded-md border-2 border-[#00a1d9]'>
+                                <div className='p-3 rounded-md border-2  border-[#4fb949]'>
                                     <div className='w-8 h-8 relative'>
                                         <Image
                                             src={`/images/reviews.svg`}

@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react'
 import {
     ExclamationCircleIcon, PencilSquareIcon, ArrowsPointingOutIcon, Squares2X2Icon,
-    PlusCircleIcon, TrashIcon, ChevronDownIcon, ChevronUpIcon, BookOpenIcon
+    PlusCircleIcon, TrashIcon, ChevronDownIcon, ChevronUpIcon, BookOpenIcon,
+    DocumentTextIcon
 } from "@heroicons/react/24/outline"
 
 import { Dropdown } from 'flowbite-react';
@@ -91,11 +92,13 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                     <div className="flex justify-between items-center">
                         <div className="flex items-center">
                             <span className="flex justify-center items-center w-10 h-10 bg-[#f1f1f1] rounded-full mr-[10px]">
-                                <BookOpenIcon className="w-6 h-6 text-[#818894]" />
+                                {
+                                    topic?.type == "lecture" ? <BookOpenIcon className="w-6 h-6 text-[#818894]" /> : <DocumentTextIcon className="w-6 h-6 text-[#818894]" />
+                                }
                             </span>
                             <div>
                                 <span className="font-bold text-[#171347] text-lg">
-                                    {topic.name}
+                                    {topic.name !== "ads" ? topic.name : topic.title}
                                 </span>
                             </div>
                         </div>
@@ -303,6 +306,21 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                                     className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                                                 >
                                                     Công khai
+                                                </label>
+                                            </div>
+                                            <div className="flex items-center me-4" >
+                                                <input
+                                                    id="inline-radio"
+                                                    type="radio"
+                                                    {...register(`chapters.${indexChapter}.topics.${indexTopic}.status`)}
+                                                    value="paid"
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                />
+                                                <label
+                                                    htmlFor="inline-radio"
+                                                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                >
+                                                    Tính phí
                                                 </label>
                                             </div>
                                             <div className="flex items-center me-4">

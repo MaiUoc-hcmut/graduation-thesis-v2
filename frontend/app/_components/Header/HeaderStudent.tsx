@@ -13,6 +13,7 @@ import io from "socket.io-client";
 import { useEffect, useState } from 'react';
 import notifyApi from '@/app/api/notifyApi';
 import { convertToVietnamTime } from '@/app/helper/FormatFunction';
+import { initFlowbite } from 'flowbite';
 
 
 export default function HeaderStudent() {
@@ -22,7 +23,6 @@ export default function HeaderStudent() {
     // const isAuth = (authReducer?.isAuth == "true" || authReducer?.isAuthTeacher == "true") ? true : false
     const { user } = useAppSelector(state => state.authReducer);
     const [notifycations, setNotifycations] = useState<any>([])
-    const searchParams = useSearchParams()
 
     useEffect(() => {
         async function fetchData() {
@@ -43,6 +43,7 @@ export default function HeaderStudent() {
                 });
             }
         }
+        initFlowbite();
         fetchData()
     }, [user]);
 
@@ -62,18 +63,17 @@ export default function HeaderStudent() {
                         <div className='flex justify-start flex-1 mx-10'>
                             <ul className='flex items-center text-[1rem] text-[#171347]'>
                                 <li>
-                                    <Link href="/" className={`${searchParams} text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500`}>Trang chủ</Link>
+                                    <Link href="/" className={`text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500`}>Trang chủ</Link>
                                 </li>
                                 <li>
-                                    <Link href="/course" className={`${searchParams} text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500`}>Khóa học</Link>
+                                    <Link href="/course" className={`text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500`}>Khóa học</Link>
                                 </li>
                                 <li>
-                                    <Link href="/exam" className={`${searchParams} text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500`}>Đề thi</Link>
+                                    <Link href="/exam" className={`text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500`}>Đề thi</Link>
                                 </li>
                                 <li>
-                                    <Link href="/teacher" className={`${searchParams} text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500`}>Giáo viên</Link>
+                                    <Link href="/teacher" className={`text-[#171347] px-[0.5rem] py-[1rem] hover:text-slate-500`}>Giáo viên</Link>
                                 </li>
-
                             </ul>
                         </div>
                     </div>
@@ -104,13 +104,16 @@ export default function HeaderStudent() {
                                         className="z-20 hidden w-96 max-w-sm bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-800 dark:divide-gray-700"
                                         aria-labelledby="dropdownNotificationButton"
                                     >
+                                        <div className="block px-4 py-2 font-medium text-center text-gray-700 rounded-t-lg bg-gray-50 dark:bg-gray-800 dark:text-white">
+                                            Thông báo
+                                        </div>
                                         <div className="divide-y divide-gray-100 overflow-y-scroll h-[400px]">
                                             {
                                                 notifycations?.map((notify: any, index: any) => {
                                                     return (
                                                         <Link key={index}
                                                             onClick={async () => { if (!notify.read) await notifyApi.readNotify({ data: [notify.id] }) }}
-                                                            href={`${notify.type === "topic" ? `/course/learning/${notify.id_course}/forum/${notify.id_topic}` : ''}`}
+                                                            href={`${notify.type === "topic" ? `/course/learning/${notify.id_course}/forum/${notify.id_topic}` : (notify.type === "assignment" ? `/course/learning/${notify.id_course}/exam/result/${notify.id_assignment}` : ``)}`}
                                                             className="flex p-3 hover:bg-gray-100 dark:hover:bg-gray-700"
                                                         >
                                                             <div className='flex'>
@@ -120,25 +123,24 @@ export default function HeaderStudent() {
                                                                     </div>
                                                                     <div className='flex-1  mr-5'>
                                                                         <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400 relative">
-                                                                            {
-                                                                                notify.read ? null : <div className='rounded-full w-2 h-2 p-1 bg-[#f63c3c] absolute top-[5px] left-0'></div>
-                                                                            }
-
                                                                             <div className='ml-3 w-full'>
+                                                                                {
+                                                                                    notify.read ? null : <span className="mr-1 inline-block rounded-full bg-red-500 h-[10px] w-[10px]"></span>
+                                                                                }
                                                                                 Thông báo mới từ {" "}
                                                                                 <span className="">
-                                                                                    hệ thống
+                                                                                    {notify.type === 'teacher' ? `giáo viên ${notify.name}` : "hệ thống"}
                                                                                 </span>
 
                                                                                 {": "}
                                                                                 {notify.type === 'teacher' && (
-                                                                                    <>Giáo viên <span className='font-medium text-black'>{notify.name}</span> thông báo {notify.content}</>
+                                                                                    <> {notify.content}</>
                                                                                 )}
-                                                                                {notify.type === 'teacher' && (
-                                                                                    <>Giáo viên <span className='font-medium text-black'>{notify.name}</span> thông báo {notify.content}</>
+                                                                                {notify.type === 'assignment' && (
+                                                                                    <>giáo viên {notify.name} đã đánh giá bài làm của bạn trong bài kiểm tra {notify.exam_name} </>
                                                                                 )}
                                                                                 {notify.type === 'topic' && (
-                                                                                    <>Có người vừa tạo chủ đề <span className='font-medium text-black'>{notify.name}</span> trong khóa học <span className='font-medium text-black'>{notify.course_name}</span></>
+                                                                                    <>Có người vừa tạo chủ đề {notify.name} trong khóa học{notify.course_name}</>
                                                                                 )}
                                                                             </div>
 

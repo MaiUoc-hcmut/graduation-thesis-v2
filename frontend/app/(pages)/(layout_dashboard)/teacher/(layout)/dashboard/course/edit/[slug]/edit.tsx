@@ -64,6 +64,7 @@ export default function Edit({ id, course }: any) {
         formState: { errors },
     } = handleForm
 
+    console.log(errors);
 
     const { steps, step, isFirstStep, isLastStep, back, next, goTo } =
         useMultistepForm([
@@ -112,33 +113,10 @@ export default function Edit({ id, course }: any) {
                 </div>
             </form>
 
-            {/* <FileManagerComponent id="file" view="LargeIcons" ={fileManagerSettinsettingsgs}>
-                <Inject services={[NavigationPane, DetailsView, Toolbar]} />
-            </FileManagerComponent> */}
-
-            {/* <button
-                onClick={() => {
-
-                    Flmngr.open({
-                        apiKey: "1eZGiCrt",                                  // default free key
-                        urlFileManager: 'https://fm.flmngr.com/fileManager', // demo server
-                        urlFiles: `http://localhost:4001/api/v1/teacher/`,             // demo file storage
-                        isMultiple: false,                                   // let selecting a single file
-                        acceptExtensions: ["png", "jpg", "jpeg", "gif", "webp"],
-                        onFinish: (files) => {
-                            console.log("User picked:");
-                            console.log(files);
-                        }
-                    });
-                }}
-            >
-                Open file manager
-            </button> */}
 
             <div className="flex flex-col ">
                 <form onSubmit={
                     handleSubmit(async (dataForm: any) => {
-                        console.log(errors);
 
                         if (!(Object.entries(errors).length === 0)) return
                         setToggle({ ...toggle, [`${typeSubmit}`]: false })
@@ -162,12 +140,9 @@ export default function Edit({ id, course }: any) {
 
                             formData.append("data", JSON.stringify(data1))
 
-
                             courseApi.update(id, formData).then(() => {
                                 router.push("/teacher/dashboard/course")
                             })
-
-
 
                         }
                     })

@@ -10,6 +10,7 @@ import examApi from '@/app/api/examApi';
 import { useForm } from 'react-hook-form';
 import { convertToHourMinuteSecond, convertToVietnamTime } from '@/app/helper/FormatFunction';
 import { useRouter } from 'next/navigation';
+import TinyMceEditorComment from '@/app/_components/Editor/TinyMceEditorComment';
 
 
 export default function ReviewExam({ params }: { params: { slug: string, id_assignment: string } }) {
@@ -140,18 +141,19 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
                         </div>
                     </div>
                     <div className='flex justify-end text-sm'>
-                        <button className='underline' onClick={() => setToggle({ ...toggle, [`form-${question.id_question}`]: !toggle[`form-${question.id_question}`] })}>
+                        <button className='underline' type="button" onClick={() => setToggle({ ...toggle, [`form-${question.id_question}`]: !toggle[`form-${question.id_question}`] })}>
                             Thêm nhận xét
                         </button>
                     </div>
-                    <div className={`${question.comment != '' || toggle[`form-${question.id_question}`] ? '' : 'hidden'}`}>
-                        <textarea
+                    <div className={`${toggle[`form-${question.id_question}`] ? '' : 'hidden'} mt-5`}>
+                        {/* <textarea
                             defaultValue={question.comment}
                             placeholder="Nhập nhận xét của bạn..."
                             {...register(`${question.id}`)}
                             className="w-full mt-5 p-2 border rounded focus:ring-0 focus:border-primary_border"
                             rows={4}
-                        ></textarea>
+                        ></textarea> */}
+                        <TinyMceEditorComment value={question.comment} setValue={setValue} position={question.id} link={'http://localhost:4001/api/v1/images/single'} />
                     </div>
                 </div>
             );
@@ -331,14 +333,13 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
                                 const detail_questions = []
 
                                 for (const key in data) {
-                                    if (data.hasOwnProperty(key)) {
+                                    if (data.hasOwnProperty(key) && key !== 'comment') {
                                         detail_questions.push({
                                             id: key,
                                             comment: data[key]
                                         });
                                     }
                                 }
-                                detail_questions.shift();
                                 const formData = {
                                     data: {
                                         comment: data.comment,
@@ -353,13 +354,10 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
                             })} className='mt-2'>{listQuestion}
                                 <div className='mt-5'>
                                     <h3 className='text-secondary font-bold text-xl'>Nhận xét bài làm</h3>
-                                    <textarea
-                                        defaultValue={assignment?.comment}
-                                        placeholder="Nhập nhận xét của bạn..."
-                                        {...register(`comment`)}
-                                        className="w-full mt-5 p-2 border rounded focus:ring-0 focus:border-primary_border"
-                                        rows={4}
-                                    ></textarea>
+                                    <div className='mt-5'>
+
+                                        <TinyMceEditorComment value={assignment?.comment} setValue={setValue} position={'comment'} link={'http://localhost:4001/api/v1/images/single'} />
+                                    </div>
                                     <div className='flex justify-end'>
                                         <button type='submit' className='mt-5 h-[36px] px-[22px] bg-primary shadow-primary_btn_shadow border-primary text-white rounded-md hover:bg-primary_hover'>Hoàn thành đánh giá</button>
                                     </div>

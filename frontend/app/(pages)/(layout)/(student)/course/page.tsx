@@ -231,7 +231,7 @@ export default function CourseList() {
                                         courses?.map((course: any) => {
                                             return (
                                                 <Link key={course.id} href={`course/${course.id}`} className=''>
-                                                    <div className='bg-white shadow-card_course rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300 border-[1px] border-slate-200'>
+                                                    <div className='bg-white shadow-md rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300 border-[1px] border-slate-200'>
                                                         <div className='relative w-full h-60'>
                                                             <Image
                                                                 src={`${course.thumbnail}`}
@@ -252,7 +252,7 @@ export default function CourseList() {
                                                                     />
                                                                 </div>
                                                                 <div>
-                                                                    <p className='font-medium text-[#818894]'>Việt Lê</p>
+                                                                    <p className='font-medium text-[#818894]'>{course.user.name}</p>
                                                                 </div>
                                                             </div>
                                                             <h3 className="overflow-hidden text-[#17134] mt-4 h-8 font-bold">

@@ -23,7 +23,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -61,7 +61,6 @@ export function DataTable<TData, TValue>({
             pagination,
         },
     })
-
 
 
     return (

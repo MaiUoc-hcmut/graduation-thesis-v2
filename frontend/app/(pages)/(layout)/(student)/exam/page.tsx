@@ -1,7 +1,7 @@
 "use client"
 import { Fragment, useEffect, useState } from 'react';
 import { Dialog, Disclosure, Menu, Transition } from '@headlessui/react';
-import { XMarkIcon, ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon, QuestionMarkCircleIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, StarIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -49,9 +49,9 @@ export default function CourseList() {
     useEffect(() => {
         async function fetchData() {
             let filterString = ''
-            subjectFilters?.map((s) => { filterString += `subject=${s}` })
-            levelFilters?.map((l) => { filterString += `&level=${l}` })
-            classFilters?.map((c) => { filterString += `&class=${c}` })
+            subjectFilters?.map((s) => { filterString += `subject=${s}&` })
+            levelFilters?.map((l) => { filterString += `&level=${l}&` })
+            classFilters?.map((c) => { filterString += `&class=${c}&` })
             priceFilters ? filterString += `&minPrice=0&maxPrice=${priceFilters}` : null
 
             sortFilters && orderFilters ? filterString += `&sort=${sortFilters}&order=${orderFilters}` : null
@@ -104,7 +104,7 @@ export default function CourseList() {
             <div>
                 <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-6">
-                        <h1 className="text-4xl font-bold tracking-tight text-gray-900">Khóa học</h1>
+                        <h1 className="text-4xl font-bold tracking-tight text-gray-900">Đề thi</h1>
 
                         <div className="flex items-center">
                             <Menu as="div" className="relative inline-block text-left">
@@ -230,8 +230,8 @@ export default function CourseList() {
                                     {
                                         courses?.map((course: any) => {
                                             return (
-                                                <Link key={course.id} href={`course/${course.id}`} className=''>
-                                                    <div className='bg-white shadow-card_course rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300'>
+                                                <Link key={course.id} href={`exam/combo/${course.id}`} className=''>
+                                                    <div className='bg-white shadow-md rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300 border-[1px] border-slate-200'>
                                                         <div className='relative w-full h-60'>
                                                             <Image
                                                                 src={`${course.thumbnail}`}
@@ -252,34 +252,45 @@ export default function CourseList() {
                                                                     />
                                                                 </div>
                                                                 <div>
-                                                                    <p className='font-medium text-[#818894]'>Việt Lê</p>
+                                                                    <p className='font-medium text-[#818894]'>{course.user.name}</p>
                                                                 </div>
                                                             </div>
                                                             <h3 className="overflow-hidden text-[#17134] mt-4 h-8 font-bold">
                                                                 {course.name}
                                                             </h3>
-
-
-                                                            <div className="flex items-center mt-4">
+                                                            <div className="flex items-center">
                                                                 {renderStars(Math.floor(course?.average_rating))}
                                                                 <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{course?.average_rating.toFixed(1)}</span>
                                                             </div>
+                                                            <div className='mt-2'>
+                                                                Số người đã mua: {course?.registrations}
+                                                            </div>
+                                                            <div className='grid grid-cols-2 mt-4'>
+                                                                <div className='flex items-center'>
+                                                                    <span className='mr-1'>Lớp:</span>
+                                                                    <p className='font-semibold'>{course?.Categories[0]?.Class}</p>
+                                                                </div>
+                                                                <div className='flex items-center'>
+                                                                    <span className='mr-1'>Môn học:</span>
+                                                                    <p className='font-semibold'>{course?.Categories[1]?.Subject}</p>
+                                                                </div>
+                                                                <div className='flex items-center'>
+                                                                    <span className='mr-1'>Mức độ:</span>
+                                                                    <p className='font-semibold'>{course?.Categories[2]?.Level}</p>
+                                                                </div>
+                                                            </div>
                                                             <div className='mt-4 grid grid-cols-2 gap-2'>
                                                                 <div className='flex items-center'>
-                                                                    <ClockIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{convertTime(course?.total_duration)} giờ</span>
-                                                                </div>
-                                                                <div className='flex items-center'>
-                                                                    <Squares2X2Icon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{course?.total_chapter} chương</span>
-                                                                </div>
-                                                                <div className='flex items-center'>
-                                                                    <FilmIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{course?.total_lecture} bài giảng</span>
-                                                                </div>
-                                                                <div className='flex items-center'>
                                                                     <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{course?.total_exam} đề thi</span>
+                                                                    <span className='text-[#171347] font-semibold text-sm'>{course?.chapters?.length} đề thi</span>
+                                                                </div>
+                                                                <div className='flex items-center'>
+                                                                    <QuestionMarkCircleIcon className='w-5 h-5 text-secondary font-medium mr-1' />
+                                                                    <span className='text-[#171347] font-semibold text-sm'>{course?.total_lecture} câu hỏi</span>
+                                                                </div>
+                                                                <div className='flex items-center'>
+                                                                    <ClipboardDocumentIcon className='w-5 h-5 text-secondary font-medium mr-1' />
+                                                                    <span className='text-[#171347] font-semibold text-sm'>{course?.total_exam} dạng</span>
                                                                 </div>
 
                                                             </div>

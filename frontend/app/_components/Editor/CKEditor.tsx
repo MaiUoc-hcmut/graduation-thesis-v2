@@ -50,6 +50,7 @@ export default function CustomCKEditor({ setValue, value, position }: any) {
         setValue(position, content)
     };
 
+
     // const handleImageUpload: any = (blobInfo: any, success: any, failure: any) => {
     //     return new Promise((resolve, reject) => {
     //         const xhr = new XMLHttpRequest();

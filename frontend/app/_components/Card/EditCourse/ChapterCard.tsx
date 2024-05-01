@@ -184,6 +184,21 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                                     Công khai
                                                 </label>
                                             </div>
+                                            <div className="flex items-center me-4" >
+                                                <input
+                                                    id="inline-radio"
+                                                    type="radio"
+                                                    {...register(`chapters.${indexChapter}.status`)}
+                                                    value="paid"
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                />
+                                                <label
+                                                    htmlFor="inline-radio"
+                                                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                >
+                                                    Tính phí
+                                                </label>
+                                            </div>
                                             <div className="flex items-center me-4">
                                                 <input
                                                     id="inline-2-radio"
@@ -254,25 +269,37 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
 
                         <div className="mr-[10px]" >
 
-
                             <Dropdown label="" renderTrigger={() => <PlusCircleIcon className="w-7 h-7 text-primary" />} placement="left">
                                 <Dropdown.Item onClick={() => {
+
                                     appendTopic({
-                                        id: uuid(),
-                                        key: `topic_${topicsData.length}`,
+                                        key: `lecture_${topicsData.length}`,
                                         name: "",
+                                        title: "a",
                                         description: "",
-                                        status: "public",
-                                        type: "lecture"
+                                        duration: 0,
+                                        pass_score: 0,
+                                        status: "paid",
+                                        type: "lecture",
+                                        modify: "create"
                                     })
-
-                                    console.log(fieldsTopic);
-
-                                    setToggle({ ...toggle, [`add_topic_${chapter.id || chapter.key}`]: true, [`open_chapter_${chapter.id || chapter.key}`]: true })
+                                    setToggle({ ...toggle, [`add_lecture_${chapter.id || chapter.key}`]: true, [`open_chapter_${chapter.id || chapter.key}`]: true })
                                 }}>
-                                    Thêm chủ đề
+                                    Thêm bài giảng
                                 </Dropdown.Item>
-                                <Dropdown.Item>Thêm đề thi</Dropdown.Item>
+                                <Dropdown.Item onClick={() => {
+
+                                    appendTopic({
+                                        key: `exam_${topicsData.length}`,
+                                        title: "",
+                                        duration: "",
+                                        status: "paid",
+                                        type: "exam",
+                                        name: "ads",
+                                        modify: "create"
+                                    })
+                                    setToggle({ ...toggle, [`add_exam_${chapter.id || chapter.key}`]: true, [`open_chapter_${chapter.id || chapter.key}`]: true })
+                                }}>Thêm bài tập</Dropdown.Item>
                             </Dropdown>
 
                         </div>
@@ -311,7 +338,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
 
 
 
-                <div className={`${toggle[`add_topic_${chapter.id || chapter.key}`] ? "" : "hidden"} mt-3 pt-4 border-t-[1px] border-[#ececec]`}>
+                <div className={`${toggle[`add_lecture_${chapter.id || chapter.key}`] ? "" : "hidden"} mt-3 pt-4 border-t-[1px] border-[#ececec]`}>
                     {fieldsTopic.map((field: any, indexFieldTopic: any) => (
 
                         indexFieldTopic == fieldsTopic.length - 1 ?
@@ -367,13 +394,13 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                             process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                                                 const formData = new FormData();
                                                 formData.append(fieldName, file, `${indexChapter + 1}-${indexFieldTopic + 1}-${file.name}`);
-                                                const data = { id_course: id_course, id_topic: getValues().chapters?.[indexChapter]?.topics?.[indexFieldTopic].id }
+                                                const data = { id_course: id_course }
                                                 console.log(formData.get('video'));
 
                                                 formData.append('data', JSON.stringify(data));
 
                                                 const request = new XMLHttpRequest();
-                                                request.open('PUT', 'http://localhost:4001/api/v1/videos/update')
+                                                request.open('POST', 'http://localhost:4001/api/v1/videos')
 
                                                 request.upload.onprogress = (e) => {
                                                     progress(e.lengthComputable, e.loaded, e.total);
@@ -399,6 +426,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                     />
                                     <p>{getValues().chapters?.indexChapter?.topics?.indexTopic?.link_video}</p>
                                 </div>
+
                                 <div className="mb-5 w-1/2">
                                     <label
                                         className="block mb-2 text-sm font-semibold text-[14px] text-[#171347]"
@@ -410,17 +438,16 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                         files={files}
                                         onupdatefiles={() => setFiles}
                                         allowMultiple
-                                        // acceptedFileTypes={[".pdf"]}
                                         server={{
                                             process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                                                 const formData = new FormData();
                                                 formData.append(fieldName, file, `${indexChapter + 1}-${indexFieldTopic + 1}-${file.name}`);
-                                                const data = { id_course: id_course, id_topic: chapter.topics[indexFieldTopic].id }
+                                                const data = { id_course: id_course }
 
                                                 formData.append('data', JSON.stringify(data));
 
                                                 const request = new XMLHttpRequest();
-                                                request.open('PUT', 'http://localhost:4001/api/v1/document/update')
+                                                request.open('POST', 'http://localhost:4001/api/v1/document')
 
                                                 request.upload.onprogress = (e) => {
                                                     progress(e.lengthComputable, e.loaded, e.total);
@@ -444,8 +471,9 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                         name="document"
                                         labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
                                     />
-
+                                    <p>{getValues().chapters?.indexChapter?.topics?.indexTopic?.link_video}</p>
                                 </div>
+
                                 <div className="mb-5 w-full">
                                     <div
                                         className="block mr-2 text-sm font-semibold text-[14px] text-[#171347] "
@@ -468,6 +496,22 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                                         className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                                                     >
                                                         Công khai
+                                                    </label>
+                                                </div>
+                                                <div className="flex items-center me-4" >
+                                                    <input
+                                                        id="inline-radio"
+                                                        type="radio"
+                                                        defaultChecked
+                                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.status`)}
+                                                        value="paid"
+                                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                    />
+                                                    <label
+                                                        htmlFor="inline-radio"
+                                                        className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                    >
+                                                        Tính phí
                                                     </label>
                                                 </div>
                                                 <div className="flex items-center me-4">
@@ -497,17 +541,159 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                     <button
                                         onClick={() => {
                                             removeTopic(indexFieldTopic)
-                                            setToggle({ ...toggle, [`add_topic_${chapter.id || chapter.key}`]: false })
+                                            setToggle({ ...toggle, [`add_lecture_${chapter.id || chapter.key}`]: false })
 
                                         }} type="button" className="mr-4 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Huỷ</button>
                                     <button type="submit"
                                         onClick={() => {
-                                            if (chapter.modify != "create") {
-                                                setValue(`chapters.${indexChapter}.modify`, "change")
-                                            }
+                                            setTypeSubmit(`add_lecture_${chapter.id || chapter.key}`)
+                                        }}
+                                        className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mt-3">Lưu</button>
+                                </div>
+                            </div>
+                            : null
+                    ))}
 
-                                            setValue(`chapters.${indexChapter}.topics.${chapter.topics.length}.modify`, "create")
-                                            setTypeSubmit(`add_topic_${chapter.id || chapter.key}`)
+                </div>
+
+                <div className={`${toggle[`add_exam_${chapter.id || chapter.key}`] ? "" : "hidden"} mt-3 pt-4 border-t-[1px] border-[#ececec]`}>
+                    {fieldsTopic.map((field: any, indexFieldTopic: any) => (
+
+                        indexFieldTopic == fieldsTopic.length - 1 ?
+                            <div key={field.id} className="mt-3">
+                                <div className="mb-5 w-1/3">
+                                    <label
+                                        className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                    >
+                                        Tiêu đề
+                                    </label>
+                                    <input
+                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.title`, {
+                                            // required: "Tiêu đề không thể thiếu",
+                                        })}
+                                        type="text"
+                                        className={`bg-white border-[1px] border-[#ececec] text-[#343434] text-sm focus: ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
+                                    />
+
+                                    <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                        {errors.chapters?.[indexChapter]?.topics?.[indexFieldTopic]?.title?.message}
+                                    </p>
+                                </div>
+                                <div className="mb-5 w-1/3">
+                                    <label
+                                        className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                    >
+                                        Thời gian (phút)
+                                    </label>
+                                    <input
+                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.duration`, {
+                                            required: "Thời gian không thể thiếu",
+                                        })}
+                                        type="number"
+                                        className={`bg-white border-[1px] border-[#ececec] text-[#343434] text-sm focus: ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
+                                    />
+
+                                    <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                        {errors.chapters?.[indexChapter]?.topics?.[indexFieldTopic]?.duration?.message}
+                                    </p>
+                                </div>
+                                <div className="mb-5 w-1/3">
+                                    <label
+                                        className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                    >
+                                        Điểm hoàn thành
+                                    </label>
+                                    <input
+                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.pass_score`, {
+                                            // required: "Điểm hoàn thành không thể thiếu",
+                                            min: {
+                                                value: 0,
+                                                message: "Điểm hoàn thành không thể nhỏ hơn 0"
+                                            },
+                                            max: {
+                                                value: 10,
+                                                message: "Điểm hoàn thành không thể lớn hơn 10"
+                                            }
+                                        })}
+                                        type="number"
+                                        className={`bg-white border-[1px] border-[#ececec] text-[#343434] text-sm focus: ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
+                                    />
+
+                                    <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                        {errors.chapters?.[indexChapter]?.topics?.[indexFieldTopic]?.pass_score?.message}
+                                    </p>
+                                </div>
+                                <div className="mb-5 w-full">
+                                    <div
+                                        className="block mr-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                    >
+                                        Trạng thái
+                                    </div>
+                                    <div className="mt-2">
+                                        <label className="relative inline-flex items-center me-5 cursor-pointer">
+                                            <div className="flex">
+                                                <div className="flex items-center me-4" >
+                                                    <input
+                                                        id="inline-radio"
+                                                        type="radio"
+                                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.status`)}
+                                                        value="public"
+                                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                    />
+                                                    <label
+                                                        htmlFor="inline-radio"
+                                                        className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                    >
+                                                        Công khai
+                                                    </label>
+                                                </div>
+                                                <div className="flex items-center me-4" >
+                                                    <input
+                                                        id="inline-radio"
+                                                        type="radio"
+                                                        defaultChecked
+                                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.status`)}
+                                                        value="paid"
+                                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                    />
+                                                    <label
+                                                        htmlFor="inline-radio"
+                                                        className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                    >
+                                                        Tính phí
+                                                    </label>
+                                                </div>
+                                                <div className="flex items-center me-4">
+                                                    <input
+                                                        id="inline-2-radio"
+                                                        type="radio"
+                                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.status`)}
+                                                        value="private"
+                                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                    />
+                                                    <label
+                                                        htmlFor="inline-2-radio"
+                                                        className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                    >
+                                                        Riêng tư
+                                                    </label>
+                                                </div>
+
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div className="mb-2">
+                                    <button
+                                        onClick={() => {
+                                            removeTopic(indexFieldTopic)
+                                            setToggle({ ...toggle, [`add_exam_${chapter.id || chapter.key}`]: false })
+
+                                        }} type="button" className="mr-4 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Huỷ</button>
+                                    <button type="submit"
+                                        onClick={() => {
+                                            setTypeSubmit(`add_exam_${chapter.id || chapter.key}`)
                                         }}
                                         className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mt-3">Lưu</button>
                                 </div>

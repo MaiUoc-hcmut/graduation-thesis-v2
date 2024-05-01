@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { ArrowsUpDownIcon } from "@heroicons/react/24/outline"
 import { ReactNode } from "react"
 import { renderOnlyStar } from "@/app/helper/RenderFunction"
+import { convertToVietnamTime } from "@/app/helper/FormatFunction"
 
 export const columns: ColumnDef<any>[] = [
     {
@@ -48,5 +49,23 @@ export const columns: ColumnDef<any>[] = [
             )
         },
     },
-
+    {
+        accessorKey: "updatedAt",
+        header: ({ column }) => {
+            return (
+                <button
+                    className="flex justify-center items-center  font-semibold"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Thời gian tạo
+                    <ArrowsUpDownIcon className="ml-2 h-4 w-4" />
+                </button>
+            )
+        },
+        cell: ({ cell }) => {
+            return (
+                convertToVietnamTime(cell.getValue() as string)
+            )
+        },
+    },
 ]
