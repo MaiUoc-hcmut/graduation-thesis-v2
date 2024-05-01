@@ -253,7 +253,7 @@ class CourseController {
 
             for (const course of courses) {
                 const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${course.id_teacher}`);
-                course.dataValues.user = { id: user.data.id, name: user.data.name };
+                course.dataValues.user = { id: user.data.id, name: user.data.name, avatar: user.data.avatar };
 
                 const registrations = await StudentCourse.count({
                     where: { id_course: course.id }

@@ -32,4 +32,7 @@ router.route('/basic/teacher/:teacherId')
 router.route('/course/:courseId/page/:page')
     .get(reviewController.getReviewsForCourse);
 
+router.route('/teacher/:teacherId')
+    .get(reviewController.getAllReviewsOfAllCoursesOfTeacher);
+
 module.exports = router;

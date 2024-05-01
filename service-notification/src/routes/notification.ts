@@ -37,6 +37,15 @@ router.route('/payment')
 router.route('/comment-on-assignment')
     .post(NotificationController.notifyTeacherCommentOnAssignment);
 
+router.route('/comment-on-lecture')
+    .post(NotificationController.notificationStudentCommentOnLecture);
+
+router.route('/teacher/:teacherId')
+    .get(NotificationController.getNotifyTeacherSent);
+
+router.route('/list-student/:notificationId')
+    .get(NotificationController.getListStudentOfNotiTeacherSent);
+
 module.exports = router;
 
 export {}

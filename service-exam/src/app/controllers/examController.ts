@@ -341,38 +341,42 @@ class ExamController {
                 name: string,
                 questions: string[]
             }[] = [];
-            for (const question of exam.questions) {
-                if (question.Knowledge.length === 0) {
-                    const foundObject = knowledges.find(o => o.name === "other");
-                    if (!foundObject) {
-                        knowledges.push({
-                            name: "other",
-                            questions: [question.id]
-                        });
-                    } else {
-                        foundObject.questions.push(question.id);
+            if (exam.questions) {
+                for (const question of exam.questions) {
+                    if (question.Knowledge.length === 0) {
+                        const foundObject = knowledges.find(o => o.name === "other");
+                        if (!foundObject) {
+                            knowledges.push({
+                                name: "other",
+                                questions: [question.id]
+                            });
+                        } else {
+                            foundObject.questions.push(question.id);
+                        }
+                        continue;
                     }
-                    continue;
-                }
 
-                for (const knowledge of question.Knowledge) {
-                    const foundObject = knowledges.find(o => o.name === knowledge.name);
-                    if (!foundObject) {
-                        knowledges.push({
-                            name: knowledge.name,
-                            questions: [question.id]
-                        });
-                    } else {
-                        foundObject.questions.push(question.id);
+                    for (const knowledge of question.Knowledge) {
+                        const foundObject = knowledges.find(o => o.name === knowledge.name);
+                        if (!foundObject) {
+                            knowledges.push({
+                                name: knowledge.name,
+                                questions: [question.id]
+                            });
+                        } else {
+                            foundObject.questions.push(question.id);
+                        }
                     }
                 }
             }
 
-            for (const category of exam.Categories) {
-                const parCategory = await ParentCategory.findByPk(category.id_par_category);
-                category.dataValues[`${parCategory.name}`] = category.name;
-                delete category.dataValues.name;
-                delete category.dataValues.id_par_category;
+            if (exam.Categories) {
+                for (const category of exam.Categories) {
+                    const parCategory = await ParentCategory.findByPk(category.id_par_category);
+                    category.dataValues[`${parCategory.name}`] = category.name;
+                    delete category.dataValues.name;
+                    delete category.dataValues.id_par_category;
+                }
             }
 
             exam.dataValues.classification = knowledges;
@@ -444,11 +448,11 @@ class ExamController {
                 return res.status(400).json({ message: "Information missed!" });
             }
 
-            if (!categories) {
+            if (!categories || categories.length === 0) {
                 return res.status(400).json({ message: "Category missed!" });
             }
 
-            if (!questions) {
+            if (!questions || questions.length === 0) {
                 return res.status(400).json({ message: "Questions missed!" });
             }
 

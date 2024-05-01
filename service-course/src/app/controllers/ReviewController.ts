@@ -133,7 +133,7 @@ class ReviewController {
                 const user = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${review.id_student}`);
 
                 review.dataValues.user = { avatar: user.data.avatar, name: user.data.name };
-                review.dataValues.course = course.name
+                review.dataValues.course_name = course.name
             }
 
             let starDetails: { [key: string]: { quantity: number, percentage: number } } = {};
@@ -156,6 +156,49 @@ class ReviewController {
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error });
+        }
+    }
+
+    // [GET] /reviews/teacher/:teacherId/page/:page
+    getAllReviewsOfAllCoursesOfTeacher = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const id_teacher = req.params.teacherId;
+            
+            const courses = await Course.findAll({
+                where: {
+                    id_teacher
+                },
+                attributes: ['id', 'name']
+            });
+
+            const reviewsList = [];
+
+            for (const course of courses) {
+                const reviews = await Review.findAll({
+                    where: {
+                        id_course: course.id
+                    }
+                });
+                for (const review of reviews) {
+                    review.dataValues.course_name = course.name;
+                    
+                    const student = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/student/${review.id_student}`);
+                    review.dataValues.user = {
+                        id: student.data.id,
+                        name: student.data.name,
+                        avatar: student.data.avatar
+                    }
+                }
+                reviewsList.push(...reviews);
+            }
+
+            res.status(200).json(reviewsList);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ 
+                message: error.message,
+                error 
+            });
         }
     }
 
