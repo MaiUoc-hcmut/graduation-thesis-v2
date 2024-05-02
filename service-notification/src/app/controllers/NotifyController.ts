@@ -505,19 +505,34 @@ class NotificationController {
         }
     }
 
-    // [GET] /notification/teacher/:teacherId
+    // [GET] /notification/teacher/:teacherId/page/:page
     getNotifyTeacherSent = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_user = req.params.teacherId;
-            
-            const notifications = await NotificationModel.findAll({
+
+            const pageSize = 10;
+            const currentPage: number = +req.params.page;
+
+            const count = await NotificationModel.count({
                 where: {
                     id_user,
                     type: "send"
                 }
             });
+            
+            const notifications = await NotificationModel.findAll({
+                where: {
+                    id_user,
+                    type: "send"
+                },
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1)
+            });
 
-            res.status(200).json(notifications);
+            res.status(200).json({
+                count,
+                notifications
+            });
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ message: error.message, error });
