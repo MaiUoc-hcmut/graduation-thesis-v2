@@ -25,6 +25,10 @@ DetailQuestion.init({
     comment: {
         type: DataTypes.STRING(300),
         defaultValue: ""
+    },
+    draft: {
+        type: DataTypes.STRING,
+        defaultValue: ""
     }
 }, {
     sequelize,

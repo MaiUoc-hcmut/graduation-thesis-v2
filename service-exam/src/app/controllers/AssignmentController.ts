@@ -794,6 +794,10 @@ class AssignmentController {
                 question.dataValues.content_image = q.content_image;
                 question.dataValues.multi_choice = q.multi_choice;
                 question.dataValues.is_correct = is_correct;
+
+                if (authority !== 2) {
+                    delete question.dataValues.draft;
+                }
             }
 
             if (authority === 2 && role === "teacher") {
@@ -804,6 +808,10 @@ class AssignmentController {
                         transaction: t
                     });
                 }
+            }
+
+            if (authority !== 2) {
+                delete assignment.dataValues.draft;
             }
 
             await t.commit();
@@ -981,31 +989,77 @@ class AssignmentController {
         }
     }
 
+    // [PUT] /assignments/detail_question/:detail_questionId/comments
+    commentOnDetailQuestionOfAssignment = async (req: Request, res: Response, _next: NextFunction) => {
+        const t = await sequelize.transaction()
+        try {
+            const id_detail_question = req.params.detail_questionId;
+
+            let body = req.body.data;
+            if (typeof body === "string") {
+                body = JSON.parse(body);
+            }
+
+            const detail_question = await DetailQuestion.findByPk(id_detail_question);
+            await detail_question.update({
+                ...body
+            }, {
+                transaction: t
+            });
+
+            await t.commit();
+
+            res.status(200).json(detail_question);
+            
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error, message: error.message });
+
+            await t.rollback();
+        }
+    }
+
     // [PUT] /assignments/:assignmentId/comments
     commentOnAssignment = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
             const teacher_name = req.user?.user.data.name;
             const body = req.body.data;
-            const { comment, detail_questions } = body;
+            const { comment, type } = body;
 
             const id_assignment = req.params.assignmentId;
-            const assignment = await Assignment.findByPk(id_assignment);
-            const exam = await Exam.findByPk(assignment.id_exam);
-            
-            await assignment.update({
-                comment,
-                reviewed: 2
-            }, {
-                transaction: t
+            const assignment = await Assignment.findByPk(id_assignment, {
+                include: [{
+                    model: DetailQuestion,
+                    as: 'details',
+                    attributes: ['id']
+                }]
             });
+            const exam = await Exam.findByPk(assignment.id_exam);
 
-            for (const detail_question of detail_questions) {
+            if (type === "draft") {
+                await assignment.update({
+                    draft: comment,
+                    reviewed: 1
+                }, {
+                    transaction: t
+                });
+            } else {
+                await assignment.update({
+                    comment,
+                    draft: comment,
+                    reviewed: 2
+                }, {
+                    transaction: t
+                });
+            }
+        
+
+            for (const detail_question of assignment.details) {
                 const detailQ = await DetailQuestion.findByPk(detail_question.id);
-                if (!detailQ) return res.status(400).json({ message: "This question does not exist the assignment!" });
-                if (detailQ.id_assignment !== assignment.id) return res.status(400).json({ message: "This question does not belong to assignment!" })
+                const comment = detailQ.draft;
                 await DetailQuestion.update({
-                    comment: detail_question.comment
+                    comment
                 }, {
                     where: {
                         id: detail_question.id
