@@ -89,29 +89,15 @@ class MessageController {
                 body = JSON.parse(body);
             }
 
-            let id_group = "";
+            let id_group = body.id_group;
 
             if (body.user) {
-                const group = await Group.findOne({
-                    members: {
-                        $all: [author, body.user]
-                    },
+                await Group.create({
+                    members: [author, body.user],
+                    admins: [author, body.user],
+                    lastMessage: body.body,
                     individual: true
-                }).exec();
-
-                if (!group) {
-                    const newGroup = await Group.create({
-                        members: [author, body.user],
-                        admins: [author, body.user],
-                        individual: true,
-                        lastMessage: body.body
-                    });
-                    id_group = newGroup.id
-                } else {
-                    id_group = group.id;
-                    group.lastMessage = body.body;
-                    await group.save();
-                }
+                });
             }
 
             const message = await Message.create({

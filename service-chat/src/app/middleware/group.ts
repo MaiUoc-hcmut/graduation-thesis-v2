@@ -28,7 +28,7 @@ class CheckingGroup {
                 return next(createError.BadRequest(error));
             }
 
-            if (!members) {
+            if (!members || members.length === 0) {
                 let error = "You can not create a group with just you a member!";
                 return next(createError.BadRequest(error));
             }

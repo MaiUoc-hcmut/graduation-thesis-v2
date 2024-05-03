@@ -19,16 +19,24 @@ class CheckingMessage {
             }
 
             if (body.user && body.id_group) {
-                let error = "You just allowed to send the message to an user or a group, not both!";
+                const group = await Group.findOne({
+                    individual: true,
+                    members: {
+                        $all: [author, body.user]
+                    }
+                });
+                if (group) {
+                    let error = "The group with this user already exist!";
+                    return next(createError.BadRequest(error));
+                }
+            }
+
+            if (!body.id_group) {
+                let error = "You must provide id_group!";
                 return next(createError.BadRequest(error));
             }
 
-            if (!body.user && body.id_group) {
-                let error = "You must send provide id_user or id_group!";
-                return next(createError.BadRequest(error));
-            }
-
-            if (body.id_group) {
+            if (body.id_group && !body.user) {
                 const group = await Group.findOne({ id: body.id_group });
                 if (!group) {
                     let error = "Group does not exist!";
