@@ -63,17 +63,77 @@ class CheckingGroup {
 
     checkAddUserToGroup = async (req: Request, _res: Response, next: NextFunction) => {
         try {
-            
-        } catch (error) {
-            
+            const id_user = req.user?.user.data.id;
+            const id_group = req.params.groupId;
+
+            let body = req.body.data;
+            if (typeof body === "string") {
+                body = JSON.parse(body);
+            }
+            if (!body.users) {
+                let error = "You must provide users to add to group";
+                return next(createError.BadRequest(error));
+            }
+
+            const group = await Group.findOne({
+                id: id_group
+            });
+            if (!group) {
+                let error = "Group does not exist!";
+                return next(createError.BadRequest(error));
+            }
+            if(!group.members.includes(id_user)) {
+                let error = "You are not in this group to add new member";
+                return next(createError.Unauthorized(error));
+            }
+            for (const user of body.users) {
+                if (group.members.includes(user)) {
+                    let error = "One of users that you want to add to group are already in group";
+                    return next(createError.BadRequest(error));
+                }
+            }
+            next();
+        } catch (error: any) {
+            console.log(error.message);
+            next(createError.InternalServerError(error.message));
         }
     }
 
     checkRemoveUserFromGroup = async (req: Request, _res: Response, next: NextFunction) => {
         try {
-            
-        } catch (error) {
-            
+            const id_user = req.user?.user.data.id;
+            const id_group = req.params.groupId;
+
+            let body = req.body.data;
+            if (typeof body === "string") {
+                body = JSON.parse(body);
+            }
+            if (!body.users) {
+                let error = "You must provide users to remove from group";
+                return next(createError.BadRequest(error));
+            }
+
+            const group = await Group.findOne({
+                id: id_group
+            });
+            if (!group) {
+                let error = "Group does not exist!";
+                return next(createError.BadRequest(error));
+            }
+            if(!group.members.includes(id_user)) {
+                let error = "You are not in this group to add new member";
+                return next(createError.Unauthorized(error));
+            }
+            for (const user of body.users) {
+                if (!group.members.includes(user)) {
+                    let error = "One of users that you want to remove out of group are already out of group";
+                    return next(createError.BadRequest(error));
+                }
+            }
+            next();
+        } catch (error: any) {
+            console.log(error.message);
+            next(createError.InternalServerError(error.message));
         }
     }
 }

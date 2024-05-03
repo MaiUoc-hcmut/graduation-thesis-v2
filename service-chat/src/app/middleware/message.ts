@@ -18,21 +18,29 @@ class CheckingMessage {
                 return next(createError.BadRequest(error));
             }
 
-            if (!body.id_group) {
-                let error = "Message must send to specific group, you do not attach group id!";
+            if (body.user && body.id_group) {
+                let error = "You just allowed to send the message to an user or a group, not both!";
                 return next(createError.BadRequest(error));
             }
 
-            const group = await Group.findOne({ id: body.id_group });
-            if (!group) {
-                let error = "Group does not exist!";
+            if (!body.user && body.id_group) {
+                let error = "You must send provide id_user or id_group!";
                 return next(createError.BadRequest(error));
             }
 
-            if (!group.members.includes(author)) {
-                let error = "You do not in this group!";
-                return next(createError.Unauthorized(error));
+            if (body.id_group) {
+                const group = await Group.findOne({ id: body.id_group });
+                if (!group) {
+                    let error = "Group does not exist!";
+                    return next(createError.BadRequest(error));
+                }
+
+                if (!group.members.includes(author)) {
+                    let error = "You do not in this group!";
+                    return next(createError.Unauthorized(error));
+                }
             }
+            
             next();
         } catch (error: any) {
             console.log(error.message);
@@ -42,7 +50,21 @@ class CheckingMessage {
 
     checkGetMessageInGroup = async (req: Request, _res: Response, next: NextFunction) => {
         try {
-            
+            const id_user = req.user?.user.data.id;
+            const id_group = req.params.groupId;
+
+            const group = await Group.findOne({
+                id: id_group
+            });
+            if (!group) {
+                let error = "Group does not exist!";
+                return next(createError.BadRequest(error));
+            }
+            if (!group.members.includes(id_user)) {
+                let error = "You are not in this group to get messages";
+                return next(createError.Unauthorized(error));
+            }
+            next()
         } catch (error: any) {
             console.log(error.message);
             next(createError.InternalServerError(error.message));

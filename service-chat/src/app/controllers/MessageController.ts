@@ -1,4 +1,5 @@
 const Message = require('../../db/model/message');
+const Group = require('../../db/model/group');
 
 import { Request, Response, NextFunction } from 'express';
 
@@ -37,18 +38,36 @@ class MessageController {
         }
     }
 
-    // [GET] /messages/groups/:groupId/scroll/:scroll
+    // [GET] /messages/groups/:groupId
     getMessagesInGroup = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_group = req.params.groupId;
-            const scroll = +req.params.scroll;
-
             const scrollSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
-            const offset = (scroll - 1) * scrollSize;
+
+            let cutoff: any;
+
+            const lastMessage = req.query.lastMessage;
+            if (lastMessage) {
+                const message = await Message.findOne({
+                    id: lastMessage
+                });
+                if (!message) {
+                    return res.status(400).json({
+                        message: "Last message does not exist",
+                        id: lastMessage
+                    });
+                }
+                cutoff = new Date(message.createdAt);
+            } else {
+                cutoff = new Date();
+            }
 
             const messages = await Message.find({
-                id_group
-            }).skip(offset).limit(scrollSize).sort({ createdAt: -1 }).exec();
+                id_group,
+                createdAt: {
+                    $lt: cutoff
+                }
+            }).sort({ createdAt: -1 }).limit(scrollSize).exec();
 
             res.status(200).json(messages);
         } catch (error: any) {
@@ -63,16 +82,42 @@ class MessageController {
     // [POST] /messages
     createMessage = async (req: Request, res: Response, _next: NextFunction) => {
         try {
+            const author = req.user?.user.data.id;
+
             let body = req.body.data;
             if (typeof body === "string") {
                 body = JSON.parse(body);
             }
 
-            const author = req.user?.user.data.id;
+            let id_group = "";
+
+            if (body.user) {
+                const group = await Group.findOne({
+                    members: {
+                        $all: [author, body.user]
+                    },
+                    individual: true
+                }).exec();
+
+                if (!group) {
+                    const newGroup = await Group.create({
+                        members: [author, body.user],
+                        admins: [author, body.user],
+                        individual: true,
+                        lastMessage: body.body
+                    });
+                    id_group = newGroup.id
+                } else {
+                    id_group = group.id;
+                    group.lastMessage = body.body;
+                    await group.save();
+                }
+            }
 
             const message = await Message.create({
-                ...body,
-                author
+                author,
+                body: body.body,
+                id_group
             });
 
             res.status(201).json(message);

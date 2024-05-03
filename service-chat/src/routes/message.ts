@@ -7,7 +7,18 @@ const CheckingMessage = require('../app/middleware/message');
 
 router.route('/')
     .get(MessageController.getAllMessage)
-    .post(Authorize.verifyUser, CheckingMessage.checkCreateMessage, MessageController.createMessage);
+    .post(
+        Authorize.verifyUser, 
+        CheckingMessage.checkCreateMessage, 
+        MessageController.createMessage
+    );
+
+router.route('/group/:groupId')
+    .get(
+        Authorize.verifyUser,
+        CheckingMessage.checkGetMessageInGroup,
+        MessageController.getMessagesInGroup
+    );
 
 module.exports = router;
 
