@@ -1,5 +1,6 @@
 const Assignment = require('../../db/model/assignment');
 const Exam = require('../../db/model/exam');
+const DetailQuestion = require('../../db/model/detail_question');
 
 const createError = require('http-errors');
 
@@ -108,6 +109,37 @@ class CheckingAssignment {
             }
 
             next();
+        } catch (error: any) {
+            console.log(error.message);
+            next(createError.InternalServerError(error.message));
+        }
+    }
+
+    checkCommentDetailQuestion = async (req: Request, _res: Response, next: NextFunction) => {
+        try {
+            const id_detail_question = req.params.detail_questionId;
+            const id_user = req.user?.user.data.id;
+
+            const body = req.body.data;
+            if (!body.draft) {
+                let error = "You must provide draft comment of detail question";
+                return next(createError.BadRequest(error));
+            }
+
+            const detail_question = await DetailQuestion.findByPk(id_detail_question);
+            if (!detail_question) {
+                let error = "This detail question does not exist!";
+                return next(createError.BadRequest(error));
+            }
+
+            const assignment = await Assignment.findByPk(detail_question.id_assignment);
+            const exam = await Exam.findByPk(assignment.id_exam);
+            if (id_user !== exam.id_teacher) {
+                let error = "You do not have permission to do this action!";
+                return next(createError.Unauthorized(error));
+            }
+            next();
+
         } catch (error: any) {
             console.log(error.message);
             next(createError.InternalServerError(error.message));

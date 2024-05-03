@@ -1,4 +1,5 @@
 const Comment = require('../../db/models/comment');
+const Course = require('../../db/models/course');
 const Chapter = require('../../db/models/chapter');
 const Topic = require('../../db/models/topic');
 const StudentCourse = require('../../db/models/student-course');
@@ -16,6 +17,7 @@ class CheckingComment {
             const { id_parent, id_topic } = body;
 
             const id_user = req.user?.user.data.id;
+            const role = req.user?.role;
 
             const topic = await Topic.findByPk(id_topic);
             if (!topic) return next(createError.NotFound("Topic does not exist"));
@@ -33,6 +35,7 @@ class CheckingComment {
             }
 
             const chapter = await Chapter.findByPk(topic.id_chapter);
+            const course = await Course.findByPk(chapter.id_course)
             const record = await StudentCourse.findOne({
                 where: {
                     id_student: id_user,
@@ -40,7 +43,7 @@ class CheckingComment {
                 }
             });
 
-            if (!record) {
+            if (!record && role !== "admin" && id_user !== course.id_teacher) {
                 let error = "You must buy this course to comment on topic!"
                 return next(createError.Unauthorized(error));
             }

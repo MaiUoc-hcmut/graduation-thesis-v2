@@ -57,6 +57,10 @@ Assignment.init({
         type: DataTypes.STRING(300),
         defaultValue: ""
     },
+    draft: {
+        type: DataTypes.STRING(300),
+        defaultValue: ""
+    },
     reviewed: {
         type: DataTypes.INTEGER.UNSIGNED,
         defaultValue: 0,

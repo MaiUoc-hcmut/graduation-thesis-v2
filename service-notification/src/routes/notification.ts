@@ -40,7 +40,7 @@ router.route('/comment-on-assignment')
 router.route('/comment-on-lecture')
     .post(NotificationController.notificationStudentCommentOnLecture);
 
-router.route('/teacher/:teacherId')
+router.route('/teacher/:teacherId/page/:page')
     .get(NotificationController.getNotifyTeacherSent);
 
 router.route('/list-student/:notificationId')

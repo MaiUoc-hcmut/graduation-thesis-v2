@@ -46,6 +46,13 @@ router.route('/exam/:examId/page/:page')
         AssignmentController.getAssignmentsOfExam
     );
 
+router.route('/detail_question/:detail_questionId/comments')
+    .put(
+        Authorize.verifyUser,
+        CheckingAssignment.checkCommentDetailQuestion,
+        AssignmentController.commentOnDetailQuestionOfAssignment
+    );
+
 router.route('/:assignmentId/comments')
     .put(
         Authorize.verifyUser,
