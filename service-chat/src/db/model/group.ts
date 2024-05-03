@@ -13,7 +13,7 @@ const groupSchema = new mongoose.Schema(
         id: {
             type: String,
             default: uuidv4,
-            validator: validateUUID
+            validate: validateUUID
         },
         lastMessage: {
             type: String,
@@ -21,7 +21,7 @@ const groupSchema = new mongoose.Schema(
         },
         lastSenderId: {
             type: String,
-            validator: validateUUID
+            validate: validateUUID
         },
         lastSenderName: {
             type: String
