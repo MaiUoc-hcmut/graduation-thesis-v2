@@ -10,7 +10,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { BellIcon } from "@heroicons/react/24/solid"
 import { InformationCircleIcon } from "@heroicons/react/24/outline"
 import io from "socket.io-client";
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import notifyApi from '@/app/api/notifyApi';
 import { convertToVietnamTime } from '@/app/helper/FormatFunction';
 import { initFlowbite } from 'flowbite';
@@ -23,6 +23,57 @@ export default function HeaderStudent() {
     // const isAuth = (authReducer?.isAuth == "true" || authReducer?.isAuthTeacher == "true") ? true : false
     const { user } = useAppSelector(state => state.authReducer);
     const [notifycations, setNotifycations] = useState<any>([])
+    const [page, setPage] = useState(1);
+    const loadingRef = useRef(null);;
+    const [hasMore, setHasMore] = useState(true);
+
+
+    const fetchNotifications = async (pageNum: number) => {
+        // Fetch notifications from API here
+
+
+        if (user) {
+            const nextPage = page + 1; // Increase page before calling API
+            setPage(nextPage);
+
+            await notifyApi.getNotify(`${user.id}`, `${pageNum}`).then((data) => {
+                if (data.data.notifications.length === 0) {
+                    setHasMore(false); // No more notifications
+
+                } else {
+                    setNotifycations((prevNotifications: any) => [...prevNotifications, ...data.data.notifications]);
+                    setPage(pageNum + 1);
+                }
+            }).catch((err) => { })
+        }
+    };
+    useEffect(() => {
+        var options = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 1.0
+        }
+
+        let observer = new IntersectionObserver(async (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && hasMore) { // Only call API if there are more notifications
+                    fetchNotifications(page);
+                }
+            });
+        }, options);
+
+        if (loadingRef.current) {
+            observer.observe(loadingRef.current);
+        }
+
+        return () => {
+            if (loadingRef.current) {
+                // eslint-disable-next-line react-hooks/exhaustive-deps
+                observer.unobserve(loadingRef.current);
+            }
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [hasMore, page]);
 
     useEffect(() => {
         async function fetchData() {
@@ -155,8 +206,9 @@ export default function HeaderStudent() {
                                                     )
                                                 })
                                             }
-
-
+                                            {hasMore && <div ref={loadingRef} className="py-5 flex items-center justify-center bg-white dark:bg-black">
+                                                <div className="h-5 w-5 animate-spin rounded-full border-2 border-solid border-blue-500 border-t-transparent"></div>
+                                            </div>}
                                         </div>
                                         <Link
                                             href="/teacher/dashboard/notifycation"
@@ -241,7 +293,6 @@ export default function HeaderStudent() {
                                             <button
                                                 onClick={() => {
                                                     dispatch(signout())
-                                                    router.push('/login')
                                                 }}
                                                 className="w-full text-left block py-2 px-4 text-sm text-[#f63c3c] hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                                             >

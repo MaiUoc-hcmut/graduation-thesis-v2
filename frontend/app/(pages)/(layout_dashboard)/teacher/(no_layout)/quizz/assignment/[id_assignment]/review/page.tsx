@@ -330,6 +330,7 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
                         }}>
                             <div className="text-lg text-[#000] font-semibold">Đáp án</div>
                             <form onSubmit={handleSubmit(async (data: any) => {
+
                                 const detail_questions = []
 
                                 for (const key in data) {
@@ -342,10 +343,12 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
                                 }
                                 const formData = {
                                     data: {
-                                        comment: data.comment,
+                                        comment: data.comment || "",
+                                        type: "comment",
                                         detail_questions: detail_questions
                                     }
                                 }
+
                                 await examApi.commentAssigmnent(params.id_assignment, formData).then((data) => {
                                     router.push(`/teacher/dashboard/course/quizz/${assignment?.id_exam}/assignment`)
                                 }).catch((err) => { })

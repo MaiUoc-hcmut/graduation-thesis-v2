@@ -11,14 +11,10 @@ import { formatDateTime, convertTime, convertToVietnamTime } from '@/app/helper/
 import { useForm, SubmitHandler, Controller } from "react-hook-form"
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import { useSearchParams } from 'next/navigation';
-import { Dropdown } from 'flowbite-react';
 import { Button, Modal } from 'flowbite-react';
-import SidebarLearning from '@/app/_components/Sidebar/SidebarLearning';
 import { ToastContainer, toast } from 'react-toastify';
 import examApi from '@/app/api/examApi';
-import { HeaderLearning } from '@/app/_components/Header/HeaderLearning'
-import { stringify } from 'querystring';
-import { log } from 'console';
+import PaginateButton from '@/app/_components/Paginate/PaginateButton';
 
 export default function LearningPage({ params }: { params: { slug: string } }) {
     const searchParams = useSearchParams();
@@ -31,9 +27,8 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
     const [topic, setTopic] = useState<any>()
     const [comments, setComments] = useState<any>()
     const [change, setChange] = useState(false)
-    const [paginate, setPaginate] = useState(0)
-    const [currentPageComment, setCurrentPageComment] = useState(1)
-    const list = []
+    const [countPaginate, setCountPaginate] = useState(0)
+    const [currentPage, setCurrentPage] = useState(1)
     const { user } = useAppSelector(state => state.authReducer);
     const [modal, setModal] = useState<any>({})
     const editorRef = useRef<any>(null);
@@ -42,7 +37,6 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
 
     const lectureId = searchParams.get('lecture') || (topic?.type === "lecture" && !searchParams.get('exam') ? topic?.id : null)
     const examId = searchParams.get('exam') || (topic?.type === "exam" && !searchParams.get('lecture') ? topic?.id_exam : null)
-    console.log(lectureId, examId);
 
     const topicId = lectureId || examId;
 
@@ -74,19 +68,17 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
         formState: { errors },
     } = useForm()
 
-    for (let i = 1; i <= paginate; i++) {
-        list.push(i)
-    }
-
 
     function extractTimestamps(text: string) {
         const regex = /(?:[01]\d|2[0-3]):(?:[0-5]\d):(?:[0-5]\d)|(?:[0-5]\d):(?:[0-5]\d)/g;
         let timestamps = [];
         // Fix: Add --downlevelIteration flag or set --target to 'es2015' or higher
         // @ts-ignore
-        for (const element of text.matchAll(regex)) {
-            timestamps.push(element[0]);
-
+        if (text) {
+            // @ts-ignore
+            for (const element of text.matchAll(regex)) {
+                timestamps.push(element[0]);
+            }
         }
         return timestamps;
     }
@@ -176,25 +168,25 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
     useEffect(() => {
         async function fetchData() {
             if (examId)
-                examApi.getAssigmnentByExamId(`${user.id}`, examId, currentPageComment).then((data) => {
+                examApi.getAssigmnentByExamId(`${user.id}`, examId, currentPage).then((data) => {
                     setAssignments(data.data.assignments)
-                    setPaginate(Math.ceil(data.data.count / 10))
+                    setCountPaginate(Math.ceil(data.data.count / 10))
                 })
         }
         fetchData()
-    }, [currentPageComment, examId, user.id]);
+    }, [currentPage, examId, user.id]);
 
     useEffect(() => {
         async function fetchData() {
             if (lectureId)
-                await courseApi.getCommentByTopic(lectureId, currentPageComment).then((data: any) => {
+                await courseApi.getCommentByTopic(lectureId, currentPage).then((data: any) => {
                     setComments(data.data)
-                    setPaginate(Math.ceil(data.data.count / 10))
+                    setCountPaginate(Math.ceil(data.data.count / 10))
                 }
                 ).catch((err: any) => { })
         }
         fetchData()
-    }, [change, currentPageComment, lectureId]);
+    }, [change, currentPage, lectureId]);
 
     if (lectureId) {
         return (
@@ -298,6 +290,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                     await courseApi.createComment(formData).catch((err: any) => { })
                                                     reset()
                                                     editorRef.current.setContent('')
+
                                                     setChange(!change)
                                                 }
                                             })}>
@@ -424,12 +417,13 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                                     }
                                                                 }
                                                                 await courseApi.createComment(formData).catch((err: any) => { })
+                                                                // editorRef.current.setContent('')
                                                                 reset()
                                                                 setChange(!change)
                                                             }
                                                         })}>
 
-                                                            <TinyMceEditorComment value={getValues()[cmt.id]} setValue={setValue} position={`${cmt.id}`} editorRef={editorRef} link={'http://localhost:4001/api/v1/images/single'} />
+                                                            <TinyMceEditorComment value={getValues()[cmt.id]} setValue={setValue} position={`${cmt.id}`} link={'http://localhost:4001/api/v1/images/single'} />
                                                             <div className='flex justify-end mt-4'>
                                                                 <button type="button" className="py-2.5 px-5 mr-2 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-gray-200" onClick={() => (setToggle({ ...toggle, [`form${cmt.id}`]: false }))}>Hủy</button>
                                                                 <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-2 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Bình luận</button>
@@ -478,40 +472,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                         })
                                     }
 
-                                    {
-                                        paginate > 1 ?
-                                            <div className="flex justify-center items-center pt-10 pb-5">
-                                                <nav aria-label="Page navigation example">
-                                                    <ul className="flex items-center -space-x-px h-8 text-sm">
-                                                        <li>
-                                                            <button disabled className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                                                                <span className="sr-only">Previous</span>
-                                                                <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                                                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 1 1 5l4 4" />
-                                                                </svg>
-                                                            </button>
-                                                        </li>
-                                                        {
-                                                            list.map((l: number) => {
-                                                                return (
-                                                                    <div key={l} onClick={() => setChange(!change)}>
-                                                                        <button onClick={() => setCurrentPageComment(l)} className={`flex items-center justify-center px-3 h-8 leading-tight ${currentPageComment == l ? 'text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'} `}>{l}</button>
-                                                                    </div>
-                                                                )
-                                                            })
-                                                        }
-                                                        <li>
-                                                            <button disabled className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                                                                <span className="sr-only">Next</span>
-                                                                <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                                                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m1 9 4-4-4-4" />
-                                                                </svg>
-                                                            </button>
-                                                        </li>
-                                                    </ul>
-                                                </nav>
-                                            </div> : null
-                                    }
+                                    <PaginateButton countPaginate={countPaginate} setCurrentPage={setCurrentPage} currentPage={currentPage} />
                                 </div>
 
                             </div>
@@ -623,40 +584,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                         </div>
                                     </div>
                                 }
-                                {
-                                    paginate > 1 ?
-                                        <div className="flex justify-center items-center pt-10 pb-5">
-                                            <nav aria-label="Page navigation example">
-                                                <ul className="flex items-center -space-x-px h-8 text-sm">
-                                                    <li>
-                                                        <button disabled className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                                                            <span className="sr-only">Previous</span>
-                                                            <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 1 1 5l4 4" />
-                                                            </svg>
-                                                        </button>
-                                                    </li>
-                                                    {
-                                                        list.map((l: number) => {
-                                                            return (
-                                                                <div key={l} onClick={() => setChange(!change)}>
-                                                                    <button onClick={() => setCurrentPageComment(l)} className={`flex items-center justify-center px-3 h-8 leading-tight ${currentPageComment == l ? 'text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'} `}>{l}</button>
-                                                                </div>
-                                                            )
-                                                        })
-                                                    }
-                                                    <li>
-                                                        <button disabled className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                                                            <span className="sr-only">Next</span>
-                                                            <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m1 9 4-4-4-4" />
-                                                            </svg>
-                                                        </button>
-                                                    </li>
-                                                </ul>
-                                            </nav>
-                                        </div> : null
-                                }
+                                <PaginateButton countPaginate={countPaginate} setCurrentPage={setCurrentPage} currentPage={currentPage} />
                             </div>
                         </div>
                     </div >

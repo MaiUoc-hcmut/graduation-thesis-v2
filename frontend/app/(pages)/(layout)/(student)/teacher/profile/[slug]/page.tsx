@@ -13,6 +13,7 @@ import { formatCash, convertTime, formatDateTime } from '@/app/helper/FormatFunc
 import { ToastContainer, toast } from 'react-toastify';
 import { useAppSelector } from '@/redux/store';
 import userApi from '@/app/api/userApi';
+import PaginateButton from '@/app/_components/Paginate/PaginateButton';
 
 export default function TeacherProfile({ params }: { params: { slug: string } }) {
     const [tab, setTab] = useState(1)
@@ -27,6 +28,8 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
     const [starDetails, setStarDetails] = useState<any>();
     const [hoverRating, setHoverRating] = useState(0);
     const { user } = useAppSelector(state => state.authReducer);
+    const [countPaginate, setCountPaginate] = useState(0)
+    const [currentPage, setCurrentPage] = useState(1)
 
     const {
         register,
@@ -41,8 +44,9 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                 setProfile(data.data)
             }
             ).catch((err: any) => { })
-            await userApi.getReviewOfTeacher(params.slug, '1').then((data: any) => {
+            await userApi.getReviewOfTeacher(params.slug, currentPage).then((data: any) => {
                 setReviews(data.data.reviews)
+                setCountPaginate(Math.ceil(data.data.count / 10))
                 if (data.data.averageRating) {
                     setAvgReview(data.data.averageRating)
                 }
@@ -56,7 +60,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
             }).catch((err: any) => { })
         }
         fetchData()
-    }, [changeData, params.slug])
+    }, [changeData, params.slug, currentPage])
 
     const renderStars = (rating: number) => {
         return Array.from({ length: 5 }, (_, index) => (
@@ -444,12 +448,14 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                             </div>
                                         </div>
                                     ))}
+                                <PaginateButton countPaginate={countPaginate} setCurrentPage={setCurrentPage} currentPage={currentPage} />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
     )
 }
 

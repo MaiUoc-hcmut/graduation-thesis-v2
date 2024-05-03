@@ -7,6 +7,7 @@ import Image from 'next/image';
 import categoryApi from '@/app/api/category';
 import { useSearchParams, useRouter } from 'next/navigation';
 import userApi from '@/app/api/userApi';
+import Paginate from '@/app/_components/Paginate/Paginate';
 
 
 function classNames(...classes: any) {
@@ -21,7 +22,8 @@ export default function TeacherList() {
     // const classFilters = searchParams.getAll('class');
     const sortFilters = searchParams.get('sort');
     const orderFilters = searchParams.get('order');
-
+    const [countPaginate, setCountPaginate] = useState(1)
+    const page = searchParams.get('page') || '1'
 
     const sortOptions = [
         { name: 'Phổ biến nhất', href: '?sort=registration&order=desc', current: sortFilters === 'registration' },
@@ -45,8 +47,9 @@ export default function TeacherList() {
             sortFilters && orderFilters ? filterString += `&sort=${sortFilters}&order=${orderFilters}` : null
 
 
-            await userApi.getAllTeacher(filterString).then((data: any) => {
+            await userApi.getAllTeacher(filterString, page).then((data: any) => {
                 setTeachers(data.data.teachers)
+                setCountPaginate(Math.ceil(data.data.count / 10))
             }
             ).catch((err: any) => { })
             await categoryApi.getAll().then((data: any) => {
@@ -286,6 +289,7 @@ export default function TeacherList() {
                                         })
                                     }
                                 </div>
+                                <Paginate countPaginate={countPaginate} currentPage={page} />
                             </div>
                         </div>
                     </section>

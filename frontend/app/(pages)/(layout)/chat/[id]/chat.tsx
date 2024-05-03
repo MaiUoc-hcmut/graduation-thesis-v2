@@ -1,8 +1,8 @@
 "use client"
 
-import { useMemo, useCallback, useEffect } from "react";
+import { useMemo, useCallback } from "react";
 
-import { MainContainer, Sidebar, ConversationList, Conversation, Avatar, ChatContainer, ConversationHeader, MessageGroup, Message, MessageList, MessageInput, TypingIndicator, Status, ExpansionPanel } from "@chatscope/chat-ui-kit-react";
+import { MainContainer, Sidebar, ConversationList, Conversation, Avatar, ChatContainer, ConversationHeader, MessageGroup, Message, MessageList, MessageInput, TypingIndicator, Status, ExpansionPanel, Search, Loader } from "@chatscope/chat-ui-kit-react";
 
 import {
     useChat,
@@ -12,9 +12,64 @@ import {
     MessageStatus
 } from "@chatscope/use-chat";
 import { MessageContent, TextContent, User } from "@chatscope/use-chat";
+import chatApi from "@/app/api/chatApi";
+import { group } from "console";
+import Link from "next/link";
+import { useEffect, useRef, useState } from 'react';
+import notifyApi from "@/app/api/notifyApi";
 
-export default function Chat({ user }: { user: User }) {
+export default function Chat({ user, params }: { user: User, params: { id: string } }) {
+    const [page, setPage] = useState(1);
+    const loadingRef = useRef(null);;
+    const [hasMore, setHasMore] = useState(true);
+    const [notifycations, setNotifycations] = useState<any>([])
 
+    const fetchNotifications = async (pageNum: number) => {
+        // Fetch notifications from API here
+
+
+        if (user) {
+            const nextPage = page + 1; // Increase page before calling API
+            setPage(nextPage);
+
+            await notifyApi.getNotify(`${user.id}`, `${pageNum}`).then((data) => {
+                if (data.data.notifications.length === 0) {
+                    setHasMore(false); // No more notifications
+
+                } else {
+                    setNotifycations((prevNotifications: any) => [...prevNotifications, ...data.data.notifications]);
+                    setPage(pageNum + 1);
+                }
+            }).catch((err) => { })
+        }
+    };
+    useEffect(() => {
+        var options = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 1.0
+        }
+
+        let observer = new IntersectionObserver(async (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && hasMore) { // Only call API if there are more notifications
+                    fetchNotifications(page);
+                }
+            });
+        }, options);
+
+        if (loadingRef.current) {
+            observer.observe(loadingRef.current);
+        }
+
+        return () => {
+            if (loadingRef.current) {
+                // eslint-disable-next-line react-hooks/exhaustive-deps
+                observer.unobserve(loadingRef.current);
+            }
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [hasMore, page]);
     // Get all chat related values and methods from useChat hook 
     const {
         currentMessages, conversations, activeConversation, setActiveConversation, sendMessage, getUser, currentMessage, setCurrentMessage,
@@ -24,6 +79,10 @@ export default function Chat({ user }: { user: User }) {
     useEffect(() => {
         setCurrentUser(user);
     }, [user, setCurrentUser]);
+
+    useEffect(() => {
+        setActiveConversation(params.id);
+    }, [params.id, setActiveConversation]);
 
     // Get current user data
     const [currentUserAvatar, currentUserName] = useMemo(() => {
@@ -78,6 +137,10 @@ export default function Chat({ user }: { user: User }) {
                 conversationId: activeConversation.id,
                 senderId: user.id,
             });
+            chatApi.createMessage({
+                groupId: activeConversation.id,
+                data: text
+            }).then(() => { }).catch(() => { });
         }
 
     };
@@ -125,6 +188,7 @@ export default function Chat({ user }: { user: User }) {
                             {user.username}
                         </ConversationHeader.Content>
                     </ConversationHeader>
+                    <Search placeholder="Tìm kiếm..." className="h-10" />
                     <ExpansionPanel
                         open
                         title="Giáo viên"
@@ -150,14 +214,21 @@ export default function Chat({ user }: { user: User }) {
                                     return [undefined, undefined]
                                 })();
 
-                                return <Conversation key={c.id}
-                                    name={name}
-                                    info={c.draft ? `Draft: ${c.draft.replace(/<br>/g, "\n").replace(/&nbsp;/g, " ")}` : ``}
-                                    active={activeConversation?.id === c.id}
-                                    unreadCnt={c.unreadCounter}
-                                    onClick={() => setActiveConversation(c.id)}>
-                                    {avatar}
-                                </Conversation>
+                                return (
+                                    <Link href={`/chat/${c.id}`} key={c.id}>
+                                        <Conversation
+                                            name={name}
+                                            lastSenderName={"Bạn"}
+                                            info={"a"}
+                                            // info={c.draft ? `Draft: ${c.draft.replace(/<br>/g, "\n").replace(/&nbsp;/g, " ")}` : ""}
+                                            active={activeConversation?.id === c.id}
+                                            unreadCnt={c.unreadCounter}
+                                            onClick={() => setActiveConversation(c.id)}
+                                        >
+                                            {avatar}
+                                        </Conversation>
+                                    </Link>
+                                );
                             })}
                         </ConversationList>
                     </ExpansionPanel>
@@ -242,16 +313,27 @@ export default function Chat({ user }: { user: User }) {
                     </ConversationHeader>}
                     <MessageList typingIndicator={getTypingIndicator()}>
                         {activeConversation && currentMessages.map((g) => <MessageGroup key={g.id} direction={g.direction}>
-                            <Avatar src={user.avatar} status="available" />
+                            {/* <Avatar src={user.avatar} status="available" /> */}
+
                             <MessageGroup.Messages>
-                                {g.messages.map((m: ChatMessage<MessageContentType>) => <Message key={m.id} model={{
-                                    type: "html",
-                                    payload: m.content,
-                                    direction: m.direction,
-                                    position: "normal"
-                                }} />)}
+                                {g.messages.map((m: ChatMessage<MessageContentType>) => (
+                                    <Message key={m.id} model={{
+                                        type: "html",
+                                        payload: m.content,
+                                        direction: m.direction,
+                                        position: "normal",
+                                    }}>
+
+                                    </Message>
+                                ))}
                             </MessageGroup.Messages>
                         </MessageGroup>)}
+                        {hasMore && <div className="w-full flex justify-center items-center py-5">
+                            <Loader className="">
+                            </Loader>
+                        </div>
+                        }
+
                     </MessageList>
                     <MessageInput className="mb-2" value={currentMessage} onChange={handleChange} onSend={handleSend} disabled={!activeConversation} attachButton={true} placeholder="Nhập ở đây..." />
                 </ChatContainer>

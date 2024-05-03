@@ -7,8 +7,8 @@ const courseApi = {
         return axiosConfig.get(url);
     },
 
-    getAll: (filterString: string) => {
-        const url = `/courses/page/1?${filterString}`;
+    getAll: (filterString: string, page: string) => {
+        const url = `/courses/page/${page}?${filterString}`;
         return axiosConfig.get(url);
     },
 
@@ -59,7 +59,6 @@ const courseApi = {
     studentGetCourse: async (id_user: string) => {
         const url = `/courses/student/${id_user}/page/1`;
         return axiosConfig.get(url);
-
     },
 
     delete: (id: string) => {
@@ -76,8 +75,8 @@ const courseApi = {
         return
     },
 
-    getReview: (id: string) => {
-        const url = `/reviews/course/${id}/page/1`;
+    getReview: (id: string, page: number) => {
+        const url = `/reviews/course/${id}/page/${page}`;
         return axiosConfig.get(url, {
             baseURL: 'http://localhost:4001/api/v1'
         });

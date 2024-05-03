@@ -6,39 +6,12 @@ export default function Footer() {
     return (
         <footer className="bg-secondary mt-10 p-5 pb-0">
             <div className="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
-                <div className="md:flex md:justify-between">
-                    <div className="mb-6 md:mb-0">
-                        <Link href="/" className="flex items-center">
-                            <Image
-                                src="/images/logo.png"
-                                width={170}
-                                height={39}
-                                alt="logo"
-                                className='bg-white'
-                            />
-                        </Link>
-                    </div>
-                    <div className="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3 text-white">
+                <div className="md:flex md:justify-end">
+                    <div className="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-2 text-white">
+
                         <div>
                             <h2 className="mb-6 text-sm font-semibold text-white uppercase dark:text-white">
-                                Resources
-                            </h2>
-                            <ul className="text-white font-medium">
-                                <li className="mb-4">
-                                    <Link href="https://flowbite.com/" className="hover:underline">
-                                        Flowbite
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link href="https://tailwindcss.com/" className="hover:underline">
-                                        Tailwind CSS
-                                    </Link>
-                                </li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h2 className="mb-6 text-sm font-semibold text-white uppercase dark:text-white">
-                                Follow us
+                                Theo dõi chúng tôi
                             </h2>
                             <ul className="text-white font-medium">
                                 <li className="mb-4">
@@ -46,7 +19,7 @@ export default function Footer() {
                                         href="https://github.com/themesberg/flowbite"
                                         className="hover:underline "
                                     >
-                                        Github
+                                        Facebook
                                     </Link>
                                 </li>
                                 <li>
@@ -54,24 +27,24 @@ export default function Footer() {
                                         href="https://discord.gg/4eeurUVvTy"
                                         className="hover:underline"
                                     >
-                                        Discord
+                                        Youtube
                                     </Link>
                                 </li>
                             </ul>
                         </div>
                         <div>
                             <h2 className="mb-6 text-sm font-semibold text-white uppercase dark:text-white">
-                                Legal
+                                Chính sách
                             </h2>
                             <ul className="text-whitefont-medium">
                                 <li className="mb-4">
                                     <Link href="#" className="hover:underline">
-                                        Privacy Policy
+                                        Chính sách bảo mật
                                     </Link>
                                 </li>
                                 <li>
                                     <Link href="#" className="hover:underline">
-                                        Terms &amp; Conditions
+                                        Điều khoản &amp; Điều kiện
                                     </Link>
                                 </li>
                             </ul>
@@ -79,14 +52,8 @@ export default function Footer() {
                     </div>
                 </div>
                 <hr className="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
-                <div className="sm:flex sm:items-center sm:justify-between">
-                    <span className="text-sm text-white sm:text-center dark:text-gray-400">
-                        © 2023{" "}
-                        <Link href="https://flowbite.com/" className="hover:underline">
-                            Flowbite™
-                        </Link>
-                        . All Rights Reserved.
-                    </span>
+                <div className="sm:flex sm:items-center sm:justify-end">
+
                     <div className="flex mt-4 sm:justify-center sm:mt-0">
                         <Link
                             href="#"

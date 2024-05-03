@@ -10,7 +10,9 @@ import Link from 'next/link';
 export default function CourseCard({ course }: any) {
     return (
         <Link key={course.id} href={`course/${course.id}`} className=''>
-            <div className='bg-white shadow-card_course rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300 border-[1px] border-slate-200'>
+            <div className='bg-white shadow-card_course rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300 border-[1px] border-slate-200' style={{
+                boxShadow: '0 5px 12px 0 rgba(0, 0, 0, 0.1)'
+            }}>
                 <div className='relative w-full h-60'>
                     <Image
                         src={`${course.thumbnail}`}
@@ -23,7 +25,7 @@ export default function CourseCard({ course }: any) {
                     <div className='flex items-center'>
                         <div className='mr-2 w-10 h-10 max-h-10 max-w-10 rounded-full relative'>
                             <Image
-                                src='/images/avatar-teacher.png'
+                                src={`${course.user?.avatar ? course.user.avatar : '/images/avatar-teacher.png'}`}
                                 width={40}
                                 height={40}
                                 className='rounded-full overflow-hidden object-cover object-center'
@@ -41,9 +43,9 @@ export default function CourseCard({ course }: any) {
                         {renderOnlyStar(Math.floor(course?.average_rating))}
                         <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{(course?.average_rating || 0).toFixed(1)}</span>
                     </div>
-                    <div className='mt-2'>
+                    {/* <div className='mt-2'>
                         Số người đăng ký khóa học: {course?.registrations}
-                    </div>
+                    </div> */}
                     <div className='grid grid-cols-2 mt-4'>
                         <div className='flex items-center'>
                             <span className='mr-1'>Lớp:</span>
@@ -79,11 +81,11 @@ export default function CourseCard({ course }: any) {
                         </div>
 
                     </div> */}
-                    <div className='mt-6'>
+                    <div className='mt-4'>
                         <span className='text-xl text-primary font-extrabold'>{formatCash(`${course.price}`)} VNĐ</span>
                     </div>
                 </div>
             </div>
-        </Link>
+        </Link >
     )
 }

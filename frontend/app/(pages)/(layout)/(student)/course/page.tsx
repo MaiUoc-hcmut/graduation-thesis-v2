@@ -9,6 +9,7 @@ import courseApi from '@/app/api/courseApi';
 import categoryApi from '@/app/api/category';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { formatCash, convertTime } from '@/app/helper/FormatFunction';
+import Paginate from '@/app/_components/Paginate/Paginate';
 
 
 function classNames(...classes: any) {
@@ -27,7 +28,8 @@ export default function CourseList() {
     const priceFilters = searchParams.get('maxPrice');
     const sortFilters = searchParams.get('sort');
     const orderFilters = searchParams.get('order');
-
+    const [countPaginate, setCountPaginate] = useState(1)
+    const page = searchParams.get('page') || '1'
 
     const sortOptions = [
         { name: 'Mới nhất', href: '?sort=date&order=desc', current: sortFilters === 'date' },
@@ -57,8 +59,9 @@ export default function CourseList() {
             sortFilters && orderFilters ? filterString += `&sort=${sortFilters}&order=${orderFilters}` : null
 
 
-            await courseApi.getAll(filterString).then((data: any) => {
+            await courseApi.getAll(filterString, page).then((data: any) => {
                 setCourses(data.data.courses)
+                setCountPaginate(Math.ceil(data.data.count / 10))
             }
             ).catch((err: any) => { })
             await categoryApi.getAll().then((data: any) => {
@@ -244,7 +247,7 @@ export default function CourseList() {
                                                             <div className='flex items-center'>
                                                                 <div className='mr-2 w-10 h-10 max-h-10 max-w-10 rounded-full relative'>
                                                                     <Image
-                                                                        src='/images/avatar-teacher.png'
+                                                                        src={`${course.user?.avatar ? course.user.avatar : '/images/avatar-teacher.png'}`}
                                                                         width={40}
                                                                         height={40}
                                                                         className='rounded-full overflow-hidden object-cover object-center'
@@ -310,6 +313,7 @@ export default function CourseList() {
                                         })
                                     }
                                 </div>
+                                <Paginate countPaginate={countPaginate} currentPage={page} />
                             </div>
                         </div>
                     </section>

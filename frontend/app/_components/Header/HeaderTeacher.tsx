@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation'
 import { BellIcon, ChatBubbleLeftIcon } from "@heroicons/react/24/solid"
 import { InformationCircleIcon } from "@heroicons/react/24/outline"
 import io from "socket.io-client";
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import notifyApi from '@/app/api/notifyApi';
 import { convertToVietnamTime } from '@/app/helper/FormatFunction';
 import { initFlowbite } from 'flowbite';
@@ -23,6 +23,9 @@ export default function HeaderTeacher() {
     const isAuth = (authReducer?.isAuth == "true" || authReducer?.isAuthTeacher == "true") ? true : false
     const { user } = useAppSelector(state => state.authReducer);
     const [notifycations, setNotifycations] = useState<any>([])
+    const [page, setPage] = useState(1);
+    const loadingRef = useRef(null);;
+    const [hasMore, setHasMore] = useState(true);
 
     useEffect(() => {
         async function fetchData() {
@@ -50,6 +53,54 @@ export default function HeaderTeacher() {
         }
         fetchData()
     }, [user]);
+
+    const fetchNotifications = async (pageNum: number) => {
+        // Fetch notifications from API here
+
+
+        if (user) {
+            const nextPage = page + 1; // Increase page before calling API
+            setPage(nextPage);
+
+            await notifyApi.getNotify(`${user.id}`, `${pageNum}`).then((data) => {
+                if (data.data.notifications.length === 0) {
+                    setHasMore(false); // No more notifications
+
+                } else {
+                    setNotifycations((prevNotifications: any) => [...prevNotifications, ...data.data.notifications]);
+                    setPage(pageNum + 1);
+                }
+            }).catch((err) => { })
+        }
+    };
+    useEffect(() => {
+        var options = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 1.0
+        }
+
+        let observer = new IntersectionObserver(async (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && hasMore) { // Only call API if there are more notifications
+                    fetchNotifications(page);
+                }
+            });
+        }, options);
+
+        if (loadingRef.current) {
+            observer.observe(loadingRef.current);
+        }
+
+        return () => {
+            if (loadingRef.current) {
+                // eslint-disable-next-line react-hooks/exhaustive-deps
+                observer.unobserve(loadingRef.current);
+            }
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [hasMore, page]);
+
     useEffect(() => {
         initFlowbite();
     }, []);
@@ -93,11 +144,11 @@ export default function HeaderTeacher() {
                                         className="relative flex justify-center items-center text-sm font-medium text-center text-gray-500 hover:text-gray-600 focus:outline-none dark:hover:text-white dark:text-gray-400"
                                         type="button"
                                         onClick={async () => {
-                                            if (user) {
-                                                await notifyApi.getNotify(`${user.id}`, '1').then((data) => {
-                                                    setNotifycations(data.data.notifications)
-                                                }).catch((err: any) => { })
-                                            }
+                                            // if (user) {
+                                            //     await notifyApi.getNotify(`${user.id}`, '1').then((data) => {
+                                            //         setNotifycations(data.data.notifications)
+                                            //     }).catch((err: any) => { })
+                                            // }
                                         }}
                                     >
                                         <ChatBubbleLeftIcon className='w-6 h-6' />
@@ -179,7 +230,11 @@ export default function HeaderTeacher() {
                                             }
                                         }}
                                     >
-                                        <BellIcon className='w-6 h-6' />
+                                        <BellIcon className='w-6 h-6' onClick={() => {
+                                            setHasMore(true);
+                                            setPage(1);
+                                            setNotifycations([]);
+                                        }} />
                                         <div className="absolute block w-3 h-3 bg-red-500 border-2 border-white rounded-full -top-0 start-3 dark:border-gray-900" />
                                     </button>
                                     {/* Dropdown menu */}
@@ -194,107 +249,137 @@ export default function HeaderTeacher() {
                                         <div className="divide-y divide-gray-100 overflow-y-scroll h-[400px]">
                                             {
                                                 notifycations?.map((notify: any, index: any) => {
-                                                    return notifycations?.map((notify: any, index: any) => {
-                                                        switch (notify.type) {
-                                                            case 'course':
-                                                                return (
-                                                                    <Link
-                                                                        key={index}
-                                                                        onClick={async () => {
-                                                                            if (!notify.read) await notifyApi.readNotify({ data: [notify.id] });
-                                                                        }}
-                                                                        href={`/teacher/dashboard/course`}
-                                                                        className="flex p-3 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                                                    >
-                                                                        <div className="flex">
-                                                                            <div className="w-full flex">
-                                                                                <div className="w-1/6 flex justify-center items-center mr-2">
-                                                                                    <InformationCircleIcon className="w-8 h-8 text-slate-500" />
-                                                                                </div>
-                                                                                <div className="">
-                                                                                    <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400 relative">
+                                                    switch (notify.type) {
+                                                        case 'course':
+                                                            return (
+                                                                <Link
+                                                                    key={index}
+                                                                    onClick={async () => {
+                                                                        if (!notify.read) await notifyApi.readNotify({ data: [notify.id] });
+                                                                    }}
+                                                                    href={`/teacher/dashboard/course`}
+                                                                    className="flex p-3 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                                >
+                                                                    <div className="flex">
+                                                                        <div className="w-full flex">
+                                                                            <div className="w-1/6 flex justify-center items-center mr-2">
+                                                                                <InformationCircleIcon className="w-8 h-8 text-slate-500" />
+                                                                            </div>
+                                                                            <div className="">
+                                                                                <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400 relative">
 
-                                                                                        <div className="ml-3">
-                                                                                            {
-                                                                                                notify.read ? null : <span className="mr-1 inline-block rounded-full bg-red-500 h-[10px] w-[10px]"></span>
-                                                                                            }
-                                                                                            Thông báo mới từ <span className="">hệ thống</span>: Khóa học {notify.name} vừa được tạo thành công
-                                                                                        </div>
+                                                                                    <div className="ml-3">
+                                                                                        {
+                                                                                            notify.read ? null : <span className="mr-1 inline-block rounded-full bg-red-500 h-[10px] w-[10px]"></span>
+                                                                                        }
+                                                                                        Thông báo mới từ <span className="">hệ thống</span>: Khóa học {notify.name} vừa được tạo thành công
                                                                                     </div>
-                                                                                    <div className="ml-3 text-xs text-blue-600 dark:text-blue-500">{convertToVietnamTime(notify.createdAt)}</div>
                                                                                 </div>
+                                                                                <div className="ml-3 text-xs text-blue-600 dark:text-blue-500">{convertToVietnamTime(notify.createdAt)}</div>
                                                                             </div>
                                                                         </div>
-                                                                    </Link>
-                                                                );
-                                                            case 'topic':
-                                                                return (
-                                                                    <Link
-                                                                        key={index}
-                                                                        onClick={async () => {
-                                                                            if (!notify.read) await notifyApi.readNotify({ data: [notify.id] });
-                                                                        }}
-                                                                        href={`/course/learning/${notify.id_course}/forum/${notify.id_topic}`}
-                                                                        className="flex p-3 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                                                    >
-                                                                        <div className="flex">
-                                                                            <div className="w-full flex">
-                                                                                <div className="w-1/6 flex justify-center items-center mr-2">
-                                                                                    <InformationCircleIcon className="w-8 h-8 text-slate-500" />
-                                                                                </div>
-                                                                                <div className="">
-                                                                                    <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400 relative">
-                                                                                        {notify.read ? null : (
-                                                                                            <div className="rounded-full w-2 h-2 p-1 bg-[#f63c3c] absolute top-[5px] left-0"></div>
-                                                                                        )}
-                                                                                        <div className="ml-3">
-                                                                                            Thông báo mới từ <span className="">hệ thống</span>: Có người vừa tạo chủ đề {notify.name} trong khóa học {notify.course_name}
-                                                                                        </div>
+                                                                    </div>
+                                                                </Link>
+                                                            );
+                                                        case 'topic':
+                                                            return (
+                                                                <Link
+                                                                    key={index}
+                                                                    onClick={async () => {
+                                                                        if (!notify.read) await notifyApi.readNotify({ data: [notify.id] });
+                                                                    }}
+                                                                    href={`/course/learning/${notify.id_course}/forum/${notify.id_topic}`}
+                                                                    className="flex p-3 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                                >
+                                                                    <div className="flex">
+                                                                        <div className="w-full flex">
+                                                                            <div className="w-1/6 flex justify-center items-center mr-2">
+                                                                                <InformationCircleIcon className="w-8 h-8 text-slate-500" />
+                                                                            </div>
+                                                                            <div className="">
+                                                                                <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400 relative">
+                                                                                    {notify.read ? null : (
+                                                                                        <div className="rounded-full w-2 h-2 p-1 bg-[#f63c3c] absolute top-[5px] left-0"></div>
+                                                                                    )}
+                                                                                    <div className="ml-3">
+                                                                                        Thông báo mới từ <span className="">hệ thống</span>: Có người vừa tạo chủ đề {notify.name} trong khóa học {notify.course_name}
                                                                                     </div>
-                                                                                    <div className="ml-3 text-xs text-blue-600 dark:text-blue-500">{convertToVietnamTime(notify.createdAt)}</div>
                                                                                 </div>
+                                                                                <div className="ml-3 text-xs text-blue-600 dark:text-blue-500">{convertToVietnamTime(notify.createdAt)}</div>
                                                                             </div>
                                                                         </div>
-                                                                    </Link>
-                                                                );
-                                                            case 'exam':
-                                                                return (
-                                                                    <Link
-                                                                        key={index}
-                                                                        onClick={async () => {
-                                                                            if (!notify.read) await notifyApi.readNotify({ data: [notify.id] });
-                                                                        }}
-                                                                        href={`/teacher/dashboard/exam`}
-                                                                        className="flex p-3 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                                                    >
-                                                                        <div className="flex">
-                                                                            <div className="w-full flex">
-                                                                                <div className="w-1/6 flex justify-center items-center mr-2">
-                                                                                    <InformationCircleIcon className="w-8 h-8 text-slate-500" />
-                                                                                </div>
-                                                                                <div className="">
-                                                                                    <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400 relative">
-                                                                                        {notify.read ? null : (
-                                                                                            <div className="rounded-full w-2 h-2 p-1 bg-[#f63c3c] absolute top-[5px] left-0"></div>
-                                                                                        )}
-                                                                                        <div className="ml-3">
-                                                                                            Thông báo mới từ <span className="">hệ thống</span>: Đề thi {notify.name} vừa được tạo thành công
-                                                                                        </div>
+                                                                    </div>
+                                                                </Link>
+                                                            );
+                                                        case 'exam':
+                                                            return (
+                                                                <Link
+                                                                    key={index}
+                                                                    onClick={async () => {
+                                                                        if (!notify.read) await notifyApi.readNotify({ data: [notify.id] });
+                                                                    }}
+                                                                    href={`/teacher/dashboard/exam`}
+                                                                    className="flex p-3 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                                >
+                                                                    <div className="flex">
+                                                                        <div className="w-full flex">
+                                                                            <div className="w-1/6 flex justify-center items-center mr-2">
+                                                                                <InformationCircleIcon className="w-8 h-8 text-slate-500" />
+                                                                            </div>
+                                                                            <div className="">
+                                                                                <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400 relative">
+                                                                                    {notify.read ? null : (
+                                                                                        <div className="rounded-full w-2 h-2 p-1 bg-[#f63c3c] absolute top-[5px] left-0"></div>
+                                                                                    )}
+                                                                                    <div className="ml-3">
+                                                                                        Thông báo mới từ <span className="">hệ thống</span>: Đề thi {notify.name} vừa được tạo thành công
                                                                                     </div>
-                                                                                    <div className="ml-3 text-xs text-blue-600 dark:text-blue-500">{convertToVietnamTime(notify.createdAt)}</div>
                                                                                 </div>
+                                                                                <div className="ml-3 text-xs text-blue-600 dark:text-blue-500">{convertToVietnamTime(notify.createdAt)}</div>
                                                                             </div>
                                                                         </div>
-                                                                    </Link>
-                                                                );
-                                                            default:
-                                                                return null;
-                                                        }
-                                                    });
+                                                                    </div>
+                                                                </Link>
+                                                            );
+                                                        case 'comment':
+                                                            return (
+                                                                <Link
+                                                                    key={index}
+                                                                    onClick={async () => {
+                                                                        if (!notify.read) await notifyApi.readNotify({ data: [notify.id] });
+                                                                    }}
+                                                                    href={`/course/learning/${notify.id_course}/?lecture=${notify.id_topic}`}
+                                                                    className="flex p-3 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                                >
+                                                                    <div className="flex">
+                                                                        <div className="w-full flex">
+                                                                            <div className="w-1/6 flex justify-center items-center mr-2">
+                                                                                <InformationCircleIcon className="w-8 h-8 text-slate-500" />
+                                                                            </div>
+                                                                            <div className="">
+                                                                                <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400 relative">
+                                                                                    {notify.read ? null : (
+                                                                                        <div className="rounded-full w-2 h-2 p-1 bg-[#f63c3c] absolute top-[5px] left-0"></div>
+                                                                                    )}
+                                                                                    <div className="ml-3">
+                                                                                        Học sinh {notify.name} đã bình luận trong một bài giảng của khóa học {notify.course_name}
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="ml-3 text-xs text-blue-600 dark:text-blue-500">{convertToVietnamTime(notify.createdAt)}</div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </Link>
+                                                            );
+                                                        default:
+                                                            return null;
+                                                    }
                                                 })
                                             }
-
-
+                                            {hasMore && <div ref={loadingRef} className="flex py-5 items-center justify-center bg-white dark:bg-black">
+                                                <div className="h-5 w-5 animate-spin rounded-full border-2 border-solid border-blue-500 border-t-transparent"></div>
+                                            </div>
+                                            }
                                         </div>
                                         <Link
                                             href="/teacher/dashboard/notifycation"

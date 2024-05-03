@@ -13,6 +13,7 @@ import { formatCash, convertTime, formatDateTime } from '@/app/helper/FormatFunc
 // import { useSession } from 'next-auth/react';
 import { ToastContainer, toast } from 'react-toastify';
 import { useAppSelector } from '@/redux/store';
+import PaginateButton from '@/app/_components/Paginate/PaginateButton';
 type Review = {
     content: string
     rating: number
@@ -30,7 +31,8 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
     const [starDetails, setStarDetails] = useState<any>();
     const [hoverRating, setHoverRating] = useState(0);
     const { user } = useAppSelector(state => state.authReducer);
-
+    const [countPaginate, setCountPaginate] = useState(0)
+    const [currentPage, setCurrentPage] = useState(1)
 
     const {
         register,
@@ -47,8 +49,9 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
             ).catch((err) => {
                 console.log(err)
             })
-            await courseApi.getReview(params.slug).then((data: any) => {
+            await courseApi.getReview(params.slug, currentPage).then((data: any) => {
                 setReviews(data.data.reviews)
+                setCountPaginate(Math.ceil(data.data.count / 10))
                 if (data.data.averageRating) {
                     setAvgReview(data.data.averageRating)
                 }
@@ -59,7 +62,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
             ).catch((err: any) => { })
         }
         fetchData()
-    }, [changeData, params.slug])
+    }, [changeData, params.slug, currentPage])
 
 
     const handleHover = (hoverRating: any) => {
@@ -422,6 +425,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                         </div>
                                                     </div>
                                                 ))}
+                                            <PaginateButton countPaginate={countPaginate} setCurrentPage={setCurrentPage} currentPage={currentPage} />
                                         </div>
                                     </div>
                                 </div>

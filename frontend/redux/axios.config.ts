@@ -68,6 +68,11 @@ instance.interceptors.request.use(
             ) {
                 config.baseURL = 'http://localhost:4004/api/v1';
             }
+            if (
+                config.url.indexOf('/messages') >= 0
+            ) {
+                config.baseURL = 'http://localhost:4005/api/v1';
+            }
         }
 
         let accessToken = localStorage.getItem('accessToken');
@@ -114,6 +119,7 @@ instance.interceptors.request.use(
         return Promise.reject(error);
     }
 )
+
 
 // instance.interceptors.response.use((response) => {
 //     if (response && response.data) {

@@ -57,10 +57,10 @@ export default function CourseList() {
             sortFilters && orderFilters ? filterString += `&sort=${sortFilters}&order=${orderFilters}` : null
 
 
-            await courseApi.getAll(filterString).then((data: any) => {
-                setCourses(data.data.courses)
-            }
-            ).catch((err: any) => { })
+            // await courseApi.getAll(filterString).then((data: any) => {
+            //     setCourses(data.data.courses)
+            // }
+            // ).catch((err: any) => { })
             await categoryApi.getAll().then((data: any) => {
                 setCategory([
                     {

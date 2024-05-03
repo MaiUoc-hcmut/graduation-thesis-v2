@@ -10,6 +10,7 @@ import Image from "next/image"
 import { HeaderLearning } from "@/app/_components/Header/HeaderLearning"
 import SidebarLearning from "@/app/_components/Sidebar/SidebarLearning"
 import courseApi from "@/app/api/courseApi"
+import PaginateButton from "@/app/_components/Paginate/PaginateButton"
 
 export default function ExamDetail({ params }: { params: { slug: string } }) {
     const [assignments, setAssignments] = useState<any>([])
@@ -17,25 +18,22 @@ export default function ExamDetail({ params }: { params: { slug: string } }) {
     const initToggle: any = {}
     const [toggle, setToggle] = useState(initToggle)
 
-    const [paginate, setPaginate] = useState(0)
+    const [countPaginate, setCountPaginate] = useState(0)
     const [course, setCourse] = useState<any>({})
-    const [currentPageComment, setCurrentPageComment] = useState(1)
-    let list: any = []
+    const [currentPage, setCurrentPage] = useState(1)
 
     useEffect(() => {
         async function fetchData() {
             if (params.slug)
-                examApi.getAssigmnentByExamId(`${user.id}`, params.slug, currentPageComment).then((data) => {
+                examApi.getAssigmnentByExamId(`${user.id}`, params.slug, currentPage).then((data) => {
                     setAssignments(data.data.assignments)
-                    setPaginate(Math.ceil(data.data.count / 10))
+                    setCountPaginate(Math.ceil(data.data.count / 10))
                 })
         }
         fetchData()
-    }, [currentPageComment, paginate, params.slug, user.id]);
+    }, [currentPage, countPaginate, params.slug, user.id]);
 
-    for (let i = 1; i <= paginate; i++) {
-        list.push(i)
-    }
+
 
     useEffect(() => {
         async function fetchData() {
@@ -148,40 +146,7 @@ export default function ExamDetail({ params }: { params: { slug: string } }) {
                                             </div>
                                         </div>
                                     }
-                                    {
-                                        paginate > 1 ?
-                                            <div className="flex justify-center items-center pt-10 pb-5">
-                                                <nav aria-label="Page navigation example">
-                                                    <ul className="flex items-center -space-x-px h-8 text-sm">
-                                                        <li>
-                                                            <button disabled className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                                                                <span className="sr-only">Previous</span>
-                                                                <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                                                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 1 1 5l4 4" />
-                                                                </svg>
-                                                            </button>
-                                                        </li>
-                                                        {
-                                                            list.map((l: number) => {
-                                                                return (
-                                                                    <div key={l}>
-                                                                        <button onClick={() => setCurrentPageComment(l)} className={`flex items-center justify-center px-3 h-8 leading-tight ${currentPageComment == l ? 'text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'} `}>{l}</button>
-                                                                    </div>
-                                                                )
-                                                            })
-                                                        }
-                                                        <li>
-                                                            <button disabled className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                                                                <span className="sr-only">Next</span>
-                                                                <svg className="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                                                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m1 9 4-4-4-4" />
-                                                                </svg>
-                                                            </button>
-                                                        </li>
-                                                    </ul>
-                                                </nav>
-                                            </div> : null
-                                    }
+                                    <PaginateButton countPaginate={countPaginate} setCurrentPage={setCurrentPage} currentPage={currentPage} />
                                 </div>
                             </div>
                         </div >

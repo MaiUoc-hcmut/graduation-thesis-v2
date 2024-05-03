@@ -21,6 +21,10 @@ import Chat from "./chat";
 import { nanoid } from "nanoid";
 import { akaneModel, eliotModel, emilyModel, joeModel, users } from "./data";
 import { AutoDraft } from "@chatscope/use-chat/dist/enums/AutoDraft";
+import { useEffect } from "react";
+import chatApi from "@/app/api/chatApi";
+import { useAppSelector } from "@/redux/store";
+import uuid from "react-uuid";
 
 // sendMessage and addMessage methods can automagically generate id for messages and groups
 // This allows you to omit doing this manually, but you need to provide a message generator
@@ -39,49 +43,7 @@ const serviceFactory = (storage: IStorage, updateState: UpdateState) => {
     return new ExampleChatService(storage, updateState);
 };
 
-const akane = new User({
-    id: akaneModel.name,
-    presence: new Presence({ status: UserStatus.Available, description: "" }),
-    firstName: "",
-    lastName: "",
-    username: akaneModel.name,
-    email: "",
-    avatar: akaneModel.avatar,
-    bio: ""
-});
 
-const emily = new User({
-    id: emilyModel.name,
-    presence: new Presence({ status: UserStatus.Available, description: "" }),
-    firstName: "",
-    lastName: "",
-    username: emilyModel.name,
-    email: "",
-    avatar: emilyModel.avatar,
-    bio: ""
-});
-
-const eliot = new User({
-    id: eliotModel.name,
-    presence: new Presence({ status: UserStatus.Available, description: "" }),
-    firstName: "",
-    lastName: "",
-    username: eliotModel.name,
-    email: "",
-    avatar: eliotModel.avatar,
-    bio: ""
-});
-
-const joe = new User({
-    id: joeModel.name,
-    presence: new Presence({ status: UserStatus.Available, description: "" }),
-    firstName: "",
-    lastName: "",
-    username: joeModel.name,
-    email: "",
-    avatar: joeModel.avatar,
-    bio: ""
-});
 
 const chats = [
     { name: "Akane", storage: akaneStorage },
@@ -90,7 +52,9 @@ const chats = [
     { name: "Joe", storage: joeStorage }
 ];
 
+
 function createConversation(id: ConversationId, name: string): Conversation {
+
     return new Conversation({
         id,
         participants: [
@@ -121,7 +85,7 @@ chats.forEach(c => {
                 bio: ""
             }));
 
-            const conversationId = nanoid();
+            const conversationId = uuid();
 
             const myConversation = c.storage.getState().conversations.find(cv => typeof cv.participants.find(p => p.id === u.name) !== "undefined");
             if (!myConversation) {
@@ -146,8 +110,19 @@ chats.forEach(c => {
 
 });
 
-function App() {
-
+export default function ChatBox({ params }: { params: { id: string } }) {
+    useEffect(() => {
+        chatApi.getMessageOfGroup(params.id, "1").then((res) => {
+            console.log(res);
+        }).catch((err) => { });
+    }, []);
+    const user = useAppSelector(state => state.authReducer.user);
+    const eliot = new User({
+        id: `${user.id}`,
+        presence: new Presence({ status: UserStatus.Available, description: "" }),
+        username: user.name,
+        avatar: user.avatar ? user.avatar : "/images/avatar.png",
+    });
     return (
         <div className="d-flex flex-divumn overflow-hidden">
             <div className="">
@@ -159,7 +134,7 @@ function App() {
                             debounceTyping: true,
                             autoDraft: AutoDraft.Save | AutoDraft.Restore
                         }}>
-                            <Chat user={eliot} />
+                            <Chat user={eliot} params={params} />
                         </ChatProvider>
                     </div>
 
@@ -169,5 +144,3 @@ function App() {
         </div>
     );
 }
-
-export default App;

@@ -46,16 +46,16 @@ export default function ComboDetail({ params }: { params: { slug: string } }) {
                 setCourse(data.data)
             }
             ).catch((err: any) => { })
-            await courseApi.getReview(params.slug).then((data: any) => {
-                setReviews(data.data.reviews)
-                if (data.data.averageRating) {
-                    setAvgReview(data.data.averageRating)
-                }
-                if (data.data.starDetails) {
-                    setStarDetails(data.data.starDetails)
-                }
-            }
-            ).catch((err: any) => { })
+            // await courseApi.getReview(params.slug).then((data: any) => {
+            //     setReviews(data.data.reviews)
+            //     if (data.data.averageRating) {
+            //         setAvgReview(data.data.averageRating)
+            //     }
+            //     if (data.data.starDetails) {
+            //         setStarDetails(data.data.starDetails)
+            //     }
+            // }
+            // ).catch((err: any) => { })
         }
         fetchData()
     }, [changeData, params.slug])
