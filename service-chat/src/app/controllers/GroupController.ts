@@ -124,6 +124,8 @@ class GroupController {
 
             let { name, members, individual } = body;
 
+            members = Array.from(new Set(members));
+
             individual = (individual === undefined || individual === "") ? true : individual;
             if (members.length > 1 && individual) {
                 return res.status(400).json({
