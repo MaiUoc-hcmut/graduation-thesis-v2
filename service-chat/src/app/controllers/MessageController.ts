@@ -98,6 +98,12 @@ class MessageController {
                     lastMessage: body.body,
                     individual: true
                 });
+            } else {
+                const group = await Group.findOne({
+                    id: id_group
+                });
+                group.lastMessage = body.body;
+                await group.save();
             }
 
             const message = await Message.create({
