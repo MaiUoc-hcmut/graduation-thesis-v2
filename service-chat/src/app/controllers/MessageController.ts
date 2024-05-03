@@ -23,6 +23,21 @@ declare global {
 
 class MessageController {
 
+    getUserFromAPI = async (url: string) => {
+        try {
+            const response = await axios.get(url);
+            return {
+                data: response.data
+            }
+        } catch (error: any) {
+            if (error.response && error.response.status === 404) {
+                return null;
+            } else {
+                throw error;
+            }
+        }
+    }
+
     // [GET] /messages
     getAllMessage = async (_req: Request, res: Response, _next: NextFunction) => {
         try {
@@ -69,6 +84,30 @@ class MessageController {
                 }
             }).sort({ createdAt: -1 }).limit(scrollSize).exec();
 
+            for (const message of messages) {
+                const student = await this.getUserFromAPI(`${process.env.BASE_URL_USER_LOCAL}/student/${message.author}`);
+                if (student) {
+                    delete message.author;
+                    message.author = {
+                        id: student.data.id,
+                        name: student.data.name,
+                        avatar: student.data.avatar
+                    }
+                    continue;
+                }
+
+                const teacher = await this.getUserFromAPI(`${process.env.BASE_URL_USER_LOCAL}/teacher/get-teacher-by-id/${message.author}`);
+                if (teacher) {
+                    delete message.author;
+                    message.author = {
+                        id: teacher.data.id,
+                        name: teacher.data.name,
+                        avatar: teacher.data.avatar
+                    }
+                    continue;
+                }
+            }
+
             res.status(200).json(messages);
         } catch (error: any) {
             console.log(error.message);
@@ -83,6 +122,7 @@ class MessageController {
     createMessage = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const author = req.user?.user.data.id;
+            const authorName = req.user?.user.data.name;
 
             let body = req.body.data;
             if (typeof body === "string") {
@@ -96,6 +136,8 @@ class MessageController {
                     members: [author, body.user],
                     admins: [author, body.user],
                     lastMessage: body.body,
+                    lastSenderId: author,
+                    lastSenderName: authorName,
                     individual: true
                 });
             } else {
@@ -103,6 +145,8 @@ class MessageController {
                     id: id_group
                 });
                 group.lastMessage = body.body;
+                group.lastSenderId = author;
+                group.lastSenderName = authorName;
                 await group.save();
             }
 

@@ -755,7 +755,6 @@ class AssignmentController {
             const authority = req.authority;
             const role = req.user?.role;
 
-
             const assignment = await Assignment.findByPk(id_assignment, {
                 include: [
                     {
@@ -1026,16 +1025,10 @@ class AssignmentController {
         try {
             const teacher_name = req.user?.user.data.name;
             const body = req.body.data;
-            const { comment, type } = body;
+            const { comment, type, detail_questions } = body;
 
             const id_assignment = req.params.assignmentId;
-            const assignment = await Assignment.findByPk(id_assignment, {
-                include: [{
-                    model: DetailQuestion,
-                    as: 'details',
-                    attributes: ['id']
-                }]
-            });
+            const assignment = await Assignment.findByPk(id_assignment);
             const exam = await Exam.findByPk(assignment.id_exam);
 
             if (type === "draft") {
@@ -1056,18 +1049,30 @@ class AssignmentController {
             }
 
 
-            for (const detail_question of assignment.details) {
-                const detailQ = await DetailQuestion.findByPk(detail_question.id);
-                const comment = detailQ.draft;
-                await DetailQuestion.update({
-                    comment
-                }, {
-                    where: {
-                        id: detail_question.id
-                    }
-                }, {
-                    transaction: t
-                });
+            for (const detail_question of detail_questions) {
+                const comment_question = detail_question.comment;
+                if (type === "draft") {
+                    await DetailQuestion.update({
+                        draft: comment_question
+                    }, {
+                        where: {
+                            id: detail_question.id
+                        }
+                    }, {
+                        transaction: t
+                    });
+                } else {
+                    await DetailQuestion.update({
+                        comment: comment_question,
+                        draft: comment_question
+                    }, {
+                        where: {
+                            id: detail_question.id
+                        }
+                    }, {
+                        transaction: t
+                    });
+                }
             }
 
             try {
