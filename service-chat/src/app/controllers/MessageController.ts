@@ -83,6 +83,7 @@ class MessageController {
     createMessage = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const author = req.user?.user.data.id;
+            const authorName = req.user?.user.data.name;
 
             let body = req.body.data;
             if (typeof body === "string") {
@@ -96,6 +97,8 @@ class MessageController {
                     members: [author, body.user],
                     admins: [author, body.user],
                     lastMessage: body.body,
+                    lastSenderId: author,
+                    lastSenderName: authorName,
                     individual: true
                 });
             } else {
@@ -103,6 +106,8 @@ class MessageController {
                     id: id_group
                 });
                 group.lastMessage = body.body;
+                group.lastSenderId = author;
+                group.lastSenderName = authorName;
                 await group.save();
             }
 

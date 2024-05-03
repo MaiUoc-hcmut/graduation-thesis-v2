@@ -19,6 +19,13 @@ const groupSchema = new mongoose.Schema(
             type: String,
             ref: 'Message',
         },
+        lastSenderId: {
+            type: String,
+            validator: validateUUID
+        },
+        lastSenderName: {
+            type: String
+        },
         members: [{ type: String, validator: validateUUID }],
         admins: [{ type: String, validator: validateUUID }],
         name: {
