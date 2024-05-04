@@ -2,6 +2,9 @@ const Message = require('../../db/model/message');
 const Group = require('../../db/model/group');
 
 import { Request, Response, NextFunction } from 'express';
+import { socketInstance } from "../..";
+
+const axios = require('axios');
 
 require('dotenv').config();
 
@@ -123,6 +126,10 @@ class MessageController {
         try {
             const author = req.user?.user.data.id;
             const authorName = req.user?.user.data.name;
+            const authorAvatar = req.user?.user.data.avatar;
+
+            const io = socketInstance.getIoInstance();
+            const clientConnected = socketInstance.getClientConnected();
 
             let body = req.body.data;
             if (typeof body === "string") {
@@ -140,6 +147,18 @@ class MessageController {
                     lastSenderName: authorName,
                     individual: true
                 });
+
+                const userOnline = clientConnected.find(o => o.user === body.user);
+                if (userOnline) {
+                    io.to(`${userOnline.socket}`).emit("new_message_created", {
+                        message: body.body,
+                        author: {
+                            id: author,
+                            name: authorName,
+                            avatar: authorAvatar
+                        }
+                    })
+                }
             } else {
                 const group = await Group.findOne({
                     id: id_group
@@ -148,6 +167,15 @@ class MessageController {
                 group.lastSenderId = author;
                 group.lastSenderName = authorName;
                 await group.save();
+
+                io.to(id_group).emit("new_message_created", {
+                    message: body.body,
+                    author: {
+                        id: author,
+                        name: authorName,
+                        avatar: authorAvatar
+                    }
+                });
             }
 
             const message = await Message.create({
