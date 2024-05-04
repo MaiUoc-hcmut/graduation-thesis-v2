@@ -4,6 +4,8 @@ const Group = require('../../db/model/group');
 import { Request, Response, NextFunction } from 'express';
 
 const axios = require('axios');
+
+require('dotenv').config();
 class GroupController {
 
     getUserFromAPI = async (url: string) => {
