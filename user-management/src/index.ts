@@ -10,6 +10,7 @@ const teacherAuthRouter = require('./app/route/teacherAuthRoute');
 const teacherRouter = require('./app/route/teacherRoute');
 const adminRouter = require('./app/route/admin');
 const reviewRouter = require('./app/route/review');
+const commonRouter = require('./app/route/common');
 
 const db = require('./config/db');
 db.connect();
@@ -28,7 +29,7 @@ app.use('/api/v1/auth-teacher', teacherAuthRouter);
 app.use('/api/v1/teacher', teacherRouter);
 app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/reviews', reviewRouter);
-
+app.use('/api/v1/commons', commonRouter);
 
 // wrong api
 app.all('*', 
