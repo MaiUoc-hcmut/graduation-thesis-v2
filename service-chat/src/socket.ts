@@ -1,5 +1,5 @@
 import { Socket, Server } from "socket.io";
-const RoomSocket = require('./db/model/room');
+const Group = require('./db/model/group');
 
 const axios = require('axios');
 
@@ -33,29 +33,35 @@ export class SOCKETIO {
                 });
 
                 // Join room when user online
-                const userInRooms = await RoomSocket.findAll({
-                    where: { id_user: userId }
+                const groups = await Group.find({
+                    members: userId
                 });
 
-                for (const record of userInRooms) {
-                    socket.join(`${record.room}`);
+                for (const group of groups) {
+                    socket.join(`${group.id}`);
                 }
 
             });
 
-            socket.on("user_join_room", async (data) => {
-                socket.join(`${data.room}`);
-
-                const userInRoom = await RoomSocket.findOne({
-                    where: { id_user: data.userId, room: data.room }
+            socket.on("add_user_to_group", async (data) => {
+                this.io.to(`${data.id_group}`).emit("new_user_join_group", {
+                    message: "New users have been added to group",
+                    users: data.users
                 });
-
-                if (!userInRoom) {
-                    await RoomSocket.create({
-                        id_user: data.userId,
-                        room: data.room
-                    });
+                
+                for (const user of data.users) {
+                    const userOnline = this.clientConnected.find(o => o.user === user);
+                    if (userOnline) {
+                        this.io.to(userOnline.socket).emit("join_group", {
+                            message: "You have added to group!",
+                            id_group: data.id_group
+                        });
+                    }
                 }
+            });
+
+            socket.on("join_group", async (id_group) => {
+                socket.join(`${id_group}`);
             });
 
             socket.on("disconnect", () => {

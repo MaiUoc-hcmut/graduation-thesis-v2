@@ -57,7 +57,7 @@ class GroupController {
                 },
                 {
                     $sort: {
-                        "groups.updatedAt": -1 // Sắp xếp theo thứ tự giảm dần của updatedAt
+                        "groups.updatedAt": -1
                     }
                 },
             ]);

@@ -6,6 +6,8 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const db = process.env.DATABASE_CLOUD;
 
+import { SOCKETIO } from "./socket";
+
 const route = require('./routes');
 
 const app = express();
@@ -19,6 +21,7 @@ app.use(
 route(app);
 
 const server = http.createServer(app);
+const socketInstance = new SOCKETIO(server);
 
 mongoose
     .connect(db)
@@ -29,5 +32,5 @@ server.listen(4005, () => {
     console.log("Server is running on port: 4005");
 });
 
-export {}
+export { socketInstance }
 
