@@ -69,7 +69,8 @@ instance.interceptors.request.use(
                 config.baseURL = 'http://localhost:4004/api/v1';
             }
             if (
-                config.url.indexOf('/messages') >= 0
+                config.url.indexOf('/messages') >= 0 ||
+                config.url.indexOf('/groups') >= 0
             ) {
                 config.baseURL = 'http://localhost:4005/api/v1';
             }

@@ -14,14 +14,14 @@ import {
     TypingUsersList,
     UpdateState,
     User,
+    UserId,
     UserStatus
 } from "@chatscope/use-chat";
 import { ExampleChatService } from "@chatscope/use-chat/dist/examples";
 import Chat from "./chat";
 import { nanoid } from "nanoid";
-import { akaneModel, eliotModel, emilyModel, joeModel, users } from "./data";
 import { AutoDraft } from "@chatscope/use-chat/dist/enums/AutoDraft";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import chatApi from "@/app/api/chatApi";
 import { useAppSelector } from "@/redux/store";
 import uuid from "react-uuid";
@@ -33,10 +33,8 @@ import uuid from "react-uuid";
 const messageIdGenerator = (message: ChatMessage<MessageContentType>) => nanoid();
 const groupIdGenerator = () => nanoid();
 
-const akaneStorage = new BasicStorage({ groupIdGenerator, messageIdGenerator });
-const eliotStorage = new BasicStorage({ groupIdGenerator, messageIdGenerator });
-const emilyStorage = new BasicStorage({ groupIdGenerator, messageIdGenerator });
-const joeStorage = new BasicStorage({ groupIdGenerator, messageIdGenerator });
+const userStorage = new BasicStorage({ groupIdGenerator, messageIdGenerator });
+
 
 // Create serviceFactory
 const serviceFactory = (storage: IStorage, updateState: UpdateState) => {
@@ -44,97 +42,162 @@ const serviceFactory = (storage: IStorage, updateState: UpdateState) => {
 };
 
 
-
-const chats = [
-    { name: "Akane", storage: akaneStorage },
-    { name: "Eliot", storage: eliotStorage },
-    { name: "Emily", storage: emilyStorage },
-    { name: "Joe", storage: joeStorage }
-];
-
-
-function createConversation(id: ConversationId, name: string): Conversation {
+function createConversation(id: ConversationId, id_user: UserId, name: string, type: string, userLast: any): Conversation {
 
     return new Conversation({
         id,
         participants: [
             new Participant({
-                id: name,
+                id: id_user,
                 role: new ConversationRole([])
             })
         ],
         unreadCounter: 0,
         typingUsers: new TypingUsersList({ items: [] }),
-        draft: ""
+        draft: "",
+        data: {
+            id_group: id,
+            type: type,
+            userLast: userLast
+        }
     });
 }
 
 // Add users and conversations to the states
-chats.forEach(c => {
+// chats.forEach(c => {
+//     users.forEach(u => {
+//         if (u.name !== c.name) {
+//             c.storage.addUser(new User({
+//                 id: u.name,
+//                 presence: new Presence({ status: UserStatus.Available, description: "" }),
+//                 firstName: "",
+//                 lastName: "",
+//                 username: u.name,
+//                 email: "",
+//                 avatar: u.avatar,
+//                 bio: ""
+//             }));
 
-    users.forEach(u => {
-        if (u.name !== c.name) {
-            c.storage.addUser(new User({
-                id: u.name,
-                presence: new Presence({ status: UserStatus.Available, description: "" }),
-                firstName: "",
-                lastName: "",
-                username: u.name,
-                email: "",
-                avatar: u.avatar,
-                bio: ""
-            }));
+//             const conversationId = uuid();
 
-            const conversationId = uuid();
+//             const myConversation = c.storage.getState().conversations.find(cv => typeof cv.participants.find(p => p.id === u.name) !== "undefined");
+//             if (!myConversation) {
 
-            const myConversation = c.storage.getState().conversations.find(cv => typeof cv.participants.find(p => p.id === u.name) !== "undefined");
-            if (!myConversation) {
+//                 c.storage.addConversation(createConversation(conversationId, u.name));
 
-                c.storage.addConversation(createConversation(conversationId, u.name));
+//                 const chat = chats.find(chat => chat.name === u.name);
 
-                const chat = chats.find(chat => chat.name === u.name);
+//                 if (chat) {
 
-                if (chat) {
+//                     const hisConversation = chat.storage.getState().conversations.find(cv => typeof cv.participants.find(p => p.id === c.name) !== "undefined");
+//                     if (!hisConversation) {
+//                         chat.storage.addConversation(createConversation(conversationId, c.name));
+//                     }
 
-                    const hisConversation = chat.storage.getState().conversations.find(cv => typeof cv.participants.find(p => p.id === c.name) !== "undefined");
-                    if (!hisConversation) {
-                        chat.storage.addConversation(createConversation(conversationId, c.name));
-                    }
+//                 }
 
-                }
+//             }
 
-            }
+//         }
+//     });
+// });
 
-        }
-    });
 
-});
 
 export default function ChatBox({ params }: { params: { id: string } }) {
-    useEffect(() => {
-        chatApi.getMessageOfGroup(params.id, "1").then((res) => {
-            console.log(res);
-        }).catch((err) => { });
-    }, []);
+    // const [conversations, setConversations] = useState<any>([]);
+    const [converStudent, setConverStudent] = useState<any>([]);
+    const [converTeacher, setConverTeacher] = useState<any>([]);
+    const [converGroup, setConverGroup] = useState<any>([]);
+    const [change, setChange] = useState(false);
+
     const user = useAppSelector(state => state.authReducer.user);
-    const eliot = new User({
+
+
+
+    useEffect(() => {
+        chatApi.getGroupOfUser().then((res: any) => {
+            setConverStudent(res.data.student);
+            setConverTeacher(res.data.teacher);
+            setConverGroup(res.data.mix);
+        }).catch((err) => { });
+    }, [change]);
+
+
+    converStudent?.forEach((c: any) => {
+
+        userStorage.addUser(new User({
+            id: c.friend.id,
+            presence: new Presence({ status: UserStatus.Available, description: "" }),
+            firstName: "",
+            lastName: "",
+            username: c.friend.name,
+            email: "",
+            avatar: c.friend.avatar,
+            bio: ""
+        }));
+        userStorage.addConversation(createConversation(c.id, c.friend.id, c.friend.name, "student", {
+            lastMessage: c.lastMessage,
+            lastSenderId: c.lastSenderId,
+            lastSenderName: c.lastSenderName
+        }));
+    });
+    converTeacher?.forEach((c: any) => {
+
+        userStorage.addUser(new User({
+            id: c.friend.id,
+            presence: new Presence({ status: UserStatus.Available, description: "" }),
+            firstName: "",
+            lastName: "",
+            username: c.friend.name,
+            email: "",
+            avatar: c.friend.avatar,
+            bio: ""
+        }));
+        userStorage.addConversation(createConversation(c.id, c.friend.id, c.friend.name, "teacher", {
+            lastMessage: c.lastMessage,
+            lastSenderId: c.lastSenderId,
+            lastSenderName: c.lastSenderName
+        }));
+    });
+    converGroup?.forEach((c: any) => {
+
+        userStorage.addUser(new User({
+            id: c.id,
+            presence: new Presence({ status: UserStatus.Available, description: "" }),
+            firstName: "",
+            lastName: "",
+            username: c.name,
+            email: "",
+            avatar: "/images/avatar-group.jpg",
+            bio: ""
+        }));
+        userStorage.addConversation(createConversation(c.id, c.id, c.name, "group", {
+            lastMessage: c.lastMessage,
+            lastSenderId: c.lastSenderId,
+            lastSenderName: c.lastSenderName
+        }));
+    });
+
+    const userCurrent = new User({
         id: `${user.id}`,
         presence: new Presence({ status: UserStatus.Available, description: "" }),
         username: user.name,
         avatar: user.avatar ? user.avatar : "/images/avatar.png",
     });
+
     return (
         <div className="d-flex flex-divumn overflow-hidden">
             <div className="">
                 <div className="flex-nowrap">
                     <div>
-                        <ChatProvider serviceFactory={serviceFactory} storage={eliotStorage} config={{
+                        <ChatProvider serviceFactory={serviceFactory} storage={userStorage} config={{
                             typingThrottleTime: 250,
                             typingDebounceTime: 900,
                             debounceTyping: true,
                             autoDraft: AutoDraft.Save | AutoDraft.Restore
                         }}>
-                            <Chat user={eliot} params={params} />
+                            <Chat user={userCurrent} params={params} change={change} setChange={setChange} />
                         </ChatProvider>
                     </div>
 

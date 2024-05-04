@@ -8,7 +8,7 @@ import FlowbiteClient from './_components/Flowbite/FlowbiteClient'
 import { Suspense, useEffect, useState } from 'react'
 import 'react-toastify/dist/ReactToastify.css';
 import { ReduxProvider } from '@/redux/provider';
-import { store, persistor } from '@/redux/store';
+import { store, persistor, useAppSelector } from '@/redux/store';
 import '@/node_modules/react-multi-carousel/lib/styles.css'
 import { initFlowbite } from 'flowbite';
 import('flowbite')

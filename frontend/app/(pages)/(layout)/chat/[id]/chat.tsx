@@ -2,7 +2,7 @@
 
 import { useMemo, useCallback } from "react";
 
-import { MainContainer, Sidebar, ConversationList, Conversation, Avatar, ChatContainer, ConversationHeader, MessageGroup, Message, MessageList, MessageInput, TypingIndicator, Status, ExpansionPanel, Search, Loader } from "@chatscope/chat-ui-kit-react";
+import { MainContainer, Sidebar, ConversationList, Conversation, Avatar, ChatContainer, ConversationHeader, MessageGroup, Message, MessageList, MessageInput, TypingIndicator, Status, ExpansionPanel, Search, Loader, AddUserButton } from "@chatscope/chat-ui-kit-react";
 
 import {
     useChat,
@@ -16,34 +16,73 @@ import chatApi from "@/app/api/chatApi";
 import { group } from "console";
 import Link from "next/link";
 import { useEffect, useRef, useState } from 'react';
-import notifyApi from "@/app/api/notifyApi";
 
-export default function Chat({ user, params }: { user: User, params: { id: string } }) {
-    const [page, setPage] = useState(1);
+import { Label, Modal, TextInput, Textarea, Button } from 'flowbite-react';
+import { set, useForm } from "react-hook-form";
+import React from "react";
+import courseApi from "@/app/api/courseApi";
+import Image from "next/image";
+import { io } from "socket.io-client";
+import { useSocket } from "@/app/socket/SocketProvider";
+import { Bounce, ToastContainer, toast } from "react-toastify";
+import uuid from "react-uuid";
+
+export default function Chat({ user, params, change, setChange }: { user: User, params: { id: string }, change: any, setChange: any }) {
+    const socket = useSocket();
+
+    const [lastMessage, setLastMessage] = useState('');
+    // const [page, setPage] = useState(1);
     const loadingRef = useRef(null);;
     const [hasMore, setHasMore] = useState(true);
-    const [notifycations, setNotifycations] = useState<any>([])
+    const [chats, setChats] = useState<any>([])
 
-    const fetchNotifications = async (pageNum: number) => {
+    const [modal, setModal] = useState<any>({})
+    const [listStudent, setListStudent] = useState<any>({})
+    const [isAllStudent, setIsAllStudent] = useState(true)
+    const [courses, setCourses] = useState<any>()
+    const [students, setStudents] = useState<any>()
+    const [messages, setMessages] = useState<any>([]);
+    const [blurTimeoutId, setBlurTimeoutId] = useState<any>(null);
+    useEffect(() => {
+        socket?.on("new_message_created", (data: any) => {
+            if (user.id !== data.author.id) {
+                const audio = new Audio("/audio/audio-notification.mp3");
+                audio.play();
+                setMessages((prev: any) => [data, ...prev]);
+            }
+            else {
+                return
+            }
+        })
+
+        return () => {
+            if (socket) {
+                socket.off('new_message_created');
+            }
+        };
+    }, [socket, user.id]);
+
+    const fetchMessages = async (lastMess: any) => {
         // Fetch notifications from API here
 
-
         if (user) {
-            const nextPage = page + 1; // Increase page before calling API
-            setPage(nextPage);
+            const tempMessage = lastMess?.id || '';
+            setLastMessage(lastMess);
 
-            await notifyApi.getNotify(`${user.id}`, `${pageNum}`).then((data) => {
-                if (data.data.notifications.length === 0) {
+            await chatApi.getMessageOfGroup(params.id, tempMessage).then((res) => {
+                if (res.data.length === 0) {
                     setHasMore(false); // No more notifications
 
                 } else {
-                    setNotifycations((prevNotifications: any) => [...prevNotifications, ...data.data.notifications]);
-                    setPage(pageNum + 1);
+                    setMessages((prevMessages: any) => [...prevMessages, ...res.data]);
+                    setLastMessage(res.data[res.data.length - 1]);
                 }
             }).catch((err) => { })
         }
     };
+
     useEffect(() => {
+
         var options = {
             root: null,
             rootMargin: '0px',
@@ -53,7 +92,7 @@ export default function Chat({ user, params }: { user: User, params: { id: strin
         let observer = new IntersectionObserver(async (entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting && hasMore) { // Only call API if there are more notifications
-                    fetchNotifications(page);
+                    fetchMessages(lastMessage);
                 }
             });
         }, options);
@@ -69,20 +108,54 @@ export default function Chat({ user, params }: { user: User, params: { id: strin
             }
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [hasMore, page]);
+    }, [hasMore, lastMessage]);
+
+
     // Get all chat related values and methods from useChat hook 
     const {
         currentMessages, conversations, activeConversation, setActiveConversation, sendMessage, getUser, currentMessage, setCurrentMessage,
         sendTyping, setCurrentUser
     } = useChat();
+    const converStudent = conversations.filter((c) => c.data.type === "student");
+    const converTeacher = conversations.filter((c) => c.data.type === "teacher");
+    const converGroup = conversations.filter((c) => c.data.type === "group");
+    const {
+        register,
+        reset,
+        getValues,
+        setValue,
+        handleSubmit,
+        formState: { errors },
+    } = useForm()
 
     useEffect(() => {
         setCurrentUser(user);
-    }, [user, setCurrentUser]);
+
+        if (messages) {
+
+            const tempChat = messages?.map((message: any) => {
+                return {
+                    id: message.id || message.author?.id_message, // Id will be generated by storage generator, so here you can pass an empty string
+                    content: message.body || message.message as unknown as MessageContent<TextContent>,
+                    contentType: MessageContentType.TextHtml,
+                    senderId: message.author?.id || message.author,
+                    direction: user.id === (message.author.id || message.author) ? MessageDirection.Outgoing : MessageDirection.Incoming,
+                    status: MessageStatus.Sent,
+                    name: message.author?.name,
+                    avtar: message.author?.avatar
+                };
+            })
+            tempChat.reverse();
+            setChats(groupAdjacentMessagesBySender(tempChat))
+        }
+
+    }, [user, setCurrentUser, messages]);
 
     useEffect(() => {
         setActiveConversation(params.id);
     }, [params.id, setActiveConversation]);
+
+
 
     // Get current user data
     const [currentUserAvatar, currentUserName] = useMemo(() => {
@@ -93,7 +166,7 @@ export default function Chat({ user, params }: { user: User, params: { id: strin
             if (participant) {
                 const user = getUser(participant.id);
                 if (user) {
-                    return [<Avatar key="avatar" src={user.avatar} />, <span key="username">{user.username}</span>]
+                    return [<Avatar key="avatar" src={user.avatar ? user.avatar : '/images/avatar.png'} />, <span key="username">{user.username}</span>]
                 }
             }
         }
@@ -120,6 +193,7 @@ export default function Chat({ user, params }: { user: User, params: { id: strin
 
     }
 
+
     const handleSend = (text: string) => {
 
         const message = new ChatMessage({
@@ -137,10 +211,27 @@ export default function Chat({ user, params }: { user: User, params: { id: strin
                 conversationId: activeConversation.id,
                 senderId: user.id,
             });
+
             chatApi.createMessage({
-                groupId: activeConversation.id,
-                data: text
-            }).then(() => { }).catch(() => { });
+                data: {
+                    // id_group: activeConversation.id,
+                    id_group: uuid(),
+                    user: "847dabbe-af39-4195-87cf-f7a2a6b78162",
+                    body: text
+                }
+            }).then((res) => {
+                const data = res.data
+                // const newMessage = new ChatMessage({
+                //     id: data.id,
+                //     content: data.body as unknown as MessageContent<TextContent>,
+                //     contentType: MessageContentType.TextHtml,
+                //     senderId: data.author,
+                //     direction: MessageDirection.Outgoing,
+                //     status: MessageStatus.Sent
+                // });
+
+                setMessages((prev: any) => [data, ...prev]);
+            }).catch(() => { });
         }
 
     };
@@ -176,10 +267,219 @@ export default function Chat({ user, params }: { user: User, params: { id: strin
 
         }, [activeConversation, getUser],
     );
+    function groupAdjacentMessagesBySender(messages: any) {
+        return messages.reduce((groups: any, message: any) => {
+            const lastGroup = groups[groups.length - 1];
+
+            if (!lastGroup || lastGroup[lastGroup.length - 1].senderId !== message.senderId) {
+                groups.push([message]);
+            } else {
+                lastGroup.push(message);
+            }
+
+            return groups;
+        }, []);
+    }
+
+    // console.log(listStudent);
+    console.log(chats);
 
 
     return (
-        <div className="h-[calc(100vh-80px)]">
+        <div className="h-[calc(100vh-80px)] px-2">
+            <ToastContainer />
+            <>
+                <Modal show={modal[`add-group`] || false} size="xl" onClose={() => setModal({ ...modal, [`add-group`]: false })} popup>
+                    <Modal.Header />
+                    <Modal.Body>
+
+                        <form className="space-y-6" onSubmit={handleSubmit(async (data: any) => {
+                            const studentIds = Object.keys(listStudent).filter(key => listStudent[key]);
+
+
+                            const dataForm = {
+                                data: {
+                                    name: data.name,
+                                    members: studentIds,
+                                    individual: false
+                                }
+                            }
+
+
+                            await chatApi.createGroup(dataForm).then(() => {
+                                setChange(!change)
+                                setModal({ ...modal, [`add-group`]: false })
+
+                                toast.success('Nhóm đã được tạo thành công', {
+                                    position: "top-center",
+                                    autoClose: 1000,
+                                    hideProgressBar: false,
+                                    closeOnClick: true,
+                                    pauseOnHover: true,
+                                    draggable: true,
+                                    progress: undefined,
+                                    theme: "light",
+                                    transition: Bounce,
+                                });
+                            }).catch((err: any) => { })
+                        })}>
+                            <h3 className="text-xl font-medium text-gray-900 dark:text-white">Thêm nhóm</h3>
+                            <div className="">
+                                <label
+                                    htmlFor="name"
+                                    className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                >
+                                    Tên nhóm
+                                </label>
+                                <input
+                                    {...register("name", {
+                                        required: "Tên nhóm không thể trống."
+                                    })}
+                                    type="text"
+                                    id="name"
+                                    name="name"
+                                    className={`bg-white border border-gray-300 text-[#343434] text-sm focus:ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
+                                />
+                                <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                    {errors?.name?.message?.toString()}
+                                </p>
+                            </div>
+                            <div className='w-full'>
+                                <label
+                                    htmlFor="course"
+                                    className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                >
+                                    Chọn khóa học
+                                </label>
+                                <select {...register("course", {
+                                    required: 'Hãy chọn khóa học'
+                                })}
+                                    id="courses" name="course" className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" onChange={async (e) => {
+                                        if (e.target.value) {
+                                            if (e.target.value === 'all_course')
+                                                await courseApi.getAllStudenBuyCourseOfTeacher(`${user.id}`, '1').then((data: any) => {
+                                                    setStudents(data.data)
+                                                    let temp: any = {}
+                                                    data.data?.map((student: any) => {
+                                                        temp[student.id] = true
+                                                    });
+
+                                                    setListStudent(temp)
+
+
+                                                }).catch((err: any) => { })
+                                            else
+                                                await courseApi.getAllStudenBuySpecificCourseOfTeacher(e.target.value, `${user.id}`, '1').then((data: any) => {
+                                                    setStudents(data.data)
+                                                    data.data?.map((student: any) => {
+                                                        setListStudent({ ...listStudent, [student.id]: true })
+                                                    })
+                                                }).catch((err: any) => { })
+                                        }
+
+
+                                    }}>
+                                    <option value="" defaultChecked>Chọn khóa học</option>
+                                    <option value="all_course" >Tất cả khóa học</option>
+                                    {courses?.map((course: any, index: number) => {
+                                        return (
+                                            <option key={course.id} value={`${course.id}`}>{course.name}</option>
+                                        )
+                                    })}
+                                </select>
+                                <div className="mt-1 text-sm text-red-600 dark:text-red-500">
+                                    {errors?.course?.message && (
+                                        <React.Fragment>{errors.course.message.toString()}</React.Fragment>
+                                    )}
+                                </div>
+                            </div>
+                            <div className={`${!students || students?.length === 0 ? "hidden" : ""} mt-5`}>
+                                <div className="mb-4 font-semibold">
+                                    Danh sách người dùng
+                                </div>
+                                <div className="flex justify-between items-center border-[1px] border-slate-200 px-4 py-2 rounded-lg mb-2">
+                                    <div className="font-semibold text-sm">
+                                        Tất cả
+                                    </div>
+                                    <div className="flex items-center">
+                                        <input
+                                            onChange={(e) => {
+                                                setIsAllStudent((e.target as HTMLInputElement).checked)
+
+                                            }}
+                                            type="checkbox"
+                                            checked={isAllStudent}
+                                            id={'all'}
+                                            className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                                        />
+                                    </div>
+
+                                </div>
+                                <div className="sidebar py-2 max-h-80 overflow-y-auto">
+                                    {
+                                        students ? students?.map((student: any) => {
+                                            return (
+                                                <div key={student.id} className="border-[1px] flex items-center justify-between border-slate-200 px-4 py-2 rounded-lg mb-2">
+                                                    <div className="flex justify-center items-center">
+                                                        <div className="mr-2">
+                                                            <Image src={student.avatar ? student.avatar : '/images/avatar.png'} alt="" width={40} height={40} className="rounded-full" />
+                                                        </div>
+                                                        <div className="text-sm">
+                                                            <div className="font-semibold">
+                                                                {student.name}
+                                                            </div>
+                                                            <div>
+                                                                {student.email}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center ">
+                                                        <input
+                                                            onChange={(e) => {
+
+                                                                setListStudent({ ...listStudent, [student.id]: (e.target as HTMLInputElement).checked })
+                                                                if (!e.target.checked)
+                                                                    setIsAllStudent(false)
+                                                            }}
+                                                            checked={listStudent[student.id] ? true : isAllStudent}
+                                                            type="checkbox"
+                                                            defaultValue=""
+                                                            id={student.id}
+                                                            className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                                                        />
+
+                                                    </div>
+                                                </div>
+                                            )
+                                        }) : null
+                                    }
+                                </div>
+                            </div>
+
+                            <div className="mt-6 flex justify-end">
+                                <button
+                                    onClick={() => {
+                                        setModal({ ...modal, [`add-group`]: false })
+                                    }
+                                    }
+                                    type="button"
+                                    className="mr-4 text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                                >
+                                    Hủy
+                                </button>
+                                <div>
+                                    <button
+                                        type="submit"
+                                        className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                    >
+                                        Tạo
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </Modal.Body>
+                </Modal>
+            </>
             <MainContainer responsive className="">
                 <Sidebar position="left" scrollable className="">
                     <ConversationHeader style={{ backgroundColor: "#fff" }}>
@@ -187,15 +487,85 @@ export default function Chat({ user, params }: { user: User, params: { id: strin
                         <ConversationHeader.Content>
                             {user.username}
                         </ConversationHeader.Content>
+
+                        <ConversationHeader.Actions>
+                            <AddUserButton onClick={async () => {
+                                await courseApi.getAllByTeacher(`${user.id}`, '1').then((data: any) => {
+                                    setCourses(data.data.courses)
+                                }).catch((err: any) => { })
+                                setModal({ ...modal, [`add-group`]: true })
+                            }} />
+                        </ConversationHeader.Actions>
+
+
                     </ConversationHeader>
-                    <Search placeholder="Tìm kiếm..." className="h-10" />
+                    <div className="relative">
+                        <Search placeholder="Tìm kiếm..." className="h-10"
+                            onFocus={() => {
+                                setModal({ ...modal, [`dropdownSearch`]: true })
+                            }}
+                            onBlur={() => {
+                                // Trì hoãn việc tắt dropdown
+                                const timeoutId = setTimeout(() => {
+                                    setModal({ ...modal, [`dropdownSearch`]: false });
+                                }, 100);
+                                setBlurTimeoutId(timeoutId);
+                            }}
+                        />
+                        <div
+                            style={{
+                                boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px'
+                            }}
+                            onMouseDown={() => {
+                                // Hủy bỏ việc tắt dropdown nếu người dùng nhấp vào nó
+                                clearTimeout(blurTimeoutId);
+                            }}
+                            id="dropdownSearch"
+                            className={`${modal['dropdownSearch'] ? "" : "hidden"} absolute top-14 left-4 z-10 w-[90%] bg-white rounded-lg shadow-lg dark:bg-gray-700`}
+                        >
+                            <ul
+                                className="h-auto p-3 overflow-y-auto text-sm text-gray-700 dark:text-gray-200"
+                                aria-labelledby="dropdownSearchButton"
+
+                            >
+                                {
+                                    students ?
+                                        <div className="sidebar py-2 max-h-80 overflow-y-auto">
+                                            {
+                                                students ? students?.map((student: any) => {
+                                                    return (
+                                                        <Link href={`/chat/${uuid()}`} key={student.id} className=" flex items-center justify-between border-slate-200 px-2 py-2 rounded-lg mb-2 hover:bg-slate-100">
+                                                            <div className="flex justify-center items-center">
+                                                                <div className="mr-2">
+                                                                    <Image src={student.avatar ? student.avatar : '/images/avatar.png'} alt="" width={40} height={40} className="rounded-full" />
+                                                                </div>
+                                                                <div className="text-sm">
+                                                                    <div className="font-semibold">
+                                                                        {student.name}
+                                                                    </div>
+                                                                    <div>
+                                                                        {student.email}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </Link>
+                                                    )
+                                                }) : null
+                                            }
+                                        </div> : <p className='text-center'>Không có người dùng</p>
+
+                                }
+
+                            </ul>
+                        </div>
+                    </div>
                     <ExpansionPanel
                         open
                         title="Giáo viên"
                         className=""
                     >
-                        <ConversationList className="">
-                            {conversations.map((c, index) => {
+                        <ConversationList>
+                            {converTeacher.map((c, index) => {
 
                                 // Helper for getting the data of the first participant
                                 const [avatar, name] = (() => {
@@ -204,9 +574,10 @@ export default function Chat({ user, params }: { user: User, params: { id: strin
 
                                     if (participant) {
                                         const user = getUser(participant.id);
+
                                         if (user) {
 
-                                            return [<Avatar key={user.id} src={user.avatar} status="available" />, user.username]
+                                            return [<Avatar key={user.id} src={user.avatar ? user.avatar : '/images/avatar.png'} status="available" />, user.username]
 
                                         }
                                     }
@@ -215,19 +586,20 @@ export default function Chat({ user, params }: { user: User, params: { id: strin
                                 })();
 
                                 return (
-                                    <Link href={`/chat/${c.id}`} key={c.id}>
+                                    <Link href={`/chat/${c.data.id_group}`} key={c.data.id_group}>
                                         <Conversation
                                             name={name}
-                                            lastSenderName={"Bạn"}
-                                            info={"a"}
+                                            lastSenderName={c.data.userLast.lastSenderId === user.id ? "Bạn" : c.data.userLast.lastSenderName}
+                                            info={c.data.userLast.lastMessage}
                                             // info={c.draft ? `Draft: ${c.draft.replace(/<br>/g, "\n").replace(/&nbsp;/g, " ")}` : ""}
                                             active={activeConversation?.id === c.id}
                                             unreadCnt={c.unreadCounter}
-                                            onClick={() => setActiveConversation(c.id)}
+                                            onClick={() => setActiveConversation(c.data.id_group)}
                                         >
                                             {avatar}
                                         </Conversation>
                                     </Link>
+
                                 );
                             })}
                         </ConversationList>
@@ -237,8 +609,9 @@ export default function Chat({ user, params }: { user: User, params: { id: strin
                         title="Học sinh"
                         className=""
                     >
-                        <ConversationList className="">
-                            {conversations.map(c => {
+                        <ConversationList>
+                            {converStudent.map((c, index) => {
+
                                 // Helper for getting the data of the first participant
                                 const [avatar, name] = (() => {
 
@@ -246,9 +619,10 @@ export default function Chat({ user, params }: { user: User, params: { id: strin
 
                                     if (participant) {
                                         const user = getUser(participant.id);
+
                                         if (user) {
 
-                                            return [<Avatar key={user.id} src={user.avatar} status="available" />, user.username]
+                                            return [<Avatar key={user.id} src={user.avatar ? user.avatar : '/images/avatar.png'} status="available" />, user.username]
 
                                         }
                                     }
@@ -256,14 +630,22 @@ export default function Chat({ user, params }: { user: User, params: { id: strin
                                     return [undefined, undefined]
                                 })();
 
-                                return <Conversation key={c.id}
-                                    name={name}
-                                    info={c.draft ? `Draft: ${c.draft.replace(/<br>/g, "\n").replace(/&nbsp;/g, " ")}` : ``}
-                                    active={activeConversation?.id === c.id}
-                                    unreadCnt={c.unreadCounter}
-                                    onClick={() => setActiveConversation(c.id)}>
-                                    {avatar}
-                                </Conversation>
+                                return (
+                                    <Link href={`/chat/${c.data.id_group}`} key={c.data.id_group}>
+                                        <Conversation
+                                            name={name}
+                                            lastSenderName={c.data.userLast.lastSenderId === user.id ? "Bạn" : c.data.userLast.lastSenderName}
+                                            info={c.data.userLast.lastMessage}
+                                            // info={c.draft ? `Draft: ${c.draft.replace(/<br>/g, "\n").replace(/&nbsp;/g, " ")}` : ""}
+                                            active={activeConversation?.id === c.id}
+                                            unreadCnt={c.unreadCounter}
+                                            onClick={() => setActiveConversation(c.data.id_group)}
+                                        >
+                                            {avatar}
+                                        </Conversation>
+                                    </Link>
+
+                                );
                             })}
                         </ConversationList>
                     </ExpansionPanel>
@@ -272,8 +654,9 @@ export default function Chat({ user, params }: { user: User, params: { id: strin
                         title="Nhóm"
                         className=""
                     >
-                        <ConversationList className="">
-                            {conversations.map(c => {
+                        <ConversationList>
+                            {converGroup.map((c, index) => {
+
                                 // Helper for getting the data of the first participant
                                 const [avatar, name] = (() => {
 
@@ -281,9 +664,10 @@ export default function Chat({ user, params }: { user: User, params: { id: strin
 
                                     if (participant) {
                                         const user = getUser(participant.id);
+
                                         if (user) {
 
-                                            return [<Avatar key={user.id} src={user.avatar} status="available" />, user.username]
+                                            return [<Avatar key={user.id} src={user.avatar ? user.avatar : '/images/avatar.png'} status="available" />, user.username]
 
                                         }
                                     }
@@ -291,17 +675,26 @@ export default function Chat({ user, params }: { user: User, params: { id: strin
                                     return [undefined, undefined]
                                 })();
 
-                                return <Conversation key={c.id}
-                                    name={name}
-                                    info={c.draft ? `Draft: ${c.draft.replace(/<br>/g, "\n").replace(/&nbsp;/g, " ")}` : ``}
-                                    active={activeConversation?.id === c.id}
-                                    unreadCnt={c.unreadCounter}
-                                    onClick={() => setActiveConversation(c.id)}>
-                                    {avatar}
-                                </Conversation>
+                                return (
+                                    <Link href={`/chat/${c.data.id_group}`} key={c.data.id_group}>
+                                        <Conversation
+                                            name={name}
+                                            lastSenderName={c.data.userLast.lastSenderId === user.id ? "Bạn" : c.data.userLast.lastSenderName}
+                                            info={c.data.userLast.lastMessage}
+                                            // info={c.draft ? `Draft: ${c.draft.replace(/<br>/g, "\n").replace(/&nbsp;/g, " ")}` : ""}
+                                            active={activeConversation?.id === c.id}
+                                            unreadCnt={c.unreadCounter}
+                                            onClick={() => setActiveConversation(c.data.id_group)}
+                                        >
+                                            {avatar}
+                                        </Conversation>
+                                    </Link>
+
+                                );
                             })}
                         </ConversationList>
                     </ExpansionPanel>
+
 
 
                 </Sidebar>
@@ -311,9 +704,39 @@ export default function Chat({ user, params }: { user: User, params: { id: strin
                         {currentUserAvatar}
                         <ConversationHeader.Content userName={currentUserName} />
                     </ConversationHeader>}
+
+
                     <MessageList typingIndicator={getTypingIndicator()}>
-                        {activeConversation && currentMessages.map((g) => <MessageGroup key={g.id} direction={g.direction}>
-                            {/* <Avatar src={user.avatar} status="available" /> */}
+                        {
+                            hasMore && <div ref={loadingRef} className="w-full flex justify-center items-center py-5">
+                                <Loader className="">
+                                </Loader>
+                            </div>
+                        }
+
+                        {chats?.map((chat: any) => (
+                            <MessageGroup key={chat[0].id} direction={chat[0].direction}>
+                                {chat[0].direction === MessageDirection.Incoming ? <Avatar key="avatar" src={chat[0].avatar ? chat[0].avatar : '/images/avatar.png'} /> || currentUserAvatar : null}
+                                {chat[0].direction === MessageDirection.Incoming ? <MessageGroup.Header>{(<span>{chat[0].name}</span>) || currentUserName} </MessageGroup.Header> : null}
+
+                                <MessageGroup.Messages>
+                                    {chat?.map((m: ChatMessage<MessageContentType>) => (
+                                        <Message key={m.id} model={{
+                                            type: "html",
+                                            payload: m.content,
+                                            direction: m.direction,
+                                            position: "normal",
+                                        }}>
+                                        </Message>
+                                    ))}
+                                </MessageGroup.Messages>
+                            </MessageGroup>
+
+                        ))}
+
+
+                        {/* {activeConversation && currentMessages.map((g) => <MessageGroup key={g.id} direction={g.direction}>
+                            <Avatar src={user.avatar} status="available" />
 
                             <MessageGroup.Messages>
                                 {g.messages.map((m: ChatMessage<MessageContentType>) => (
@@ -327,12 +750,8 @@ export default function Chat({ user, params }: { user: User, params: { id: strin
                                     </Message>
                                 ))}
                             </MessageGroup.Messages>
-                        </MessageGroup>)}
-                        {hasMore && <div className="w-full flex justify-center items-center py-5">
-                            <Loader className="">
-                            </Loader>
-                        </div>
-                        }
+                        </MessageGroup>)} */}
+
 
                     </MessageList>
                     <MessageInput className="mb-2" value={currentMessage} onChange={handleChange} onSend={handleSend} disabled={!activeConversation} attachButton={true} placeholder="Nhập ở đây..." />
