@@ -80,12 +80,14 @@ class MessageController {
                 cutoff = new Date();
             }
 
+            // Thêm phương thức lean() để trả về đối tượng JSON
+            // Vì mongoose trả về đối tượng MongooseDocument nên không thể thao tác với từng phần tử trong mảng được
             const messages = await Message.find({
                 id_group,
                 createdAt: {
                     $lt: cutoff
                 }
-            }).sort({ createdAt: -1 }).limit(scrollSize).exec();
+            }).sort({ createdAt: -1 }).limit(scrollSize).lean().exec();
 
             for (const message of messages) {
                 const student = await this.getUserFromAPI(`${process.env.BASE_URL_USER_LOCAL}/student/${message.author}`);
@@ -140,6 +142,7 @@ class MessageController {
 
             if (body.user) {
                 await Group.create({
+                    id: body.id_group,
                     members: [author, body.user],
                     admins: [author, body.user],
                     lastMessage: body.body,
