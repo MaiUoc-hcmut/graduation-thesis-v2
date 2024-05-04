@@ -13,7 +13,7 @@ const messageSchema = new mongoose.Schema(
         id: {
             type: String,
             default: uuidv4,
-            validate: validateUUID,
+            // validate: validateUUID,
         },
         author: {
             type: String,
@@ -22,7 +22,7 @@ const messageSchema = new mongoose.Schema(
         id_group: {
             type: String,
             ref: 'ChatGroup',
-            validate: validateUUID,
+            // validate: validateUUID,
         },
         body: {
             type: String,

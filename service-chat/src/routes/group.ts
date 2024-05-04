@@ -27,6 +27,9 @@ router.route('/:groupId/remove-users')
     );
 
 router.route('/list')
-    .get(Authorize.verifyUser, GroupController.getGroupsOfUser);
+    .get(
+        Authorize.verifyUser, 
+        GroupController.getGroupsOfUser
+    );
 
 module.exports = router;
