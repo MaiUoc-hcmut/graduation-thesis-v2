@@ -147,18 +147,6 @@ class MessageController {
                     lastSenderName: authorName,
                     individual: true
                 });
-
-                const userOnline = clientConnected.find(o => o.user === body.user);
-                if (userOnline) {
-                    io.to(`${userOnline.socket}`).emit("new_message_created", {
-                        message: body.body,
-                        author: {
-                            id: author,
-                            name: authorName,
-                            avatar: authorAvatar
-                        }
-                    })
-                }
             } else {
                 const group = await Group.findOne({
                     id: id_group
@@ -167,15 +155,6 @@ class MessageController {
                 group.lastSenderId = author;
                 group.lastSenderName = authorName;
                 await group.save();
-
-                io.to(id_group).emit("new_message_created", {
-                    message: body.body,
-                    author: {
-                        id: author,
-                        name: authorName,
-                        avatar: authorAvatar
-                    }
-                });
             }
 
             const message = await Message.create({
@@ -183,6 +162,31 @@ class MessageController {
                 body: body.body,
                 id_group
             });
+
+            if (body.user) {
+                const userOnline = clientConnected.find(o => o.user === body.user);
+                if (userOnline) {
+                    io.to(`${userOnline.socket}`).emit("new_message_created", {
+                        message: body.body,
+                        author: {
+                            id: author,
+                            name: authorName,
+                            avatar: authorAvatar,
+                            id_message: message.id
+                        }
+                    })
+                }
+            } else {
+                io.to(id_group).emit("new_message_created", {
+                    message: body.body,
+                    author: {
+                        id: author,
+                        name: authorName,
+                        avatar: authorAvatar,
+                        id_message: message.id
+                    }
+                });
+            }
 
             res.status(201).json(message);
         } catch (error: any) {
