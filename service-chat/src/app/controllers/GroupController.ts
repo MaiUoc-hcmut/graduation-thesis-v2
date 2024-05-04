@@ -2,6 +2,7 @@ const Message = require('../../db/model/message');
 const Group = require('../../db/model/group');
 
 import { Request, Response, NextFunction } from 'express';
+import { socketInstance } from "../..";
 
 const axios = require('axios');
 
@@ -118,6 +119,9 @@ class GroupController {
     createGroup = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const admins: string[] = [req.user?.user.data.id];
+
+            const io = socketInstance.getIoInstance();
+            const clientConnected = socketInstance.getClientConnected();
 
             let body = req.body.data;
             if (typeof body === "string") {
