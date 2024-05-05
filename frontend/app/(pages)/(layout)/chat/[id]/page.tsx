@@ -124,24 +124,7 @@ export default function ChatBox({ params }: { params: { id: string } }) {
     }, [change]);
 
 
-    converStudent?.forEach((c: any) => {
 
-        userStorage.addUser(new User({
-            id: c.friend.id,
-            presence: new Presence({ status: UserStatus.Available, description: "" }),
-            firstName: "",
-            lastName: "",
-            username: c.friend.name,
-            email: "",
-            avatar: c.friend.avatar,
-            bio: ""
-        }));
-        userStorage.addConversation(createConversation(c.id, c.friend.id, c.friend.name, "student", {
-            lastMessage: c.lastMessage,
-            lastSenderId: c.lastSenderId,
-            lastSenderName: c.lastSenderName
-        }));
-    });
     converTeacher?.forEach((c: any) => {
 
         userStorage.addUser(new User({
@@ -160,8 +143,25 @@ export default function ChatBox({ params }: { params: { id: string } }) {
             lastSenderName: c.lastSenderName
         }));
     });
-    converGroup?.forEach((c: any) => {
+    converStudent?.forEach((c: any) => {
 
+        userStorage.addUser(new User({
+            id: c.friend.id,
+            presence: new Presence({ status: UserStatus.Available, description: "" }),
+            firstName: "",
+            lastName: "",
+            username: c.friend.name,
+            email: "",
+            avatar: c.friend.avatar,
+            bio: ""
+        }));
+        userStorage.addConversation(createConversation(c.id, c.friend.id, c.friend.name, "student", {
+            lastMessage: c.lastMessage,
+            lastSenderId: c.lastSenderId,
+            lastSenderName: c.lastSenderName
+        }));
+    });
+    converGroup?.forEach((c: any) => {
         userStorage.addUser(new User({
             id: c.id,
             presence: new Presence({ status: UserStatus.Available, description: "" }),
@@ -172,12 +172,15 @@ export default function ChatBox({ params }: { params: { id: string } }) {
             avatar: "/images/avatar-group.jpg",
             bio: ""
         }));
+
         userStorage.addConversation(createConversation(c.id, c.id, c.name, "group", {
             lastMessage: c.lastMessage,
             lastSenderId: c.lastSenderId,
             lastSenderName: c.lastSenderName
         }));
     });
+
+    console.log(userStorage);
 
     const userCurrent = new User({
         id: `${user.id}`,
@@ -197,7 +200,8 @@ export default function ChatBox({ params }: { params: { id: string } }) {
                             debounceTyping: true,
                             autoDraft: AutoDraft.Save | AutoDraft.Restore
                         }}>
-                            <Chat user={userCurrent} params={params} change={change} setChange={setChange} />
+                            <Chat user={userCurrent} params={params} change={change} setChange={setChange} createConversation={createConversation}
+                                userStorage={userStorage} />
                         </ChatProvider>
                     </div>
 

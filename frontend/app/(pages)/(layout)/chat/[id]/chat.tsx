@@ -9,7 +9,9 @@ import {
     ChatMessage,
     MessageContentType,
     MessageDirection,
-    MessageStatus
+    MessageStatus,
+    Presence,
+    UserStatus
 } from "@chatscope/use-chat";
 import { MessageContent, TextContent, User } from "@chatscope/use-chat";
 import chatApi from "@/app/api/chatApi";
@@ -26,8 +28,9 @@ import { io } from "socket.io-client";
 import { useSocket } from "@/app/socket/SocketProvider";
 import { Bounce, ToastContainer, toast } from "react-toastify";
 import uuid from "react-uuid";
+import userApi from "@/app/api/userApi";
 
-export default function Chat({ user, params, change, setChange }: { user: User, params: { id: string }, change: any, setChange: any }) {
+export default function Chat({ user, params, change, setChange, userStorage, createConversation }: any) {
     const socket = useSocket();
 
     const [lastMessage, setLastMessage] = useState('');
@@ -41,6 +44,7 @@ export default function Chat({ user, params, change, setChange }: { user: User, 
     const [isAllStudent, setIsAllStudent] = useState(true)
     const [courses, setCourses] = useState<any>()
     const [students, setStudents] = useState<any>()
+    const [users, setUsers] = useState<any>([])
     const [messages, setMessages] = useState<any>([]);
     const [blurTimeoutId, setBlurTimeoutId] = useState<any>(null);
     useEffect(() => {
@@ -77,7 +81,9 @@ export default function Chat({ user, params, change, setChange }: { user: User, 
                     setMessages((prevMessages: any) => [...prevMessages, ...res.data]);
                     setLastMessage(res.data[res.data.length - 1]);
                 }
-            }).catch((err) => { })
+            }).catch((err) => {
+                setHasMore(false);
+            })
         }
     };
 
@@ -116,9 +122,7 @@ export default function Chat({ user, params, change, setChange }: { user: User, 
         currentMessages, conversations, activeConversation, setActiveConversation, sendMessage, getUser, currentMessage, setCurrentMessage,
         sendTyping, setCurrentUser
     } = useChat();
-    const converStudent = conversations.filter((c) => c.data.type === "student");
-    const converTeacher = conversations.filter((c) => c.data.type === "teacher");
-    const converGroup = conversations.filter((c) => c.data.type === "group");
+
     const {
         register,
         reset,
@@ -155,7 +159,9 @@ export default function Chat({ user, params, change, setChange }: { user: User, 
         setActiveConversation(params.id);
     }, [params.id, setActiveConversation]);
 
-
+    const converStudent = conversations.filter((c) => c.data.type === "student");
+    const converTeacher = conversations.filter((c) => c.data.type === "teacher");
+    const converGroup = conversations.filter((c) => c.data.type === "group");
 
     // Get current user data
     const [currentUserAvatar, currentUserName] = useMemo(() => {
@@ -211,24 +217,20 @@ export default function Chat({ user, params, change, setChange }: { user: User, 
                 conversationId: activeConversation.id,
                 senderId: user.id,
             });
-
-            chatApi.createMessage({
+            const formData = !activeConversation.data?.userLast?.lastSenderId ? {
                 data: {
-                    // id_group: activeConversation.id,
-                    id_group: uuid(),
-                    user: "847dabbe-af39-4195-87cf-f7a2a6b78162",
+                    id_group: activeConversation.id,
+                    user: activeConversation.participants[0]?.id,
                     body: text
                 }
-            }).then((res) => {
+            } : {
+                data: {
+                    id_group: activeConversation.id,
+                    body: text
+                }
+            }
+            chatApi.createMessage(formData).then((res) => {
                 const data = res.data
-                // const newMessage = new ChatMessage({
-                //     id: data.id,
-                //     content: data.body as unknown as MessageContent<TextContent>,
-                //     contentType: MessageContentType.TextHtml,
-                //     senderId: data.author,
-                //     direction: MessageDirection.Outgoing,
-                //     status: MessageStatus.Sent
-                // });
 
                 setMessages((prev: any) => [data, ...prev]);
             }).catch(() => { });
@@ -282,7 +284,8 @@ export default function Chat({ user, params, change, setChange }: { user: User, 
     }
 
     // console.log(listStudent);
-    console.log(chats);
+    // console.log(chats);
+    // console.log(conversations, activeConversation);
 
 
     return (
@@ -481,7 +484,7 @@ export default function Chat({ user, params, change, setChange }: { user: User, 
                 </Modal>
             </>
             <MainContainer responsive className="">
-                <Sidebar position="left" scrollable className="">
+                <Sidebar position="left" scrollable={!modal['dropdownSearch']} className="">
                     <ConversationHeader style={{ backgroundColor: "#fff" }}>
                         <Avatar src={user.avatar} status="available" />
                         <ConversationHeader.Content>
@@ -503,13 +506,19 @@ export default function Chat({ user, params, change, setChange }: { user: User, 
                         <Search placeholder="Tìm kiếm..." className="h-10"
                             onFocus={() => {
                                 setModal({ ...modal, [`dropdownSearch`]: true })
+
                             }}
                             onBlur={() => {
                                 // Trì hoãn việc tắt dropdown
                                 const timeoutId = setTimeout(() => {
                                     setModal({ ...modal, [`dropdownSearch`]: false });
-                                }, 100);
+                                }, 300);
                                 setBlurTimeoutId(timeoutId);
+                            }}
+                            onChange={(value: any) => {
+                                userApi.searchUser(value).then((data: any) => {
+                                    setUsers(data.data)
+                                }).catch((err: any) => { })
                             }}
                         />
                         <div
@@ -521,7 +530,7 @@ export default function Chat({ user, params, change, setChange }: { user: User, 
                                 clearTimeout(blurTimeoutId);
                             }}
                             id="dropdownSearch"
-                            className={`${modal['dropdownSearch'] ? "" : "hidden"} absolute top-14 left-4 z-10 w-[90%] bg-white rounded-lg shadow-lg dark:bg-gray-700`}
+                            className={`${modal['dropdownSearch'] ? "" : "hidden"} absolute top-14 left-4 z-10 w-[90%] overflow-auto bg-white rounded-lg shadow-lg dark:bg-gray-700`}
                         >
                             <ul
                                 className="h-auto p-3 overflow-y-auto text-sm text-gray-700 dark:text-gray-200"
@@ -529,12 +538,25 @@ export default function Chat({ user, params, change, setChange }: { user: User, 
 
                             >
                                 {
-                                    students ?
-                                        <div className="sidebar py-2 max-h-80 overflow-y-auto">
+                                    users?.length != 0 ?
+                                        <div className="sidebar py-2 max-h-80 overflow-auto">
                                             {
-                                                students ? students?.map((student: any) => {
+                                                users ? users?.map((student: any) => {
+                                                    const tempId = uuid()
                                                     return (
-                                                        <Link href={`/chat/${uuid()}`} key={student.id} className=" flex items-center justify-between border-slate-200 px-2 py-2 rounded-lg mb-2 hover:bg-slate-100">
+                                                        <Link onClick={() => {
+                                                            userStorage.addUser(new User({
+                                                                id: student.id,
+                                                                presence: new Presence({ status: UserStatus.Available, description: "" }),
+                                                                firstName: "",
+                                                                lastName: "",
+                                                                username: student.name,
+                                                                email: "",
+                                                                avatar: `${student.avatar ? student.avatar : '/images/avatar.png'}`,
+                                                                bio: ""
+                                                            }));
+                                                            userStorage.addConversation(createConversation(tempId, student.id, student.name, "student", {}));
+                                                        }} href={`/chat/${tempId}`} key={student.id} className=" flex items-center justify-between border-slate-200 px-2 py-2 rounded-lg mb-2 hover:bg-slate-100">
                                                             <div className="flex justify-center items-center">
                                                                 <div className="mr-2">
                                                                     <Image src={student.avatar ? student.avatar : '/images/avatar.png'} alt="" width={40} height={40} className="rounded-full" />

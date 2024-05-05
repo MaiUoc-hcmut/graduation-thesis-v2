@@ -2,7 +2,9 @@ const mongoose = require('mongoose');
 const { v4: uuidv4, validate: uuidValidate } = require('uuid');
 
 const validateUUID = {
-    validator: function(v: string) {
+    validator: function (v: string) {
+        console.log(v);
+
         return uuidValidate(v);
     },
     message: "Id must be valid UUID!"
@@ -13,7 +15,7 @@ const groupSchema = new mongoose.Schema(
         id: {
             type: String,
             default: uuidv4,
-            validate: validateUUID
+            // validator: validateUUID
         },
         lastMessage: {
             type: String,
@@ -35,8 +37,8 @@ const groupSchema = new mongoose.Schema(
             type: Boolean,
         }
     }, {
-        timestamps: true,
-    }
+    timestamps: true,
+}
 );
 
 groupSchema.virtual('messages', {

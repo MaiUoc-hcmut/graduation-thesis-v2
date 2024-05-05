@@ -35,7 +35,11 @@ const userApi = {
 
         await axiosConfig.put(url, data);
         return
-    }
+    },
+    searchUser: (query: string) => {
+        const url = `/commons/search?query=${query}`;
+        return axiosConfig.get(url);
+    },
 }
 
 export default userApi;

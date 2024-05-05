@@ -30,12 +30,7 @@ export default function HeaderTeacher() {
     const loadingRef = useRef(null);;
     const [hasMore, setHasMore] = useState(true);
     const [conversations, setConversations] = useState<any>([]);
-    useEffect(() => {
-        chatApi.getGroupOfUser().then((res: any) => {
-            const data = res.data.teacher.concat(res.data.student.concat(res.data.mix));
-            setConversations(data);
-        }).catch((err) => { });
-    }, []);
+
 
 
 
@@ -158,11 +153,12 @@ export default function HeaderTeacher() {
                                         className="relative flex justify-center items-center text-sm font-medium text-center text-gray-500 hover:text-gray-600 focus:outline-none dark:hover:text-white dark:text-gray-400"
                                         type="button"
                                         onClick={async () => {
-                                            // if (user) {
-                                            //     await notifyApi.getNotify(`${user.id}`, '1').then((data) => {
-                                            //         setNotifycations(data.data.notifications)
-                                            //     }).catch((err: any) => { })
-                                            // }
+                                            if (user) {
+                                                chatApi.getGroupOfUser().then((res: any) => {
+                                                    const data = res.data.teacher.concat(res.data.student.concat(res.data.mix));
+                                                    setConversations(data);
+                                                }).catch((err) => { });
+                                            }
                                         }}
                                     >
                                         <ChatBubbleLeftIcon className='w-6 h-6' />
@@ -202,7 +198,7 @@ export default function HeaderTeacher() {
                                         <div className="block px-4 py-2 font-medium text-center text-gray-700 rounded-t-lg bg-gray-50 dark:bg-gray-800 dark:text-white">
                                             Thông báo
                                         </div>
-                                        <div className="divide-y divide-gray-100 overflow-y-scroll h-[400px]">
+                                        <div className="divide-y divide-gray-100 overflow-y-scroll max-h-[400px]">
                                             {
                                                 notifycations?.map((notify: any, index: any) => {
                                                     switch (notify.type) {

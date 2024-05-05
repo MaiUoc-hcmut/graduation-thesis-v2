@@ -7,14 +7,15 @@ import { signout } from '@/redux/features/authSlice';
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import { useDispatch } from "react-redux";
 import { useRouter, useSearchParams } from 'next/navigation'
-import { BellIcon } from "@heroicons/react/24/solid"
+import { BellIcon, ChatBubbleLeftIcon } from "@heroicons/react/24/solid"
 import { InformationCircleIcon } from "@heroicons/react/24/outline"
 import io from "socket.io-client";
 import { useEffect, useRef, useState } from 'react';
 import notifyApi from '@/app/api/notifyApi';
 import { convertToVietnamTime } from '@/app/helper/FormatFunction';
 import { initFlowbite } from 'flowbite';
-
+import MessageBox from '../MessageBox/MessageBox';
+import chatApi from '@/app/api/chatApi';
 
 export default function HeaderStudent() {
     const dispatch = useDispatch<AppDispatch>();
@@ -26,7 +27,7 @@ export default function HeaderStudent() {
     const [page, setPage] = useState(1);
     const loadingRef = useRef(null);;
     const [hasMore, setHasMore] = useState(true);
-
+    const [conversations, setConversations] = useState<any>([]);
 
     const fetchNotifications = async (pageNum: number) => {
         // Fetch notifications from API here
@@ -131,8 +132,29 @@ export default function HeaderStudent() {
                     {
                         user.id != 0 ?
                             <div className="flex items-center lg:order-2">
-
                                 <div className='mr-3'>
+                                    <button
+                                        id="dropdownChatButton"
+                                        data-dropdown-toggle="dropdownChat"
+                                        className="relative flex justify-center items-center text-sm font-medium text-center text-gray-500 hover:text-gray-600 focus:outline-none dark:hover:text-white dark:text-gray-400"
+                                        type="button"
+                                        onClick={async () => {
+                                            if (user) {
+                                                chatApi.getGroupOfUser().then((res: any) => {
+                                                    const data = res.data.teacher.concat(res.data.student.concat(res.data.mix));
+                                                    setConversations(data);
+                                                }).catch((err) => { });
+                                            }
+                                        }}
+                                    >
+                                        <ChatBubbleLeftIcon className='w-6 h-6' />
+                                        <div className="absolute block w-3 h-3 bg-red-500 border-2 border-white rounded-full -top-0 start-3 dark:border-gray-900" />
+                                    </button>
+                                    {/* Dropdown menu */}
+                                    <MessageBox conversations={conversations} user={user} />
+                                </div>
+
+                                <div className='mr-5'>
                                     <button
                                         id="dropdownNotificationButton"
                                         data-dropdown-toggle="dropdownNotification"
@@ -158,7 +180,7 @@ export default function HeaderStudent() {
                                         <div className="block px-4 py-2 font-medium text-center text-gray-700 rounded-t-lg bg-gray-50 dark:bg-gray-800 dark:text-white">
                                             Thông báo
                                         </div>
-                                        <div className="divide-y divide-gray-100 overflow-y-scroll h-[400px]">
+                                        <div className="divide-y divide-gray-100overflow-y-scroll max-h-[400px]">
                                             {
                                                 notifycations?.map((notify: any, index: any) => {
                                                     return (

@@ -15,7 +15,7 @@ export default function MessageBox({ conversations, user }: any) {
             <div className="block px-4 py-2 font-medium text-center text-gray-700 rounded-t-lg bg-gray-50 dark:bg-gray-800 dark:text-white">
                 Tin nhắn
             </div>
-            <div className="divide-y divide-gray-100 dark:divide-gray-700">
+            <div className="divide-y divide-gray-100 dark:divide-gray-700 overflow-y-scroll max-h-[400px]">
                 {
                     conversations?.map((conversation: any) => {
                         return (
@@ -26,7 +26,7 @@ export default function MessageBox({ conversations, user }: any) {
                             >
                                 <div className="flex-shrink-0 mt-1">
                                     <Image
-                                        src="/images/avatar.png"
+                                        src={`${conversation.friend ? (conversation.friend.avatar ? conversation.friend.avatar : "/images/avatar.png") : '/images/avatar-group.jpg'} `}
                                         width={24}
                                         height={24}
                                         className="w-11 h-11 rounded-full"
@@ -39,7 +39,7 @@ export default function MessageBox({ conversations, user }: any) {
 
                                         <span className="font-semibold text-sm text-gray-900 dark:text-white">
                                             {
-                                                conversation.name
+                                                conversation.name || conversation.friend?.name
                                             }
                                         </span>
                                         {/* <span className="ml-1 inline-block rounded-full bg-red-500 h-2 w-2"></span> */}
@@ -48,7 +48,7 @@ export default function MessageBox({ conversations, user }: any) {
 
                                         <span className='mr-1'>
                                             {
-                                                conversation.lastSenderId === user.id ? "Bạn:" : `${conversation.lastSenderName || "Không có tin nhắn"}`
+                                                conversation.lastSenderId === user.id || conversation.friend?.id === user.id ? "Bạn:" : `${`${conversation.lastSenderName}:` || "Không có tin nhắn"}`
                                             }
                                         </span>
 
