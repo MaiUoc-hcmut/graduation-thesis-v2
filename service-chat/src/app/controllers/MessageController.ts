@@ -173,13 +173,14 @@ class MessageController {
                 if (userOnline) {
                     io.to(`${userOnline.socket}`).emit("new_individual_group_created", {
                         id_group,
-                        friend: {
-                            id_user: author,
+                        author: {
+                            id: author,
                             role: authorRole,
                             name: authorName,
                             avatar: authorAvatar,
+                            id_message: message.id
                         },
-                        first_message: body.body
+                        message: body.body
                     });
                 }
                 if (senderOnline) {
