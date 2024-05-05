@@ -187,7 +187,14 @@ class MessageController {
                 if (senderOnline) {
                     io.to(`${senderOnline.socket}`).emit("new_individual_group_created", {
                         id_group,
-                        first_message: body.body
+                        author: {
+                            id: author,
+                            role: authorRole,
+                            name: authorName,
+                            avatar: authorAvatar,
+                            id_message: message.id
+                        },
+                        message: body.body
                     });
                 }
             } else {
