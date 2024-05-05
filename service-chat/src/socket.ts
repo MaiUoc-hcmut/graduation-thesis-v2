@@ -64,6 +64,10 @@ export class SOCKETIO {
                 socket.join(`${id_group}`);
             });
 
+            socket.on("join_individual_group", async (data) => {
+                socket.join(`${data.id_group}`);
+            });
+
             socket.on("disconnect", () => {
                 console.log(`User disconnected: ${socket.id}`);
                 this.clientConnected = this.clientConnected.filter(obj => obj.socket !== socket.id);

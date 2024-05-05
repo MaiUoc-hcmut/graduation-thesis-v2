@@ -41,6 +41,7 @@ class GroupController {
     getGroupsOfUser = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_user = req.user?.user.data.id;
+            console.log(id_user);
             const groups = await Group.aggregate([
                 {
                     $match: {
