@@ -129,6 +129,7 @@ class MessageController {
             const author = req.user?.user.data.id;
             const authorName = req.user?.user.data.name;
             const authorAvatar = req.user?.user.data.avatar;
+            const authorRole = req.user?.role;
 
             const io = socketInstance.getIoInstance();
             const clientConnected = socketInstance.getClientConnected();
@@ -169,20 +170,29 @@ class MessageController {
 
             if (body.user) {
                 const userOnline = clientConnected.find(o => o.user === body.user);
+                const senderOnline = clientConnected.find(o => o.user === author);
                 if (userOnline) {
-                    io.to(`${userOnline.socket}`).emit("new_message_created", {
-                        message: body.body,
-                        author: {
-                            id: author,
+                    io.to(`${userOnline.socket}`).emit("new_individual_group_created", {
+                        id_group,
+                        friend: {
+                            id_user: author,
+                            role: authorRole,
                             name: authorName,
                             avatar: authorAvatar,
-                            id_message: message.id
-                        }
-                    })
+                        },
+                        first_message: body.body
+                    });
+                }
+                if (senderOnline) {
+                    io.to(`${senderOnline.socket}`).emit("new_individual_group_created", {
+                        id_group,
+                        first_message: body.body
+                    });
                 }
             } else {
                 io.to(id_group).emit("new_message_created", {
                     message: body.body,
+                    id_group,
                     author: {
                         id: author,
                         name: authorName,
