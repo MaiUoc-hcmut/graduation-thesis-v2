@@ -2,7 +2,7 @@
 
 import { useMemo, useCallback } from "react";
 
-import { MainContainer, Sidebar, ConversationList, Conversation, Avatar, ChatContainer, ConversationHeader, MessageGroup, Message, MessageList, MessageInput, TypingIndicator, Status, ExpansionPanel, Search, Loader, AddUserButton } from "@chatscope/chat-ui-kit-react";
+import { MainContainer, Sidebar, ConversationList, Conversation, Avatar, ChatContainer, ConversationHeader, MessageGroup, Message, MessageList, MessageInput, TypingIndicator, Status, ExpansionPanel, Search, Loader, AddUserButton, EllipsisButton } from "@chatscope/chat-ui-kit-react";
 
 import {
     useChat,
@@ -15,7 +15,6 @@ import {
 } from "@chatscope/use-chat";
 import { MessageContent, TextContent, User } from "@chatscope/use-chat";
 import chatApi from "@/app/api/chatApi";
-import { group } from "console";
 import Link from "next/link";
 import { useEffect, useRef, useState } from 'react';
 
@@ -24,7 +23,6 @@ import { set, useForm } from "react-hook-form";
 import React from "react";
 import courseApi from "@/app/api/courseApi";
 import Image from "next/image";
-import { io } from "socket.io-client";
 import { useSocket } from "@/app/socket/SocketProvider";
 import { Bounce, ToastContainer, toast } from "react-toastify";
 import uuid from "react-uuid";
@@ -49,6 +47,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
     const [blurTimeoutId, setBlurTimeoutId] = useState<any>(null);
     useEffect(() => {
         socket?.on("new_message_created", (data: any) => {
+
             if (user.id !== data.author.id) {
                 const audio = new Audio("/audio/audio-notification.mp3");
                 audio.play();
@@ -58,6 +57,25 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                 return
             }
         })
+
+
+        socket?.on("new_individual_group_created", (data: any) => {
+            console.log(data);
+
+            socket.emit("join_group", {
+                id_group: data.id_group,
+            })
+
+            // if (user.id !== data.author.id) {
+            //     const audio = new Audio("/audio/audio-notification.mp3");
+            //     audio.play();
+            //     setMessages((prev: any) => [data, ...prev]);
+            // }
+            // else {
+            //     return
+            // }
+        })
+
 
         return () => {
             if (socket) {
@@ -120,8 +138,11 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
     // Get all chat related values and methods from useChat hook 
     const {
         currentMessages, conversations, activeConversation, setActiveConversation, sendMessage, getUser, currentMessage, setCurrentMessage,
-        sendTyping, setCurrentUser
+        sendTyping, setCurrentUser, getConversation
     } = useChat();
+    console.log(getConversation(params.id))
+
+
 
     const {
         register,
@@ -199,7 +220,6 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
 
     }
 
-
     const handleSend = (text: string) => {
 
         const message = new ChatMessage({
@@ -217,7 +237,8 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                 conversationId: activeConversation.id,
                 senderId: user.id,
             });
-            const formData = !activeConversation.data?.userLast?.lastSenderId ? {
+
+            const formData = activeConversation.data?.userLast?.type === "temp" ? {
                 data: {
                     id_group: activeConversation.id,
                     user: activeConversation.participants[0]?.id,
@@ -231,6 +252,11 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
             }
             chatApi.createMessage(formData).then((res) => {
                 const data = res.data
+                activeConversation.data.userLast = {
+                    lastSenderId: user.id,
+                    lastSenderName: user.username,
+                    lastMessage: text
+                }
 
                 setMessages((prev: any) => [data, ...prev]);
             }).catch(() => { });
@@ -308,7 +334,6 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                                 }
                             }
 
-
                             await chatApi.createGroup(dataForm).then(() => {
                                 setChange(!change)
                                 setModal({ ...modal, [`add-group`]: false })
@@ -324,6 +349,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                                     theme: "light",
                                     transition: Bounce,
                                 });
+
                             }).catch((err: any) => { })
                         })}>
                             <h3 className="text-xl font-medium text-gray-900 dark:text-white">Thêm nhóm</h3>
@@ -541,32 +567,32 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                                     users?.length != 0 ?
                                         <div className="sidebar py-2 max-h-80 overflow-auto">
                                             {
-                                                users ? users?.map((student: any) => {
+                                                users ? users?.map((user: any) => {
                                                     const tempId = uuid()
                                                     return (
                                                         <Link onClick={() => {
                                                             userStorage.addUser(new User({
-                                                                id: student.id,
+                                                                id: user.id,
                                                                 presence: new Presence({ status: UserStatus.Available, description: "" }),
                                                                 firstName: "",
                                                                 lastName: "",
-                                                                username: student.name,
+                                                                username: user.name,
                                                                 email: "",
-                                                                avatar: `${student.avatar ? student.avatar : '/images/avatar.png'}`,
+                                                                avatar: `${user.avatar ? user.avatar : '/images/avatar.png'}`,
                                                                 bio: ""
                                                             }));
-                                                            userStorage.addConversation(createConversation(tempId, student.id, student.name, "student", {}));
-                                                        }} href={`/chat/${tempId}`} key={student.id} className=" flex items-center justify-between border-slate-200 px-2 py-2 rounded-lg mb-2 hover:bg-slate-100">
+                                                            userStorage.addConversation(createConversation(tempId, user.id, user.name, user.role, { type: "temp" }));
+                                                        }} href={`/chat/${tempId}`} key={user.id} className=" flex items-center justify-between border-slate-200 px-2 py-2 rounded-lg mb-2 hover:bg-slate-100">
                                                             <div className="flex justify-center items-center">
                                                                 <div className="mr-2">
-                                                                    <Image src={student.avatar ? student.avatar : '/images/avatar.png'} alt="" width={40} height={40} className="rounded-full" />
+                                                                    <Image src={user.avatar ? user.avatar : '/images/avatar.png'} alt="" width={40} height={40} className="rounded-full" />
                                                                 </div>
                                                                 <div className="text-sm">
                                                                     <div className="font-semibold">
-                                                                        {student.name}
+                                                                        {user.name}
                                                                     </div>
                                                                     <div>
-                                                                        {student.email}
+                                                                        {user.email}
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -725,6 +751,12 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                     {activeConversation && <ConversationHeader>
                         {currentUserAvatar}
                         <ConversationHeader.Content userName={currentUserName} />
+                        <ConversationHeader.Actions>
+                            <EllipsisButton orientation="vertical" />
+                        </ConversationHeader.Actions>
+
+
+
                     </ConversationHeader>}
 
 

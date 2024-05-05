@@ -54,6 +54,17 @@ exports.protectedAPI = (req: Request, res: Response, next: NextFunction) => {
     })(req, res, next);
 };
 
+exports.verifyStudent = (req: Request, res: Response, next: NextFunction) => {
+    passportStudent.authenticate('student-jwt', { session: false }, (err: any, student: any) => {
+        if (err || !student) {
+            return next()
+        } else {
+            req.student = student;
+            next();
+        }
+    })(req, res, next);
+}
+
 
 // to authenticate user with username and password
 const localStudentConfig = {

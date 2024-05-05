@@ -57,6 +57,20 @@ exports.protectedAPI = (req: Request, res: Response, next: NextFunction) => {
     })(req, res, next);
 };
 
+exports.verifyTeacher = (req: Request, res: Response, next: NextFunction) => {
+    passportTeacher.authenticate('teacher-jwt', { session: false }, (err: any, teacher: any) => {
+        if (req.student) {
+            return next();
+        }
+        else if (err || !teacher) {
+            return next(createError.Unauthorized("Token is invalid!"))
+        } else {
+            req.teacher = teacher;
+            next();
+        }
+    })(req, res, next);
+}
+
 
 
 // to authenticate user with username and password

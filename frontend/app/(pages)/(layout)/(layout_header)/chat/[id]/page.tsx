@@ -143,6 +143,7 @@ export default function ChatBox({ params }: { params: { id: string } }) {
             lastSenderName: c.lastSenderName
         }));
     });
+
     converStudent?.forEach((c: any) => {
 
         userStorage.addUser(new User({
@@ -180,7 +181,6 @@ export default function ChatBox({ params }: { params: { id: string } }) {
         }));
     });
 
-    console.log(userStorage);
 
     const userCurrent = new User({
         id: `${user.id}`,
