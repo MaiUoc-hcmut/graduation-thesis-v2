@@ -154,6 +154,7 @@ class GroupController {
                 if (memberOnline) {
                     io.to(`${memberOnline.socket}`).emit("new_group_created", {
                         id_group: group.id,
+                        group_name: name,
                         admin: req.user?.user.data.id
                     });
                 }
