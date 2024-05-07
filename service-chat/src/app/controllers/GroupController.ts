@@ -152,7 +152,10 @@ class GroupController {
             for (const member of members) {
                 const memberOnline = clientConnected.find(o => o.user === member);
                 if (memberOnline) {
-                    io.to(`${memberOnline.socket}`).emit("new_group_created", group.id);
+                    io.to(`${memberOnline.socket}`).emit("new_group_created", {
+                        id_group: group.id,
+                        admin: req.user?.user.data.id
+                    });
                 }
             }
 

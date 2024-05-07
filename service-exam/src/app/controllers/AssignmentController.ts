@@ -1079,18 +1079,20 @@ class AssignmentController {
                 }
             }
 
-            try {
-                const data = {
-                    id_assignment,
-                    exam_name: exam.title,
-                    id_course: exam.id_course,
-                    teacher_name,
-                    id_student: assignment.id_student
+            if (type === "draft") {
+                try {
+                    const data = {
+                        id_assignment,
+                        exam_name: exam.title,
+                        id_course: exam.id_course,
+                        teacher_name,
+                        id_student: assignment.id_student
+                    }
+                    const response = await axios.post(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/comment-on-assignment`, { data });
+                    console.log(response.data);
+                } catch (error: any) {
+                    console.log(error.message);
                 }
-                const response = await axios.post(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/comment-on-assignment`, { data });
-                console.log(response.data);
-            } catch (error: any) {
-                console.log(error.message);
             }
 
             await t.commit();
