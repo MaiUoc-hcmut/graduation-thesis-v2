@@ -380,6 +380,10 @@ class ExamController {
 
             exam.dataValues.classification = knowledges;
 
+            const topic = await axios.get(`${process.env.BASE_URL_COURSE_LOCAL}/topics/check/exam/${exam.id}`);
+
+            exam.dataValues.id_topic = topic.data.id_topic;
+
             res.status(200).json(exam);
         } catch (error: any) {
             console.log(error.message);

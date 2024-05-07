@@ -65,6 +65,32 @@ class TopicController {
         }
     }
 
+    // [GET] /topics/check/exam/:examId
+    getTopicByExam = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const id_exam = req.params.examId;
+
+            const topic = await Topic.findOne({
+                where: {
+                    id_exam
+                }
+            });
+
+            if (!topic) {
+                return res.status(200).json({
+                    id_topic: null
+                });
+            }
+
+            res.status(200).json({
+                id_topic: topic.id
+            });
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).send(error.message);
+        }
+    }
+
     // [POST] /topics
     createTopic = async (req: Request, res: Response, _next: NextFunction) => {
         try {

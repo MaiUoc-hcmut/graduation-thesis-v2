@@ -8,6 +8,9 @@ router.route('/')
     .get(topicController.getAllTopics)
     // .post(fileUpload.uploadCourseFiles, topicController.uploadTopicVideo, topicController.createTopic);
 
+router.route('/check/exam/:examId')
+    .get(topicController.getTopicByExam);
+
 router.route('/:topicId')
     .get(topicController.getTopicById)
     .put(topicController.updateTopic)
