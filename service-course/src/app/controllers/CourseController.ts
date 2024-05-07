@@ -840,14 +840,25 @@ class CourseController {
             }
 
             try {
+                const teacher = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${course.id_teacher}`);
                 const data = {
-                    members: [course.id_teacher],
-                    individual: true
+                    type: "system",
+                    members: [id_student, course.id_teacher],
+                    sender: {
+                        id: course.id_teacher,
+                        role: "teacher",
+                        name: teacher.data.name,
+                        avatar: teacher.data.avatar
+                    },
+                    receiver: {
+                        id: id_student,
+                        role: "student",
+                    },
+                    body: `Xin chào, cảm ơn em đã mua khóa học ${course.name}. Nếu em cần giúp đỡ hay có các câu hỏi liên quan đến khóa học, hãy liên hệ với thầy nhé.`,
+                    key: `${process.env.SECRET_KEY_FOR_CREATE_MESSAGE_BY_SYSTEM}`
                 }
-                const headers = {
-                    'Authorization': req.headers.authorization
-                }
-                const group = await axios.post(`${process.env.BASE_URL_CHAT_LOCAL}/groups`, { data }, { headers });
+
+                const message = await axios.post(`${process.env.BASE_URL_CHAT_LOCAL}/messages/system`, { data });
             } catch (error) {
                 error_message.push(
                     "Fail to create a group chat with teacher who own this course! Maybe some error on chat service or you and this teacher already have a group chat!"
