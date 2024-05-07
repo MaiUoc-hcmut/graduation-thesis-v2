@@ -10,7 +10,7 @@ router.route('/')
         Authorize.verifyUser, 
         CheckingGroup.checkCreateGroup,
         GroupController.createGroup
-    )
+    );
 
 router.route('/:groupId/add-new-users')
     .put(

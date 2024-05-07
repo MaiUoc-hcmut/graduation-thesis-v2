@@ -22,8 +22,17 @@ class CheckingGroup {
                 body = JSON.parse(body);
             }
 
-            const { name, members, individual } = body;
-            if (!name) {
+            const author = req.user?.user.data.id;
+
+            let { name, members, individual } = body;
+            
+            individual = (individual === undefined || individual === "") ? true : individual;
+            if (members.length > 1 && individual) {
+                let error = "If group have at least 3 members, this group is not individual group!";
+                return next(createError.BadRequest(error));
+            }
+
+            if (!name && !individual) {
                 let error = "Group must have a name!";
                 return next(createError.BadRequest(error));
             }
@@ -31,6 +40,20 @@ class CheckingGroup {
             if (!members || members.length === 0) {
                 let error = "You can not create a group with just you a member!";
                 return next(createError.BadRequest(error));
+            }
+
+            if (individual) {
+                const friend = members[0];
+                const group = await Group.findOne({
+                    individual: true,
+                    members: {
+                        $all: [author, friend]
+                    }
+                });
+                if (group) {
+                    let error = "You and this user already have group chat!";
+                    return next(createError.BadRequest(error));
+                }
             }
 
             for (const user of members) {

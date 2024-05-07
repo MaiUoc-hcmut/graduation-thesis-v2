@@ -1030,6 +1030,8 @@ class AssignmentController {
             const assignment = await Assignment.findByPk(id_assignment);
             const exam = await Exam.findByPk(assignment.id_exam);
 
+            let message = "";
+
             if (type === "draft") {
                 await assignment.update({
                     draft: comment,
@@ -1037,6 +1039,8 @@ class AssignmentController {
                 }, {
                     transaction: t
                 });
+
+                message = "Draft saved!";
             } else {
                 await assignment.update({
                     comment,
@@ -1045,6 +1049,7 @@ class AssignmentController {
                 }, {
                     transaction: t
                 });
+                message = "You just commented on the assignment!";
             }
         
 
@@ -1092,7 +1097,7 @@ class AssignmentController {
 
             res.status(200).json({
                 success: true,
-                message: "You just commented on the assignment!"
+                message
             });
         } catch (error: any) {
             console.log(error.message);
