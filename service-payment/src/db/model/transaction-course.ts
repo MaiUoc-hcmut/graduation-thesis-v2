@@ -17,8 +17,17 @@ TransactionCourse.init({
     id_transaction: {
         type: DataTypes.UUID
     },
+    id_teacher: {
+        type: DataTypes.UUID
+    },
     id_course: {
         type: DataTypes.UUID
+    },
+    id_combo_exam: {
+        type: DataTypes.UUID
+    },
+    price: {
+        type: DataTypes.INTEGER.UNSIGNED
     }
 }, {
     sequelize,

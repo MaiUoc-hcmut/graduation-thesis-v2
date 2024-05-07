@@ -1,11 +1,10 @@
 const multer = require('multer');
 
 class FileUpload {
-    uploadCourseFiles = multer({ storage: multer.memoryStorage() })
+    uploadComboFiles = multer({ storage: multer.memoryStorage() })
                         .fields([
                             { name: "thumbnail", maxCount: 1 },
-                            { name: "cover", maxCount: 1 },
-                            { name: "video", maxCount: 200 }
+                            { name: "cover", maxCount: 1 }
                         ]);
     uploadVideo = multer({ storage: multer.memoryStorage() }).single('video');
 
