@@ -107,9 +107,26 @@ module.exports = {
       createdAt: Sequelize.DATE,
       updatedAt: Sequelize.DATE
     });
+    await queryInterface.createTable('student_combo', {
+      id_student: {
+        type: Sequelize.UUID
+      },
+      id_combo: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'Combo',
+          key: 'id'
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+      },
+      createdAt: Sequelize.DATE,
+      updatedAt: Sequelize.DATE
+    });
   },
 
   async down (queryInterface, Sequelize) {
+    await queryInterface.dropTable('student_combo');
     await queryInterface.dropTable('coupon_exam');
     await queryInterface.dropTable('coupon');
     await queryInterface.dropTable('combo_exam');

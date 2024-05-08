@@ -5,18 +5,8 @@ const ExamController = require('../app/controllers/examController');
 const Authorize = require('../app/middleware/authorize');
 const CheckingExam = require('../app/middleware/exam');
 
-const FileUpload = require('../config/firebase/fileUpload');
-
 router.route('/')
     .post(Authorize.authorizeTeacher, ExamController.createExam);
-
-router.route('/combo')
-    .post(
-        Authorize.authorizeTeacher, 
-        FileUpload.uploadComboFiles,
-        ExamController.uploadThumbnailAndCover,
-        ExamController.createComboExam
-    );
 
 router.route('/page/:page')
     .get(
@@ -55,14 +45,6 @@ router.route('/teacher/:teacherId/page/:page')
         CheckingExam.checkGetExamCreatedByTeacher, 
         ExamController.getExamCreatedByTeacher
     );
-
-router.route('/combo/teacher/:teacherId/page/:page')
-    .get(
-        Authorize.checkGetAll,
-        Authorize.verifyUser,
-        CheckingExam.checkGetExamCreatedByTeacher,
-        ExamController.getComboCreatedByTeacher
-    )
 
 module.exports = router;
 export {}
