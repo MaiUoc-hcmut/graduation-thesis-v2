@@ -27,6 +27,8 @@ import { useSocket } from "@/app/socket/SocketProvider";
 import { Bounce, ToastContainer, toast } from "react-toastify";
 import uuid from "react-uuid";
 import userApi from "@/app/api/userApi";
+import { get } from "http";
+import { useAppSelector } from "@/redux/store";
 
 export default function Chat({ user, params, change, setChange, userStorage, createConversation }: any) {
     const socket = useSocket();
@@ -45,35 +47,112 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
     const [users, setUsers] = useState<any>([])
     const [messages, setMessages] = useState<any>([]);
     const [blurTimeoutId, setBlurTimeoutId] = useState<any>(null);
+
+    const [converStudent, setConverStudent] = useState<any>([]);
+    const [converTeacher, setConverTeacher] = useState<any>([]);
+    const [converGroup, setConverGroup] = useState<any>([]);
+    // Get all chat related values and methods from useChat hook 
+    const {
+        currentMessages, conversations, activeConversation, setActiveConversation, sendMessage, getUser, currentMessage, setCurrentMessage,
+        sendTyping, setCurrentUser, getConversation
+    } = useChat();
+
+    const authUser = useAppSelector(state => state.authReducer.user);
+
+
     useEffect(() => {
         socket?.on("new_message_created", (data: any) => {
-
-            if (user.id !== data.author.id) {
-                const audio = new Audio("/audio/audio-notification.mp3");
-                audio.play();
-                setMessages((prev: any) => [data, ...prev]);
-            }
-            else {
+            if (user.id === data.author?.id) {
                 return
+            }
+
+            else {
+                if (data.id_group === activeConversation?.id) {
+                    setMessages((prev: any) => [data, ...prev]);
+                }
+                const conversation = getConversation(data.id_group)
+                if (conversation) {
+                    conversation.data.userLast = {
+                        lastSenderId: data.author?.id,
+                        lastSenderName: data.author?.name,
+                        lastMessage: data.message
+                    }
+                }
+
+
+
+                const audio = new Audio("/audio/audio-notification.mp3");
+                let audioPlay = audio.play();
+
             }
         })
 
-
         socket?.on("new_individual_group_created", (data: any) => {
-            console.log(data);
+            socket.emit("join_group", `${data.id_group}`)
 
-            socket.emit("join_group", {
-                id_group: data.id_group,
-            })
+            if (user.id === data.author?.id) {
+                return
+            }
+            else {
+                const audio = new Audio("/audio/audio-notification.mp3");
+                let audioPlay = audio.play();
 
-            // if (user.id !== data.author.id) {
-            //     const audio = new Audio("/audio/audio-notification.mp3");
-            //     audio.play();
-            //     setMessages((prev: any) => [data, ...prev]);
-            // }
-            // else {
-            //     return
-            // }
+                userStorage.addUser(new User({
+                    id: data.author?.id,
+                    presence: new Presence({ status: UserStatus.Available, description: "" }),
+                    firstName: "",
+                    lastName: "",
+                    username: data.author?.name,
+                    email: "",
+                    avatar: `${data.author.avatar ? data.author?.avatar : '/images/avatar.png'}`,
+                    bio: ""
+                }));
+                const newConversation = createConversation(data.id_group, data.author?.id, data.author?.name, data.author?.role, {
+                    lastSenderId: data.author?.id,
+                    lastSenderName: data.author?.name,
+                    lastMessage: data.message
+                })
+
+                if (data.author?.role === "teacher") {
+                    setConverTeacher([newConversation, ...converTeacher])
+                }
+                else {
+                    setConverStudent([newConversation, ...converStudent])
+                }
+                userStorage.addConversation(newConversation);
+
+
+
+            }
+        })
+
+        socket?.on("new_group_created", (data: any) => {
+
+            socket.emit("join_group", `${data.id_group}`)
+
+            if (user.id === data.admin) {
+                return
+            }
+            else {
+                // const audio = new Audio("/audio/audio-notification.mp3");
+                // let audioPlay = audio.play();
+
+                userStorage.addUser(new User({
+                    id: data.id_group,
+                    presence: new Presence({ status: UserStatus.Available, description: "" }),
+                    firstName: "",
+                    lastName: "",
+                    username: data.group_name,
+                    email: "",
+                    avatar: `${'/images/avatar-group.jpg'}`,
+                    bio: ""
+                }));
+                const newConversation = createConversation(data.id_group, data.id_group, data.group_name, "group", {})
+
+                setConverGroup([newConversation, ...converGroup])
+
+                userStorage.addConversation(newConversation);
+            }
         })
 
 
@@ -82,7 +161,17 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                 socket.off('new_message_created');
             }
         };
-    }, [socket, user.id]);
+    }, [activeConversation?.id, converGroup, converStudent, converTeacher, createConversation, getConversation, socket, user.id, userStorage]);
+
+
+    useEffect(() => {
+        setConverStudent(conversations.filter((c: any) => c.data.type === "student"))
+        setConverTeacher(conversations.filter((c: any) => c.data.type === "teacher"))
+        setConverGroup(conversations.filter((c: any) => c.data.type === "group"))
+    }, [conversations]);
+
+
+
 
     const fetchMessages = async (lastMess: any) => {
         // Fetch notifications from API here
@@ -135,12 +224,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
     }, [hasMore, lastMessage]);
 
 
-    // Get all chat related values and methods from useChat hook 
-    const {
-        currentMessages, conversations, activeConversation, setActiveConversation, sendMessage, getUser, currentMessage, setCurrentMessage,
-        sendTyping, setCurrentUser, getConversation
-    } = useChat();
-    console.log(getConversation(params.id))
+
 
 
 
@@ -164,7 +248,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                     content: message.body || message.message as unknown as MessageContent<TextContent>,
                     contentType: MessageContentType.TextHtml,
                     senderId: message.author?.id || message.author,
-                    direction: user.id === (message.author.id || message.author) ? MessageDirection.Outgoing : MessageDirection.Incoming,
+                    direction: user.id === (message.author?.id || message.author) ? MessageDirection.Outgoing : MessageDirection.Incoming,
                     status: MessageStatus.Sent,
                     name: message.author?.name,
                     avtar: message.author?.avatar
@@ -180,9 +264,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
         setActiveConversation(params.id);
     }, [params.id, setActiveConversation]);
 
-    const converStudent = conversations.filter((c) => c.data.type === "student");
-    const converTeacher = conversations.filter((c) => c.data.type === "teacher");
-    const converGroup = conversations.filter((c) => c.data.type === "group");
+
 
     // Get current user data
     const [currentUserAvatar, currentUserName] = useMemo(() => {
@@ -237,6 +319,15 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                 conversationId: activeConversation.id,
                 senderId: user.id,
             });
+
+
+
+            // if (activeConversation.data?.userLast?.type === "temp") {
+            //     console.log(activeConversation.id);
+            //     socket?.emit("join_group", {
+            //         id_group: activeConversation.id,
+            //     })
+            // }
 
             const formData = activeConversation.data?.userLast?.type === "temp" ? {
                 data: {
@@ -308,10 +399,6 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
             return groups;
         }, []);
     }
-
-    // console.log(listStudent);
-    // console.log(chats);
-    // console.log(conversations, activeConversation);
 
 
     return (
@@ -516,15 +603,17 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                         <ConversationHeader.Content>
                             {user.username}
                         </ConversationHeader.Content>
+                        {
+                            authUser?.role === "teacher" && <ConversationHeader.Actions>
+                                <AddUserButton onClick={async () => {
+                                    await courseApi.getAllByTeacher(`${user.id}`, '1').then((data: any) => {
+                                        setCourses(data.data.courses)
+                                    }).catch((err: any) => { })
+                                    setModal({ ...modal, [`add-group`]: true })
+                                }} />
+                            </ConversationHeader.Actions>
+                        }
 
-                        <ConversationHeader.Actions>
-                            <AddUserButton onClick={async () => {
-                                await courseApi.getAllByTeacher(`${user.id}`, '1').then((data: any) => {
-                                    setCourses(data.data.courses)
-                                }).catch((err: any) => { })
-                                setModal({ ...modal, [`add-group`]: true })
-                            }} />
-                        </ConversationHeader.Actions>
 
 
                     </ConversationHeader>
@@ -613,7 +702,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                         className=""
                     >
                         <ConversationList>
-                            {converTeacher.map((c, index) => {
+                            {converTeacher.map((c: any, index: any) => {
 
                                 // Helper for getting the data of the first participant
                                 const [avatar, name] = (() => {
@@ -658,7 +747,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                         className=""
                     >
                         <ConversationList>
-                            {converStudent.map((c, index) => {
+                            {converStudent.map((c: any, index: any) => {
 
                                 // Helper for getting the data of the first participant
                                 const [avatar, name] = (() => {
@@ -703,7 +792,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                         className=""
                     >
                         <ConversationList>
-                            {converGroup.map((c, index) => {
+                            {converGroup.map((c: any, index: any) => {
 
                                 // Helper for getting the data of the first participant
                                 const [avatar, name] = (() => {
@@ -751,9 +840,12 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                     {activeConversation && <ConversationHeader>
                         {currentUserAvatar}
                         <ConversationHeader.Content userName={currentUserName} />
-                        <ConversationHeader.Actions>
-                            <EllipsisButton orientation="vertical" />
-                        </ConversationHeader.Actions>
+                        {
+                            activeConversation?.data?.type === "group" && <ConversationHeader.Actions>
+                                <EllipsisButton orientation="vertical" />
+                            </ConversationHeader.Actions>
+                        }
+
 
 
 

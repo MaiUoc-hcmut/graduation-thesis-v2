@@ -12,7 +12,7 @@ export class SOCKETIO {
 
     constructor(server: any) {
         this.clientConnected = [];
-        this.io = new Server(server, { 
+        this.io = new Server(server, {
             cors: {
                 origin: '*',
                 methods: ['GET', 'POST'],
@@ -25,12 +25,14 @@ export class SOCKETIO {
     private setupSocketEvents() {
         this.io.on("connection", (socket: Socket) => {
             console.log(`New user connected: ${socket.id}`)
-            
+
             socket.on("new_user_online", async (userId) => {
+
                 this.clientConnected.push({
                     user: userId,
                     socket: socket.id
                 });
+                console.log(this.clientConnected);
 
                 // Join room when user online
                 const groups = await Group.find({
@@ -48,7 +50,7 @@ export class SOCKETIO {
                     message: "New users have been added to group",
                     users: data.users
                 });
-                
+
                 for (const user of data.users) {
                     const userOnline = this.clientConnected.find(o => o.user === user);
                     if (userOnline) {

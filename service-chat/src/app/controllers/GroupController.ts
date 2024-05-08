@@ -3,6 +3,7 @@ const Group = require('../../db/model/group');
 
 import { Request, Response, NextFunction } from 'express';
 import { socketInstance } from "../..";
+import { log } from 'console';
 
 const axios = require('axios');
 
@@ -23,11 +24,11 @@ class GroupController {
             }
         }
     }
-     
+
     // [GET] /groups/:groupId
     getGroup = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            
+
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({
@@ -88,7 +89,7 @@ class GroupController {
                                 classify.student.push(group.groups);
                                 break;
                             }
-                            
+
                             const teacher = await this.getUserFromAPI(`${process.env.BASE_URL_USER_LOCAL}/teacher/get-teacher-by-id/${member}`);
                             if (teacher) {
                                 group.groups.friend = {
@@ -152,7 +153,12 @@ class GroupController {
             for (const member of members) {
                 const memberOnline = clientConnected.find(o => o.user === member);
                 if (memberOnline) {
-                    io.to(`${memberOnline.socket}`).emit("new_group_created", group.id);
+
+                    io.to(`${memberOnline.socket}`).emit("new_group_created", {
+                        id_group: group.id,
+                        group_name: name,
+                        admin: req.user?.user.data.id
+                    });
                 }
             }
 
@@ -169,7 +175,7 @@ class GroupController {
     // [PUT] /groups/:groupId/set-admin
     setAdminForGroup = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            
+
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({
@@ -195,7 +201,7 @@ class GroupController {
             await group.save();
 
             res.status(200).json(group);
-            
+
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({

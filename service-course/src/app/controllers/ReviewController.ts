@@ -182,7 +182,7 @@ class ReviewController {
                 for (const review of reviews) {
                     review.dataValues.course_name = course.name;
                     
-                    const student = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/student/${review.id_student}`);
+                    const student = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${review.id_student}`);
                     review.dataValues.user = {
                         id: student.data.id,
                         name: student.data.name,

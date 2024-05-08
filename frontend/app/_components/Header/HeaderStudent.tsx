@@ -16,6 +16,8 @@ import { convertToVietnamTime } from '@/app/helper/FormatFunction';
 import { initFlowbite } from 'flowbite';
 import MessageBox from '../MessageBox/MessageBox';
 import chatApi from '@/app/api/chatApi';
+import { Bounce, toast } from 'react-toastify';
+import { useSocket } from '@/app/socket/SocketProvider';
 
 export default function HeaderStudent() {
     const dispatch = useDispatch<AppDispatch>();
@@ -28,6 +30,7 @@ export default function HeaderStudent() {
     const loadingRef = useRef(null);;
     const [hasMore, setHasMore] = useState(true);
     const [conversations, setConversations] = useState<any>([]);
+    const socketChat = useSocket();
 
     const fetchNotifications = async (pageNum: number) => {
         // Fetch notifications from API here
@@ -93,11 +96,52 @@ export default function HeaderStudent() {
                     const audio = new Audio("/audio/audio-notification.mp3");
                     audio.play();
                 });
+
+                socketChat?.on("new_group_created", (data: any) => {
+                    socket.emit("join_group", `${data.id_group}`)
+
+                    if (user.id === data.admin) {
+                        return
+                    }
+                    else {
+                        const audio = new Audio("/audio/audio-notification.mp3");
+                        let audioPlay = audio.play();
+
+                        toast.success(`Bạn vừa được thêm vào nhóm ${data.group_name}`, {
+                            position: "top-center",
+                            autoClose: 1000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "light",
+                            transition: Bounce,
+                        });
+                    }
+                })
+
+
+                socketChat?.on("new_message_created", (data: any) => {
+                    if (user.id === data.author?.id) {
+                        return
+                    }
+                    else {
+                        const audio = new Audio("/audio/audio-notification.mp3");
+                        let audioPlay = audio.play();
+                    }
+                })
+
+                return () => {
+                    if (socketChat) {
+                        socketChat.off('new_group_created');
+                    }
+                };
             }
         }
         initFlowbite();
         fetchData()
-    }, [user]);
+    }, [socketChat, user]);
 
     return (
         <header className="antialiased fixed top-0 left-0 w-full z-50 shadow- border-b-[1px] border-b-[#ececec] shadow-header_teacher">

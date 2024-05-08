@@ -112,7 +112,7 @@ export default function ChatBox({ params }: { params: { id: string } }) {
     const [change, setChange] = useState(false);
 
     const user = useAppSelector(state => state.authReducer.user);
-
+    console.log(user);
 
 
     useEffect(() => {

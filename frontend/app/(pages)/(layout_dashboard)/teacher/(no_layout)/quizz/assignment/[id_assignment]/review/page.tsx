@@ -20,6 +20,7 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
     const [openSidebar, setOpenSideBar] = useState(true);
     const alphabet = ['A', 'B', 'C', 'D', 'E', 'F'];
     const [toggle, setToggle] = useState<any>({})
+    const [type, setType] = useState('comment')
 
     const {
         register,
@@ -341,10 +342,11 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
                                         });
                                     }
                                 }
+
                                 const formData = {
                                     data: {
                                         comment: data.comment || "",
-                                        type: "comment",
+                                        type: type,
                                         detail_questions: detail_questions
                                     }
                                 }
@@ -362,7 +364,8 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
                                         <TinyMceEditorComment value={assignment?.comment} setValue={setValue} position={'comment'} link={'http://localhost:4001/api/v1/images/single'} />
                                     </div>
                                     <div className='flex justify-end'>
-                                        <button type='submit' className='mt-5 h-[36px] px-[22px] bg-primary shadow-primary_btn_shadow border-primary text-white rounded-md hover:bg-primary_hover'>Hoàn thành đánh giá</button>
+                                        <button type='submit' onClick={() => setType('draft')} className='mt-5 mr-5 h-[36px] px-[22px] bg-primary shadow-primary_btn_shadow border-primary text-white rounded-md hover:bg-primary_hover'>Lưu bản nháp</button>
+                                        <button type='submit' onClick={() => setType('comment')} className='mt-5 h-[36px] px-[22px] bg-primary shadow-primary_btn_shadow border-primary text-white rounded-md hover:bg-primary_hover'>Hoàn thành đánh giá</button>
                                     </div>
 
                                 </div>

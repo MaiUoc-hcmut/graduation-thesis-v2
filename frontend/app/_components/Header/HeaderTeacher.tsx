@@ -17,6 +17,8 @@ import { initFlowbite } from 'flowbite';
 import { Message } from '@chatscope/chat-ui-kit-react';
 import MessageBox from '../MessageBox/MessageBox';
 import chatApi from '@/app/api/chatApi';
+import { useSocket } from '@/app/socket/SocketProvider';
+import { Bounce, toast } from 'react-toastify';
 
 
 export default function HeaderTeacher() {
@@ -30,8 +32,7 @@ export default function HeaderTeacher() {
     const loadingRef = useRef(null);;
     const [hasMore, setHasMore] = useState(true);
     const [conversations, setConversations] = useState<any>([]);
-
-
+    const socketChat = useSocket();
 
 
 
@@ -57,6 +58,17 @@ export default function HeaderTeacher() {
                     const audio = new Audio("/audio/audio-notification.mp3");
                     audio.play();
                 });
+
+                socketChat?.on("new_message_created", (data: any) => {
+                    if (user.id === data.author?.id) {
+                        return
+                    }
+                    else {
+                        const audio = new Audio("/audio/audio-notification.mp3");
+                        audio.play();
+                    }
+                })
+
             }
 
         }

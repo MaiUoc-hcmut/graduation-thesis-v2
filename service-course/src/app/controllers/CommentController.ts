@@ -180,11 +180,10 @@ class CommentController {
                     const data = {
                         id_teacher: course.id_teacher,
                         id_topic: body.id_topic,
-                        id_course: course.id_id,
+                        id_course: course.id,
                         course_name: course.name,
                         student_name: name
                     }
-    
                     const response = await axios.post(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/comment-on-lecture`, { data });
                 } catch (error: any) {
                     console.log(error.message);

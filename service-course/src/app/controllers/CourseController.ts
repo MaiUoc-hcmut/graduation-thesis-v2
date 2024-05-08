@@ -804,10 +804,9 @@ class CourseController {
         try {
             console.log(req.student);
             const id_student = req.student.data.id;
-
-
-
             const id_course = req.params.courseId;
+
+            let error_message: string[] = [];
 
             await StudentCourse.create({
                 id_student,
@@ -839,14 +838,30 @@ class CourseController {
                 const response = await axios.post(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/student-buy-course`, {
                     data
                 });
+            } catch (error: any) {
+                error_message.push("Fail to send notify to teacher who own this course!")
+            }
+
+            try {
+                const data = {
+                    members: [course.id_teacher],
+                    individual: true
+                }
+                const headers = {
+                    'Authorization': req.headers.authorization
+                }
+                const group = await axios.post(`${process.env.BASE_URL_CHAT_LOCAL}/groups`, { data }, { headers });
             } catch (error) {
-                throw new Error("Error when create a room socket in service notification!")
+                error_message.push(
+                    "Fail to create a group chat with teacher who own this course! Maybe some error on chat service or you and this teacher already have a group chat!"
+                );
             }
 
             await t.commit();
 
             res.status(201).json({
-                message: "Student has been bought the course!"
+                message: "Student has been bought the course!",
+                error_message
             });
 
         } catch (error: any) {
