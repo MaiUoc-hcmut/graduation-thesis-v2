@@ -47,6 +47,18 @@ class ProgressController {
         }
         const { id_student, id_topic, id_course } = body;
         try {
+            const record = await Progress.findOne({
+                where: {
+                    id_student,
+                    id_topic
+                }
+            });
+            if (record) {
+                res.status(200).json({
+                    message: "This topic has been completed already!"
+                });
+            }
+
             const newProgress = await Progress.create({
                 id_student,
                 id_topic,
