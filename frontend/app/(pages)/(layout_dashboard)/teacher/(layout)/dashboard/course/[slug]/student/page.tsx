@@ -15,7 +15,7 @@ import courseApi from '@/app/api/courseApi';
 import { DataTable } from '@/app/_components/Table/TableFormat';
 import { columns } from "@/app/_components/Table/StudentColumns/columns"
 
-export default function ListStudentOfCourse() {
+export default function ListStudentOfCourse({ params }: { params: { slug: string } }) {
     const [students, setStudents] = useState([])
     const [modal, setModal] = useState<any>({})
     const [change, setChange] = useState(false)
@@ -34,14 +34,14 @@ export default function ListStudentOfCourse() {
     const { user } = useAppSelector(state => state.authReducer);
     useEffect(() => {
         async function fetchData() {
-            await courseApi.getAllStudenBuySpecificCourse(`${user.id}`, `${page}`).then((data: any) => {
+            await courseApi.getAllStudenBuySpecificCourse(`${params.slug}`, `${page}`).then((data: any) => {
                 setStudents(data.data)
             }).catch((err: any) => { })
         }
         fetchData()
 
 
-    }, [change, user.id, page]);
+    }, [change, page, params.slug]);
 
 
     return (

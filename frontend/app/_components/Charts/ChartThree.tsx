@@ -1,6 +1,8 @@
 import { ApexOptions } from "apexcharts";
 import React, { useState } from "react";
-import ReactApexChart from "react-apexcharts";
+import dynamic from 'next/dynamic'
+
+const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 interface ChartThreeState {
   series: number[];
@@ -8,54 +10,51 @@ interface ChartThreeState {
 
 const options: ApexOptions = {
   chart: {
-    fontFamily: "Satoshi, sans-serif",
-    type: "donut",
+    height: 350,
+    type: 'line',
   },
-  colors: ["#43d477", "#6577F3"],
-  labels: ["Đúng tiến độ", "Chậm tiến độ",],
-  legend: {
-    show: false,
-    position: "bottom",
+  stroke: {
+    width: [0, 4]
   },
-
-  plotOptions: {
-    pie: {
-      donut: {
-        size: "65%",
-        background: "transparent",
-      },
-    },
-  },
+  // title: {
+  //   text: 'Traffic Sources'
+  // },
   dataLabels: {
-    enabled: false,
+    enabled: true,
+    enabledOnSeries: [1]
   },
-  responsive: [
-    {
-      breakpoint: 2600,
-      options: {
-        chart: {
-          width: 380,
-        },
-      },
+  labels: ['01 Jan 2001', '02 Jan 2001', '03 Jan 2001', '04 Jan 2001', '05 Jan 2001', '06 Jan 2001', '07 Jan 2001', '08 Jan 2001', '09 Jan 2001', '10 Jan 2001', '11 Jan 2001', '12 Jan 2001'],
+  xaxis: {
+    type: 'datetime'
+  },
+  yaxis: [{
+    title: {
+      text: 'Tổng lượt mua',
     },
-    {
-      breakpoint: 640,
-      options: {
-        chart: {
-          width: 200,
-        },
-      },
-    },
-  ],
+
+  }, {
+    opposite: true,
+    title: {
+      text: 'Doanh thu'
+    }
+  }]
 };
 
 export default function ChartThree() {
-  const [state, setState] = useState<ChartThreeState>({
-    series: [65, 35],
+  const [state, setState] = useState<any>({
+    series: [{
+      name: 'Tổng lượt mua',
+      type: 'column',
+      data: [440, 505, 414, 671, 227, 413, 201, 352, 752, 320, 257, 160]
+    }, {
+      name: 'Doanh thu',
+      type: 'line',
+      data: [23, 42, 35, 27, 43, 22, 17, 31, 22, 22, 12, 16]
+    }]
   });
 
   const handleReset = () => {
-    setState((prevState) => ({
+    setState((prevState: any) => ({
       ...prevState,
       series: [65, 35],
     }));
@@ -108,33 +107,11 @@ export default function ChartThree() {
       </div>
 
       <div className="mb-2">
-        <div id="chartThree" className="mx-auto flex justify-center">
+        <div id="chartThree" className="mt-5">
           <ReactApexChart
             options={options}
             series={state.series}
-            type="donut"
           />
-        </div>
-      </div>
-
-      <div className="-mx-8 flex flex-wrap items-center justify-center gap-y-3">
-        <div className="w-full px-8 sm:w-1/2">
-          <div className="flex w-full items-center">
-            <span className="mr-2 block h-3 w-full max-w-3 rounded-full bg-primary"></span>
-            <p className="flex w-full justify-between text-sm font-medium text-black dark:text-white">
-              <span> Đúng tiến độ </span>
-              <span> 65% </span>
-            </p>
-          </div>
-        </div>
-        <div className="w-full px-8 sm:w-1/2">
-          <div className="flex w-full items-center">
-            <span className="mr-2 block h-3 w-full max-w-3 rounded-full bg-[#6577F3]"></span>
-            <p className="flex w-full justify-between text-sm font-medium text-black dark:text-white">
-              <span> Chậm tiến độ</span>
-              <span> 34% </span>
-            </p>
-          </div>
         </div>
       </div>
     </div>

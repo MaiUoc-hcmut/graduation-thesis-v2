@@ -200,8 +200,7 @@ class PaymentController {
         const t = await sequelize.transaction();
         try {
             const body = req.body.data;
-
-            const { courses, ...transactionBody } = body;
+            const { courses, combos, ...transactionBody } = body;
             const id_user = req.student?.data.id;
 
             const cart = await Cart.findOne({

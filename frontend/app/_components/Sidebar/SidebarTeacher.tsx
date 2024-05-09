@@ -256,7 +256,7 @@ export default function SidebarTeacher() {
                                     <li>
                                         <Link
                                             href="/teacher/dashboard/review/teacher"
-                                            className={`${pathname == '/teacher/dashboard/review' ? 'bg-slate-100' : ''} ml-4 flex items-center p-2 text-gray-900 transition duration-75 rounded-lg pl-2 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700`}
+                                            className={`${pathname == '/teacher/dashboard/review/teacher' ? 'bg-slate-100' : ''} ml-4 flex items-center p-2 text-gray-900 transition duration-75 rounded-lg pl-2 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700`}
                                         >
                                             <div className='ml-2'>
                                                 Đánh giá của tôi
@@ -267,7 +267,7 @@ export default function SidebarTeacher() {
                                     <li>
                                         <Link
                                             href="/teacher/dashboard/review/course"
-                                            className={`${pathname == '/teacher/dashboard/review' ? 'bg-slate-100' : ''} ml-4 flex items-center p-2 text-gray-900 transition duration-75 rounded-lg pl-2 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700`}
+                                            className={`${pathname == '/teacher/dashboard/review/course' ? 'bg-slate-100' : ''} ml-4 flex items-center p-2 text-gray-900 transition duration-75 rounded-lg pl-2 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700`}
                                         >
                                             <div className='ml-2'>
                                                 Đánh giá khóa học
@@ -278,7 +278,7 @@ export default function SidebarTeacher() {
                                     <li>
                                         <Link
                                             href="/teacher/dashboard/review/exam"
-                                            className={`${pathname == '/teacher/dashboard/review' ? 'bg-slate-100' : ''} ml-4 flex items-center p-2 text-gray-900 transition duration-75 rounded-lg pl-2 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700`}
+                                            className={`${pathname == '/teacher/dashboard/review/exam' ? 'bg-slate-100' : ''} ml-4 flex items-center p-2 text-gray-900 transition duration-75 rounded-lg pl-2 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700`}
                                         >
                                             <div className='ml-2'>
                                                 Đánh giá đề thi

@@ -16,15 +16,22 @@ const axios = require('axios');
 import { log } from "console";
 import { Request, Response, NextFunction } from "express";
 
+
 require('dotenv').config();
 
 declare global {
+    interface ImageURL {
+        thumbnail: string;
+        cover: string;
+    }
     namespace Express {
         interface Request {
             teacher?: any;
             student?: any;
-            authority?: number
+            authority?: number,
+            URL: ImageURL
         }
+        
     }
 }
 
@@ -381,13 +388,16 @@ class ExamController {
 
             exam.dataValues.classification = knowledges;
 
+            const topic = await axios.get(`${process.env.BASE_URL_COURSE_LOCAL}/topics/check/exam/${exam.id}`);
+
+            exam.dataValues.id_topic = topic.data.id_topic;
+
             res.status(200).json(exam);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error: error.message });
         }
     }
-
 
     // [GET] /api/v1/exams/search/page/:page
     searchExam = async (req: Request, res: Response, _next: NextFunction) => {
@@ -794,18 +804,6 @@ class ExamController {
             res.status(500).json({ error, message: error.message });
 
             await t.rollback();
-        }
-    }
-
-    studentSubmitExam = async (req: Request, res: Response, _next: NextFunction) => {
-        try {
-            const id_student = req.student.data.id
-            const data = req.body.data
-
-            res.status(201).json();
-        } catch (error: any) {
-            console.log(error.message);
-            res.status(500).json({ error: error.message });
         }
     }
 

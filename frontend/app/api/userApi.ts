@@ -2,6 +2,17 @@ import axiosConfig from "@/redux/axios.config"
 import { changePassword } from "@/redux/features/teacherSlice";
 
 const userApi = {
+    // admin
+    getAllStudent: (page: string) => {
+        const url = `/student`;
+        return axiosConfig.get(url);
+    },
+
+    deleteStudent: (id: string) => {
+        const url = `/student/${id}`;
+        return axiosConfig.delete(url);
+    },
+
     getAllTeacher: (filterstring: string, page: string) => {
         const url = `/teacher/page/${page}?${filterstring}`;
         return axiosConfig.get(url);

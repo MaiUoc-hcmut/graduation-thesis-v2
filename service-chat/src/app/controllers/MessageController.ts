@@ -219,6 +219,104 @@ class MessageController {
             });
         }
     }
+
+    // [POST] /messages/system
+    createMessageBySystem = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const io = socketInstance.getIoInstance();
+            const clientConnected = socketInstance.getClientConnected();
+
+            let body = req.body.data;
+            if (typeof body === "string") {
+                body = JSON.parse(body);
+            }
+
+            const { members } = body;
+
+            const group = await Group.findOne({
+                individual: true,
+                members: {
+                    $all: [...members]
+                }
+            });
+
+            let id_group = "";
+
+            if (!group) {
+                const newGroup = await Group.create({
+                    members: [...members],
+                    admins: [...members],
+                    lastMessage: body.body,
+                    lastSenderId: body.sender.id,
+                    lastSenderName: body.sender.name,
+                    individual: true
+                });
+                id_group = newGroup.id;
+            } else {
+                group.lastMessage = body.body;
+                group.lastSenderId = body.sender.id;
+                group.lastSenderName = body.sender.name;
+
+                await group.save();
+                id_group = group.id;
+            }
+
+            const message = await Message.create({
+                body: body.body,
+                author: body.sender.id,
+                id_group
+            });
+            
+            if (!group) {
+                const senderOnilne = clientConnected.find(o => o.user === body.sender.id);
+                const receiverOnline = clientConnected.find(o => o.user === body.receiver.id);
+
+                if (senderOnilne) {
+                    io.to(`${senderOnilne.socket}`).emit("new_individual_group_created", {
+                        id_group,
+                        author: {
+                            id: body.sender.id,
+                            role: body.sender.role,
+                            name: body.sender.name,
+                            avatar: body.sender.avatar,
+                            id_message: message.id
+                        },
+                        message: body.body
+                    });
+                }
+
+                if (receiverOnline) {
+                    io.to(`${receiverOnline.socket}`).emit("new_individual_group_created", {
+                        id_group,
+                        author: {
+                            id: body.sender.id,
+                            role: body.sender.role,
+                            name: body.sender.name,
+                            avatar: body.sender.avatar,
+                            id_message: message.id
+                        },
+                        message: body.body
+                    });
+                }
+            } else {
+                io.to(`${id_group}`).emit("new_message_created", {
+                    message: body.body,
+                    id_group,
+                    author: {
+                        id: body.sender.id,
+                        name: body.sender.name,
+                        avatar: body.sender.avatar,
+                        id_message: message.id
+                    }
+                });
+            }
+
+            res.status(201).json(message);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).send(error.message);
+        }
+    }
 }
 
 module.exports = new MessageController();

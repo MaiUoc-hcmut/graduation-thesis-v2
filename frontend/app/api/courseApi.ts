@@ -1,6 +1,8 @@
 import axiosConfig from "@/redux/axios.config"
 
 const courseApi = {
+    // admin
+
     getAllByTeacher: (id_teacher: string, page: string) => {
         if (page == null) page = '1'
         const url = `/courses/teacher/${id_teacher}/page/${page}`;
@@ -82,8 +84,8 @@ const courseApi = {
         });
     },
 
-    getAllReview: () => {
-        const url = `/reviews`;
+    getAllReview: (id_teacher: string) => {
+        const url = `/reviews/teacher/${id_teacher}`;
         return axiosConfig.get(url, {
             baseURL: 'http://localhost:4001/api/v1'
         });

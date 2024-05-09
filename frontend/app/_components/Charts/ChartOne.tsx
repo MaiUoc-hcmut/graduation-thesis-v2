@@ -74,9 +74,37 @@ export default function ChartOne() {
         left: 0,
         opacity: 0.1,
       },
-
       toolbar: {
-        show: false,
+        show: true,
+        tools: {
+          download: true,
+          selection: false,
+          zoom: false,
+          zoomin: true,
+          zoomout: true,
+          pan: true,
+          customIcons: []
+        },
+        export: {
+          csv: {
+            filename: undefined,
+            columnDelimiter: ',',
+            headerCategory: 'Tháng',
+            headerValue: 'value',
+            dateFormatter(timestamp) {
+              if (timestamp) {
+                return new Date(timestamp).toDateString();
+              }
+              return '';
+            }
+          },
+          svg: {
+            filename: undefined,
+          },
+          png: {
+            filename: undefined,
+          }
+        },
       },
     },
     responsive: [
@@ -198,9 +226,7 @@ export default function ChartOne() {
       </div>
 
       <div>
-        <div id="chartOne" className="-ml-5">
-
-
+        <div id="chartOne" className="-ml-5 mt-5">
           <ReactApexChart
             options={options}
             series={state.series}
@@ -208,8 +234,6 @@ export default function ChartOne() {
             height={350}
             width={"100%"}
           />
-
-
         </div>
       </div>
     </div>

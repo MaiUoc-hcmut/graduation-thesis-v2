@@ -98,6 +98,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
             id_exam: params.id_exam,
             time_start: localStorage.getItem(`${COUNTER_KEY}`) ? Date.now() - Number(localStorage.getItem(`${COUNTER_KEY}`)) * 1000 : Date.now() - exam.period * 60 * 1000,
             time_end: Date.now(),
+            id_topic: exam.id_topic,
             assignment: []
         }
         exam.questions.map((question: any) => {

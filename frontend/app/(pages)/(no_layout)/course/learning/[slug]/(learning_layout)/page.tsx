@@ -566,7 +566,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                                         <td className="w-1/3 px-6 py-4">{convertToVietnamTime(assignment.time_end)}</td>
                                                                         <td className="w-1/6 px-6 py-4 text-center">{assignment.score}</td>
                                                                         <td className="w-1/3 px-6 py-4 text-center">
-                                                                            {assignment.passed ?
+                                                                            {!assignment.passed ?
                                                                                 <span className="bg-red-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">Chưa hoàn thành</span>
                                                                                 :
                                                                                 <span className="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Hoàn thành</span>}

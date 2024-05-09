@@ -13,6 +13,9 @@ router.route('/')
         MessageController.createMessage
     );
 
+router.route('/system')
+    .post(MessageController.createMessageBySystem);
+
 router.route('/group/:groupId')
     .get(
         Authorize.verifyUser,

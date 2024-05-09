@@ -9,15 +9,31 @@ router.route('/')
     .post(Authorize.authorizeTeacher, ExamController.createExam);
 
 router.route('/page/:page')
-    .get(Authorize.checkGetAll, Authorize.verifyUser, ExamController.getAllExams)
+    .get(
+        Authorize.checkGetAll, 
+        Authorize.verifyUser, 
+        ExamController.getAllExams
+    );
 
 router.route('/:examId')
     .get(ExamController.getExamById)
-    .put(Authorize.authorizeTeacher, CheckingExam.checkModifyExam, ExamController.updateExam)
-    .delete(Authorize.authorizeTeacher, CheckingExam.checkModifyExam, ExamController.deleteExam);
+    .put(
+        Authorize.authorizeTeacher, 
+        CheckingExam.checkModifyExam, 
+        ExamController.updateExam
+    )
+    .delete(
+        Authorize.authorizeTeacher, 
+        CheckingExam.checkModifyExam, 
+        ExamController.deleteExam
+    );
 
 router.route('/search/page/:page')
-    .get(Authorize.checkGetAll, Authorize.verifyUser, ExamController.searchExam);
+    .get(
+        Authorize.checkGetAll, 
+        Authorize.verifyUser, 
+        ExamController.searchExam
+    );
 
 router.route('/full/:examId')
     .get(ExamController.getDetailExam);

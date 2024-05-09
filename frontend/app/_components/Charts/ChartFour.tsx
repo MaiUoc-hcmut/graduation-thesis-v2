@@ -75,7 +75,7 @@ export default function ChartTwo() {
       <div className="mb-4 justify-between gap-4 sm:flex">
         <div>
           <h4 className="text-xl font-semibold text-black dark:text-white">
-            Biểu đồ tỉ lệ phần trăm điểm
+            Biểu đồ tiến độ học
           </h4>
         </div>
         <div>

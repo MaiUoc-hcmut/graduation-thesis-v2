@@ -56,6 +56,27 @@ class CheckingMessage {
         }
     }
 
+    checkSystemCreateMessage = async (req: Request, _res: Response, next: NextFunction) => {
+        try {
+            let body = req.body.data;
+            if (typeof body === "string") {
+                body = JSON.parse(body);
+            }
+
+            const key = body.key;
+            const systemKey = `${process.env.SECRET_KEY_FOR_CREATE_MESSAGE_BY_SYSTEM}`;
+            if (key !== systemKey) {
+                let error = "System key fault!";
+                return next(createError.Unauthorized(error));
+            }
+
+            next();
+        } catch (error: any) {
+            console.log(error.message);
+            next(createError.InternalServerError(error.message));
+        }
+    }
+
     checkGetMessageInGroup = async (req: Request, _res: Response, next: NextFunction) => {
         try {
             const id_user = req.user?.user.data.id;
