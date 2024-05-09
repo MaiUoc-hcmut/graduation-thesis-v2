@@ -54,7 +54,7 @@ class ProgressController {
                 }
             });
             if (record) {
-                res.status(200).json({
+                return res.status(200).json({
                     message: "This topic has been completed already!"
                 });
             }
