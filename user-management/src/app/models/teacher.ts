@@ -70,6 +70,12 @@ Teacher.init(
       defaultValue: 0,
       allowNull: false,
     },
+    bank_name: {
+      type: DataTypes.STRING,
+    },
+    bank_account: {
+      type: DataTypes.STRING
+    },
     createdAt: {
       type: DataTypes.TIME,
       allowNull: false,

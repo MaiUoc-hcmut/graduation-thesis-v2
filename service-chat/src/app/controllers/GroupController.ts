@@ -233,6 +233,28 @@ class GroupController {
             });
         }
     }
+
+    // [PUT] /groups/:groupId/leave-group
+    userLeaveGroup = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const id_user = req.user?.user.data.id;
+            const id_group = req.params.groupId;
+            const group = await Group.findOne({
+                id: id_group
+            });
+            
+            group.members = group.members.filter((user: string) => user !== id_user);
+            await group.save();
+
+            res.status(200).json(group);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({
+                error,
+                message: error.message
+            });
+        }
+    }
 }
 
 

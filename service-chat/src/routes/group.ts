@@ -26,6 +26,12 @@ router.route('/:groupId/remove-users')
         GroupController.removeUserFromGroup
     );
 
+router.route('/:groupId/leave-group')
+    .put(
+        Authorize.verifyUser,
+        GroupController.userLeaveGroup
+    );
+
 router.route('/list')
     .get(
         Authorize.verifyUser, 
