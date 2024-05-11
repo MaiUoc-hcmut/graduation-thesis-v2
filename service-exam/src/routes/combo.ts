@@ -11,13 +11,16 @@ const FileUpload = require('../config/firebase/fileUpload');
 router.route('/')
     .post(
         Authorize.authorizeTeacher, 
-        CheckingCombo.checkCreateCombo,
         FileUpload.uploadComboFiles,
+        CheckingCombo.checkCreateCombo,
         ComboController.uploadThumbnailAndCover,
         ComboController.createComboExam
     );
 
 router.route('/:comboId')
+    .get(
+        ComboController.getCombo
+    )
     .delete(
         Authorize.authorizeTeacher,
         CheckingCombo.checkMofifyCombo,

@@ -755,12 +755,14 @@ class AssignmentController {
             const authority = req.authority;
             const role = req.user?.role;
 
+            console.log(authority, role);
+
             const assignment = await Assignment.findByPk(id_assignment, {
                 include: [
                     {
                         model: DetailQuestion,
                         as: 'details',
-                        attributes: ['id', 'id_question', 'comment'],
+                        attributes: ['id', 'id_question', 'comment', 'draft'],
                         include: [
                             {
                                 model: Answer,

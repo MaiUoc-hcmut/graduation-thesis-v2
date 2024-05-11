@@ -41,6 +41,29 @@ declare global {
 
 class ComboController {
 
+    // [GET] /combos/:comboId
+    getCombo = async (req: Request, res: Response, _next: NextFunction) => {
+        try {
+            const id_combo = req.params.comboId;
+            const combo = await Combo.findByPk(id_combo, {
+                include: [
+                    {
+                        model: Exam,
+                        attributes: ['id', 'title', 'period', 'quantity_question'],
+                        through: {
+                            attributes: []
+                        }
+                    }
+                ]
+            });
+
+            res.status(200).json(combo);
+        } catch (error: any) {
+            console.log(error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
     // [GET] /api/v1/combos/teacher/:teacherId/page/:page
     getComboCreatedByTeacher = async (req: Request, res: Response, _next: NextFunction) => {
         try {
