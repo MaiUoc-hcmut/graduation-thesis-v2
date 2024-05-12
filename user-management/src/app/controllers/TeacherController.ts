@@ -1,3 +1,5 @@
+const Review = require('../models/review');
+
 const Photo = require('../../config/firebase/photo');
 const { firebaseConfig } = require('../../config/firebase/firebase');
 const admin = require('firebase-admin');
@@ -193,15 +195,28 @@ class TeacherController {
             const id_teacher = req.params.teacherId;
             const teacher = await Teacher.findByPk(id_teacher);
 
+            const startDay = new Date();
+            startDay.setHours(0, 0, 0, 0)
+
             if (!teacher) return res.status(404).json({ message: "Teacher not found!" });
 
             const courseServiceInformation = await axios.get(`${process.env.BASE_URL_COURSE_LOCAL}/informations/teacher/${id_teacher}`);
             const examServiceInformation = await axios.get(`${process.env.BASE_URL_EXAM_LOCAL}/informations/teacher/${id_teacher}`);
 
+            const newReviewMeOnday = await Review.count({
+                where: {
+                    id_teacher,
+                    createdAt: {
+                        [Op.gte]: startDay
+                    }
+                }
+            });
+
             const response = {
                 ...teacher.dataValues,
                 ...courseServiceInformation.data,
-                exam_quantity: examServiceInformation.data
+                ...examServiceInformation.data,
+                newReviewMeOnday
             }
 
             res.status(200).json(response);
