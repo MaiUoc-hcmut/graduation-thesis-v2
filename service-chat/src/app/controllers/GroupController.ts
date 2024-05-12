@@ -41,11 +41,14 @@ class GroupController {
     getGroupsOfUser = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_user = req.user?.user.data.id;
-            console.log(id_user);
             const groups = await Group.aggregate([
                 {
                     $match: {
-                        members: id_user
+                        members: {
+                            $elemMatch: {
+                                id: id_user
+                            }
+                        }
                     }
                 },
                 {
@@ -68,17 +71,28 @@ class GroupController {
                 student: any[],
                 teacher: any[],
                 mix: any[],
+                unseen: {
+                    student: number,
+                    teacher: number,
+                    mix: number,
+                },
             } = {
                 student: [],
                 teacher: [],
                 mix: [],
+                unseen: {
+                    student: 0,
+                    teacher: 0,
+                    mix: 0
+                },
             };
 
             for (const group of groups) {
                 if (group._id === true) {
+                    const me = group.groups.members.find((m: any) => m.id === id_user);
                     for (const member of group.groups.members) {
-                        if (member !== id_user) {
-                            const student = await this.getUserFromAPI(`${process.env.BASE_URL_USER_LOCAL}/student/${member}`);
+                        if (member.id !== id_user) {
+                            const student = await this.getUserFromAPI(`${process.env.BASE_URL_USER_LOCAL}/student/${member.id}`);
                             if (student) {
                                 group.groups.friend = {
                                     id: student.data.id,
@@ -86,10 +100,14 @@ class GroupController {
                                     avatar: student.data.avatar
                                 }
                                 classify.student.push(group.groups);
+                                if (group.groups.lastMessageId !== me.lastMessageSeen) {
+                                    classify.unseen.student++;
+                                    group.groups.isUnseen = true;
+                                }
                                 break;
                             }
                             
-                            const teacher = await this.getUserFromAPI(`${process.env.BASE_URL_USER_LOCAL}/teacher/get-teacher-by-id/${member}`);
+                            const teacher = await this.getUserFromAPI(`${process.env.BASE_URL_USER_LOCAL}/teacher/get-teacher-by-id/${member.id}`);
                             if (teacher) {
                                 group.groups.friend = {
                                     id: teacher.data.id,
@@ -97,11 +115,20 @@ class GroupController {
                                     avatar: teacher.data.avatar
                                 }
                                 classify.teacher.push(group.groups);
+                                if (group.groups.lastMessageId !== me.lastMessageSeen) {
+                                    classify.unseen.teacher++;
+                                    group.groups.isUnseen = true;
+                                }
                                 break;
                             }
                         }
                     }
                 } else {
+                    const me = group.groups.members.find((m: any) => m.id === id_user);
+                    if (group.groups.lastMessageId && group.groups.lastMessageId !== me.lastMessageSeen) {
+                        classify.unseen.mix++;
+                        group.groups.isUnseen = true;
+                    }
                     classify.mix.push(group.groups);
                 }
             }
@@ -132,6 +159,10 @@ class GroupController {
             let { name, members, individual } = body;
 
             members = Array.from(new Set(members));
+            members = members.map((id: string) => ({
+                id,
+                lastMessageSeen: ""
+            }));
 
             individual = (individual === undefined || individual === "") ? true : individual;
             if (members.length > 1 && individual) {
@@ -140,7 +171,10 @@ class GroupController {
                 });
             }
 
-            members.push(req.user?.user.data.id);
+            members.push({
+                id: req.user?.user.data.id,
+                lastMessageSeen: ""
+            });
 
             const group = await Group.create({
                 name,
@@ -150,7 +184,7 @@ class GroupController {
             });
 
             for (const member of members) {
-                const memberOnline = clientConnected.find(o => o.user === member);
+                const memberOnline = clientConnected.find(o => o.user === member.id);
                 if (memberOnline) {
                     io.to(`${memberOnline.socket}`).emit("new_group_created", {
                         id_group: group.id,

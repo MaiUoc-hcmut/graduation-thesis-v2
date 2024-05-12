@@ -68,6 +68,26 @@ export class SOCKETIO {
                 socket.join(`${data.id_group}`);
             });
 
+            socket.on("read_message_in_group", async (id_group) => {
+                const user = this.clientConnected.find(u => u.socket === socket.id);
+
+                const group = await Group.findOne({
+                    id: id_group
+                });
+
+                group.members = group.members.map((m: any) => {
+                    if (m.id === user?.user) {
+                        return { ...m, lastMessageSeen: group.lastMessageId };
+                    }
+                    return m;
+                });
+
+                socket.broadcast.to(`${id_group}`).emit("user_read_message", {
+                    id_group,
+                    id_message: group.lastMessageId
+                });
+            })
+
             socket.on("disconnect", () => {
                 console.log(`User disconnected: ${socket.id}`);
                 this.clientConnected = this.clientConnected.filter(obj => obj.socket !== socket.id);

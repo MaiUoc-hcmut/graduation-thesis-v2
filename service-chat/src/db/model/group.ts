@@ -8,6 +8,13 @@ const validateUUID = {
     message: "Id must be valid UUID!"
 }
 
+const memberSchema = new mongoose.Schema(
+    {
+        id: String,
+        lastMessageSeen: String
+    }
+)
+
 const groupSchema = new mongoose.Schema(
     {
         id: {
@@ -19,6 +26,9 @@ const groupSchema = new mongoose.Schema(
             type: String,
             ref: 'Message',
         },
+        lastMessageId: {
+            type: String
+        },
         lastSenderId: {
             type: String,
             validate: validateUUID
@@ -26,7 +36,7 @@ const groupSchema = new mongoose.Schema(
         lastSenderName: {
             type: String
         },
-        members: [{ type: String, validator: validateUUID }],
+        members: [memberSchema],
         admins: [{ type: String, validator: validateUUID }],
         name: {
             type: String,

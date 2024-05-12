@@ -105,7 +105,8 @@ class CheckingGroup {
                 let error = "Group does not exist!";
                 return next(createError.BadRequest(error));
             }
-            if(!group.members.includes(id_user)) {
+            const userInGroup = group.members.find((u: any) => u.id === id_user);
+            if(!userInGroup) {
                 let error = "You are not in this group to add new member";
                 return next(createError.Unauthorized(error));
             }
@@ -143,7 +144,8 @@ class CheckingGroup {
                 let error = "Group does not exist!";
                 return next(createError.BadRequest(error));
             }
-            if(!group.members.includes(id_user)) {
+            const userInGroup = group.members.find((u: any) => u.id === id_user);
+            if(!userInGroup) {
                 let error = "You are not in this group to add new member";
                 return next(createError.Unauthorized(error));
             }

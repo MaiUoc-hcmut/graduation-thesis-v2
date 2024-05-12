@@ -43,7 +43,8 @@ class CheckingMessage {
                     return next(createError.BadRequest(error));
                 }
 
-                if (!group.members.includes(author)) {
+                const userInGroup = group.members.find((u: any) => u.id === author);
+                if (!userInGroup) {
                     let error = "You do not in this group!";
                     return next(createError.Unauthorized(error));
                 }
@@ -89,7 +90,8 @@ class CheckingMessage {
                 let error = "Group does not exist!";
                 return next(createError.BadRequest(error));
             }
-            if (!group.members.includes(id_user)) {
+            const userInGroup = group.members.find((u: any) => u.id === id_user);
+            if (!userInGroup) {
                 let error = "You are not in this group to get messages";
                 return next(createError.Unauthorized(error));
             }

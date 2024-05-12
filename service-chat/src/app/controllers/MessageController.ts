@@ -59,6 +59,7 @@ class MessageController {
     // [GET] /messages/groups/:groupId
     getMessagesInGroup = async (req: Request, res: Response, _next: NextFunction) => {
         try {
+            const id_user = req.user?.user.data.id;
             const id_group = req.params.groupId;
             const scrollSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
@@ -112,6 +113,19 @@ class MessageController {
                     continue;
                 }
             }
+            
+            if (messages.length > 0) {
+                const group = await Group.findOne({
+                    id: id_group
+                });
+                group.members = group.members.map((m: any) => {
+                    if (m.id === id_user) {
+                        return { ...m, lastMessageSeen: messages[0].id };
+                    }
+                    return m;
+                });
+                await group.save();
+            }
 
             res.status(200).json(messages);
         } catch (error: any) {
@@ -141,12 +155,24 @@ class MessageController {
 
             let id_group = body.id_group;
 
+            const message = await Message.create({
+                author,
+                body: body.body,
+                id_group
+            });
+
+            const members = [
+                { id: author, lastMessageSeen: message.id },
+                { id: body.user, lastMessageSeen: "" }
+            ]
+
             if (body.user) {
                 await Group.create({
-                    id: body.id_group,
-                    members: [author, body.user],
+                    id: id_group,
+                    members,
                     admins: [author, body.user],
                     lastMessage: body.body,
+                    lastMessageId: message.id,
                     lastSenderId: author,
                     lastSenderName: authorName,
                     individual: true
@@ -156,16 +182,17 @@ class MessageController {
                     id: id_group
                 });
                 group.lastMessage = body.body;
+                group.lastMessageId = message.id
                 group.lastSenderId = author;
                 group.lastSenderName = authorName;
+                group.members = group.members.map((m: any) => {
+                    if (m.id === author) {
+                        return { ...m, lastMessageSeen: message.id };
+                    }
+                    return m;
+                });
                 await group.save();
             }
-
-            const message = await Message.create({
-                author,
-                body: body.body,
-                id_group
-            });
 
             if (body.user) {
                 const userOnline = clientConnected.find(o => o.user === body.user);
@@ -230,7 +257,11 @@ class MessageController {
                 body = JSON.parse(body);
             }
 
-            const { members } = body;
+            let { members } = body;
+            members = members.map((id: string) => ({
+                id,
+                lastMessageSeen: ""
+            }));
 
             const group = await Group.findOne({
                 individual: true,
