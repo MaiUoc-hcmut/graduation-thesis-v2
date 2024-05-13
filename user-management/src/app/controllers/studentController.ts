@@ -11,23 +11,60 @@ const jwt = require('jsonwebtoken');
 const SignToken = require('../../utils/jwt');
 const transporter = require('../../utils/sendEmail');
 
+import { Request, Response, NextFunction } from 'express';
+import { Op } from 'sequelize';
 
 initializeApp(firebaseConfig);
 const storage = getStorage();
 
 
 class StudentController {
-    getAllStudent = async (req, res, next) => {
+    getAllStudent = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const students = await Student.findAll();
-            res.status(200).json(students);
-        } catch (error) {
+            const categories = [];
+
+            const { class: _class } = req.query;
+
+            if (!_class) {
+
+            } else if (Array.isArray(_class)) {
+                categories.push(..._class)
+            } else {
+                categories.push(_class)
+            }
+
+            const currentPage = +req.params.page;
+            const pageSize = 20;
+
+            const count = await Student.count({
+                where: {
+                    grade: {
+                        [Op.or]: categories
+                    }
+                }
+            });
+
+
+            const students = await Student.findAll({
+                where: {
+                    grade: {
+                        [Op.or]: categories
+                    }
+                },
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1)
+            });
+            res.status(200).json({
+                count,
+                students
+            });
+        } catch (error: any) {
             console.log(error.message);
             res.status(400).json({ error: error.message });
         }
     }
 
-    getStudentById = async (req, res, next) => {
+    getStudentById = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const student = await Student.findOne({
                 where: { id: req.params.studentId }
@@ -36,13 +73,13 @@ class StudentController {
             if (!student) return res.status(404).json({ message: "Student not found!" });
 
             res.status(200).json(student);
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
             res.status(400).json(error.message);
         }
     }
 
-    getStudentByEmail = async (req, res, next) => {
+    getStudentByEmail = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const student = await Student.findOne({
                 where: { email: req.body.email }
@@ -51,13 +88,13 @@ class StudentController {
             if (!student) return res.status(404).json({ message: "Student not found!" });
 
             res.status(200).json(student);
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
             res.status(400).json(error.message);
         }
     }
 
-    updateStudent = async (req, res, next) => {
+    updateStudent = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const studentId = req.params.studentId;
 
@@ -73,12 +110,12 @@ class StudentController {
                 updated: true,
                 student
             });
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
         }
     }
 
-    uploadAvatar = async (req, res, next) => {
+    uploadAvatar = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const studentId = req.params.studentId;
             if (req.student.dataValues.id != studentId) 
@@ -90,38 +127,42 @@ class StudentController {
             })
 
             if (!student) return res.status(404).json(createError.NotFound("Student doesn't exist"));
+            let avatar = student.avatar;
 
             const dateTime = Photo.giveCurrentDateTime();
 
-            const storageRef = ref(storage, `avatars/${req.file.originalname + "       " + dateTime}`);
+            const file = req.file;
 
-            // Create file metadata including the content type
-            const metadata = {
-                contentType: req.file.mimetype,
-            };
+            if (file) {
+                const storageRef = ref(storage, `avatars/${file.originalname + "       " + dateTime}`);
 
-            // Upload the file in the bucket storage
-            const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata);
-            //by using uploadBytesResumable we can control the progress of uploading like pause, resume, cancel
+                // Create file metadata including the content type
+                const metadata = {
+                    contentType: file.mimetype,
+                };
 
-            // Grab the public url
-            const downloadURL = await getDownloadURL(snapshot.ref);
+                // Upload the file in the bucket storage
+                const snapshot = await uploadBytesResumable(storageRef, file.buffer, metadata);
+                //by using uploadBytesResumable we can control the progress of uploading like pause, resume, cancel
 
-            student.update({
-                avatar: downloadURL
+                // Grab the public url
+                const downloadURL = await getDownloadURL(snapshot.ref);
+                avatar = downloadURL
+            }
+
+            await student.update({
+                avatar
             })
 
-            res.status(200).json({
-                avatar: downloadURL
-            })
+            res.status(200).json(student)
             
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
             res.json(error.message);
         }
     }
 
-    changePassword = async (req, res, next) => {
+    changePassword = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const { oldPassword, newPassword, confirmPassword } = req.body;
             if (newPassword !== confirmPassword) return res.status(400).json({ message: 'Your new password does not match!' });
@@ -146,12 +187,12 @@ class StudentController {
                 student
             })
 
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
         }
     }
 
-    forgotPassword = async (req, res, next) => {
+    forgotPassword = async (req: Request, res: Response, _next: NextFunction) => {
         // 1. Find student
         const student = await Student.findOne({
             where: { email: req.body.email }
@@ -184,14 +225,14 @@ class StudentController {
             res.status(200).json({
                 resetToken
             })  
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
             student.resetToken = undefined;
             student.resetTokenExpiry = undefined;
         }
     }
 
-    resetPassword = async (req, res, next) => {
+    resetPassword = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const student = Student.findOne({
                 where: {
@@ -214,7 +255,7 @@ class StudentController {
                 refreshToken,
                 student
             })
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
         }
     }

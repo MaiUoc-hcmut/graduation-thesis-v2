@@ -159,7 +159,7 @@ class TeacherController {
                 response.push({
                     ...teacher.dataValues,
                     ...courseServiceInformation.data,
-                    exam_quantity: examServiceInformation.data
+                    ...examServiceInformation.data
                 });
             }
 

@@ -5,7 +5,7 @@ const StudentController = require('../controllers/studentController');
 const Authorize = require('../middleware/studentAuth');
 const Photo = require('../../config/firebase/photo');
 
-router.route('/').get(StudentController.getAllStudent);
+router.route('/page/:page').get(StudentController.getAllStudent);
 router.route('/get-student-by-email').get(StudentController.getStudentByEmail);
 router.route('/:studentId')
     .get(StudentController.getStudentById)
