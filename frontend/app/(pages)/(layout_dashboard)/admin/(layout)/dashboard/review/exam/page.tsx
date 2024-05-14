@@ -23,7 +23,7 @@ export default function AssignmentDashboard() {
 
     useEffect(() => {
         async function fetchData() {
-            await courseApi.getAllReview().then((data: any) => {
+            await courseApi.getAllReview('').then((data: any) => {
                 setReviews(data.data)
             }).catch((err: any) => { })
         }

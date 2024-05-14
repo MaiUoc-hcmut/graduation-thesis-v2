@@ -21,6 +21,20 @@ export const columns: ColumnDef<any>[] = [
             )
         },
     },
+    {
+        accessorKey: "id_student",
+        header: ({ column }) => {
+            return (
+                <button
+                    className="flex justify-center items-center font-semibold"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Tên đề thi
+                    <ArrowsUpDownIcon className="ml-2 h-4 w-4" />
+                </button>
+            )
+        },
+    },
 
     {
         accessorKey: "content",

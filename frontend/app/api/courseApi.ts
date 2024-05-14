@@ -91,6 +91,13 @@ const courseApi = {
         });
     },
 
+    getAllReviewAdmin: (page: string) => {
+        const url = `/reviews`;
+        return axiosConfig.get(url, {
+            baseURL: 'http://localhost:4001/api/v1'
+        });
+    },
+
     getCommentByTopic: (id: string, page: number) => {
         const url = `/comments/topic/${id}/page/${page}`;
         return axiosConfig.get(url);

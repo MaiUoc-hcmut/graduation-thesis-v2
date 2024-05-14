@@ -33,7 +33,7 @@ export default function AssignmentDashboard() {
             await courseApi.getAllByTeacher(`${user.id}`, '1').then((data: any) => {
                 setCourses(data.data.courses)
             }).catch((err: any) => { })
-            await courseApi.getAllReview().then((data: any) => {
+            await courseApi.getAllReviewAdmin(`${page}`).then((data: any) => {
                 setReviews(data.data)
             }).catch((err: any) => { })
         }

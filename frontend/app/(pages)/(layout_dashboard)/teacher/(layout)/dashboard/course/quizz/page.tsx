@@ -75,10 +75,10 @@ export default function ExamDashboard() {
                                     <tr>
                                         <th scope="col" className="w-1/5 px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Tên bài tập</th>
                                         <th scope="col" className="w-1/5 px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Khóa học</th>
-                                        <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Số lượt làm bài</th>
-                                        <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Điểm trung bình</th>
-                                        <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Hoàn thành</th>
-                                        <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Thất bại</th>
+                                        <th scope="col" className="py-3 px-2 text-center text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Số lượt làm bài</th>
+                                        <th scope="col" className="py-3 px-2 text-center text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Điểm trung bình</th>
+                                        <th scope="col" className="py-3 px-2 text-center text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Hoàn thành</th>
+                                        <th scope="col" className="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Thất bại</th>
                                         <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Tác vụ</th>
                                     </tr>
                                 </thead>

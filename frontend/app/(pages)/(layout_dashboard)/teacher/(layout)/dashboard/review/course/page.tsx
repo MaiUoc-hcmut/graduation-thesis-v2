@@ -9,7 +9,7 @@ import userApi from "@/app/api/userApi"
 import courseApi from "@/app/api/courseApi";
 
 
-export default function AssignmentDashboard() {
+export default function CourseReview() {
 
     const user = useAppSelector(state => state.authReducer.user);
     const [reviews, setReviews] = useState<any>([])

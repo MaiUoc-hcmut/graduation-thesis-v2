@@ -8,7 +8,7 @@ import { useSearchParams } from "next/navigation"
 import userApi from "@/app/api/userApi"
 
 
-export default function AssignmentDashboard() {
+export default function TeacherReview() {
 
     const user = useAppSelector(state => state.authReducer.user);
     const [reviews, setReviews] = useState<any>([])
@@ -41,7 +41,7 @@ export default function AssignmentDashboard() {
         <div>
             <div>
                 <div className="font-bold text-[#171347] text-lg">Lọc kết quả</div>
-                <form className="p-5 bg-white mt-4 rounded-lg flex justify-between items-center">
+                <form className="p-5 bg-white mt-4 rounded-lg flex justify-between items-center w-2/3">
                     <div>
                         <div className="flex items-center">
                             <div className="">

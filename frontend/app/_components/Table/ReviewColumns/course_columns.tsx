@@ -8,7 +8,7 @@ import { convertToVietnamTime } from "@/app/helper/FormatFunction"
 
 export const columns: ColumnDef<any>[] = [
     {
-        accessorKey: "id_student",
+        accessorKey: "user.name",
         header: ({ column }) => {
             return (
                 <button
@@ -22,7 +22,7 @@ export const columns: ColumnDef<any>[] = [
         },
     },
     {
-        accessorKey: "id_course",
+        accessorKey: "course_name",
         header: ({ column }) => {
             return (
                 <button

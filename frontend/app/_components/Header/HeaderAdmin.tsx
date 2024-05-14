@@ -21,7 +21,7 @@ import { useSocket } from '@/app/socket/SocketProvider';
 import { Bounce, toast } from 'react-toastify';
 
 
-export default function HeaderTeacher() {
+export default function HeaderAdmin() {
     const dispatch = useDispatch<AppDispatch>();
     const router = useRouter()
     const authReducer = JSON.parse(localStorage.getItem('persist:authReducer') || '{}')
@@ -33,47 +33,6 @@ export default function HeaderTeacher() {
     const [hasMore, setHasMore] = useState(true);
     const [conversations, setConversations] = useState<any>([]);
     const socketChat = useSocket();
-
-
-
-    useEffect(() => {
-        async function fetchData() {
-            if (user) {
-                //socket notify
-                const socket = io("http://localhost:4003", { transports: ["websocket"] });
-                socket.emit("new_user_online", user.id);
-                socket.on("created_course", (data) => {
-                    const audio = new Audio("/audio/audio-notification.mp3");
-                    audio.play();
-                });
-                socket.on("created_exam", (data) => {
-                    const audio = new Audio("/audio/audio-notification.mp3");
-                    audio.play();
-                });
-                socket.on("reported_error", (data) => {
-                    const audio = new Audio("/audio/audio-notification.mp3");
-                    audio.play();
-                });
-                socket.on("created_topic", (data) => {
-                    const audio = new Audio("/audio/audio-notification.mp3");
-                    audio.play();
-                });
-
-                socketChat?.on("new_message_created", (data: any) => {
-                    if (user.id === data.author?.id) {
-                        return
-                    }
-                    else {
-                        const audio = new Audio("/audio/audio-notification.mp3");
-                        audio.play();
-                    }
-                })
-
-            }
-
-        }
-        fetchData()
-    }, [user]);
 
     const fetchNotifications = async (pageNum: number) => {
         // Fetch notifications from API here
@@ -180,7 +139,7 @@ export default function HeaderTeacher() {
                                     <MessageBox conversations={conversations} user={user} />
                                 </div>
 
-                                <div className='mr-5'>
+                                {/* <div className='mr-5'>
                                     <button
                                         id="dropdownNotificationButton"
                                         data-dropdown-toggle="dropdownNotification"
@@ -201,7 +160,6 @@ export default function HeaderTeacher() {
                                         }} />
                                         <div className="absolute block w-3 h-3 bg-red-500 border-2 border-white rounded-full -top-0 start-3 dark:border-gray-900" />
                                     </button>
-                                    {/* Dropdown menu */}
                                     <div
                                         id="dropdownNotification"
                                         className="z-20 hidden w-96 max-w-sm bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-800 dark:divide-gray-700"
@@ -363,7 +321,7 @@ export default function HeaderTeacher() {
                                             </div>
                                         </Link>
                                     </div>
-                                </div>
+                                </div> */}
 
 
                                 {/* user */}

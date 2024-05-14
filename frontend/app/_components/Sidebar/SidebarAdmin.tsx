@@ -197,7 +197,7 @@ export default function SidebarTeacher() {
                                             className={`${pathname == '/admin/dashboard/exam/combo' ? 'bg-slate-100' : ''} ml-4 flex items-center p-2 text-gray-900 transition duration-75 rounded-lg pl-2 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700`}
                                         >
                                             <div className='ml-2'>
-                                                Danh sách combo đề thi
+                                                Danh sách combo
                                             </div>
 
                                         </Link>

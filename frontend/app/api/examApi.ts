@@ -10,6 +10,13 @@ const examApi = {
         return axiosConfig.get(url);
     },
 
+    getAllReviewExamByTeacher: (id_teacher: string) => {
+        const url = `/reviews/teacher/${id_teacher}`;
+        return axiosConfig.get(url, {
+            baseURL: 'http://localhost:4002/api/v1'
+        });
+    },
+
     get: async (id: string) => {
         const url = `/exams/full/${id}`;
         return await axiosConfig.get(url);
