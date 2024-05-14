@@ -3,6 +3,7 @@ const Group = require('../../db/model/group');
 
 import { Request, Response, NextFunction } from 'express';
 import { socketInstance } from "../..";
+import { log } from 'console';
 
 const axios = require('axios');
 
@@ -23,11 +24,11 @@ class GroupController {
             }
         }
     }
-     
+
     // [GET] /groups/:groupId
     getGroup = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            
+
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({
@@ -106,8 +107,8 @@ class GroupController {
                                 }
                                 break;
                             }
-                            
-                            const teacher = await this.getUserFromAPI(`${process.env.BASE_URL_USER_LOCAL}/teacher/get-teacher-by-id/${member.id}`);
+
+                            const teacher = await this.getUserFromAPI(`${process.env.BASE_URL_USER_LOCAL}/teacher/get-teacher-by-id/${member}`);
                             if (teacher) {
                                 group.groups.friend = {
                                     id: teacher.data.id,
@@ -186,6 +187,7 @@ class GroupController {
             for (const member of members) {
                 const memberOnline = clientConnected.find(o => o.user === member.id);
                 if (memberOnline) {
+
                     io.to(`${memberOnline.socket}`).emit("new_group_created", {
                         id_group: group.id,
                         group_name: name,
@@ -207,7 +209,7 @@ class GroupController {
     // [PUT] /groups/:groupId/set-admin
     setAdminForGroup = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            
+
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({
@@ -233,7 +235,7 @@ class GroupController {
             await group.save();
 
             res.status(200).json(group);
-            
+
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({
@@ -276,7 +278,7 @@ class GroupController {
             const group = await Group.findOne({
                 id: id_group
             });
-            
+
             group.members = group.members.filter((user: string) => user !== id_user);
             await group.save();
 

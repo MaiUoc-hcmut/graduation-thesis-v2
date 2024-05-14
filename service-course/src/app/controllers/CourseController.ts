@@ -93,8 +93,8 @@ class CourseController {
             const authority = req.authority;
 
             let status = authority === 2
-                            ? ['public', 'paid', 'private']
-                            : ['public', 'paid'];
+                ? ['public', 'paid', 'private']
+                : ['public', 'paid'];
 
             const levelCondition: any[] = [];
             const subjectCondition: any[] = [];
@@ -106,7 +106,7 @@ class CourseController {
             const maxPrice = typeof req.query.maxPrice === 'string' ? parseInt(req.query.maxPrice) : undefined;
 
             if (!_class) {
-                
+
             } else if (Array.isArray(_class)) {
                 classCondition.push(..._class);
             } else {
@@ -194,7 +194,7 @@ class CourseController {
             if (typeof orderSort === "string" && Object.values(SortOrder).includes(orderSort)) {
                 defaultOrder = orderFactor[orderSort as SortOrder];
             }
-            
+
             const currentPage: number = +req.params.page;
             const pageSize: number = authority === 2 ? 20 : parseInt(process.env.SIZE_OF_PAGE || '10');
 
@@ -236,7 +236,7 @@ class CourseController {
                     categoryLength++;
                 }
                 queryOption.group = ['Course.id'];
-                queryOption.having = sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categoryLength}`);
+                queryOption.having = sequelize.literal("COUNT(DISTINCT " + `Categories` + "." + `id` + `) = ${categoryLength}`);
             }
 
             const count = await Course.findAll({
@@ -327,7 +327,7 @@ class CourseController {
         const index = client.initIndex(process.env.ALGOLIA_INDEX_NAME);
         try {
             const currentPage: number = +req.params.page;
-            
+
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const query = req.query.query;
@@ -382,8 +382,8 @@ class CourseController {
             const authority = req.authority;
 
             let status = authority === 2
-                            ? ['public', 'paid', 'private']
-                            : ['public', 'paid']
+                ? ['public', 'paid', 'private']
+                : ['public', 'paid']
 
             const course = await Course.findOne({
                 where: { id: req.params.courseId },
@@ -448,7 +448,7 @@ class CourseController {
                 let totalChapterExams = 0;
                 for (const topic of chapter.topics) {
                     totalChapterDuration += topic.duration;
-                    topic.type === "lecture" ? totalChapterLectures++ : totalChapterExams++; 
+                    topic.type === "lecture" ? totalChapterLectures++ : totalChapterExams++;
 
                     if (authority === 0 && topic.status === "paid" && topic.type === "lecture") {
                         delete topic.dataValues.video;
@@ -507,8 +507,8 @@ class CourseController {
             const authority = req.authority;
 
             let status = (authority === 2 || req.user?.user.data.id === id_teacher)
-                            ? ['public', 'paid', 'private']
-                            : ['public', 'paid'];
+                ? ['public', 'paid', 'private']
+                : ['public', 'paid'];
 
             enum SortQuery {
                 Rating = 'rating',
@@ -654,7 +654,7 @@ class CourseController {
     getRecordsOfStudentCourseTable = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const records = await StudentCourse.findAll();
-            
+
             res.status(200).json(records);
         } catch (error: any) {
             console.log(error.message);
@@ -667,7 +667,7 @@ class CourseController {
         try {
             const currentPage: number = +req.params.page;
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
-            
+
             const id_course = req.params.courseId;
 
             const records = await StudentCourse.findAll({
@@ -694,14 +694,14 @@ class CourseController {
                 });
                 const course = await Course.findByPk(record.id_course);
                 const [
-                    start_time, 
-                    end_time, 
+                    start_time,
+                    end_time,
                     total_topic
                 ] = [
-                    new Date(course.start_time),
-                    new Date(course.end_time),
-                    course.total_exam + course.total_lecture
-                ]
+                        new Date(course.start_time),
+                        new Date(course.end_time),
+                        course.total_exam + course.total_lecture
+                    ]
                 const durationToLearn: number = (end_time.getTime() - start_time.getTime()) / (1000 * 60 * 60 * 24);
                 const today = new Date();
 
@@ -780,6 +780,8 @@ class CourseController {
             }[] = [];
             for (const record of records) {
                 const student = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${record.id_student}`);
+                console.log(student.data.id, 222);
+
                 students.push({
                     id: student.data.id,
                     email: student.data.email,
@@ -800,6 +802,7 @@ class CourseController {
     studentBuyACourse = async (req: Request, res: Response, _next: NextFunction) => {
         const t = await sequelize.transaction();
         try {
+            console.log(req.student);
             const id_student = req.student.data.id;
             const id_course = req.params.courseId;
 
@@ -871,7 +874,7 @@ class CourseController {
                 message: "Student has been bought the course!",
                 error_message
             });
-            
+
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error, message: error.message });
@@ -884,10 +887,10 @@ class CourseController {
     createCourse = async (req: Request, res: Response, _next: NextFunction) => {
         let body = req.body.data;
 
-        if (typeof(body) == 'string') {
+        if (typeof (body) == 'string') {
             body = JSON.parse(body);
         }
-        
+
         let { chapters, categories, id, ...courseBody } = body;
 
         const t = await sequelize.transaction();
@@ -897,7 +900,7 @@ class CourseController {
 
         try {
             const id_teacher = req.teacher.data.id;
-            
+
             // check if there are no start and end time
             if (!courseBody.start_time || !courseBody.end_time) {
                 throw new Error("Time landmark missed!");
@@ -909,15 +912,15 @@ class CourseController {
 
             let thumbnail = "";
             let cover_image = "";
-            
+
             // Query thumbnail and cover image that created in draft table before
             const thumbnailDraft = await CourseDraft.findOne({
-                where: { 
+                where: {
                     id_course: id,
                     type: "thumbnail"
                 }
             });
-            
+
             const coverDraft = await CourseDraft.findOne({
                 where: {
                     id_course: id,
@@ -982,11 +985,13 @@ class CourseController {
                     }, {
                         transaction: t
                     });
-    
+
                     // If chapter contain topics
                     if (chapters[i].topics !== undefined) {
                         totalLecture += chapters[i].topics.filter((topic: any) => topic.type === "lecture").length;
                         totalExam += chapters[i].topics.filter((topic: any) => topic.type === "exam").length;
+                        console.log(totalLecture);
+
                         for (let j = 0; j < chapters[i].topics.length; j++) {
                             // If topic is an exam
                             if (chapters[i].topics[j].type === "exam") {
@@ -1020,7 +1025,7 @@ class CourseController {
 
                             let topicVideoURL = "";
                             let topicVideoDuration = 0;
-        
+
                             const topicDraft = await CourseDraft.findOne({
                                 where: {
                                     id_course: id,
@@ -1029,7 +1034,7 @@ class CourseController {
                                     type: "lecture"
                                 }
                             });
-        
+
                             if (topicDraft) {
                                 topicVideoURL = topicDraft.url;
                                 topicVideoDuration = topicDraft.duration;
@@ -1070,7 +1075,7 @@ class CourseController {
                                     await newTopic.addDocuments(documentInstances, { transaction: t });
                                 }
                             }
-                            
+
                             totalDuration += topicVideoDuration;
                             console.log(topicVideoDuration);
                         }
@@ -1078,16 +1083,16 @@ class CourseController {
                 }
             }
             console.log(totalDuration);
-            await newCourse.update({ 
-                total_lecture: totalLecture, 
+            await newCourse.update({
+                total_lecture: totalLecture,
                 total_exam: totalExam,
                 total_chapter: totalChapter,
                 total_duration: totalDuration
-            }, { 
-                transaction: t 
+            }, {
+                transaction: t
             });
 
-            
+
             const data = {
                 id_user: id_teacher,
                 id_course: newCourse.id,
@@ -1122,7 +1127,7 @@ class CourseController {
             res.status(500).json({ error });
 
             const thumbnailDraft = await CourseDraft.findOne({
-                where: { 
+                where: {
                     id_course: id,
                     type: "thumbnail"
                 }
@@ -1166,7 +1171,7 @@ class CourseController {
     uploadThumbnailAndCover = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-            
+
             const dateTime = fileUpload.giveCurrentDateTime();
 
             if (!files.thumbnail[0].mimetype.startsWith('image/')) {
@@ -1259,7 +1264,7 @@ class CourseController {
                 const coverRef = ref(req.URL.cover);
                 await deleteObject(thumbnailRef);
                 await deleteObject(coverRef);
-                return 
+                return
             }
 
             const uploadPromises = files.video.map(async (video) => {
@@ -1277,7 +1282,7 @@ class CourseController {
                 const originalFileName = video.originalname.substring(secondHyphen + 1);
 
                 const storageRef = ref(
-                    storage, 
+                    storage,
                     `video course/${originalFileName + "       " + dateTime}`
                 );
 
@@ -1301,7 +1306,7 @@ class CourseController {
                 //     url
                 // });
             });
-            
+
             await Promise.all(uploadPromises);
 
             req.topicURL = urls;
@@ -1324,7 +1329,7 @@ class CourseController {
             if (typeof body === "string") {
                 body = JSON.parse(body);
             }
-            
+
             let { chapters, categories, ...courseBody } = body;
 
             const courseId = req.params.courseId;
@@ -1385,7 +1390,7 @@ class CourseController {
                 for (const chapter of chapters) {
 
                     const { topics, ...chapterBody } = chapter;
-                    
+
                     // If chapter does not have id, it's means the new chapter will be add to course
                     if (chapterBody.id === undefined) {
                         const newChapter = await Chapter.create({
@@ -1403,7 +1408,7 @@ class CourseController {
 
                                 // Check if the video has been uploaded or not
                                 const topicDraft = await CourseDraft.findOne({
-                                    where: { 
+                                    where: {
                                         id_topic: topic.id,
                                         type: "lecture"
                                     }
@@ -1456,10 +1461,10 @@ class CourseController {
                     }
 
                     // If chapter does not contain modify field, means this chapter does not need to be update or just update the order
-                    if (chapter.modify === undefined){
+                    if (chapter.modify === undefined) {
                         await Chapter.update({
                             order: i
-                        },{
+                        }, {
                             where: { id: chapter.id }
                         }, {
                             transaction: t
@@ -1475,7 +1480,7 @@ class CourseController {
                         totalExam -= chapter.topics?.filter((topic: any) => topic.type === "exam").length;
 
                         const chapterToDelete = await Chapter.findByPk(chapter.id);
-                        
+
                         if (!chapterToDelete) throw new Error(`Chapter with id ${chapter.id} does not exist`);
                         await chapterToDelete.destroy({ transaction: t });
                         continue;
@@ -1496,7 +1501,7 @@ class CourseController {
                             // If topic does not have id, means new topic will be add
                             if (topic.modify === "create") {
                                 const topicDraft = await CourseDraft.findOne({
-                                    where: { 
+                                    where: {
                                         id_topic: topic.id,
                                         type: "lecture"
                                     },
@@ -1674,36 +1679,36 @@ class CourseController {
     test = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-    
+
             const urls: ResponseVideoFile[] = [];
-    
+
             const uploadPromises = files.video.map(async (video) => {
                 const dateTime = fileUpload.giveCurrentDateTime();
-    
+
                 const firstHyphen = video.originalname.indexOf('-');
                 const chapterIdx = video.originalname.substring(0, firstHyphen);
-    
+
                 const secondHyphen = video.originalname.indexOf('-', firstHyphen + 1);
                 const topicIdx = video.originalname.substring(firstHyphen + 1, secondHyphen);
-    
+
                 const originalFileName = video.originalname.substring(secondHyphen + 1);
-    
+
                 const storageRef = ref(
-                    storage, 
+                    storage,
                     `video course/${originalFileName + "       " + dateTime}`
                 );
-    
+
                 const metadata = {
                     contentType: video.mimetype,
                 };
-    
+
                 // Theo dõi tiến trình tải lên
                 const snapshot = await uploadBytesResumable(storageRef, video.buffer, metadata);
                 const url = await getDownloadURL(snapshot.ref);
                 let duration = await getVideoDurationInSeconds(url);
                 duration = Math.floor(duration);
 
-                console.log({url, duration})
+                console.log({ url, duration })
 
                 urls.push({
                     name: originalFileName,
@@ -1713,9 +1718,9 @@ class CourseController {
                     duration
                 });
             });
-            
+
             await Promise.all(uploadPromises);
-    
+
             res.json(urls)
         } catch (error: any) {
             console.log(error.message);

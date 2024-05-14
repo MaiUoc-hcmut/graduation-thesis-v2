@@ -102,24 +102,24 @@ class PaymentController {
             var requestId = partnerCode + new Date().getTime();
             var orderId = requestId;
             var orderInfo = req.body.orderInfo;
-            var redirectUrl = "http://localhost:3000/checkout/result";
+            var redirectUrl = "http://localhost:3000/payment/result";
             var ipnUrl = "https://eoidnudnipocu1q.m.pipedream.net/";
             var amount = req.body.amount;
             var requestType = "captureWallet"
-            var extraData = ""; //pass empty value if your merchant does not have stores
+            var extraData = ''; //pass empty value if your merchant does not have stores
 
             //before sign HMAC SHA256 with format
             //accessKey=$accessKey&amount=$amount&extraData=$extraData&ipnUrl=$ipnUrl&orderId=$orderId&orderInfo=$orderInfo&partnerCode=$partnerCode&redirectUrl=$redirectUrl&requestId=$requestId&requestType=$requestType
-            var rawSignature = 
-                "accessKey="+ accessKey+
-                "&amount=" + amount+
-                "&extraData=" + extraData+
-                "&ipnUrl=" + ipnUrl+
-                "&orderId=" + orderId+
-                "&orderInfo=" + orderInfo+
+            var rawSignature =
+                "accessKey=" + accessKey +
+                "&amount=" + amount +
+                "&extraData=" + extraData +
+                "&ipnUrl=" + ipnUrl +
+                "&orderId=" + orderId +
+                "&orderInfo=" + orderInfo +
                 "&partnerCode=" + partnerCode +
-                "&redirectUrl=" + redirectUrl+
-                "&requestId=" + requestId+
+                "&redirectUrl=" + redirectUrl +
+                "&requestId=" + requestId +
                 "&requestType=" + requestType
             //puts raw signature
             console.log("--------------------RAW SIGNATURE----------------")
@@ -134,17 +134,17 @@ class PaymentController {
 
             //json object send to MoMo endpoint
             const requestBody = JSON.stringify({
-                partnerCode : partnerCode,
-                accessKey : accessKey,
-                requestId : requestId,
-                amount : amount,
-                orderId : orderId,
-                orderInfo : orderInfo,
-                redirectUrl : redirectUrl,
-                ipnUrl : ipnUrl,
-                extraData : extraData,
-                requestType : requestType,
-                signature : signature,
+                partnerCode: partnerCode,
+                accessKey: accessKey,
+                requestId: requestId,
+                amount: amount,
+                orderId: orderId,
+                orderInfo: orderInfo,
+                redirectUrl: redirectUrl,
+                ipnUrl: ipnUrl,
+                extraData: extraData,
+                requestType: requestType,
+                signature: signature,
                 lang: 'en'
             });
             //Create the HTTPS objects

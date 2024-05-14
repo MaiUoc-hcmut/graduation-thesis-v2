@@ -149,6 +149,7 @@ class MessageController {
             const clientConnected = socketInstance.getClientConnected();
 
             let body = req.body.data;
+
             if (typeof body === "string") {
                 body = JSON.parse(body);
             }

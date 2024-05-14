@@ -13,7 +13,7 @@ router.route('/update')
     .put(DocumentFile.upload, DocumentController.updateDocumentForTopic);
 
 router.route('/upload-file')
-    .post(Authorize.protectedAPI, DocumentFile.upload, DocumentController.uploadFile);
+    .post(DocumentFile.upload, DocumentController.uploadFile);
 
 router.route('/upload-multi-file')
     .post(Authorize.protectedAPI, DocumentFile.uploadMulti, DocumentController.uploadMultiFile);

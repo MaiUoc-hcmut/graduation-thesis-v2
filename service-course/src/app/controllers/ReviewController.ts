@@ -124,7 +124,7 @@ class ReviewController {
             });
 
             let totalRating = 0;
-            let starCount: { [key: number]: number } = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+            let starCount: { [key: number]: number } = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
 
             for (const review of reviews) {
                 totalRating += review.rating;
@@ -208,7 +208,7 @@ class ReviewController {
             const id_exam = req.params.examId;
 
             const currentPage: number = +req.params.page;
-            
+
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const count = await Review.count({
@@ -222,12 +222,12 @@ class ReviewController {
             });
 
             let totalRating = 0;
-            let starCount: { [key: number]: number } = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+            let starCount: { [key: number]: number } = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
 
             for (const review of reviews) {
                 totalRating += review.rating;
                 starCount[review.rating]++;
-                
+
                 const user = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${review.id_student}`);
 
                 review.dataValues.user = { avatar: user.data.avatar, name: user.data.name };
@@ -276,7 +276,7 @@ class ReviewController {
             const id_student = req.params.studentId;
 
             const currentPage: number = +req.params.page;
-            
+
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const count = await Review.count({
@@ -348,7 +348,7 @@ class ReviewController {
             }, {
                 transaction: t
             });
-            
+
             const newReview = await Review.create({
                 id_student,
                 ...body
@@ -373,24 +373,24 @@ class ReviewController {
 
             if (file) {
                 const dateTime = fileUpload.giveCurrentDateTime();
-    
+
                 const storageRef = ref(
                     storage,
                     `reviews/${file?.originalname + '       ' + dateTime}`
                 );
-    
+
                 // Create file metadata including the content type
                 const metadata = {
                     contentType: file?.mimetype,
                 };
-    
+
                 // Upload the file in the bucket storage
                 const snapshot = await uploadBytesResumable(
                     storageRef,
                     file?.buffer,
                     metadata
                 );
-    
+
                 // Grab the public url
                 const downloadURL = await getDownloadURL(snapshot.ref);
                 req.ImageUrl = downloadURL;
