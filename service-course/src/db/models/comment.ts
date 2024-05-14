@@ -10,17 +10,24 @@ class Comment extends Model {
 Comment.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      autoIncrement: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    id_lecture: {
-      type: DataTypes.INTEGER.UNSIGNED,
+    id_parent: {
+      type: DataTypes.UUID
+    },
+    id_topic: {
+      type: DataTypes.UUID,
       allowNull: false,
     },
     id_user: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.UUID,
       allowNull: false,
+    },
+    role: {
+      type: DataTypes.STRING,
+      defaultValue: "student",
     },
     content: {
       type: DataTypes.STRING(1000),
@@ -49,5 +56,10 @@ Comment.init(
   },
 );
 
+Comment.hasMany(Comment, {
+  as: 'replies',
+  foreignKey: 'id_parent',
+  sourceKey: 'id'
+});
 
 module.exports = Comment

@@ -1,6 +1,5 @@
 const { sequelize } = require('../../config/db');
 import { Model, DataTypes, CreationOptional } from 'sequelize';
-const DetailQuestion = require('./detail_question');
 
 class Answer extends Model {
     declare createdAt: CreationOptional<Date>;
@@ -15,10 +14,6 @@ Answer.init({
     },
     id_question: {
         type: DataTypes.UUID,
-        references: {
-            model: 'question',
-            key: 'id',
-        }
     },
     is_correct: {
         type: DataTypes.BOOLEAN,
@@ -30,16 +25,15 @@ Answer.init({
     },
     content_image: {
         type: DataTypes.STRING,
+    },
+    status: {
+        type: DataTypes.STRING,
+        defaultValue: 'public',
+        allowNull: false
     }
 }, {
     sequelize,
-    tableName: 'exam',
+    tableName: 'answer',
 });
 
 module.exports = Answer;
-
-Answer.belongsToMany(DetailQuestion, { through: 'selected_answer' });
-DetailQuestion.belongsToMany(Answer, { through: 'selected_answer' });
-
-Answer.sync();
-DetailQuestion.sync();

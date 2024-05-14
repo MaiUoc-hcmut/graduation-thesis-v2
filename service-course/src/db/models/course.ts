@@ -1,8 +1,9 @@
 
 const { sequelize } = require('../../config/db');
 import { Model, DataTypes, CreationOptional } from 'sequelize';
-const Chapter = require('./chapter')
-const Lecture = require('./lecture')
+const Chapter = require('./chapter');
+const Topic = require('./topic');
+const Category = require('./category');
 
 class Course extends Model {
   declare createdAt: CreationOptional<Date>;
@@ -12,12 +13,12 @@ class Course extends Model {
 Course.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      autoIncrement: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
     id_teacher: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.UUID,
       allowNull: false,
     },
     name: {
@@ -28,48 +29,66 @@ Course.init(
       type: DataTypes.STRING,
     },
     price: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    last_update_time: DataTypes.TIME,
-    start_time: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    end_time: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    subject: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    grade: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    level: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER.UNSIGNED,
+      defaultValue: 0,
       allowNull: false,
     },
     goal: {
       type: DataTypes.STRING,
-      allowNull: false,
+      defaultValue: "",
     },
     object: {
       type: DataTypes.STRING,
-      allowNull: false,
+      defaultValue: "",
     },
-    method: {
+    requirement: {
       type: DataTypes.STRING,
-      allowNull: false,
+      defaultValue: "",
     },
     thumbnail: DataTypes.STRING,
-
+    cover_image: DataTypes.STRING,
     status: {
-      type: DataTypes.BOOLEAN,
+      type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: true,
+      defaultValue: "public",
+    },
+    total_lecture: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    total_exam: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    total_chapter: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    total_duration: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    average_rating: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0,
+    },
+    total_review: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    start_time: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
+    end_time: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
+    registration: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      defaultValue: 0,
     },
     createdAt: {
       type: DataTypes.DATE,
@@ -91,9 +110,20 @@ Chapter.belongsTo(Course, {
 });
 
 
-Chapter.hasMany(Lecture, { foreignKey: "id_chapter", as: "lectures" })
-Lecture.belongsTo(Chapter, {
+Chapter.hasMany(Topic, { foreignKey: "id_chapter", as: "topics" })
+Topic.belongsTo(Chapter, {
   foreignKey: "id_chapter"
+});
+
+Course.belongsToMany(Category, { 
+  through: 'category-course',
+  foreignKey: 'id_course',
+  otherKey: 'id_category'
+});
+Category.belongsToMany(Course, { 
+  through: 'categoty-course',
+  foreignKey: 'id_category',
+  otherKey: 'id_course'
 });
 
 module.exports = Course

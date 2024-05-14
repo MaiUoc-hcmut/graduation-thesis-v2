@@ -1,13 +1,12 @@
 const { sequelize } = require('../../config/db');
 import { Model, DataTypes, CreationOptional } from 'sequelize';
-const Category = require('./category');
 
-class Par_category extends Model {
+class ParentCategory extends Model {
     declare createdAt: CreationOptional<Date>;
     declare updatedAt: CreationOptional<Date>;
 }
 
-Par_category.init({
+ParentCategory.init({
     id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -23,9 +22,4 @@ Par_category.init({
     tableName: 'par_category',
 });
 
-// Par_category.belongsToMany(Question, { through: 'Par_category_question' });
-// Question.belongsToMany(Exam, { through: 'exam_question' });
-
-Par_category.hasMany(Category)
-
-module.exports = Par_category
+module.exports = ParentCategory;

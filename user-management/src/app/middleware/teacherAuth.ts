@@ -47,15 +47,29 @@ passportTeacher.use(
 
 // middleware verify access token
 exports.protectedAPI = (req: Request, res: Response, next: NextFunction) => {
-    passportTeacher.authenticate('teacher-jwt', { session: false }, (err: any, teacher: any, info: any) => {
+    passportTeacher.authenticate('teacher-jwt', { session: false }, (err: any, teacher: any) => {
         if (err || !teacher) {
-            return next(createError.Unauthorized(info?.message ? info.message : "User is not authorized"));
+            return next(createError.Unauthorized(err?.message ? err : "User is not authorized"));
         } else {
             req.teacher = teacher;
             next();
         }
     })(req, res, next);
 };
+
+exports.verifyTeacher = (req: Request, res: Response, next: NextFunction) => {
+    passportTeacher.authenticate('teacher-jwt', { session: false }, (err: any, teacher: any) => {
+        if (req.student) {
+            return next();
+        }
+        else if (err || !teacher) {
+            return next(createError.Unauthorized("Token is invalid!"))
+        } else {
+            req.teacher = teacher;
+            next();
+        }
+    })(req, res, next);
+}
 
 
 
@@ -90,9 +104,9 @@ passportTeacher.use(
 
 
 exports.loginAuth = (req: Request, res: Response, next: NextFunction) => {
-    passportTeacher.authenticate('teacher-local', { session: false, failureMessage: true }, (err: any, teacher: any, info: any) => {
+    passportTeacher.authenticate('teacher-local', { session: false, failureMessage: true }, (err: any, teacher: any) => {
         if (err || !teacher) {
-            return next(createError.BadRequest(info?.message ? info.message : "Login failed"));
+            return next(createError.BadRequest(err?.message ? err : "Login failed"));
         } else {
             req.teacher = teacher;
             next();

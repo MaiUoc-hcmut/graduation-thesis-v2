@@ -6,15 +6,15 @@ class Folder extends Model {}
 Folder.init(
     {
         id: {
-            type: DataTypes.INTEGER.UNSIGNED,
-            autoIncrement: true,
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
             primaryKey: true
         },
         parent_folder_id: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.UUID,
         },
         id_teacher: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.UUID,
         },
         name: {
             type: DataTypes.STRING(100)
@@ -29,7 +29,7 @@ Folder.init(
         },
     },
     {
-        tableName: 'folders',
+        tableName: 'folder',
         freezeTableName: true,
         sequelize
     }

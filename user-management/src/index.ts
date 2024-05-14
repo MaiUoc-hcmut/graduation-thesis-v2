@@ -8,6 +8,9 @@ const studentAuthRouter = require('./app/route/studentAuthRoute');
 const studentRouter = require('./app/route/studentRoute');
 const teacherAuthRouter = require('./app/route/teacherAuthRoute');
 const teacherRouter = require('./app/route/teacherRoute');
+const adminRouter = require('./app/route/admin');
+const reviewRouter = require('./app/route/review');
+const commonRouter = require('./app/route/common');
 
 const db = require('./config/db');
 db.connect();
@@ -24,7 +27,9 @@ app.use('/api/v1/auth', studentAuthRouter);
 app.use('/api/v1/student', studentRouter);
 app.use('/api/v1/auth-teacher', teacherAuthRouter);
 app.use('/api/v1/teacher', teacherRouter);
-
+app.use('/api/v1/admin', adminRouter);
+app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/commons', commonRouter);
 
 // wrong api
 app.all('*', 
@@ -54,3 +59,5 @@ app.use(
 app.listen(4000, () => {
   console.log('Listenning on port 4000');
 });
+
+export {}

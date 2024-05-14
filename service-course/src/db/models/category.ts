@@ -6,16 +6,20 @@ class Category extends Model {}
 Category.init(
     {
         id: {
-            type: DataTypes.INTEGER.UNSIGNED,
-            autoIncrement: true,
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
             primaryKey: true,
+        },
+        id_par_category: {
+            type: DataTypes.UUID,
+            allowNull: false,
         },
         name: {
             type: DataTypes.STRING(30),
             allowNull: false
         }
     }, {
-        tableName: 'categories',
+        tableName: 'category',
         freezeTableName: true,
         sequelize
     }
