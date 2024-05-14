@@ -1,6 +1,5 @@
 "use client"
 
-/* eslint-disable react/jsx-no-undef */
 import Link from 'next/link';
 import Image from 'next/image';
 import { signout } from '@/redux/features/authSlice';
