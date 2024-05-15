@@ -1,6 +1,6 @@
 const Forum = require('../../db/models/forum');
 const TopicForum = require('../../db/models/topicforum');
-const Answer = require('../../db/models/answer'); 
+const Answer = require('../../db/models/answer');
 const Course = require('../../db/models/course');
 
 const FileUpload = require('../../config/firebase/fileUpload');
@@ -45,12 +45,12 @@ class TopicForumController {
     getDetailTopicById = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_topic = req.params.topicId;
-            
+
             const currentPage: number = +req.params.page;
             const pageSize: number = parseInt(process.env.SIZE_OF_PAGE || '10');
 
             const count = await Answer.count({
-                where: { 
+                where: {
                     id_topic_forum: id_topic,
                     id_parent: {
                         [Op.or]: [null, ""]
@@ -61,7 +61,7 @@ class TopicForumController {
             const topic = await TopicForum.findByPk(id_topic, {
                 include: [
                     {
-                        where: { 
+                        where: {
                             id_parent: {
                                 [Op.or]: [null, ""]
                             }
@@ -112,12 +112,12 @@ class TopicForumController {
                 for (const reply of answer.replies) {
                     if (reply.role === "student") {
                         const user = await axios.get(`${process.env.BASE_URL_LOCAL}/student/${reply.id_user}`);
-    
+
                         reply.dataValues.user = { avatar: user.avatar, name: user.name, role: reply.role, id: user.data.id };
                         delete reply.dataValues.role;
                     } else if (reply.role === "teacher") {
                         const user = await axios.get(`${process.env.BASE_URL_LOCAL}/teacher/get-teacher-by-id/${reply.id_user}`);
-    
+
                         reply.dataValues.user = { avatar: user.data.avatar, name: user.data.name, role: reply.role, id: user.data.id };
                         delete reply.dataValues.role;
                     }
@@ -229,7 +229,7 @@ class TopicForumController {
             const response = await axios.post(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/create-topic`, { data });
 
             await t.commit();
-            
+
             const dataValues = topic.dataValues;
 
             const algoliaDataSave = {
@@ -259,24 +259,24 @@ class TopicForumController {
 
             if (file) {
                 const dateTime = FileUpload.giveCurrentDateTime();
-    
+
                 const storageRef = ref(
                     storage,
                     `topic forum/${file?.originalname + '       ' + dateTime}`
                 );
-    
+
                 // Create file metadata including the content type
                 const metadata = {
                     contentType: file?.mimetype,
                 };
-    
+
                 // Upload the file in the bucket storage
                 const snapshot = await uploadBytesResumable(
                     storageRef,
                     file?.buffer,
                     metadata
                 );
-    
+
                 // Grab the public url
                 const downloadURL = await getDownloadURL(snapshot.ref);
                 req.ImageUrl = downloadURL;

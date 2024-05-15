@@ -29,7 +29,6 @@ class CheckingComment {
                 if (parentComment.id_topic !== id_topic) return next(createError.BadRequest("Parent comment does not belong to Topic"));
 
                 if (parentComment.id_parent) {
-                    console.log(parentComment.id_parent);
                     let error = "Your parent comment is a child of another comment, means the comment you want to create cannot be a child of this comment";
                     return next(createError.BadRequest(error));
                 }

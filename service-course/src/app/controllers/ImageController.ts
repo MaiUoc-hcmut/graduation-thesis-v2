@@ -32,8 +32,9 @@ class ImageController {
             const dateTime = fileUpload.giveCurrentDateTime();
 
             let body = req.body.data;
-
-            body = JSON.parse(body);
+            if (typeof (body) === "string") {
+                body = JSON.parse(body);
+            }
 
             const { id_course, type } = body;
 

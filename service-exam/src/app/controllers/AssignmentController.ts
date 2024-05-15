@@ -117,7 +117,7 @@ class AssignmentController {
                     let hour: any = 0;
                     let sec: any = time_in_sec % 60;
                     let min: any = Math.floor(time_in_sec / 60);
-                
+
                     if (min > 60) {
                         hour = Math.floor(min / 60);
                         min = min % 60;
@@ -265,12 +265,12 @@ class AssignmentController {
                     queryOption.where.reviewed = [0, 1, 2];
                 }
 
-            } 
+            }
 
             if (typeof score === "string" && !Number.isNaN(parseInt(score))) {
                 if (parseInt(score) >= 0 && parseInt(score) <= 10) {
                     queryOption.where.score = parseInt(score);
-                } 
+                }
             } else if (Array.isArray(score)) {
                 let score_condition = []
                 for (const s of score) {
@@ -305,7 +305,7 @@ class AssignmentController {
                     let hour: any = 0;
                     let sec: any = time_in_sec % 60;
                     let min: any = Math.floor(time_in_sec / 60);
-                
+
                     if (min > 60) {
                         hour = Math.floor(min / 60);
                         min = min % 60;
@@ -426,7 +426,7 @@ class AssignmentController {
 
             let order = [['reviewed', 'asc'], ['createdAt', 'desc']];
 
-            let reviewed: any = req.query.reviewed; 
+            let reviewed: any = req.query.reviewed;
             let score: any = req.query.score;
 
             if (typeof reviewed === "string" && !Number.isNaN(parseInt(reviewed))) {
@@ -440,7 +440,7 @@ class AssignmentController {
             if (typeof score === "string" && !Number.isNaN(parseInt(score))) {
                 if (parseInt(score) >= 0 && parseInt(score) <= 10) {
                     queryOption.where.score = parseInt(score);
-                } 
+                }
             } else if (Array.isArray(score)) {
                 let score_condition = []
                 for (const s of score) {
@@ -478,7 +478,7 @@ class AssignmentController {
                     let hour: any = 0;
                     let sec: any = time_in_sec % 60;
                     let min: any = Math.floor(time_in_sec / 60);
-                
+
                     if (min > 60) {
                         hour = Math.floor(min / 60);
                         min = min % 60;
@@ -598,7 +598,7 @@ class AssignmentController {
                 let hour: any = 0;
                 let sec: any = time_in_sec % 60;
                 let min: any = Math.floor(time_in_sec / 60);
-            
+
                 if (min > 60) {
                     hour = Math.floor(min / 60);
                     min = min % 60;
@@ -710,7 +710,7 @@ class AssignmentController {
                     let hour: any = 0;
                     let sec: any = time_in_sec % 60;
                     let min: any = Math.floor(time_in_sec / 60);
-                
+
                     if (min > 60) {
                         hour = Math.floor(min / 60);
                         min = min % 60;
@@ -787,6 +787,7 @@ class AssignmentController {
                     });
                 }
                 let is_correct = true;
+
                 for (let answer of question.Answers) {
                     if (answer.is_correct && !answer.selected_answer.dataValues.is_selected) is_correct = false;
                 }
@@ -828,7 +829,7 @@ class AssignmentController {
                 let hour: any = 0;
                 let sec: any = time_in_sec % 60;
                 let min: any = Math.floor(time_in_sec / 60);
-            
+
                 if (min > 60) {
                     hour = Math.floor(min / 60);
                     min = min % 60;
@@ -1011,7 +1012,7 @@ class AssignmentController {
             await t.commit();
 
             res.status(200).json(detail_question);
-            
+
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({ error, message: error.message });
@@ -1053,7 +1054,7 @@ class AssignmentController {
                 });
                 message = "You just commented on the assignment!";
             }
-        
+
 
             for (const detail_question of detail_questions) {
                 const comment_question = detail_question.comment;

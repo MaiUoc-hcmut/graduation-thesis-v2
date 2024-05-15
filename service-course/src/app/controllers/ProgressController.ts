@@ -10,7 +10,7 @@ class ProgressController {
         try {
             const { studentId, courseId } = req.params;
 
-            
+
             const course = await Course.findByPk(courseId);
 
             if (!course) {
@@ -28,6 +28,7 @@ class ProgressController {
 
             const totalTopic = course.total_lecture + course.total_exam;
             const percentageProgress = (progress.length / totalTopic) * 100;
+            console.log(progress.length, totalTopic, percentageProgress);
 
             res.status(200).json({
                 progress,

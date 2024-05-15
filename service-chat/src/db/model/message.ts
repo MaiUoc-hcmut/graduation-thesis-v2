@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { v4: uuidv4, validate: uuidValidate } = require('uuid');
 
 const validateUUID = {
-    validator: function(v: string) {
+    validator: function (v: string) {
         return uuidValidate(v);
     },
     message: "Id must be valid UUID!"
@@ -37,4 +37,4 @@ const messageSchema = new mongoose.Schema(
 const Message = mongoose.model('Message', messageSchema);
 module.exports = Message;
 
-export {}
+export { }

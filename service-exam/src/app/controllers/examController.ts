@@ -13,6 +13,7 @@ const algoliasearch = require('algoliasearch');
 const { sequelize } = require('../../config/db/index');
 const axios = require('axios');
 
+import { log } from "console";
 import { Request, Response, NextFunction } from "express";
 
 
@@ -43,9 +44,9 @@ class ExamController {
             const authority = req.authority;
 
             let status = authority === 2
-                            ? ['public', 'paid', 'private']
-                            : ['public', 'paid'];
-            
+                ? ['public', 'paid', 'private']
+                : ['public', 'paid'];
+
             const levelCondition: any[] = [];
             const subjectCondition: any[] = [];
             const classCondition: any[] = [];
@@ -53,7 +54,7 @@ class ExamController {
             const { class: _class, subject, level } = req.query;
 
             if (!_class) {
-                
+
             } else if (Array.isArray(_class)) {
                 classCondition.push(..._class);
             } else {
@@ -156,7 +157,7 @@ class ExamController {
                     categoryLength++;
                 }
                 queryOption.group = ['Course.id'];
-                queryOption.having = sequelize.literal("COUNT(DISTINCT "+`Categories`+"."+`id`+`) = ${categoryLength}`);
+                queryOption.having = sequelize.literal("COUNT(DISTINCT " + `Categories` + "." + `id` + `) = ${categoryLength}`);
             }
 
             const count = await Exam.findAll({
@@ -170,7 +171,7 @@ class ExamController {
                 offset: pageSize * (currentPage - 1)
             });
 
-            
+
             for (const exam of exams) {
                 const user = await axios.get(`${process.env.BASE_URL_USER_LOCAL}/teacher/get-teacher-by-id/${exam.id_teacher}`);
                 exam.dataValues.user = { id: user.data.id, name: user.data.name };
@@ -234,8 +235,8 @@ class ExamController {
             const authority = req.authority;
 
             let status = authority === 2
-                            ? ['public', 'paid', 'private']
-                            : ['public', 'paid'];
+                ? ['public', 'paid', 'private']
+                : ['public', 'paid'];
             const teacherId = req.params.teacherId;
 
             const pageSize: number = authority === 2 ? 20 : parseInt(process.env.SIZE_OF_PAGE || '10');
@@ -310,7 +311,7 @@ class ExamController {
                 include: [
                     {
                         model: Question,
-                        where: { 
+                        where: {
                             status: {
                                 [Op.ne]: `${option}`
                             }
@@ -361,7 +362,7 @@ class ExamController {
                         }
                         continue;
                     }
-    
+
                     for (const knowledge of question.Knowledge) {
                         const foundObject = knowledges.find(o => o.name === knowledge.name);
                         if (!foundObject) {
@@ -438,13 +439,15 @@ class ExamController {
     // [POST] /api/v1/exams
     createExam = async (req: Request, res: Response, _next: NextFunction) => {
         let body = req.body.data;
+        console.log(req.body.data);
+
         if (typeof body === "string") {
             body = JSON.parse(body);
         }
 
         const client = algoliasearch(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_ADMIN_API_KEY);
         const index = client.initIndex(process.env.ALGOLIA_INDEX_NAME);
-        
+
         const t = await sequelize.transaction();
         try {
             const { title, period, status, questions, id_course, categories, pass_score } = body;
@@ -454,7 +457,7 @@ class ExamController {
             if (!title || !period) {
                 return res.status(400).json({ message: "Information missed!" });
             }
-                
+
             if (!categories || categories.length === 0) {
                 return res.status(400).json({ message: "Category missed!" });
             }
@@ -464,7 +467,7 @@ class ExamController {
             }
 
             if (!pass_score && id_course) {
-                return res.status(400).json({ message: "Pass score missed!"});
+                return res.status(400).json({ message: "Pass score missed!" });
             }
 
             if (pass_score < 0 || pass_score > 10) {
@@ -496,7 +499,7 @@ class ExamController {
 
             for (const question of questions) {
                 const { question_categories, knowledges, answers, ...questionBody } = question;
-                
+
                 if (!answers) {
                     return res.status(400).json({
                         message: "Question must have its own answers!"
@@ -514,6 +517,8 @@ class ExamController {
                     content_image = questionDraft.url;
                     await questionDraft.destroy({ transaction: t });
                 }
+
+
 
                 const newQuestion = await Question.create({
                     id_exam: newExam.id,
@@ -583,13 +588,13 @@ class ExamController {
                     id_exam: newExam.id,
                     name: newExam.title
                 }
-    
+
                 const response = await axios.get(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/create-exam`, { data });
             }
 
             await t.commit();
 
-            const Categories = categoryInstances.map(({ id, name }) => ({ id, name }));
+            // const Categories = categoryInstances.map(({ id, name }) => ({ id, name }));
             const user = { id: id_teacher, name: req.teacher?.data.name };
 
             let dataValues = newExam.dataValues;
@@ -601,7 +606,7 @@ class ExamController {
             const algoliaDataSave = {
                 ...dataValues,
                 objectID: newExam.id,
-                Categories,
+                // Categories,
                 user
             }
 
@@ -660,7 +665,7 @@ class ExamController {
                     // If question need to delete from the exam
                     else if (modify === "delete") {
                         const questionToDelete = await Question.findByPk(question.id);
-                        
+
                         if (!questionToDelete) throw new Error(`question with id ${question.id} does not exist`);
 
                         // Update status of this question to delete
@@ -687,10 +692,10 @@ class ExamController {
                             questionUrl = questionDraft.url;
                             await questionDraft.destroy({ transaction: t });
                         }
-                        await Question.create({ 
-                            ...questionBody, 
-                            id_exam: examId, 
-                            content_image: questionUrl, 
+                        await Question.create({
+                            ...questionBody,
+                            id_exam: examId,
+                            content_image: questionUrl,
                             id_teacher: exam.id_teacher
                         }, { transaction: t });
                         quantity_question++;

@@ -18,7 +18,6 @@ module.exports = {
         progress_bar_course: "0px 12px 23px 0px rgba(62, 73, 84, 0.04)"
       },
       colors: {
-        gray_dark: '#343a40',
         panel_bg: '#fbfbfd',
         success: '#e7f4f0',
         info: '#ebf7ff',
@@ -45,6 +44,9 @@ module.exports = {
         secondary_btn_shadow_hover: '0 3px 8px 0 rgb(64 213 125 / 30%)',
         secondary_btn_color: '#ffffff',
         secondary_btn_color_hover: '#ffffff',
+      },
+      fontFamily: {
+        satoshi: ["Satoshi", "sans-serif"],
       },
     },
   },
