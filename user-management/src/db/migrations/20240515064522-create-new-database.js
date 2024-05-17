@@ -66,14 +66,6 @@ module.exports = {
       address: Sequelize.STRING,
       avatar: Sequelize.STRING,
       gender: Sequelize.STRING(10),
-      grade: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-      subject: {
-        type: Sequelize.STRING(50),
-        allowNull: false,
-      },
       biostory: {
         type: Sequelize.STRING(1000),
         allowNull: false,
@@ -86,6 +78,15 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: true,
+      },
+      total_review: {
+        type: Sequelize.INTEGER.UNSIGNED
+      },
+      average_rating: {
+        type: Sequelize.FLOAT
+      },
+      total_registration: {
+        type: Sequelize.INTEGER.UNSIGNED
       },
       createdAt: {
         type: Sequelize.TIME,
@@ -129,9 +130,127 @@ module.exports = {
         allowNull: false,
       },
     });
+    await queryInterface.createTable('par_category', {
+      id: {
+        allowNull: false,
+        primaryKey: true,
+        type: Sequelize.UUID,
+      },
+      name: {
+        allowNull: false,
+        type: Sequelize.STRING(20),
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+    });
+    await queryInterface.createTable('category', {
+      id: {
+        allowNull: false,
+        primaryKey: true,
+        type: Sequelize.UUID,
+      },
+      id_par_category: {
+        allowNull: false,
+        type: Sequelize.UUID,
+        references: {
+          model: 'par_category',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      },
+      name: {
+        allowNull: false,
+        type: Sequelize.STRING(30),
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+    });
+    await queryInterface.createTable('category-teacher', {
+      id_teacher: {
+        allowNull: false,
+        type: Sequelize.UUID,
+        references: {
+          model: 'teacher',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      },
+      id_category: {
+        allowNull: false,
+        type: Sequelize.UUID,
+        references: {
+          model: 'category',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+    });
+    await queryInterface.createTable('review', {
+      id: {
+        type: Sequelize.UUID,
+        primaryKey: true,
+      },
+      id_student: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'student',
+          key: 'id',
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+      },
+      id_teacher: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'teacher',
+          key: 'id',
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+      },
+      content: {
+        type: Sequelize.STRING(1000)
+      },
+      image: {
+        type: Sequelize.TEXT
+      },
+      rating: {
+        type: Sequelize.INTEGER.UNSIGNED,
+        allowNull: false
+      },
+      createdAt: Sequelize.DATE,
+      updatedAt: Sequelize.DATE
+    })
   },
 
   async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable('review');
+    await queryInterface.dropTable('category-teacher');
+    await queryInterface.dropTable('category');
+    await queryInterface.dropTable('par_category');
     await queryInterface.dropTable('student');
     await queryInterface.dropTable('teacher');
     await queryInterface.dropTable('admin');
