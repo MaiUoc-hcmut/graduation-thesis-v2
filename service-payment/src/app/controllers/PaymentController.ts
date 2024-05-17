@@ -39,11 +39,23 @@ class PaymentController {
         }
     }
 
-    // [GET] /payment/transactions/teacher/:teacherId
+    // [GET] /payment/transactions/teacher/:teacherId/page/:page
     getTransactionOfTeacher = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_teacher = req.params.teacherId;
+            
+            const currentPage: number = +req.params.page;
+            const pageSize: number = 20;
 
+            const transactions = await TransactionCourse.findAll({
+                where: {
+                    id_teacher
+                },
+                limit: pageSize,
+                offset: pageSize * (currentPage - 1)
+            });
+
+            res.status(200).json(transactions);
         } catch (error: any) {
             console.log(error.message);
             res.status(500).json({
@@ -200,14 +212,64 @@ class PaymentController {
         const t = await sequelize.transaction();
         try {
             const body = req.body.data;
-            const { courses, combos, ...transactionBody } = body;
             const id_user = req.student?.data.id;
 
             const cart = await Cart.findOne({
                 where: { id_user }
             });
 
-            if (transactionBody.message === 'Successful.' || transactionBody.message === 'successful.') {
+            const transaction = await Transaction.create({
+                id_user,
+                ...body
+            }, {
+                transaction: t
+            });
+
+            const cartCourses = await CartCourse.findAll({
+                where: {
+                    id_cart: cart.id
+                }
+            });
+
+            const dataCourses: any[] = [];
+            const dataCombos: any[] = [];
+            const courses: string[] = [];
+
+            for (const record of cartCourses) {
+                if (record.id_course) {
+                    const course = await axios.get(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${record.id_course}?onTime=true`);
+
+                    let price = course.data.price;
+                    let percentDiscount = 0;
+                    const today = new Date();
+                    for (const coupon of course.data.Coupons) {
+                        if (
+                            today.getTime() > coupon.start_time.getTime() 
+                            && today.getTime() < coupon.expire.getTime()
+                        ) {
+                            percentDiscount += coupon.percent;
+                        }
+                    }
+                    price = price (1 - percentDiscount / 100);
+
+                    dataCourses.push({
+                        id_course: course.data.id,
+                        id_transaction: transaction.id,
+                        id_teacher: course.data.id_teacher,
+                        price
+                    });
+
+                    courses.push(record.id_course);
+                } else if (record.id_combo_exam) {
+
+                }
+            }
+
+            const dataToCreate = [...dataCombos, ...dataCourses];
+
+            await TransactionCourse.bulkCreate(dataToCreate, { transaction: t });
+
+            if (body.message === 'Successful.' || body.message === 'successful.') {
                 await CartCourse.destroy({
                     where: { id_cart: cart.id }
                 }, {
@@ -227,20 +289,6 @@ class PaymentController {
                     const response = await axios.post(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${course}`, data, { headers });
                 }
             }
-
-            const transaction = await Transaction.create({
-                id_user,
-                ...transactionBody
-            }, {
-                transaction: t
-            });
-
-            const dataToCreate = courses.map((courseId: string) => ({
-                id_course: courseId,
-                id_transaction: transaction.id
-            }));
-
-            await TransactionCourse.bulkCreate(dataToCreate, { transaction: t });
 
             await t.commit();
 

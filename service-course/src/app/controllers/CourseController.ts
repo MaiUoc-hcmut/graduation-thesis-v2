@@ -93,8 +93,8 @@ class CourseController {
             const authority = req.authority;
 
             let status = authority === 2
-                ? ['public', 'paid', 'private']
-                : ['public', 'paid'];
+                            ? ['public', 'paid', 'private', 'draft']
+                            : ['public', 'paid'];
 
             const levelCondition: any[] = [];
             const subjectCondition: any[] = [];
@@ -298,8 +298,7 @@ class CourseController {
     getCourseById = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id = req.params.courseId;
-            // const currentDate = new Date();
-            const course = await Course.findOne({
+            const queryOption: any = {
                 where: { id },
                 include: [
                     {
@@ -309,7 +308,21 @@ class CourseController {
                         }
                     }
                 ]
-            });
+            };
+
+            const { onTime } = req.query;
+            const now = new Date();
+            if (typeof onTime === "string" && onTime === "true") {
+                queryOption.include[0].where = {
+                    [Op.or]: [
+                        { start_time: { [Op.is]: null } },
+                        { start_time: { [Op.lte]: now } }
+                    ],
+                    expire: { [Op.gte]: now }
+                }
+            }
+
+            const course = await Course.findOne(queryOption);
 
             if (!course) return res.status(404).json({ message: "Course not found!" });
 
