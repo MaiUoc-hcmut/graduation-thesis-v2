@@ -12,7 +12,7 @@ export default function TeacherDashboard() {
         <div className="">
             <div className="font-bold text-[#171347] text-lg mb-8">Dashboard</div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
-                <CardDataStats title="Tổng khóa học" total="$3.456K">
+                <CardDataStats title="Tổng khóa học" total="5">
                     <div className='p-3 rounded-md border-2 border-[#00a1d9]'>
                         <div className='w-8 h-8 relative'>
                             <Image
@@ -24,7 +24,7 @@ export default function TeacherDashboard() {
                         </div>
                     </div>
                 </CardDataStats>
-                <CardDataStats title="Tổng đề thi" total="$45,2K">
+                <CardDataStats title="Tổng đề thi" total="10">
                     <div className='p-3 rounded-md border-2 border-[#a855ff]'>
                         <div className='w-8 h-8 relative'>
                             <Image
@@ -36,7 +36,7 @@ export default function TeacherDashboard() {
                         </div>
                     </div>
                 </CardDataStats>
-                <CardDataStats title="Tổng học viên" total="2.450">
+                <CardDataStats title="Tổng học viên" total="230">
                     <div className='p-3 rounded-md border-2 border-[#ef9d69]'>
                         <div className='w-8 h-8 relative'>
                             <Image
@@ -48,7 +48,7 @@ export default function TeacherDashboard() {
                         </div>
                     </div>
                 </CardDataStats>
-                <CardDataStats title="Tổng đánh giá" total="3.456">
+                <CardDataStats title="Tổng đánh giá" total="106">
                     <div className='p-3 rounded-md border-2  border-[#4fb949]'>
                         <div className='w-8 h-8 relative'>
                             <Image
@@ -73,10 +73,10 @@ export default function TeacherDashboard() {
                         <span className="font-medium text-black">10</span> lượt bình luận mới
                     </li>
                     <li className="text-[#818894] text-lg">
-                        <span className="font-medium text-black">10</span> lượt chủ đề được tạo mới
+                        <span className="font-medium text-black">15</span> lượt chủ đề được tạo mới
                     </li>
                     <li className="text-[#818894] text-lg">
-                        <span className="font-medium text-black">10</span> lượt làm bài mới
+                        <span className="font-medium text-black">20</span> lượt làm bài mới
                     </li>
                     <li className="text-[#818894] text-lg">
                         <span className="font-medium text-black">10</span> lượt đánh giá bạn mới

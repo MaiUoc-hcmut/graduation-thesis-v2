@@ -64,7 +64,6 @@ export default function Edit({ id, course }: any) {
         formState: { errors },
     } = handleForm
 
-    console.log(errors);
 
     const { steps, step, isFirstStep, isLastStep, back, next, goTo } =
         useMultistepForm([
@@ -128,9 +127,6 @@ export default function Edit({ id, course }: any) {
                         data1.categories.push(dataForm.grade)
                         data1.categories.push(dataForm.subject)
                         data1.categories.push(dataForm.level)
-
-
-                        console.log('submit', dataForm, data, typeSubmit);
 
                         if (!isLastStep) return next()
 

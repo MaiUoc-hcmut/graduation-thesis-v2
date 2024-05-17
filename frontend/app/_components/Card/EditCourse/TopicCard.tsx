@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
     ExclamationCircleIcon, PencilSquareIcon, ArrowsPointingOutIcon, Squares2X2Icon,
     PlusCircleIcon, TrashIcon, ChevronDownIcon, ChevronUpIcon, BookOpenIcon,
@@ -10,12 +10,18 @@ import { Button, Modal } from 'flowbite-react';
 import { ToastContainer, toast } from 'react-toastify';
 import ReactPlayer from 'react-player';
 import { FilePond, registerPlugin } from 'react-filepond'
-
+import { AnswerCard } from '../CreateCourse/AnswerCard';
+import { DragDropContext, Draggable } from 'react-beautiful-dnd';
+import { StrictModeDroppable } from '../../React_Beautiful_Dnd/StrictModeDroppable';
+import { QuestionCard } from '../CreateCourse/QuestionCard';
+import CustomCKEditor from '../../Editor/CKEditor';
 import 'filepond/dist/filepond.min.css'
 
 
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 import Link from 'next/link';
+import { useFieldArray } from 'react-hook-form';
+import uuid from 'react-uuid';
 
 
 export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm, innerRef, provided, data, setData,
@@ -24,6 +30,8 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
     const [toggle, setToggle] = useState(initToggle)
     const [modal, setModal] = useState(initToggle)
     const [files, setFiles] = useState()
+    const [questions, setQuestions] = useState(topic?.questions)
+
     const notify = () => {
         toast.success('Thành công', {
             position: "bottom-right",
@@ -41,8 +49,24 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
         getValues,
         setValue,
         reset,
+        control,
         formState: { errors },
     } = hanldeForm
+
+    const { fields: fieldsQuestion, append: appendQuestion, remove: removeQuestion } = useFieldArray({
+        control,
+        name: `chapters.${indexChapter}.topics.${indexTopic}.questions`
+    });
+    useEffect(() => {
+        setQuestions(topic?.questions)
+    }, [topic]);
+    const reorder = (list: Array<any>, startIndex: any, endIndex: any) => {
+        const result = Array.from(list);
+        const [removed] = result.splice(startIndex, 1);
+        result.splice(endIndex, 0, removed);
+
+        return result;
+    };
 
     return (
         <div ref={innerRef} {...provided.draggableProps}  >
@@ -122,13 +146,13 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                             {
                                 !toggle[`edit_topic_${topic.id || topic.key}`] ?
                                     <button type="button" className="mr-[10px] text-[#818894]" onClick={() => {
-                                        setToggle({ ...toggle, [`edit_topic_${topic.id || topic.key}`]: true })
+                                        setToggle({ ...toggle, [`edit_${topic?.type}_${topic.id || topic.key}`]: true })
                                     }}>
                                         <ChevronDownIcon className="w-5 h-5" />
                                     </button>
                                     :
                                     <button type="button" className="mr-[10px] text-[#818894]" onClick={() => {
-                                        setToggle({ ...toggle, [`edit_topic_${topic.id || topic.key}`]: false })
+                                        setToggle({ ...toggle, [`edit_${topic?.type}_${topic.id || topic.key}`]: false })
                                     }}>
                                         <ChevronUpIcon className="w-5 h-5" />
                                     </button>
@@ -361,6 +385,209 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                     }
                                     notify()
                                 }}
+                                    className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mt-3">Lưu</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className={`${toggle[`edit_exam_${topic.id || topic.key}`] ? "" : "hidden"}  mt-3 pt-4 border-t-[1px] border-[#ececec]`}>
+                        <div className="mt-3">
+                            <div className="mb-5 w-1/3">
+                                <label
+                                    className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                >
+                                    Tiêu đề
+                                </label>
+                                <input
+                                    {...register(`chapters.${indexChapter}.topics.${indexTopic}.name`, {
+                                        required: "Tên bài giảng không thể thiếu",
+                                    })}
+                                    type="text"
+                                    className={`bg-white border-[1px] border-[#ececec] text-[#343434] text-sm focus: ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
+                                />
+
+                                <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                    {errors.chapters?.[indexChapter]?.topics?.[indexTopic]?.name?.message}
+                                </p>
+                            </div>
+                            <div className="mb-5 w-1/3">
+                                <label
+                                    className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                >
+                                    Thời gian (phút)
+                                </label>
+                                <input
+                                    {...register(`chapters.${indexChapter}.topics.${indexTopic}.duration`, {
+                                        required: "Thời gian không thể thiếu",
+                                    })}
+                                    type="number"
+                                    className={`bg-white border-[1px] border-[#ececec] text-[#343434] text-sm focus: ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
+                                />
+
+                                <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                    {errors.chapters?.[indexChapter]?.topics?.[indexTopic]?.duration?.message}
+                                </p>
+                            </div>
+                            <div className="mb-5 w-1/3">
+                                <label
+                                    className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                >
+                                    Điểm hoàn thành
+                                </label>
+                                <input
+                                    {...register(`chapters.${indexChapter}.topics.${indexTopic}.pass_score`, {
+                                        required: "Điểm hoàn thành không thể thiếu",
+                                        min: {
+                                            value: 0,
+                                            message: "Điểm hoàn thành không thể nhỏ hơn 0"
+                                        },
+                                        max: {
+                                            value: 10,
+                                            message: "Điểm hoàn thành không thể lớn hơn 10"
+                                        }
+                                    })}
+                                    type="number"
+                                    className={`bg-white border-[1px] border-[#ececec] text-[#343434] text-sm focus: ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
+                                />
+
+                                <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                    {errors.chapters?.[indexChapter]?.topics?.[indexTopic]?.pass_score?.message}
+                                </p>
+                            </div>
+
+                            <div className="mb-5 w-full">
+                                <div
+                                    className="block mr-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                >
+                                    Trạng thái
+                                </div>
+                                <div className="mt-2">
+                                    <div className="relative inline-flex items-center me-5 cursor-pointer">
+                                        <div className="flex">
+                                            <div className="flex items-center me-4" >
+                                                <input
+                                                    id="inline-radio"
+                                                    type="radio"
+                                                    defaultChecked={topic.status == "public" ? true : false}
+                                                    {...register(`chapters.${indexChapter}.topics.${indexTopic}.status`)}
+                                                    value="public"
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                />
+                                                <label
+                                                    htmlFor="inline-radio"
+                                                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                >
+                                                    Công khai
+                                                </label>
+                                            </div>
+                                            <div className="flex items-center me-4" >
+                                                <input
+                                                    id="inline-radio"
+                                                    type="radio"
+                                                    defaultChecked={topic.status == "paid" ? true : false}
+                                                    {...register(`chapters.${indexChapter}.topics.${indexTopic}.status`)}
+                                                    value="paid"
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                />
+                                                <label
+                                                    htmlFor="inline-radio"
+                                                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                >
+                                                    Tính phí
+                                                </label>
+                                            </div>
+                                            <div className="flex items-center me-4">
+                                                <input
+                                                    id="inline-2-radio"
+                                                    type="radio"
+                                                    defaultChecked={topic.status == "private" ? true : false}
+                                                    {...register(`chapters.${indexChapter}.topics.${indexTopic}.status`)}
+                                                    value="private"
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                />
+                                                <label
+                                                    htmlFor="inline-2-radio"
+                                                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                >
+                                                    Riêng tư
+                                                </label>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className='mt-4'>
+                                    <h2 className="text-[#171347] font-bold section-title flex items-center after:content-[''] after:flex after:grow after:shrink after:basis-4 after:h-[2px] after:ml-[10px] after:bg-[#f1f1f1]">Câu hỏi</h2>
+                                    <button type="button" onClick={() => {
+                                        setModal({ ...modal, [`add_question_${topic.key}`]: true })
+                                        appendQuestion({
+                                            id: uuid(),
+                                            content_text: "",
+                                            multi_choice: false
+                                        })
+                                    }}
+                                        className="mt-3 bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover">
+                                        Thêm câu hỏi
+                                    </button>
+                                    <div className='mt-5'>
+                                        <DragDropContext onDragEnd={(result) => {
+                                            if (!result.destination) return;
+                                            const items: any = reorder(
+                                                questions,
+                                                result.source.index,
+                                                result.destination.index
+                                            );
+                                            setQuestions(items)
+                                            setValue(`chapters.${indexChapter}.topics.${indexTopic}.questions`, items)
+                                        }}>
+                                            <StrictModeDroppable droppableId="question">
+                                                {(provided) => (
+                                                    <ul key={chapter.key} {...provided.droppableProps} ref={provided.innerRef}>
+                                                        {
+                                                            questions?.map((question: any, indexQuestion: any) => {
+                                                                return (
+                                                                    <Draggable key={question.key} index={indexQuestion} draggableId={`${question.key} `}>
+                                                                        {
+                                                                            (provided) => (
+
+                                                                                <QuestionCard
+                                                                                    indexChapter={indexChapter} indexTopic={indexTopic} hanldeForm={hanldeForm} indexQuestion={indexQuestion} provided={provided} question={question} removeQuestion={removeQuestion} modal={modal} setModal={setModal} topic={topic} />
+                                                                            )
+                                                                        }
+                                                                    </Draggable>
+
+                                                                )
+                                                            })
+
+                                                        }
+                                                        {provided.placeholder}
+                                                    </ul>
+                                                )
+                                                }
+                                            </StrictModeDroppable>
+                                        </DragDropContext>
+
+
+                                    </div>
+                                    {/* <div className='py-4 text-[#818894]'>
+                                        Không có câu hỏi
+                                    </div> */}
+                                </div>
+                            </div>
+
+                            <div className="">
+                                <button
+                                    onClick={() => {
+                                        removeTopic(indexTopic)
+                                        setToggle({ ...toggle, [`edit_exam_${topic.key}`]: false })
+
+                                    }} type="button" className="mr-4 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Huỷ</button>
+                                <button type="submit"
+                                    onClick={() => {
+                                        setToggle({ ...toggle, [`edit_exam_${topic.key}`]: false })
+                                        setTypeSubmit(`edit_exam_${topic.key}`)
+                                    }}
                                     className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mt-3">Lưu</button>
                             </div>
                         </div>

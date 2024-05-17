@@ -334,9 +334,6 @@ export function BasicInfomationForm({
                 <CustomCKEditor
                     setValue={setValue} position={"description"} value={getValues().description}
                 />
-                <p className="mt-12 text-sm text-red-600 dark:text-red-500">
-                    {errors?.description?.message}
-                </p>
             </div>
             <div className="mb-5">
                 <label
