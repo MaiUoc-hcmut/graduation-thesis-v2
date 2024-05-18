@@ -26,6 +26,9 @@ class Auth {
   registerStudent = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, password, confirmPassword, name, grade, gender, address } = req.body;
+      if (!name || !email || !password || !confirmPassword) {
+        return res.status(400).send("Information missed!");
+      }
       const existedStudent = await Student.findOne({
         where: { email: email }
       });
@@ -67,6 +70,9 @@ class Auth {
     const t = await sequelize.transaction();
     try {
       const { name, email, password, confirmPassword, gender, address, subjects, phone } = req.body;
+      if (!name || !email || !password || !confirmPassword) {
+        return res.status(400).send("Information missed!");
+      }
       const existedTeacher = await Teacher.findOne({
         where: { email: email }
       });

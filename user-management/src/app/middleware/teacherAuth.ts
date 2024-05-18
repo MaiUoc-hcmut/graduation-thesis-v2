@@ -29,7 +29,6 @@ passportTeacher.use(
     'teacher-jwt',
     new JWTStrategy(jwtConfig, async (payload: any, done: any) => {
         try {
-            // const teacherId = payload.id;
             const teacher = await Teacher.findOne({
                 where: { id: payload.id }
             });

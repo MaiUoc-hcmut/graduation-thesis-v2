@@ -36,3 +36,6 @@
 
 # user management service
 /user-management/.env
+
+/user-management/coverage
+/user-management/src/__tests__
