@@ -190,12 +190,12 @@ export default function CreateCourse() {
                             formData.append("thumbnail", dataForm.thumbnail[0])
                             formData.append("cover", dataForm.cover[0])
 
-                            // courseApi.create({ data: data1 }).then(() => {
-                            //     router.push("/teacher/dashboard/course")
-                            // }).catch(() => {
-                            //     setTypeSubmit("")
-                            // }
-                            // )
+                            courseApi.create({ data: data1 }).then(() => {
+                                router.push("/teacher/dashboard/course")
+                            }).catch(() => {
+                                setTypeSubmit("")
+                            }
+                            )
                         }
                     })
                 }>

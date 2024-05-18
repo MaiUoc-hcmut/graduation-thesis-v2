@@ -165,7 +165,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                     </div>
                                 </div>
                                 <span className='font-bold text-[#171347] text-xl'>
-                                    {profile?.exam_quantity || 0}
+                                    {profile?.exam_quantity?.exam_quantity || 0}
                                 </span>
                                 <span className='text-[#818894] text-sm'>
                                     Đề thi

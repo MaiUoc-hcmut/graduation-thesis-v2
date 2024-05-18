@@ -100,14 +100,14 @@ export default function TeacherDashboard() {
 
 
             <div className="mt-10">
-                <div className="mb-10">
+                {/* <div className="mb-10">
                     <ChartOne />
+                </div> */}
+                <div className="mb-10">
+                    <ChartThree />
                 </div>
                 <div className="mb-10">
                     <ChartTwo />
-                </div>
-                <div className="mb-10">
-                    <ChartThree />
                 </div>
                 <div className="mb-10">
                     <ChartFour />

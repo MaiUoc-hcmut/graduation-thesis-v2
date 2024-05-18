@@ -115,11 +115,11 @@ export default function ExamDashboard() {
                                                 </Modal>
                                             </>
                                             <td className="px-6 py-4 text-sm whitespace-normal text-gray-800 dark:text-neutral-200 ">{exam.title}</td>
-                                            <td className="px-6 py-4 whitespace-normal  text-sm  text-gray-800 dark:text-neutral-200">{exam.name}</td>
-                                            <td className="px-6 py-4 whitespace-normal  text-sm  text-gray-800 dark:text-neutral-200">{exam.name}</td>
-                                            <td className="px-6 py-4 whitespace-normal  text-sm  text-gray-800 dark:text-neutral-200">{exam.name}</td>
-                                            <td className="px-6 py-4 whitespace-normal  text-sm  text-gray-800 dark:text-neutral-200">{exam.name}</td>
-                                            <td className="px-6 py-4 whitespace-normal  text-sm  text-gray-800 dark:text-neutral-200">{exam.name}</td>
+                                            <td className="px-6 py-4 whitespace-normal  text-sm  text-gray-800 dark:text-neutral-200">Toán 12</td>
+                                            <td className="px-6 py-4 whitespace-normal  text-sm  text-gray-800 dark:text-neutral-200">22</td>
+                                            <td className="px-6 py-4 whitespace-normal  text-sm  text-gray-800 dark:text-neutral-200">8</td>
+                                            <td className="px-6 py-4 whitespace-normal  text-sm  text-gray-800 dark:text-neutral-200">16</td>
+                                            <td className="px-6 py-4 whitespace-normal  text-sm  text-gray-800 dark:text-neutral-200">6</td>
                                             <td className="px-6 py-4 whitespace-normal  text-center text-sm font-medium flex justify-center items-center">
 
                                                 <Dropdown label="" renderTrigger={() => <EllipsisVerticalIcon className="w-7 h-7" />} placement="left">

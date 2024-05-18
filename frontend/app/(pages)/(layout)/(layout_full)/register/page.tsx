@@ -353,7 +353,7 @@ export default function RegisterPage() {
                                                         <p className='mt-2 text-sm text-red-400'>{errorsTeacher.phone?.message}</p>
                                                     )}
                                                 </div>
-                                                <div className="mb-5 w-1/3">
+                                                <div className="mb-5 w-1/2">
                                                     <label
                                                         htmlFor="subject"
                                                         className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "

@@ -256,7 +256,7 @@ export default function TeacherList() {
                                                                             alt="logo"
                                                                         />
                                                                     </div>
-                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.exam_quantity || 0} đề thi</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.exam_quantity?.exam_quantity || 0} đề thi</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
                                                                     <div className='w-5 h-5 relative mr-1'>

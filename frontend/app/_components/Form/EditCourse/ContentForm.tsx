@@ -47,7 +47,7 @@ export function ContentForm({
         return result;
     };
 
-    console.log(errors);
+    console.log(errors, getValues());
 
     return (
         <div className="mb-10">

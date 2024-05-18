@@ -237,7 +237,7 @@ export default function Home() {
       <section className="pt-12">
         <div className="flex justify-between">
           <div>
-            <h2 className="text-[24px] text-secondary font-bold">Danh sách giáo viên</h2>
+            <h2 className="text-[24px] text-secondary font-bold">Giáo viên nổi bật</h2>
           </div>
           <Link href='/course?sort=rating&order=desc' className="border-[1px] border-[#f1f1f1] text-[#818894] rounded-md px-4 py-2 hover:bg-slate-300">Xem tất cả</Link>
         </div>
@@ -281,7 +281,7 @@ export default function Home() {
                     </div>
                     <div className="text-[#818894]">
                       {
-                        teacher.Categories[0]?.Subject
+                        teacher.Categories[0]?.Subject || "T"
                       }
                     </div>
                     <div className="mt-2">

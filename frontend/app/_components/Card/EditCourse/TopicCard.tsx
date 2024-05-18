@@ -144,7 +144,7 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                 </button>
                             </div>
                             {
-                                !toggle[`edit_topic_${topic.id || topic.key}`] ?
+                                !toggle[`edit_${topic?.type}_${topic.id || topic.key}`] ?
                                     <button type="button" className="mr-[10px] text-[#818894]" onClick={() => {
                                         setToggle({ ...toggle, [`edit_${topic?.type}_${topic.id || topic.key}`]: true })
                                     }}>
@@ -160,7 +160,8 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                         </div>
                     </div>
 
-                    <div className={`${toggle[`edit_topic_${topic.id || topic.key}`] ? "" : "hidden"}  mt-3 pt-4 border-t-[1px] border-[#ececec]`}>
+
+                    <div className={`${toggle[`edit_lecture_${topic.id || topic.key}`] ? "" : "hidden"}  mt-3 pt-4 border-t-[1px] border-[#ececec]`}>
                         <div className="mt-3">
                             <div className="mb-5 w-1/3">
                                 <label
@@ -372,13 +373,13 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                             <div className="mb-2">
                                 <button
                                     onClick={() => {
-                                        setToggle({ ...toggle, [`edit_topic_${topic.id || topic.key}`]: false })
+                                        setToggle({ ...toggle, [`edit_${topic?.type}_${topic.id || topic.key}`]: false })
                                         reset({ [`chapters.${indexChapter}.topics.${indexTopic}`]: {} })
 
                                     }} type="button" className="mr-4 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Huỷ</button>
                                 <button type="submit" onClick={() => {
-                                    setToggle({ ...toggle, [`edit_topic_${topic.id || topic.key}`]: false })
-                                    setTypeSubmit(`edit_topic_${topic.id || topic.key}`)
+                                    setToggle({ ...toggle, [`edit_${topic?.type}_${topic.id || topic.key}`]: false })
+                                    setTypeSubmit(`edit_${topic?.type}_${topic.id || topic.key}`)
                                     if (chapter.modify != "create") {
                                         setValue(`chapters.${indexChapter}.topics.${indexTopic}.modify`, 'change')
                                         setValue(`chapters.${indexChapter}.modify`, 'change')
@@ -399,6 +400,7 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                     Tiêu đề
                                 </label>
                                 <input
+
                                     {...register(`chapters.${indexChapter}.topics.${indexTopic}.name`, {
                                         required: "Tên bài giảng không thể thiếu",
                                     })}
@@ -417,15 +419,13 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                     Thời gian (phút)
                                 </label>
                                 <input
-                                    {...register(`chapters.${indexChapter}.topics.${indexTopic}.duration`, {
-                                        required: "Thời gian không thể thiếu",
-                                    })}
+                                    {...register(`chapters.${indexChapter}.topics.${indexTopic}.duration`)}
                                     type="number"
                                     className={`bg-white border-[1px] border-[#ececec] text-[#343434] text-sm focus: ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
                                 />
 
                                 <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                    {errors.chapters?.[indexChapter]?.topics?.[indexTopic]?.duration?.message}
+                                    {/* {errors.chapters?.[indexChapter]?.topics?.[indexTopic]?.duration?.message} */}
                                 </p>
                             </div>
                             <div className="mb-5 w-1/3">
@@ -435,23 +435,13 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                     Điểm hoàn thành
                                 </label>
                                 <input
-                                    {...register(`chapters.${indexChapter}.topics.${indexTopic}.pass_score`, {
-                                        required: "Điểm hoàn thành không thể thiếu",
-                                        min: {
-                                            value: 0,
-                                            message: "Điểm hoàn thành không thể nhỏ hơn 0"
-                                        },
-                                        max: {
-                                            value: 10,
-                                            message: "Điểm hoàn thành không thể lớn hơn 10"
-                                        }
-                                    })}
+                                    {...register(`chapters.${indexChapter}.topics.${indexTopic}.pass_score`)}
                                     type="number"
                                     className={`bg-white border-[1px] border-[#ececec] text-[#343434] text-sm focus: ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
                                 />
 
                                 <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                    {errors.chapters?.[indexChapter]?.topics?.[indexTopic]?.pass_score?.message}
+                                    {/* {errors.chapters?.[indexChapter]?.topics?.[indexTopic]?.pass_score?.message} */}
                                 </p>
                             </div>
 
@@ -580,13 +570,13 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                 <button
                                     onClick={() => {
                                         removeTopic(indexTopic)
-                                        setToggle({ ...toggle, [`edit_exam_${topic.key}`]: false })
+                                        setToggle({ ...toggle, [`edit_exam_${topic.id || topic.key}`]: false })
 
                                     }} type="button" className="mr-4 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Huỷ</button>
                                 <button type="submit"
                                     onClick={() => {
-                                        setToggle({ ...toggle, [`edit_exam_${topic.key}`]: false })
-                                        setTypeSubmit(`edit_exam_${topic.key}`)
+                                        setToggle({ ...toggle, [`edit_exam_${topic.id || topic.key}`]: false })
+                                        setTypeSubmit(`edit_exam_${topic.id || topic.key}`)
                                     }}
                                     className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mt-3">Lưu</button>
                             </div>
