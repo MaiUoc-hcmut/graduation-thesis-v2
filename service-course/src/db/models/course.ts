@@ -26,7 +26,7 @@ Course.init(
       allowNull: false,
     },
     description: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
     },
     price: {
       type: DataTypes.INTEGER.UNSIGNED,
