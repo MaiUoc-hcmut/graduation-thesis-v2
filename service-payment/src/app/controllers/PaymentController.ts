@@ -237,7 +237,8 @@ class PaymentController {
 
             for (const record of cartCourses) {
                 if (record.id_course) {
-                    const course = await axios.get(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${record.id_course}?onTime=true`);
+                    console.log(record.id_course, 240);
+                    const course = await axios.get(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${record.id_course}`);
 
                     let price = course.data.price;
                     let percentDiscount = 0;
@@ -250,7 +251,7 @@ class PaymentController {
                             percentDiscount += coupon.percent;
                         }
                     }
-                    price = price (1 - percentDiscount / 100);
+                    price = price * (1 - percentDiscount / 100);
 
                     dataCourses.push({
                         id_course: course.data.id,
