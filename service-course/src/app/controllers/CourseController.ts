@@ -345,10 +345,16 @@ class CourseController {
 
             const query = req.query.query;
 
-            const result = await index.search(query, {
+            const queryCondition: any = {
                 hitsPerPage: pageSize,
-                page: currentPage - 1
-            });
+                page: currentPage - 1,
+            }
+
+            if (req.authority !== 2) {
+                queryCondition.filters = `NOT status:draft AND NOT status:private`;
+            }
+
+            const result = await index.search(query, queryCondition);
 
             res.status(200).json({
                 result: result.hits,
@@ -395,7 +401,7 @@ class CourseController {
             const authority = req.authority;
 
             let status = authority === 2
-                ? ['public', 'paid', 'private']
+                ? ['public', 'paid', 'private', 'draft']
                 : ['public', 'paid']
 
             const course = await Course.findOne({
@@ -520,7 +526,7 @@ class CourseController {
             const authority = req.authority;
 
             let status = (authority === 2 || req.user?.user.data.id === id_teacher)
-                ? ['public', 'paid', 'private']
+                ? ['public', 'paid', 'private', 'draft']
                 : ['public', 'paid'];
 
             enum SortQuery {
@@ -1113,10 +1119,15 @@ class CourseController {
                 name: newCourse.name
             }
 
-            const response = await axios.get(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/create-course`, { data });
+            try {
+                const response = await axios.get(`${process.env.BASE_URL_NOTIFICATION_LOCAL}/notification/create-course`, { data });
+            } catch (error) {
+                console.log("Fail to call API to notification service");
+            }
 
             await t.commit();
 
+            // Save data to algolia
             const Categories = categoriesInstances.map(({ id, name }) => ({ id, name }));
             const user = { id: id_teacher, name: req.teacher?.data.name };
 
@@ -1128,11 +1139,10 @@ class CourseController {
                 Categories,
                 user
             }
+            await index.saveObject(algoliaDataSave);
 
             newCourse.dataValues.id_forum = newForum.id;
 
-            // Save data to algolia
-            await index.saveObject(algoliaDataSave);
 
             res.status(201).json(newCourse);
         } catch (error: any) {
