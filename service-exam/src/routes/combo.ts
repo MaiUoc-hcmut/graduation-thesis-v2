@@ -11,9 +11,9 @@ const FileUpload = require('../config/firebase/fileUpload');
 router.route('/')
     .post(
         Authorize.authorizeTeacher, 
-        FileUpload.uploadComboFiles,
+        // FileUpload.uploadComboFiles,
         CheckingCombo.checkCreateCombo,
-        ComboController.uploadThumbnailAndCover,
+        // ComboController.uploadThumbnailAndCover,
         ComboController.createComboExam
     );
 

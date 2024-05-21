@@ -113,15 +113,15 @@ class ComboController {
                 body = JSON.parse(body);
             }
 
-            const { thumbnail, cover } = req.URL;
+            // const { thumbnail, cover } = req.URL;
 
             const { exams, ...comboBody } = body;
 
             const combo = await Combo.create({
                 id_teacher,
                 ...comboBody,
-                thumbnail,
-                cover
+                // thumbnail,
+                // cover
             }, {
                 transaction: t
             });
