@@ -66,6 +66,21 @@ export function formatDateTimeEng(time: string): string {
     return year + "-" + strMonth + "-" + strDay
 }
 
+// export function convertTime(time: number) {
+//     const totalMinutes = Math.floor(time / 60);
+
+//     const seconds = time % 60;
+//     const hours = Math.floor(totalMinutes / 60);
+//     const minutes = totalMinutes % 60;
+
+//     const strHours = hours < 10 ? `0${hours}` : `${hours}`
+//     const strMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`
+//     const strSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`
+
+
+//     return `${strHours}:${strMinutes}:${strSeconds}`;
+// }
+
 export function convertTime(time: number) {
     const totalMinutes = Math.floor(time / 60);
 
@@ -73,10 +88,17 @@ export function convertTime(time: number) {
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
 
-    const strHours = hours < 10 ? `0${hours}` : `${hours}`
-    const strMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`
-    const strSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`
+    let formattedTime = '';
 
+    if (hours !== 0) {
+        formattedTime += `${hours} giờ `;
+    }
 
-    return `${strHours}:${strMinutes}:${strSeconds}`;
+    if (minutes !== 0) {
+        formattedTime += `${minutes} phút `;
+    }
+
+    formattedTime += `${seconds} giây`;
+
+    return formattedTime.trim();
 }

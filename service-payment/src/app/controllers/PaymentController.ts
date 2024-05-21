@@ -43,7 +43,7 @@ class PaymentController {
     getTransactionOfTeacher = async (req: Request, res: Response, _next: NextFunction) => {
         try {
             const id_teacher = req.params.teacherId;
-            
+
             const currentPage: number = +req.params.page;
             const pageSize: number = 20;
 
@@ -244,13 +244,13 @@ class PaymentController {
                     const today = new Date();
                     for (const coupon of course.data.Coupons) {
                         if (
-                            today.getTime() > coupon.start_time.getTime() 
+                            today.getTime() > coupon.start_time.getTime()
                             && today.getTime() < coupon.expire.getTime()
                         ) {
                             percentDiscount += coupon.percent;
                         }
                     }
-                    price = price (1 - percentDiscount / 100);
+                    price = price(1 - percentDiscount / 100);
 
                     dataCourses.push({
                         id_course: course.data.id,
@@ -286,7 +286,7 @@ class PaymentController {
                 }
 
                 for (const course of courses) {
-                    const response = await axios.post(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${course}`, data, { headers });
+                    const response = await axios.post(`${process.env.BASE_URL_COURSE_LOCAL}/courses/${course}`, { data }, { headers });
                 }
             }
 
