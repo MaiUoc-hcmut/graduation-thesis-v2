@@ -36,29 +36,50 @@ module.exports = {
       },
       amount: {
         type: Sequelize.INTEGER.UNSIGNED
-      }
+      },
+      createdAt: Sequelize.DATE,
+      updatedAt: Sequelize.DATE
     });
     await queryInterface.createTable('transaction_course', {
+      id: {
+        type: Sequelize.UUID,
+        primaryKey: true,
+      },
       id_transaction: {
         type: Sequelize.UUID,
         references: {
-          model: 'Transaction',
+          model: 'transaction',
           key: 'id'
         },
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
         allowNull: false
       },
-      id_course: {
+      id_teacher: {
         type: Sequelize.UUID,
         allowNull: false
-      }
+      },
+      id_course: {
+        type: Sequelize.UUID,
+      },
+      id_combo_exam: {
+        type: Sequelize.UUID
+      },
+      price: {
+        type: Sequelize.INTEGER.UNSIGNED
+      },
+      createdAt: Sequelize.DATE,
+      updatedAt: Sequelize.DATE
     });
     await queryInterface.createTable('cart_course', {
+      id: {
+        type: Sequelize.UUID,
+        primaryKey: true,
+      },
       id_cart: {
         type: Sequelize.UUID,
         references: {
-          model: 'Cart',
+          model: 'cart',
           key: 'id'
         },
         onDelete: "CASCADE",
@@ -68,7 +89,9 @@ module.exports = {
       id_course: {
         type: Sequelize.UUID,
         allowNull: false
-      }
+      },
+      createdAt: Sequelize.DATE,
+      updatedAt: Sequelize.DATE
     });
   },
 
