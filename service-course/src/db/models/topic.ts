@@ -33,6 +33,7 @@ Topic.init(
         },
         duration: {
             type: DataTypes.INTEGER.UNSIGNED,
+            defaultValue: 0
         },
         order: DataTypes.INTEGER.UNSIGNED,
         status: {
