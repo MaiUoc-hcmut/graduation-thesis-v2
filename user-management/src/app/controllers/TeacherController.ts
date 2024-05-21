@@ -159,7 +159,7 @@ class TeacherController {
         response.push({
           ...teacher.dataValues,
           ...courseServiceInformation.data,
-          exam_quantity: examServiceInformation.data
+          ...examServiceInformation.data
         });
       }
 
@@ -203,7 +203,7 @@ class TeacherController {
       const response = {
         ...teacher.dataValues,
         ...courseServiceInformation.data,
-        exam_quantity: examServiceInformation.data
+        ...examServiceInformation.data
       }
 
       res.status(200).json(response);
@@ -307,6 +307,8 @@ class TeacherController {
       if (verifyPassword) {
         const hashPassword = await bcrypt.hash(newPassword, 12);
         await teacher.update({ password: hashPassword }, { transaction: t });
+      } else {
+        return res.status(400).send("wrong old password");
       }
 
       await t.commit();

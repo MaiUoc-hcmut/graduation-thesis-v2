@@ -1,10 +1,8 @@
 'use strict';
 
-const { NOW } = require('sequelize');
-
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface, Sequelize) {
+  async up (queryInterface, Sequelize) {
     await queryInterface.createTable('par_category', {
       id: {
         allowNull: false,
@@ -34,7 +32,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID,
         references: {
-          model: 'Par_category',
+          model: 'par_category',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -68,18 +66,24 @@ module.exports = {
       },
       title: {
         allowNull: false,
-        type: Sequelize.STRING(30),
+        type: Sequelize.STRING(150),
       },
       period: {
         allowNull: false,
-        type: Sequelize.TIME,
+        type: Sequelize.INTEGER.UNSIGNED,
       },
       quantity_question: {
-        type: Sequelize.SMALLINT,
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
       },
       quantity_assignment: {
-        type: Sequelize.SMALLINT,
+        type: Sequelize.INTEGER.UNSIGNED,
+      },
+      total_review: {
+        type: Sequelize.INTEGER.UNSIGNED,
+      },
+      average_rating: {
+        type: Sequelize.FLOAT.UNSIGNED,
       },
       status: {
         type: Sequelize.STRING,
@@ -102,7 +106,7 @@ module.exports = {
       id_exam: {
         type: Sequelize.UUID,
         references: {
-          model: 'Exam',
+          model: 'exam',
           key: 'id',
         },
         onDelete: "CASCADE",
@@ -125,6 +129,12 @@ module.exports = {
       multi_choice: {
         type: Sequelize.BOOLEAN,
       },
+      status: {
+        type: Sequelize.STRING,
+      },
+      explain: {
+        type: Sequelize.TEXT
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -143,7 +153,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID,
         references: {
-          model: 'Question',
+          model: 'question',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -172,7 +182,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID,
         references: {
-          model: 'Exam',
+          model: 'exam',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -182,6 +192,18 @@ module.exports = {
         allowNull: false,
         type: Sequelize.FLOAT,
       },
+      passed: {
+        type: Sequelize.BOOLEAN
+      },
+      right_question: {
+        type: Sequelize.INTEGER.UNSIGNED
+      },
+      wrong_question: {
+        type: Sequelize.INTEGER.UNSIGNED
+      },
+      empty_question: {
+        type: Sequelize.INTEGER.UNSIGNED
+      },
       time_start: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -189,6 +211,15 @@ module.exports = {
       time_end: {
         allowNull: false,
         type: Sequelize.DATE,
+      },
+      comment: {
+        type: Sequelize.TEXT
+      },
+      draft: {
+        type: Sequelize.TEXT
+      },
+      reviewed: {
+        type: Sequelize.INTEGER.UNSIGNED
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -209,7 +240,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID,
         references: {
-          model: 'Question',
+          model: 'question',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -225,6 +256,9 @@ module.exports = {
       is_correct: {
         allowNull: false,
         type: Sequelize.BOOLEAN,
+      },
+      status: {
+        type: Sequelize.STRING,
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -244,7 +278,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID,
         references: {
-          model: 'Assignment',
+          model: 'assignment',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -254,11 +288,17 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID,
         references: {
-          model: 'Question',
+          model: 'question',
           key: 'id',
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
+      },
+      comment: {
+        type: Sequelize.TEXT
+      },
+      draft: {
+        type: Sequelize.TEXT
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -278,7 +318,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID,
         references: {
-          model: 'Question',
+          model: 'question',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -333,7 +373,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID,
         references: {
-          model: 'Question',
+          model: 'question',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -343,7 +383,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID,
         references: {
-          model: 'Error',
+          model: 'error',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -351,7 +391,7 @@ module.exports = {
       },
       content: {
         allowNull: false,
-        type: Sequelize.STRING(90),
+        type: Sequelize.TEXT,
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -367,7 +407,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID,
         references: {
-          model: 'Exam',
+          model: 'exam',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -377,7 +417,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID,
         references: {
-          model: 'Category',
+          model: 'category',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -397,7 +437,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID,
         references: {
-          model: 'Question',
+          model: 'question',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -407,7 +447,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID,
         references: {
-          model: 'Category',
+          model: 'category',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -422,9 +462,284 @@ module.exports = {
         allowNull: false,
       },
     });
+    await queryInterface.createTable('selected_answer', {
+      id: {
+        type: Sequelize.UUID,
+        primaryKey: true,
+      },
+      id_detail_question: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'detail_question',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      },
+      id_answer: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'answer',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      },
+      is_selected: {
+        type: Sequelize.BOOLEAN,
+      },
+      createdAt: Sequelize.DATE,
+      updatedAt: Sequelize.DATE,
+    });
+    await queryInterface.createTable('exam_draft', {
+      id: {
+        type: Sequelize.UUID,
+        primaryKey: true
+      },
+      id_exam: {
+        type: Sequelize.UUID,
+      },
+      url: {
+        type: Sequelize.TEXT,
+      },
+      order: {
+        type: Sequelize.INTEGER
+      },
+      id_question: {
+        type: Sequelize.UUID
+      },
+      id_answer: {
+        type: Sequelize.UUID
+      },
+      type: {
+        type: Sequelize.STRING
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+    });
+    await queryInterface.createTable('knowledge', {
+      id: {
+        type: Sequelize.UUID,
+        primaryKey: true
+      },
+      name: {
+        type: Sequelize.STRING
+      }
+    });
+    await queryInterface.createTable('category-knowledge', {
+      id_category: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'category',
+          key: 'id',
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+      },
+      id_knowledge: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'knowledge',
+          key: 'id',
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      },
+      createdAt: Sequelize.DATE,
+      updatedAt: Sequelize.DATE
+    });
+    await queryInterface.createTable('knowledge-question', {
+      id_knowledge: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'knowledge',
+          key: 'id',
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      },
+      id_question: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'question',
+          key: 'id',
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      },
+      createdAt: Sequelize.DATE,
+      updatedAt: Sequelize.DATE,
+    });
+    await queryInterface.createTable('review', {
+      id: {
+        type: Sequelize.UUID,
+        primaryKey: true,
+      },
+      id_student: {
+        type: Sequelize.UUID
+      },
+      id_exam: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'exam',
+          key: 'id',
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+      },
+      content: {
+        type: Sequelize.STRING(1000)
+      },
+      image: {
+        type: Sequelize.TEXT
+      },
+      rating: {
+        type: Sequelize.INTEGER.UNSIGNED,
+        allowNull: false
+      },
+      createdAt: Sequelize.DATE,
+      updatedAt: Sequelize.DATE
+    });
+    await queryInterface.createTable('combo', {
+      id: {
+        type: Sequelize.UUID,
+        primaryKey: true
+      },
+      id_teacher: {
+        type: Sequelize.UUID
+      },
+      name: {
+        type: Sequelize.STRING
+      },
+      price: {
+        type: Sequelize.INTEGER.UNSIGNED
+      },
+      description: {
+        type: Sequelize.TEXT
+      },
+      thumbnail: {
+        type: Sequelize.TEXT
+      },
+      cover: {
+        type: Sequelize.TEXT
+      },
+      average_rating: {
+        type: Sequelize.FLOAT
+      },
+      total_review: {
+        type: Sequelize.INTEGER.UNSIGNED
+      },
+      total_registration: {
+        type: Sequelize.INTEGER.UNSIGNED
+      },
+      status: {
+        type: Sequelize.STRING
+      },
+      createdAt: Sequelize.DATE,
+      updatedAt: Sequelize.DATE
+    });
+    await queryInterface.createTable('combo_exam', {
+      id_combo: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'combo',
+          key: 'id'
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      },
+      id_exam: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'exam',
+          key: 'id'
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+      },
+      createdAt: Sequelize.DATE,
+      updatedAt: Sequelize.DATE
+    });
+    await queryInterface.createTable('coupon', {
+      id: {
+        type: Sequelize.UUID,
+        primaryKey: true
+      },
+      id_teacher: {
+        type: Sequelize.UUID,
+      },
+      name: {
+        type: Sequelize.STRING
+      },
+      percent: {
+        type: Sequelize.INTEGER.UNSIGNED,
+        allowNull: false,
+      },
+      expire: {
+        type: Sequelize.DATE,
+        allowNull: false
+      },
+      createdAt: Sequelize.DATE,
+      updatedAt: Sequelize.DATE
+    });
+    await queryInterface.createTable('coupon_exam', {
+      id_coupon: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'coupon',
+          key: 'id',
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+      },
+      id_exan: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'exam',
+          key: 'id',
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+      },
+      createdAt: Sequelize.DATE,
+      updatedAt: Sequelize.DATE
+    });
+    await queryInterface.createTable('student_combo', {
+      id_student: {
+        type: Sequelize.UUID
+      },
+      id_combo: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'combo',
+          key: 'id'
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+      },
+      createdAt: Sequelize.DATE,
+      updatedAt: Sequelize.DATE
+    });
   },
 
-  async down(queryInterface, Sequelize) {
+  async down (queryInterface, Sequelize) {
+    await queryInterface.dropTable('student_combo');
+    await queryInterface.dropTable('coupon_exam');
+    await queryInterface.dropTable('coupon');
+    await queryInterface.dropTable('combo_exam');
+    await queryInterface.dropTable('combo');
+    await queryInterface.dropTable('review');
+    await queryInterface.dropTable('knowledge-question');
+    await queryInterface.dropTable('category-knowledge');
+    await queryInterface.dropTable('knowledge');
+    await queryInterface.dropTable('exam_draft');
+    await queryInterface.dropTable('selected_answer');
     await queryInterface.dropTable('category-exam');
     await queryInterface.dropTable('category-question');
     await queryInterface.dropTable('category');
@@ -438,5 +753,5 @@ module.exports = {
     await queryInterface.dropTable('answer');
     await queryInterface.dropTable('question');
     await queryInterface.dropTable('exam');
-  },
+  }
 };

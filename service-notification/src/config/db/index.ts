@@ -1,8 +1,8 @@
 const Sequelize = require('sequelize');
 require('dotenv').config()
 
-const sequelize = new Sequelize('notification', 'root', '0974222365', {
-    host: 'localhost',
+const sequelize = new Sequelize('service_notification', 'admin', '0974222365', {
+    host: 'hcmut-thesis.cfsee8gs2fxd.ap-southeast-1.rds.amazonaws.com',
     dialect: 'mysql',
 });
 

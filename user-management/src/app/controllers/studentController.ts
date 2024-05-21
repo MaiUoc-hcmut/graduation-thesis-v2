@@ -164,28 +164,24 @@ class StudentController {
 
     changePassword = async (req: Request, res: Response, _next: NextFunction) => {
         try {
-            const { oldPassword, newPassword, confirmPassword } = req.body;
+            const { oldPassword, newPassword, confirmPassword } = req.body.data;
+            if (!oldPassword) return res.status(400).json({ message: "You must provide old password!" });
             if (newPassword !== confirmPassword) return res.status(400).json({ message: 'Your new password does not match!' });
 
-            const accessToken = req.headers.authorization;
-            const accessTokenSecretKey = process.env.ACCESS_TOKEN_SECRET;
-
-            const verifyStudent = jwt.verify(accessToken, accessTokenSecretKey);
-
-            const student = Student.findOne({
-                where: { id: verifyStudent.id }
-            });
+            const student = req.student;
 
             const verifyPassword = await bcrypt.compare(oldPassword, student.password);
             if (verifyPassword) {
                 const hashPassword = await bcrypt.hash(newPassword, 12);
                 await student.update({ password: hashPassword });
-            }
+              } else {
+                return res.status(400).send("wrong old password");
+              }
 
             res.status(200).json({
                 message: "Password updated!",
                 student
-            })
+            });
 
         } catch (error: any) {
             console.log(error.message);

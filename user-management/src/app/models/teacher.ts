@@ -86,7 +86,7 @@ Teacher.init(
     },
   },
   {
-    tableName: 'Teacher',
+    tableName: 'teacher',
     sequelize,
   },
 );
