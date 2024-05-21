@@ -222,14 +222,22 @@ class VideoController {
                 return res.status(200).json({
                     message: "Video has been uploaded to cloud!"
                 });
+            } else {
+                const oldDuration = topic.duration;
+                const newDuration = course.total_duration - oldDuration + duration;
+                console.log(newDuration);
+                await course.update({
+                    total_duration: newDuration
+                }, {
+                    transaction: t
+                });
+                await topic.update({
+                    video: url,
+                    duration,
+                }, {
+                    transaction: t
+                });
             }
-
-            await topic.update({
-                video: url,
-                duration,
-            }, {
-                transaction: t
-            });
 
             await t.commit();
 
