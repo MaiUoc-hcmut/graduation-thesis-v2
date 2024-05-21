@@ -18,10 +18,17 @@ router.route('/page/:page')
     .get(Authorize.checkGetAll, Authorize.verifyUser, courseController.getAllCourse)
 
 router.route('/search/page/:page')
-    .post(courseController.searchCourse);
+    .post(
+        Authorize.checkGetAll,
+        Authorize.verifyUser,
+        courseController.searchCourse
+    );
 
 router.route('/search/teacher/:teacherId/page/:page')
-    .get(Authorize.verifyUser, CheckingCourse.checkSearchCourseOfTeacher, courseController.searchCourseOfTeacher);
+    .get(
+        Authorize.verifyUser, 
+        CheckingCourse.checkSearchCourseOfTeacher, 
+        courseController.searchCourseOfTeacher);
 
 router.route('/student-course')
     .get(courseController.getRecordsOfStudentCourseTable);
