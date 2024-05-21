@@ -186,7 +186,7 @@ export default function SidebarTeacher() {
                                     </li>
                                 </ul>
                             </li>
-                            <li>
+                            {/* <li>
                                 <button
                                     type="button"
                                     className="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
@@ -225,7 +225,7 @@ export default function SidebarTeacher() {
                                         </Link>
                                     </li>
                                 </ul>
-                            </li>
+                            </li> */}
                             <li>
                                 <button
                                     type="button"

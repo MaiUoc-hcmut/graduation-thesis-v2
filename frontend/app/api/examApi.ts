@@ -51,7 +51,15 @@ const examApi = {
         return await axiosConfig.put(url, data);
     },
 
+    createComboExam: async (data: object) => {
+        const url = `/combos`;
+        return await axiosConfig.post(url, data);
+    },
 
+    getComboExam: async (id_teacher: string, page: string) => {
+        const url = `/combos/teacher/${id_teacher}/page/${page}`;
+        return await axiosConfig.get(url);
+    },
 
     update: (id: string, data: object) => {
         const url = `/exams/${id}`;

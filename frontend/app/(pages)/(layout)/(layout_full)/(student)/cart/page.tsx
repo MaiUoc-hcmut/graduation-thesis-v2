@@ -67,7 +67,7 @@ export default function Cart() {
                                                 <Modal.Body>
                                                     <form className="space-y-6" onSubmit={async (e) => {
                                                         e.preventDefault()
-                                                        await paymentApi.deleteCart({ data: { id_course: item.id } }).catch((err: any) => {})
+                                                        await paymentApi.deleteCart({ data: { id_course: item.id } }).catch((err: any) => { })
                                                         setChange(!change)
                                                     }}>
                                                         <ExclamationCircleIcon className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
@@ -142,11 +142,11 @@ export default function Cart() {
                                             {formatCash(`${cartItems.reduce((total, item: any) => total + item.price, 0)}`)} VNĐ
                                         </h6>
                                     </td>
-                                    <td className='py-8'>
+                                    <td className='py-8 w-60'>
                                         <div className="flex justify-center">
                                             <Link
                                                 href={'/checkout'}
-                                                className="rounded-md w-2/3 py-2 px-3    bg-primary text-white font-semibold text-lg text-center transition-all duration-500 hover:bg-primary_hover"
+                                                className="rounded-md w-2/3 py-2 px-3 bg-primary text-white font-semibold text-lg text-center transition-all duration-500 hover:bg-primary_hover"
                                             >
                                                 Thanh toán
                                             </Link>

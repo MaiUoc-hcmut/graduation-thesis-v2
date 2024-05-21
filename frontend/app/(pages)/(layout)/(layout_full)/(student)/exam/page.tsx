@@ -9,7 +9,7 @@ import courseApi from '@/app/api/courseApi';
 import categoryApi from '@/app/api/category';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { formatCash, convertTime } from '@/app/helper/FormatFunction';
-
+import Paginate from '@/app/_components/Paginate/Paginate';
 
 function classNames(...classes: any) {
     return classes.filter(Boolean).join(' ');
@@ -27,6 +27,8 @@ export default function CourseList() {
     const priceFilters = searchParams.get('maxPrice');
     const sortFilters = searchParams.get('sort');
     const orderFilters = searchParams.get('order');
+    const [countPaginate, setCountPaginate] = useState(1)
+    const page = searchParams.get('page') || '1'
 
 
     const sortOptions = [
@@ -57,10 +59,11 @@ export default function CourseList() {
             sortFilters && orderFilters ? filterString += `&sort=${sortFilters}&order=${orderFilters}` : null
 
 
-            // await courseApi.getAll(filterString).then((data: any) => {
-            //     setCourses(data.data.courses)
-            // }
-            // ).catch((err: any) => { })
+            await courseApi.getAll(filterString, page).then((data: any) => {
+                setCourses(data.data.courses)
+                setCountPaginate(Math.ceil(data.data.count / 10))
+            }
+            ).catch((err: any) => { })
             await categoryApi.getAll().then((data: any) => {
                 setCategory([
                     {
@@ -304,6 +307,7 @@ export default function CourseList() {
                                         })
                                     }
                                 </div>
+                                <Paginate countPaginate={countPaginate} currentPage={page} />
                             </div>
                         </div>
                     </section>

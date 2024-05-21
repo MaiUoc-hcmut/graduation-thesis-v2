@@ -185,7 +185,6 @@ export default function CreateCourse() {
                                 })
                             })
 
-                            console.log(data1);
 
                             formData.append("thumbnail", dataForm.thumbnail[0])
                             formData.append("cover", dataForm.cover[0])
@@ -213,7 +212,10 @@ export default function CreateCourse() {
                                 Tiếp theo
                             </button>
                         </div>
-                        <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover" onClick={() => setTypeSubmit("submit")}>Hoàn thành</button>
+                        <div>
+                            <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover mr-5" onClick={() => setTypeSubmit("submit")}>Lưu bản nháp</button>
+                            <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover" onClick={() => setTypeSubmit("submit")}>Hoàn thành</button>
+                        </div>
                     </div>
                 </form>
             </div >

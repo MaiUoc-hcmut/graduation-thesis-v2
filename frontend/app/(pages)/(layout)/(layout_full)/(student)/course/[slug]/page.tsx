@@ -25,7 +25,7 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
 
     const [reviews, setReviews] = useState([]);
     const [changeData, setChangeData] = useState(false);
-    const [course, setCourse] = useState<any>();
+    const [course, setCourse] = useState<any>({});
     const [rating, setRating] = useState(0);
     const [avgReview, setAvgReview] = useState(0);
     const [starDetails, setStarDetails] = useState<any>();
@@ -148,9 +148,8 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                             <div className='pt-5'>
                                 <div className={`${tab == 1 ? '' : 'hidden'}`}>
                                     <div className='rounded-md p-4 bg-[#f7fafd]'>
-                                        <h3 className='text-secondary font-bold mb-4'>Bạn sẽ học được gì?</h3>
-                                        <p className='flex items-start mt-2 text-[14px] text-[#818894]'>
-                                            <CheckIcon className='w-[18px] h-[18px] mr-2' />
+                                        <h3 className='text-secondary font-bold'>Mục tiêu</h3>
+                                        <p className='flex items-start text-[14px] text-[#818894] mt-2'>
                                             {parse(course?.goal || '')}
                                         </p>
 
@@ -167,8 +166,13 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                         <div className='mt-5'>
                                             <h3 className='font-bold text-secondary'>Yêu cầu</h3>
                                             <p className='flex items-start mt-2 text-[14px] text-[#818894]'>
-                                                <CheckIcon className='w-[18px] h-[18px] mr-2' />
                                                 {parse(course?.requirement || "")}
+                                            </p>
+                                        </div>
+                                        <div className='mt-5'>
+                                            <h3 className='font-bold text-secondary'>Đối tượng</h3>
+                                            <p className='flex items-start mt-2 text-[14px] text-[#818894]'>
+                                                {parse(course?.object || "")}
                                             </p>
                                         </div>
                                     </div>

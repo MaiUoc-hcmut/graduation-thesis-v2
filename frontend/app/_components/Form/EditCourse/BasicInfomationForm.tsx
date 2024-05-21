@@ -65,7 +65,7 @@ export function BasicInfomationForm({
         fetchCategory()
     }, []);
 
-    const levels = category.Level.map((level: any) => { return { ...level, label: level.name } })
+    const levels = category.Level?.map((level: any) => { return { ...level, label: level.name } })
     console.log(getValues());
 
     return (

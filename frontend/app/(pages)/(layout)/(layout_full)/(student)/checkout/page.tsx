@@ -161,7 +161,7 @@ export default function CheckoutPage() {
                                 </div>
                             </label>
                         </div>
-                        <div className="relative">
+                        {/* <div className="relative">
                             <input
                                 className="peer hidden"
                                 id="radio_2"
@@ -188,7 +188,7 @@ export default function CheckoutPage() {
                                     </p>
                                 </div>
                             </label>
-                        </div>
+                        </div> */}
                     </form>
                     <div className="mt-6 border-t border-b py-4">
                         <div className="flex items-center justify-between mb-3">

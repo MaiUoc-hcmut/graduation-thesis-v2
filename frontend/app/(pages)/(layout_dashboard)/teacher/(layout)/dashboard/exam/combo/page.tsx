@@ -5,15 +5,14 @@ import Link from "next/link"
 import { PencilSquareIcon } from '@heroicons/react/24/solid'
 import { StarIcon } from '@heroicons/react/24/solid'
 import { useEffect, useState } from "react"
-import examApi from "@/app/api/examApi"
 import { useAppSelector } from "@/redux/store";
 import { formatCash } from "@/app/helper/FormatFunction"
 import { Dropdown } from 'flowbite-react';
-import { ExclamationCircleIcon, EllipsisVerticalIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline"
+import { ExclamationCircleIcon, EllipsisVerticalIcon, MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline"
 import { Button, Modal } from 'flowbite-react';
 import { Controller, useForm } from "react-hook-form"
 import { initFlowbite } from "flowbite"
-// import comboApi from "@/app/api/comboApi"
+import examApi from "@/app/api/examApi"
 import { FilePond, registerPlugin } from 'react-filepond'
 import 'filepond/dist/filepond.min.css'
 import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation'
@@ -21,6 +20,8 @@ import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import CustomCKEditor from "@/app/_components/Editor/CKEditor"
+import { useSearchParams } from "next/navigation"
+import Paginate from "@/app/_components/Paginate/Paginate"
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
 
 export default function ExamDashboard() {
@@ -30,6 +31,9 @@ export default function ExamDashboard() {
     const [modal, setModal] = useState<any>({})
     const [change, setChange] = useState<boolean>(false)
     const [listExam, setListExam] = useState<any>({})
+    const [countPaginate, setCountPaginate] = useState(1)
+    const searchParams = useSearchParams()
+    const page = searchParams.get('page') || '1'
     const {
         register,
         reset,
@@ -57,14 +61,13 @@ export default function ExamDashboard() {
 
     useEffect(() => {
         async function fetchData() {
-            await examApi.getAllExamByTeacher(`${authUser.id}`, '1').then((data: any) => setExams(data.data.exams)).catch((err: any) => { })
-            // await courseApi.getAllStudenBuySpecificCourseOfTeacher(currentCourse, `${user.id}`, page).then((data: any) => {
-            //     setStudents(data.data)
-            // }).catch((err: any) => { })
+            await examApi.getComboExam(`${authUser.id}`, page).then((data: any) => {
+                setExams(data.data.exams)
+                setCountPaginate(Math.ceil(data.data.count / 10))
+            }).catch((err: any) => { })
         }
         fetchData()
-    }, [authUser.id, change]);
-    console.log(listExam);
+    }, [authUser.id, change, page]);
 
     return (
         <div className="">
@@ -73,32 +76,20 @@ export default function ExamDashboard() {
                     <Modal.Header />
                     <Modal.Body>
                         <form className="space-y-6" onSubmit={handleSubmit(async (data: any) => {
-                            const startTime = getValues("start_time");
-                            const endTime = getValues("end_time");
-                            if (startTime !== undefined && endTime !== undefined && startTime > endTime) {
-                                setError("time", {
-                                    type: "validate",
-                                    message: "Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc."
-                                });
-                                return;
-                            }
-
-                            if (!(Object.entries(errors).length === 0)) return
                             const dataForm = {
-                                name: data.name,
-                                percent: Number(data.percent),
-                                start_time: data.start_time,
-                                expire: data.end_time,
-                                courses: [data.courses]
+                                data: {
+                                    ...data,
+                                    exams: Object.keys(listExam),
+                                }
                             }
 
-                            // await comboApi.create(dataForm).then(() => {
+                            await examApi.createComboExam(dataForm).then(() => {
+                                setChange(!change)
+                                reset()
+                                setListExam({})
+                                setModal({ ...modal, [`add-combo`]: false })
+                            }).catch((err: any) => { })
 
-                            // }).catch((err: any) => { })
-
-                            setChange(!change)
-                            reset()
-                            setModal({ ...modal, [`add-combo`]: false })
                         })}>
 
                             <h3 className="text-xl font-medium text-gray-900 dark:text-white">Thêm combo đề thi</h3>
@@ -111,7 +102,7 @@ export default function ExamDashboard() {
                                 </label>
                                 <input
                                     {...register("name", {
-                                        required: "Ten không thể trống."
+                                        required: "Tên không thể trống."
                                     })}
                                     type="text"
                                     id="name"
@@ -123,6 +114,31 @@ export default function ExamDashboard() {
                                 </p>
                             </div>
 
+                            <div className="mb-5 w-1/2">
+                                <label
+                                    htmlFor="price"
+                                    className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                >
+                                    Giá (VNĐ)
+                                </label>
+                                <input
+                                    {...register("price", {
+                                        required: "Giá không thể trống.",
+                                        min: {
+                                            value: 0,
+                                            message: "Giá không phù hợp."
+                                        }
+                                    })}
+                                    type="number"
+                                    id="price"
+                                    name="price"
+                                    className={`bg-white border border-gray-300 text-[#343434] text-sm focus:ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
+                                />
+                                <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                    {errors?.price?.message?.toString()}
+                                </p>
+
+                            </div>
                             <div className={`w-full`}>
                                 <label
                                     htmlFor="exam"
@@ -131,7 +147,10 @@ export default function ExamDashboard() {
                                     Danh sách đề thi
                                 </label>
                                 <button
-                                    onClick={() => setModal({ ...modal, [`dropdownSearch`]: !modal[`dropdownSearch`] })}
+                                    onClick={async () => {
+                                        setModal({ ...modal, [`dropdownSearch`]: !modal[`dropdownSearch`] })
+                                        await examApi.getAllExamByTeacher(`${authUser.id}`, '1').then((data: any) => setExams(data.data.exams)).catch((err: any) => { })
+                                    }}
                                     id="dropdownSearchButton"
                                     // data-dropdown-toggle="dropdownSearch"
                                     data-dropdown-placement="bottom"
@@ -160,70 +179,27 @@ export default function ExamDashboard() {
                                     id="dropdownSearch"
                                     className={`${modal['dropdownSearch'] ? "" : "hidden"} z-10 w-full mt-3 bg-white rounded-lg shadow dark:bg-gray-700`}
                                 >
-                                    {/* <div className="p-3">
-                                        <label htmlFor="input-group-search" className="sr-only">
-                                            Search
-                                        </label>
-                                        <div className="relative">
-                                            <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
-                                                <svg
-                                                    className="w-4 h-4 text-gray-500 dark:text-gray-400"
-                                                    aria-hidden="true"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    viewBox="0 0 20 20"
-                                                >
-                                                    <path
-                                                        stroke="currentColor"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        strokeWidth={2}
-                                                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                                                    />
-                                                </svg>
-                                            </div>
-                                            <input
-                                                type="text"
-                                                id="input-group-search"
-                                                className="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                placeholder="Tìm kiếm người dùng"
-                                            />
-                                        </div>
-                                    </div> */}
                                     <ul
                                         className="h-auto p-3 overflow-y-auto text-sm text-gray-700 dark:text-gray-200"
                                         aria-labelledby="dropdownSearchButton"
 
                                     >
-                                        <li >
-
-                                            <div className="flex items-center ps-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
-                                                <input
-                                                    onChange={(e) => setListExam({ ...listExam, [123]: (e.target as HTMLInputElement).checked ? "Abc" : "" })
-                                                    }
-                                                    type="checkbox"
-                                                    defaultChecked
-                                                    id={'all'}
-                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                                                />
-                                                <label
-                                                    htmlFor="checkbox-item-11"
-                                                    className="w-full py-2 ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300"
-                                                >
-                                                    Tất cả đề thi
-                                                </label>
-                                            </div>
-                                        </li>
                                         {
                                             exams ? exams?.map((exam: any, index: number) => {
                                                 return (
                                                     <li key={exam.id}>
                                                         <div className="flex items-center ps-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
                                                             <input
-
-
+                                                                onClick={(e: any) => {
+                                                                    if (e.target.checked) {
+                                                                        setListExam({ ...listExam, [exam.id]: exam.title })
+                                                                    } else {
+                                                                        delete listExam[exam.id]
+                                                                        setListExam({ ...listExam })
+                                                                    }
+                                                                }}
                                                                 type="checkbox"
-                                                                defaultValue=""
+                                                                defaultChecked={!listExam[exam.id] ? false : true}
                                                                 id={exam.id}
                                                                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
                                                             />
@@ -236,7 +212,7 @@ export default function ExamDashboard() {
                                                         </div>
                                                     </li>
                                                 )
-                                            }) : <p className='text-center'>Không có người dùng</p>
+                                            }) : <p className='text-center'>Không có đề thi</p>
 
                                         }
 
@@ -248,8 +224,10 @@ export default function ExamDashboard() {
                                         listExam ? Object.entries(listExam).map(([key, value]: any) => {
                                             if (value !== "")
                                                 return (
-                                                    <div key={key} className="border-[1px] border-slate-200 px-4 py-2 rounded-lg">{value}</div>
-                                                )
+                                                    <div key={key} className="border-[1px] border-slate-400 px-4 py-2 rounded-lg mb-4 bg-slate-100">
+                                                        {value}
+                                                    </div>
+                                                );
                                         }) : null
                                     }
                                 </div>
@@ -278,7 +256,7 @@ export default function ExamDashboard() {
 
 
                                             const request = new XMLHttpRequest();
-                                            request.open('POST', 'http://localhost:4002/api/v1/images')
+                                            request.open('POST', 'http://localhost:4001/api/v1/images/single')
 
 
                                             request.upload.onprogress = (e) => {
@@ -289,7 +267,7 @@ export default function ExamDashboard() {
 
                                                 if (request.status >= 200 && request.status < 300) {
                                                     // the load method accepts either a string (id) or an object
-                                                    // setImage({ ...image, [exam.id]: JSON.parse(request.response).url });
+                                                    setValue("thumbnail", JSON.parse(request.response).url);
 
                                                     load(request.responseText);
                                                 } else {
@@ -332,6 +310,70 @@ export default function ExamDashboard() {
                                 <div className="mt-2 text-sm text-red-600 dark:text-red-500">
                                     {errors?.description?.message?.toString() ?? ''}
                                 </div>
+                            </div>
+
+                            <div className="mb-5 w-full">
+                                <div
+                                    className="block mr-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                >
+                                    Trạng thái
+                                </div>
+                                <div className="mt-2">
+                                    <label className="relative inline-flex items-center me-5 cursor-pointer">
+                                        <div className="flex">
+                                            <div className="flex items-center me-4" >
+                                                <input
+                                                    id="inline-radio"
+                                                    type="radio"
+
+                                                    {...register(`status`)}
+                                                    value="public"
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                />
+                                                <label
+                                                    htmlFor="inline-radio"
+                                                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                >
+                                                    Công khai
+                                                </label>
+                                            </div>
+                                            <div className="flex items-center me-4" >
+                                                <input
+                                                    id="inline-radio"
+                                                    type="radio"
+                                                    defaultChecked
+                                                    {...register(`status`)}
+                                                    value="paid"
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                />
+                                                <label
+                                                    htmlFor="inline-radio"
+                                                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                >
+                                                    Tính phí
+                                                </label>
+                                            </div>
+                                            <div className="flex items-center me-4">
+                                                <input
+                                                    id="inline-2-radio"
+                                                    type="radio"
+                                                    {...register(`status`)}
+                                                    value="private"
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                />
+                                                <label
+                                                    htmlFor="inline-2-radio"
+                                                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                >
+                                                    Riêng tư
+                                                </label>
+                                            </div>
+
+                                        </div>
+                                    </label>
+                                </div>
+
+
                             </div>
                             <div className="mt-6 flex justify-end">
                                 <button
@@ -462,6 +504,7 @@ export default function ExamDashboard() {
                         )
                     })
                 }
+                <Paginate countPaginate={countPaginate} currentPage={page} />
             </div>
 
         </div>

@@ -211,7 +211,7 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                     server={{
                                         process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                                             const formData = new FormData();
-                                            formData.append(fieldName, file, `${indexChapter + 1}-${indexTopic + 1}-${file.name}`);
+                                            formData.append(fieldName, file, file.name);
                                             const data = { id_course: id_course, id_topic: topic.id }
 
 

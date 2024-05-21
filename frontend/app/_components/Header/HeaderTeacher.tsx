@@ -186,13 +186,7 @@ export default function HeaderTeacher() {
                                         data-dropdown-toggle="dropdownNotification"
                                         className="relative flex justify-center items-center text-sm font-medium text-center text-gray-500 hover:text-gray-600 focus:outline-none dark:hover:text-white dark:text-gray-400"
                                         type="button"
-                                        onClick={async () => {
-                                            if (user) {
-                                                await notifyApi.getNotify(`${user.id}`, '1').then((data) => {
-                                                    setNotifycations(data.data.notifications)
-                                                }).catch((err: any) => { })
-                                            }
-                                        }}
+
                                     >
                                         <BellIcon className='w-6 h-6' onClick={() => {
                                             setHasMore(true);

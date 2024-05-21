@@ -52,7 +52,8 @@ instance.interceptors.request.use(
             if (
                 config.url.indexOf('/exams') >= 0 ||
                 config.url.indexOf('assignments/student') >= 0 ||
-                config.url.indexOf('/assignments') >= 0
+                config.url.indexOf('/assignments') >= 0 ||
+                config.url.indexOf('/combos') >= 0
             ) {
                 config.baseURL = 'http://localhost:4002/api/v1';
             }

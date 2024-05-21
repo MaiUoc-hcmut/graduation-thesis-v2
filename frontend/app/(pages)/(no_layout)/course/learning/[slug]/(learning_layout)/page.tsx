@@ -22,7 +22,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
     const initToggle: any = {}
     const playRef = useRef<any>()
     const [toggle, setToggle] = useState(initToggle)
-    const [tab, setTab] = useState(0)
+    const [tab, setTab] = useState(2)
     const [content, setContent] = useState('')
     const [topic, setTopic] = useState<any>()
     const [comments, setComments] = useState<any>()
@@ -241,6 +241,15 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                 <li className="me-2">
                                     <button
                                         type='button'
+                                        onClick={() => setTab(2)}
+                                        className={`${tab === 2 ? 'text-blue-600 bg-gray-100 active' : 'hover:text-gray-600 hover:bg-gray-50'} inline-block p-4 px-8 rounded-t-lg `}
+                                    >
+                                        Mô tả
+                                    </button>
+                                </li>
+                                <li className="me-2">
+                                    <button
+                                        type='button'
                                         onClick={() => setTab(0)}
                                         className={`${tab === 0 ? 'text-blue-600 bg-gray-100 active' : 'hover:text-gray-600 hover:bg-gray-50'} inline-block p-4 px-8 rounded-t-lg `}
                                     >
@@ -312,7 +321,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                     </div>
                                 </div>
                                 <div className='mt-10 '>
-                                    <p className='font-medium text-lg mb-10'>{comments?.count} bình luận</p>
+                                    <p className='font-medium text-lg mb-10'>{comments?.count || 0} bình luận</p>
 
                                     {
                                         comments?.comments?.map((cmt: any) => {
@@ -491,6 +500,16 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                         )
                                     })
                                 }
+
+                            </div>
+                            <div className={`${tab === 2 ? '' : 'hidden'} px-10 py-5`}>
+                                <p>Bài giảng: {topic?.name}</p>
+                                <p className={`${topic?.description != "" ? topic?.description : "hidden"} mt-2`}>
+                                    Mô tả:
+                                    {
+                                        topic?.description
+                                    }
+                                </p>
 
                             </div>
                         </div>

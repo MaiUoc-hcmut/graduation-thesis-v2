@@ -35,26 +35,26 @@ export default function SidebarLearning({ course, id_course, progress }: any) {
                                                         <span className="flex justify-center items-center w-10 h-10 min-w-10 min-h-10 bg-primary rounded-full mr-[10px]">
                                                             <Squares2X2Icon className="w-6 h-6 text-white" />
                                                         </span>
-                                                        <div>
-                                                            <span className="font-bold text-[rgb(23,19,71)] text-lg">
+                                                        <div className=''>
+                                                            <div className="font-bold text-[rgb(23,19,71)] text-sm leading-5">
                                                                 {chapter.name}
-                                                            </span>
-                                                            <span className="font-normal text-[818894] text-xs flex">
+                                                            </div>
+                                                            <div className="font-normal text-[818894] text-xs flex mt-1">
                                                                 {chapter.topics?.length} chủ đề
                                                                 | {convertTime(chapter.totalDuration)}
-                                                            </span>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div className="ml-5 flex items-center justify-center">
+                                                    <div className="flex items-center justify-center">
                                                         {
                                                             !toggle[`open_chapter_${chapter.id}`] ?
-                                                                <button type="button" className="mr-[10px] text-[#818894]" onClick={() => {
+                                                                <button type="button" className="mr-1 text-[#818894]" onClick={() => {
                                                                     setToggle({ ...toggle, [`open_chapter_${chapter.id}`]: true })
                                                                 }}>
                                                                     <ChevronDownIcon className="w-5 h-5" />
                                                                 </button>
                                                                 :
-                                                                <button type="button" className="mr-[10px] text-[#818894]" onClick={() => {
+                                                                <button type="button" className="mr-1 text-[#818894]" onClick={() => {
                                                                     setToggle({ ...toggle, [`open_chapter_${chapter.id}`]: false })
                                                                 }}>
                                                                     <ChevronUpIcon className="w-5 h-5" />
@@ -72,8 +72,8 @@ export default function SidebarLearning({ course, id_course, progress }: any) {
                                                                             <span className='mr-3 bg-[#ececec] w-10 h-10 rounded-full flex justify-center items-center'>
                                                                                 <FilmIcon className='w-4 h-4' />
                                                                             </span>
-                                                                            <div className='flex flex-col w-2/3'>
-                                                                                <span className='font-medium text-[#171347] text-ellipsis overflow-hidden whitespace-nowrap'>{topic.name}</span>
+                                                                            <div className='flex flex-col w-4/5'>
+                                                                                <span className='font-medium text-[#171347] text-ellipsis overflow-hidden whitespace-nowrap text-sm'>{topic.name}</span>
                                                                                 <span className='text-[#818894] text-xs'>{convertTime(topic.duration)}</span>
                                                                             </div>
                                                                             {progress?.progress.map((pro: any) => {
