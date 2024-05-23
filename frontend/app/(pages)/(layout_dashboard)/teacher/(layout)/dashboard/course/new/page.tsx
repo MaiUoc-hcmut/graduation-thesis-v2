@@ -10,6 +10,10 @@ import { ContentForm } from "@/app/_components/Form/CreateCourse/ContentForm"
 import { useForm } from "react-hook-form"
 import courseApi from "@/app/api/courseApi"
 import uuid from 'react-uuid';
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
 
 const id_course: string = uuid()
 
@@ -28,6 +32,7 @@ type CourseData = {
     chapters: Array<ChapterData>
     start_time: string
     end_time: string
+    status: string
 }
 
 type ChapterData = {
@@ -60,6 +65,7 @@ const INITIAL_DATA: CourseData = {
     cover: [],
     start_time: "",
     end_time: "",
+    status: "",
     chapters: [
     ]
 }
@@ -82,6 +88,7 @@ export default function CreateCourse() {
     const {
         handleSubmit,
         setError,
+        setValue,
         formState: { errors },
     } = handleForm
 
@@ -150,11 +157,6 @@ export default function CreateCourse() {
                         setToggle({ ...toggle, [`${typeSubmit}`]: false })
                         setData(dataForm)
 
-
-
-                        if (!isLastStep) return next()
-
-
                         if (typeSubmit === "submit") {
                             const formData = new FormData();
 
@@ -189,13 +191,39 @@ export default function CreateCourse() {
                             formData.append("thumbnail", dataForm.thumbnail[0])
                             formData.append("cover", dataForm.cover[0])
 
-                            courseApi.create({ data: data1 }).then(() => {
-                                router.push("/teacher/dashboard/course")
-                            }).catch(() => {
-                                setTypeSubmit("")
-                            }
-                            )
+
+                            MySwal.fire({
+                                title: <p className='text-lg'>Đang xử lý</p>,
+                                didOpen: async () => {
+                                    MySwal.showLoading()
+                                    await courseApi.create({ data: data1 }).then(() => {
+                                        // MySwal.close()
+                                        MySwal.fire({
+                                            title: <p className="text-2xl">Khóa học đã được tạo thành công</p>,
+                                            icon: 'success',
+                                            showConfirmButton: false,
+                                            timer: 1500
+                                        }).then(() => {
+                                            router.push("/teacher/dashboard/course")
+                                        })
+                                    }).catch(() => {
+                                        MySwal.close()
+                                        MySwal.fire({
+                                            title: <p className="text-2xl">Tạo khóa học thất bại</p>,
+                                            icon: 'error',
+                                            showConfirmButton: false,
+                                            timer: 1500
+                                        })
+                                        setTypeSubmit("")
+                                    }
+                                    )
+
+                                },
+                            })
+
+                            return
                         }
+                        if (!isLastStep) return next()
                     })
                 }>
 
@@ -213,8 +241,14 @@ export default function CreateCourse() {
                             </button>
                         </div>
                         <div>
-                            <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover mr-5" onClick={() => setTypeSubmit("submit")}>Lưu bản nháp</button>
-                            <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover" onClick={() => setTypeSubmit("submit")}>Hoàn thành</button>
+                            <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover mr-5" onClick={() => {
+                                setValue("status", "draft")
+                                setTypeSubmit("submit")
+                            }
+                            }>Lưu bản nháp</button>
+                            <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover" onClick={() => {
+                                setTypeSubmit("submit")
+                            }}>Hoàn thành</button>
                         </div>
                     </div>
                 </form>

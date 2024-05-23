@@ -63,7 +63,7 @@ export function formatDateTimeEng(time: string): string {
     let strMonth = month < 10 ? `0${month}` : `${month}`
     let strYear = year < 10 ? `0${year}` : `${year}`
 
-    return year + "-" + strMonth + "-" + strDay
+    return strYear + "-" + strMonth + "-" + strDay
 }
 
 // export function convertTime(time: number) {

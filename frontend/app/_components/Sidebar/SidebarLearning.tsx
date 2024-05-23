@@ -72,7 +72,7 @@ export default function SidebarLearning({ course, id_course, progress }: any) {
                                                                             <span className='mr-3 bg-[#ececec] w-10 h-10 rounded-full flex justify-center items-center'>
                                                                                 <FilmIcon className='w-4 h-4' />
                                                                             </span>
-                                                                            <div className='flex flex-col w-4/5'>
+                                                                            <div className='flex flex-col w-3/4'>
                                                                                 <span className='font-medium text-[#171347] text-ellipsis overflow-hidden whitespace-nowrap text-sm'>{topic.name}</span>
                                                                                 <span className='text-[#818894] text-xs'>{convertTime(topic.duration)}</span>
                                                                             </div>
@@ -80,9 +80,9 @@ export default function SidebarLearning({ course, id_course, progress }: any) {
                                                                                 if (pro.id_topic === topic.id) {
                                                                                     return (
                                                                                         <div key={`${topic.id}-progress`} className='ml-2'>
-                                                                                            <span className='bg-white w-6 h-6 rounded-full flex justify-center items-center'>
+                                                                                            <span className='bg-white w-5 h-5 rounded-full flex justify-center items-center'>
 
-                                                                                                <CheckIcon className='w-5 h-4 text-primary' />
+                                                                                                <CheckIcon className='w-4 h-4 text-primary' />
 
                                                                                             </span>
                                                                                         </div>

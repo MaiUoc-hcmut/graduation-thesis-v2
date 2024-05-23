@@ -7,7 +7,7 @@ import {
 import { convertTime } from '@/app/helper/FormatFunction'
 import { Dropdown } from 'flowbite-react';
 import { Button, Checkbox, Label, Modal, TextInput, Radio } from 'flowbite-react';
-import { ToastContainer, toast } from 'react-toastify';
+// import { ToastContainer, toast } from 'react-toastify';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { DragDropContext, Draggable } from 'react-beautiful-dnd';
 import { StrictModeDroppable } from "../../React_Beautiful_Dnd/StrictModeDroppable";
@@ -36,16 +36,7 @@ registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, F
 export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provided, data, setData, removeChapter, setTypeSubmit, toggle, setToggle, id_course }: any) => {
     const [modal, setModal] = useState<any>({})
     const notify = () => {
-        toast.success('Thành công', {
-            position: "bottom-right",
-            autoClose: 800,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-        });
+
     };
 
     const {

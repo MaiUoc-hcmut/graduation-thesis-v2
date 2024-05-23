@@ -8,12 +8,7 @@ import examApi from "@/app/api/examApi"
 import uuid from 'react-uuid';
 import { DragDropContext, Draggable, Droppable, DroppableProps } from 'react-beautiful-dnd';
 import { StrictModeDroppable } from "@/app/_components/React_Beautiful_Dnd/StrictModeDroppable"
-import { ChapterCard } from "@/app/_components/Card/EditCourse/ChapterCard"
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import {
-    ExclamationCircleIcon, PencilSquareIcon, ArrowsPointingOutIcon, DocumentIcon,
-    PlusCircleIcon, TrashIcon, ChevronDownIcon, ChevronUpIcon, BookOpenIcon
-} from "@heroicons/react/24/outline"
 import { Button, Label, Modal, TextInput } from 'flowbite-react';
 import { QuestionCard } from "@/app/_components/Card/Exam/QuestionCard"
 import { AnswerCard } from "@/app/_components/Card/Exam/AnswerCard"
@@ -25,9 +20,12 @@ import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orien
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
-import { log } from "console"
 import CustomCKEditor from "@/app/_components/Editor/CKEditor"
 import { ToastContainer, toast } from "react-toastify"
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
 
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
 
@@ -83,6 +81,7 @@ export default function EditExam({ id, exam }: any) {
     const [image, setImage] = useState<any>({})
     const [submit, setSubmit] = useState(false)
     const [change, setChange] = useState(false)
+    const [knowledges, setKnowledges] = useState([])
 
 
 
@@ -109,8 +108,18 @@ export default function EditExam({ id, exam }: any) {
         async function fetchCategory() {
             await categoryApi.getAll().then((data: any) => setCategory(data)).catch((err: any) => { })
         }
+
         fetchCategory()
     }, []);
+    useEffect(() => {
+        async function fetchData() {
+            let filterString = ''
+            if (getValues().grade) filterString += `grade=${getValues().grade}`
+            if (getValues().subject) filterString += `&subject=${getValues().subject}`
+            await examApi.getKnowledge(filterString).then((data: any) => setKnowledges(data.data)).catch((err: any) => { })
+        }
+        fetchData()
+    }, [getValues]);
     const { fields: fieldsQuestion, append: appendQuestion, remove: removeQuestion } = useFieldArray({
         control,
         name: `questions`
@@ -300,9 +309,31 @@ export default function EditExam({ id, exam }: any) {
                             data1.categories.push(dataForm.grade)
                             data1.categories.push(dataForm.subject)
                             data1.categories.push(dataForm.level)
-                            await examApi.update(id, { data: data1 }).then(() => {
-                                router.push("/teacher/dashboard/exam")
-                            }).catch((err: any) => { })
+                            MySwal.fire({
+                                title: <p className='text-lg'>Đang xử lý</p>,
+                                didOpen: async () => {
+                                    MySwal.showLoading()
+                                    await examApi.update(id, { data: data1 }).then(() => {
+                                        MySwal.fire({
+                                            title: <p className="text-2xl">Đề thi đã được cập nhập thành công</p>,
+                                            icon: 'success',
+                                            showConfirmButton: false,
+                                            timer: 1500
+                                        }).then(() => {
+                                            router.push("/teacher/dashboard/exam")
+                                        })
+                                    }).catch(() => {
+                                        MySwal.fire({
+                                            title: <p className="text-2xl">Cập nhập đề thi thất bại</p>,
+                                            icon: 'error',
+                                            showConfirmButton: false,
+                                            timer: 1500
+                                        })
+                                    }
+                                    )
+
+                                },
+                            })
                         }
 
                     })
@@ -529,7 +560,7 @@ export default function EditExam({ id, exam }: any) {
                                                                         (provided) => (
 
                                                                             <QuestionCard
-                                                                                hanldeForm={handleForm} indexQuestion={indexQuestion} provided={provided} question={question} removeQuestion={removeQuestion} modal={modal} setModal={setModal} image={image} setImage={setImage} change={change} setChange={setChange} />
+                                                                                hanldeForm={handleForm} indexQuestion={indexQuestion} provided={provided} question={question} removeQuestion={removeQuestion} modal={modal} setModal={setModal} image={image} setImage={setImage} change={change} setChange={setChange} knowledges={knowledges} />
                                                                         )
                                                                     }
                                                                 </Draggable>
@@ -552,7 +583,7 @@ export default function EditExam({ id, exam }: any) {
                         </div>
                     </div>
 
-                    <div className="flex flex-row justify-between mt-5 pt-4 border-t-[1px] border-[#ececec]">
+                    <div className="flex flex-row justify-end mt-5 pt-4 border-t-[1px] border-[#ececec]">
                         <button onClick={() => setSubmit(true)} type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover">Hoàn thành</button>
                     </div>
                 </form>

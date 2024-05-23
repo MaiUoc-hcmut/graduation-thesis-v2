@@ -9,7 +9,10 @@ import { ContentForm } from "@/app/_components/Form/EditCourse/ContentForm"
 import { useForm } from "react-hook-form"
 import courseApi from "@/app/api/courseApi"
 import { useRouter } from 'next/navigation'
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 
+const MySwal = withReactContent(Swal)
 
 
 type CourseData = {
@@ -128,7 +131,6 @@ export default function Edit({ id, course }: any) {
                         data1.categories.push(dataForm.subject)
                         data1.categories.push(dataForm.level)
 
-                        if (!isLastStep) return next()
 
 
                         if (typeSubmit === "submit") {
@@ -136,11 +138,37 @@ export default function Edit({ id, course }: any) {
 
                             formData.append("data", JSON.stringify(data1))
 
-                            courseApi.update(id, formData).then(() => {
-                                router.push("/teacher/dashboard/course")
+                            MySwal.fire({
+                                title: <p className='text-lg'>Đang xử lý</p>,
+                                didOpen: async () => {
+                                    MySwal.showLoading()
+                                    await courseApi.update(id, formData).then(() => {
+                                        MySwal.fire({
+                                            title: <p className="text-2xl">Khóa học đã được cập nhập thành công</p>,
+                                            icon: 'success',
+                                            showConfirmButton: false,
+                                            timer: 1500
+                                        }).then(() => {
+                                            router.push("/teacher/dashboard/course")
+                                        })
+                                    }).catch(() => {
+                                        MySwal.fire({
+                                            title: <p className="text-2xl">Cập nhập khóa học thất bại</p>,
+                                            icon: 'error',
+                                            showConfirmButton: false,
+                                            timer: 1500
+                                        })
+                                        setTypeSubmit("")
+                                    }
+                                    )
+
+                                },
                             })
 
+                            return
                         }
+                        if (!isLastStep) return next()
+
                     })
                 }>
 
@@ -157,7 +185,10 @@ export default function Edit({ id, course }: any) {
                                 Tiếp theo
                             </button>
                         </div>
-                        <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover" onClick={() => setTypeSubmit("submit")}>Hoàn thành</button>
+                        <div>
+                            <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover mr-5" onClick={() => setTypeSubmit("submit")}>Lưu bản nháp</button>
+                            <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover" onClick={() => setTypeSubmit("submit")}>Hoàn thành</button>
+                        </div>
                     </div>
                 </form>
             </div >

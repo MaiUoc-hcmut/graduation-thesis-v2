@@ -19,6 +19,7 @@ import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 import courseApi from "@/app/api/courseApi";
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import { Controller } from "react-hook-form";
+import { formatDateTimeEng } from "@/app/helper/FormatFunction";
 
 
 // Register the plugins
@@ -200,7 +201,7 @@ export function BasicInfomationForm({
                     htmlFor="time"
                     className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
                 >
-                    Thời gian diễn ra khóa học
+                    Thời gian diễn ra khóa học dự kiến
                 </label>
                 <div className="flex items-center">
                     <div className="">
@@ -221,7 +222,66 @@ export function BasicInfomationForm({
                 </p>
 
             </div>
+            <div className="mb-5 w-full">
+                <div
+                    className="block mr-2 text-sm font-semibold text-[14px] text-[#171347] "
+                >
+                    Trạng thái
+                </div>
+                <div className="mt-2">
+                    <label className="relative inline-flex items-center me-5 cursor-pointer">
+                        <div className="flex">
+                            <div className="flex items-center me-4" >
+                                <input
+                                    id="inline-radio"
+                                    type="radio"
+                                    {...register(`status`)}
+                                    value="public"
+                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                />
+                                <label
+                                    htmlFor="inline-radio"
+                                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                >
+                                    Công khai
+                                </label>
+                            </div>
+                            <div className="flex items-center me-4" >
+                                <input
+                                    id="inline-radio"
+                                    type="radio"
+                                    {...register(`status`)}
+                                    value="paid"
+                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                />
+                                <label
+                                    htmlFor="inline-radio"
+                                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                >
+                                    Tính phí
+                                </label>
+                            </div>
+                            <div className="flex items-center me-4">
+                                <input
+                                    id="inline-2-radio"
+                                    type="radio"
+                                    {...register(`status`)}
+                                    value="private"
+                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                />
+                                <label
+                                    htmlFor="inline-2-radio"
+                                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                >
+                                    Riêng tư
+                                </label>
+                            </div>
 
+                        </div>
+                    </label>
+                </div>
+
+            </div>
 
 
             <div className="mb-10 w-1/2">

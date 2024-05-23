@@ -10,7 +10,10 @@ import Link from 'next/link';
 import { renderStars } from '@/app/helper/RenderFunction';
 import { convertTime, formatCash } from '@/app/helper/FormatFunction';
 import { Button, Modal } from 'flowbite-react';
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 
+const MySwal = withReactContent(Swal)
 
 
 export default function Cart() {
@@ -122,7 +125,46 @@ export default function Cart() {
                                             <div className='flex justify-center items-center'>
                                                 <button
                                                     className="p-2 focus:bg-red-300 hover:bg-red-300 bg-red-100 rounded-full group flex items-center justify-center focus-within:outline-red-500"
-                                                    onClick={() => setModal({ ...modal, [`delete-item-${item.id}`]: true })}
+                                                    onClick={() => {
+                                                        MySwal.fire({
+                                                            title: <p className="text-2xl">Bạn có chắc muốn xóa mặt hàng này?</p>,
+                                                            icon: "warning",
+                                                            showCancelButton: true,
+                                                            confirmButtonColor: "#3085d6",
+                                                            cancelButtonColor: "#d33",
+                                                            confirmButtonText: "Xóa",
+                                                            cancelButtonText: "Hủy",
+                                                        }).then((result) => {
+                                                            if (result.isConfirmed) {
+                                                                MySwal.fire({
+                                                                    title: <p className='text-lg'>Đang xử lý</p>,
+                                                                    didOpen: async () => {
+                                                                        MySwal.showLoading()
+                                                                        await paymentApi.deleteCart({ data: { id_course: item.id } }).then(() => {
+                                                                            MySwal.close()
+                                                                            MySwal.fire({
+                                                                                title: <p className="text-2xl"> Xóa khỏi giỏ hàng thành công</p>,
+                                                                                icon: 'success',
+                                                                                showConfirmButton: false,
+                                                                                timer: 1500
+                                                                            })
+                                                                            setChange(!change)
+                                                                        }).catch((err: any) => {
+                                                                            MySwal.close()
+                                                                            MySwal.fire({
+                                                                                title: <p className="text-2xl">Xóa khỏi giỏ hàng thất bại</p>,
+                                                                                icon: 'error',
+                                                                                showConfirmButton: false,
+                                                                                timer: 1500
+                                                                            })
+                                                                        })
+                                                                    },
+                                                                })
+
+
+                                                            }
+                                                        });
+                                                    }}
                                                 >
                                                     <TrashIcon className="w-5 h-5 text-red-500" />
                                                 </button>

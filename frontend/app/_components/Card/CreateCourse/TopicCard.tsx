@@ -6,7 +6,7 @@ import {
 import uuid from 'react-uuid';
 import { Dropdown, Label, TextInput } from 'flowbite-react';
 import { Button, Modal } from 'flowbite-react';
-import { ToastContainer, toast } from 'react-toastify';
+// import { ToastContainer, toast } from 'react-toastify';
 import ReactPlayer from 'react-player';
 // Import React FilePond
 import { FilePond, registerPlugin } from 'react-filepond'
@@ -52,17 +52,9 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
         return result;
     };
     const notify = () => {
-        toast.success('Thành công', {
-            position: "bottom-right",
-            autoClose: 800,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-        });
+
     };
+
 
     return (
         <div ref={innerRef} {...provided.draggableProps}  >
@@ -366,6 +358,7 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                                 <input
                                                     id="inline-radio"
                                                     type="radio"
+                                                    defaultChecked={topic.status == "public" ? true : false}
                                                     {...register(`chapters.${indexChapter}.topics.${indexTopic}.status`)}
                                                     value="public"
                                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
@@ -381,6 +374,7 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                                 <input
                                                     id="inline-radio"
                                                     type="radio"
+                                                    defaultChecked={topic.status == "paid" ? true : false}
                                                     {...register(`chapters.${indexChapter}.topics.${indexTopic}.status`)}
                                                     value="paid"
                                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
@@ -396,6 +390,7 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                                 <input
                                                     id="inline-2-radio"
                                                     type="radio"
+                                                    defaultChecked={topic.status == "private" ? true : false}
                                                     {...register(`chapters.${indexChapter}.topics.${indexTopic}.status`)}
                                                     value="private"
                                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"

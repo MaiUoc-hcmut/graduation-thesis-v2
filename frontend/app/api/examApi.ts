@@ -51,6 +51,11 @@ const examApi = {
         return await axiosConfig.put(url, data);
     },
 
+    createKnowledge: async (data: object) => {
+        const url = `/knowledges`;
+        return await axiosConfig.post(url, data);
+    },
+
     createComboExam: async (data: object) => {
         const url = `/combos`;
         return await axiosConfig.post(url, data);
@@ -81,7 +86,10 @@ const examApi = {
         const url = `/exams/${id}`;
         return axiosConfig.delete(url);
     },
-
+    getKnowledge: async (filterString: string) => {
+        const url = `/knowledges/filter?${filterString}`;
+        return await axiosConfig.get(url);
+    },
 
 
 }

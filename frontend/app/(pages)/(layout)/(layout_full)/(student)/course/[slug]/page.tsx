@@ -11,13 +11,16 @@ import { useForm, SubmitHandler } from "react-hook-form"
 import parse from 'html-react-parser';
 import { formatCash, convertTime, formatDateTime } from '@/app/helper/FormatFunction';
 // import { useSession } from 'next-auth/react';
-import { ToastContainer, toast } from 'react-toastify';
 import { useAppSelector } from '@/redux/store';
 import PaginateButton from '@/app/_components/Paginate/PaginateButton';
 type Review = {
     content: string
     rating: number
 }
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
 
 export default function CourseDetail({ params }: { params: { slug: string } }) {
     const [tab, setTab] = useState(1)
@@ -84,7 +87,6 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
 
     return (
         <div className="">
-            <ToastContainer />
             <div className="relative h-[530px] block overflow-hidden">
                 <Image
                     src={`${course?.cover_image ? course?.cover_image : '/'}`}
@@ -344,10 +346,32 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                         rating,
                                                     }
                                                 }
-                                                await courseApi.createReview(formData).catch((err: any) => { })
-                                                reset()
-                                                setRating(0)
-                                                setChangeData(!changeData)
+                                                MySwal.fire({
+                                                    title: <p className='text-lg'>Đang xử lý</p>,
+                                                    didOpen: async () => {
+                                                        MySwal.showLoading()
+                                                        await courseApi.createReview(formData)
+                                                            .then(() => {
+                                                                reset()
+                                                                setRating(0)
+                                                                setChangeData(!changeData)
+                                                                MySwal.fire({
+                                                                    title: <p className="text-2xl">Thành công</p>,
+                                                                    icon: 'success',
+                                                                    showConfirmButton: false,
+                                                                    timer: 1000
+                                                                })
+                                                            }).catch((err: any) => {
+                                                                MySwal.fire({
+                                                                    title: <p className="text-2xl">Thất bại</p>,
+                                                                    icon: 'error',
+                                                                    showConfirmButton: false,
+                                                                    timer: 1000
+                                                                })
+                                                            })
+                                                    },
+                                                })
+
 
                                             })} className="flex flex-col items-start mt-5">
                                                 <div className=''>
@@ -458,30 +482,29 @@ export default function CourseDetail({ params }: { params: { slug: string } }) {
                                                 : <button disabled className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Đã thêm vào giỏ hàng</button>
                                         )
                                             : <button onClick={async () => {
-
-                                                await paymentApi.addToCart(course?.id).then(() => {
-                                                    toast.success('Thêm vào giỏ hàng thành công', {
-                                                        position: "bottom-right",
-                                                        autoClose: 800,
-                                                        hideProgressBar: false,
-                                                        closeOnClick: true,
-                                                        pauseOnHover: true,
-                                                        draggable: true,
-                                                        progress: undefined,
-                                                        theme: "colored",
-                                                    });
-                                                }).catch((err) => {
-                                                    toast.error('Đã xảy ra lỗi khi thêm vào giỏ hàng', {
-                                                        position: "bottom-right",
-                                                        autoClose: 800,
-                                                        hideProgressBar: false,
-                                                        closeOnClick: true,
-                                                        pauseOnHover: true,
-                                                        draggable: true,
-                                                        progress: undefined,
-                                                        theme: "colored",
-                                                    });
+                                                MySwal.fire({
+                                                    title: <p className='text-lg'>Đang xử lý</p>,
+                                                    didOpen: async () => {
+                                                        MySwal.showLoading()
+                                                        await paymentApi.addToCart(course?.id).then(() => {
+                                                            MySwal.fire({
+                                                                title: <p className="text-2xl">Thêm vào giỏ hàng thành công</p>,
+                                                                icon: 'success',
+                                                                showConfirmButton: false,
+                                                                timer: 1500
+                                                            })
+                                                        }).catch((err: any) => {
+                                                            MySwal.fire({
+                                                                title: <p className="text-2xl">Thêm vào giỏ hàng thất bại</p>,
+                                                                icon: 'error',
+                                                                showConfirmButton: false,
+                                                                timer: 1500
+                                                            })
+                                                        })
+                                                        reset()
+                                                    },
                                                 })
+
 
                                             }} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Thêm vào giỏ hàng</button>
                                     }

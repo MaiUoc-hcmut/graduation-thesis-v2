@@ -15,6 +15,10 @@ import { Button, Modal } from 'flowbite-react';
 import { ToastContainer, toast } from 'react-toastify';
 import examApi from '@/app/api/examApi';
 import PaginateButton from '@/app/_components/Paginate/PaginateButton';
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
 
 export default function LearningPage({ params }: { params: { slug: string } }) {
     const searchParams = useSearchParams();
@@ -295,12 +299,20 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                             content: con,
                                                         }
                                                     }
+                                                    MySwal.fire({
+                                                        title: <p className='text-lg'>Đang xử lý</p>,
+                                                        didOpen: async () => {
+                                                            MySwal.showLoading()
+                                                            await courseApi.createComment(formData).then(() => {
+                                                                reset()
+                                                                editorRef.current.setContent('')
+                                                                setChange(!change)
+                                                            }).catch((err: any) => { })
+                                                            MySwal.close()
+                                                        },
+                                                    })
 
-                                                    await courseApi.createComment(formData).catch((err: any) => { })
-                                                    reset()
-                                                    editorRef.current.setContent('')
 
-                                                    setChange(!change)
                                                 }
                                             })}>
                                                 <div className={`${toggle[`edit-cmt`] ? 'hidden' : ''}`}>

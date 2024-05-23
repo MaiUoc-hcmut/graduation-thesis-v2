@@ -27,7 +27,7 @@ registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, F
 export default function ExamDashboard() {
     const authUser = useAppSelector(state => state.authReducer.user);
     const [exams, setExams] = useState<[any]>()
-    const [students, setStudents] = useState<any>([])
+    const [combos, setCombos] = useState<any>([])
     const [modal, setModal] = useState<any>({})
     const [change, setChange] = useState<boolean>(false)
     const [listExam, setListExam] = useState<any>({})
@@ -62,7 +62,7 @@ export default function ExamDashboard() {
     useEffect(() => {
         async function fetchData() {
             await examApi.getComboExam(`${authUser.id}`, page).then((data: any) => {
-                setExams(data.data.exams)
+                setCombos(data.data.combos)
                 setCountPaginate(Math.ceil(data.data.count / 10))
             }).catch((err: any) => { })
         }
@@ -414,10 +414,10 @@ export default function ExamDashboard() {
             </div>
             <div className="mt-8">
                 {
-                    exams?.map((exam) => {
+                    combos?.map((exam: any) => {
                         return (
                             <div key={exam.id} className="relative rounded-[10px] flex bg-white mb-8">
-                                <>
+                                {/* <>
                                     <Modal show={modal[`delete-exam${exam.id}`] || false} size="md" onClose={() => setModal({ ...modal, [`delete-exam${exam.id}`]: false })} popup>
                                         <Modal.Header />
                                         <Modal.Body>
@@ -444,13 +444,13 @@ export default function ExamDashboard() {
                                             </form>
                                         </Modal.Body>
                                     </Modal>
-                                </>
+                                </> */}
 
-                                <div className="h-[200px] w-[200px] relative py-3 px-10 bg-slate-100 flex justify-center items-center">
+                                <div className="relative ">
                                     <Image
-                                        src={`/images/exam_icon.png`}
-                                        width={150}
-                                        height={150}
+                                        src={`${exam.thumbnail ? exam.thumbnail : '/images/cousre-thumnail-1.jpg'}`}
+                                        width={250}
+                                        height={250}
                                         alt="logo"
                                         className="rounded-l-[10px] overflow-hidden object-center object-cover"
                                     />
@@ -459,7 +459,7 @@ export default function ExamDashboard() {
                                     <div className="flex justify-between items-center w-full">
                                         <Link href="#" >
                                             <h3 className="text-[#171347] font-bold text-lg">
-                                                {exam.title}
+                                                {exam.name}
 
                                             </h3>
                                         </Link>
@@ -469,10 +469,10 @@ export default function ExamDashboard() {
 
                                             }}>
                                                 <Link href={`/teacher/dashboard/exam/edit/${exam.id}`} >
-                                                    Sửa đề thi
+                                                    Sửa combo
                                                 </Link>
                                             </Dropdown.Item>
-                                            <Dropdown.Item><p className="text-red-600" onClick={() => setModal({ ...modal, [`delete-exam${exam.id}`]: true })}>Xóa đề thi</p></Dropdown.Item>
+                                            <Dropdown.Item><p className="text-red-600" onClick={() => setModal({ ...modal, [`delete-exam${exam.id}`]: true })}>Xóa combo</p></Dropdown.Item>
                                         </Dropdown>
                                     </div>
                                     <div className="flex items-center mt-4">
@@ -484,7 +484,7 @@ export default function ExamDashboard() {
                                     <div className="mt-4">
                                         <span className="text-[20px] font-bold text-primary">{formatCash(`${exam.price}`)} VNĐ</span>
                                     </div>
-                                    <div className="mt-auto flex items-center justify-between flex-wrap">
+                                    {/* <div className="mt-auto flex items-center justify-between flex-wrap">
                                         <div className="flex items-center flex-col mt-[20px] mr-[15px]">
                                             <span className="text-sm text-[#818894]">Lớp:</span>
                                             <span className="text-sm text-[#171347]">{exam.Categories[0]?.Class}</span>
@@ -497,7 +497,7 @@ export default function ExamDashboard() {
                                             <span className="text-sm text-[#818894]">Mức độ:</span>
                                             <span className="text-sm text-[#171347]">{exam.Categories[2]?.Level}</span>
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </div>
 
                             </div>

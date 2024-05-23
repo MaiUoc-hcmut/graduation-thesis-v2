@@ -3,7 +3,7 @@
 /* eslint-disable react/jsx-no-undef */
 import { ArrowsPointingOutIcon, EllipsisVerticalIcon, XMarkIcon } from "@heroicons/react/24/outline"
 import { Label, TextInput, Modal } from 'flowbite-react';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { Dropdown } from 'flowbite-react';
 import { AnswerCard } from "./AnswerCard";
 import { FilePond, registerPlugin } from 'react-filepond'
@@ -19,13 +19,14 @@ import CustomCKEditor from "../../Editor/CKEditor";
 
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
 
-export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, removeQuestion, modal, setModal, image, setImage, change, setChange }: any) => {
+export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, removeQuestion, modal, setModal, image, setImage, change, setChange, knowledges }: any) => {
     const {
         register,
         handleSubmit,
         setValue,
         getValues,
         setError,
+        control,
         clearErrors,
         formState: { errors },
     } = hanldeForm
@@ -57,6 +58,7 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
                             }
                             setChange(!change)
                             setValue(`questions.${indexQuestion}.modify`, "change")
+                            setValue(`questions.${indexQuestion}.knowledges`, [getValues()?.questions[indexQuestion]?.knowledges])
                             setModal({ ...modal, [`edit_question_${question.id}`]: false })
                         }, (errors: any) => {
                             const hasCorrectAnswer = getValues().questions[indexQuestion].answers.some((answer: any) => answer.is_correct);
@@ -162,12 +164,106 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
                                     </div>
                                 </div>
                                 <div className="mb-5">
+                                    <div className="mb-2 block">
+                                        <Label htmlFor="email" value="Ảnh (tùy chọn)" />
+                                    </div>
+
+                                    <FilePond
+                                        files={files}
+                                        onupdatefiles={() => setFiles}
+                                        acceptedFileTypes={['image/*']}
+
+                                        server={{
+                                            process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
+                                                const formData = new FormData();
+                                                formData.append(fieldName, file, file.name);
+                                                formData.append('data', JSON.stringify({
+                                                    id_question: getValues().questions[indexQuestion].id,
+                                                    type: "question"
+                                                }));
+
+
+                                                const request = new XMLHttpRequest();
+                                                request.open('POST', 'http://localhost:4002/api/v1/images')
+
+
+
+                                                request.upload.onprogress = (e) => {
+                                                    progress(e.lengthComputable, e.loaded, e.total);
+                                                };
+
+                                                request.onload = function (res: any) {
+
+                                                    if (request.status >= 200 && request.status < 300) {
+                                                        // the load method accepts either a string (id) or an object
+                                                        setImage({ ...image, [`${getValues().questions[indexQuestion].id}`]: JSON.parse(request.response).url });
+
+                                                        load(request.responseText);
+                                                    } else {
+                                                        // Can call the error method if something is wrong, should exit after
+                                                        error('oh no');
+                                                    }
+                                                };
+                                                request.send(formData)
+
+                                                // courseApi.uploadVideo(formData)
+                                            },
+
+                                        }
+                                        }
+
+                                        name="image"
+                                        labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
+                                    />
+                                    {
+                                        image[`${getValues().questions[indexQuestion].id}`] ? <div className="w-full h-[240px] relative">
+                                            <Image
+                                                src={`${image[`${getValues().questions[indexQuestion].id}`]}`}
+                                                fill={true}
+                                                className='w-full h-full absolute top-0 left-0 overflow-hidden object-cover object-center'
+                                                alt="logo"
+                                            />
+                                        </div> : null
+                                    }
+                                    <div>
+
+                                    </div>
+
+                                </div>
+                                <div className="mb-5">
                                     <div className="flex-1 flex items-center justify-end">
                                         <label htmlFor="default-checkbox" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300 mr-2">Câu hỏi có nhiều đáp án đúng</label>
                                         <input  {...register(`questions.${indexQuestion}.multi_choice`)} id="default-checkbox" type="checkbox" className="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
                                     </div>
 
                                 </div>
+                                <div className="mb-5 w-1/2">
+                                    <label
+                                        htmlFor="grade"
+                                        className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                    >
+                                        Danh mục kiến thức
+                                    </label>
+                                    <Controller
+                                        control={control}
+                                        name={`questions.${indexQuestion}.knowledges`}
+                                        rules={{ required: "Danh mục kiến thức không thể trống" }}
+                                        render={({ field }) => (
+                                            <select {...field} className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                <option value="" defaultChecked>Chọn danh mục kiến thức</option>
+
+                                                {knowledges?.map((knowledge: any, index: any) => {
+                                                    return (
+                                                        <option key={index} value={`${knowledge.id}`}>{knowledge.name}</option>
+                                                    )
+                                                })}
+                                            </select>
+                                        )} />
+                                    <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                        {errors?.questions?.[indexQuestion]?.knowledge?.message}
+                                    </p>
+                                </div>
+
 
                                 <AnswerCard hanldeForm={hanldeForm} question={question} indexQuestion={indexQuestion} image={image} setImage={setImage} change={change} setChange={setChange} />
                                 <div className="text-sm text-red-600 dark:text-red-500">

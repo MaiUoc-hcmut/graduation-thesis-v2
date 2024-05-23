@@ -10,6 +10,8 @@ import categoryApi from '@/app/api/category';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { formatCash, convertTime } from '@/app/helper/FormatFunction';
 import Paginate from '@/app/_components/Paginate/Paginate';
+import examApi from '@/app/api/examApi';
+import { useAppSelector } from '@/redux/store';
 
 function classNames(...classes: any) {
     return classes.filter(Boolean).join(' ');
@@ -29,7 +31,7 @@ export default function CourseList() {
     const orderFilters = searchParams.get('order');
     const [countPaginate, setCountPaginate] = useState(1)
     const page = searchParams.get('page') || '1'
-
+    const authUser = useAppSelector(state => state.authReducer.user);
 
     const sortOptions = [
         { name: 'Mới nhất', href: '?sort=date&order=desc', current: sortFilters === 'date' },
@@ -59,11 +61,10 @@ export default function CourseList() {
             sortFilters && orderFilters ? filterString += `&sort=${sortFilters}&order=${orderFilters}` : null
 
 
-            await courseApi.getAll(filterString, page).then((data: any) => {
-                setCourses(data.data.courses)
+            await examApi.getComboExam(`${authUser.id}`, page).then((data: any) => {
+                setCourses(data.data.combos)
                 setCountPaginate(Math.ceil(data.data.count / 10))
-            }
-            ).catch((err: any) => { })
+            }).catch((err: any) => { })
             await categoryApi.getAll().then((data: any) => {
                 setCategory([
                     {
@@ -255,7 +256,7 @@ export default function CourseList() {
                                                                     />
                                                                 </div>
                                                                 <div>
-                                                                    <p className='font-medium text-[#818894]'>{course.user.name}</p>
+                                                                    <p className='font-medium text-[#818894]'>{course.user?.name}</p>
                                                                 </div>
                                                             </div>
                                                             <h3 className="overflow-hidden text-[#17134] mt-4 h-8 font-bold">
@@ -268,7 +269,7 @@ export default function CourseList() {
                                                             <div className='mt-2'>
                                                                 Số người đã mua: {course?.registrations}
                                                             </div>
-                                                            <div className='grid grid-cols-2 mt-4'>
+                                                            {/* <div className='grid grid-cols-2 mt-4'>
                                                                 <div className='flex items-center'>
                                                                     <span className='mr-1'>Lớp:</span>
                                                                     <p className='font-semibold'>{course?.Categories[0]?.Class}</p>
@@ -281,7 +282,7 @@ export default function CourseList() {
                                                                     <span className='mr-1'>Mức độ:</span>
                                                                     <p className='font-semibold'>{course?.Categories[2]?.Level}</p>
                                                                 </div>
-                                                            </div>
+                                                            </div> */}
                                                             <div className='mt-4 grid grid-cols-2 gap-2'>
                                                                 <div className='flex items-center'>
                                                                     <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />

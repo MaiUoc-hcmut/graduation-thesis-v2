@@ -7,7 +7,7 @@ import {
 
 import { Dropdown } from 'flowbite-react';
 import { Button, Modal } from 'flowbite-react';
-import { ToastContainer, toast } from 'react-toastify';
+// import { ToastContainer, toast } from 'react-toastify';
 import ReactPlayer from 'react-player';
 import { FilePond, registerPlugin } from 'react-filepond'
 import { AnswerCard } from '../CreateCourse/AnswerCard';
@@ -22,6 +22,7 @@ import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 import Link from 'next/link';
 import { useFieldArray } from 'react-hook-form';
 import uuid from 'react-uuid';
+import { XMarkIcon } from '@heroicons/react/24/solid';
 
 
 export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm, innerRef, provided, data, setData,
@@ -33,16 +34,16 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
     const [questions, setQuestions] = useState(topic?.questions)
 
     const notify = () => {
-        toast.success('Thành công', {
-            position: "bottom-right",
-            autoClose: 800,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-        });
+        // toast.success('Thành công', {
+        //     position: "bottom-right",
+        //     autoClose: 800,
+        //     hideProgressBar: false,
+        //     closeOnClick: true,
+        //     pauseOnHover: true,
+        //     draggable: true,
+        //     progress: undefined,
+        //     theme: "colored",
+        // });
     };
     const {
         register,
@@ -67,6 +68,7 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
 
         return result;
     };
+
 
     return (
         <div ref={innerRef} {...provided.draggableProps}  >
@@ -301,8 +303,11 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                 {
                                     topic?.Documents?.map((document: any) => {
                                         return (
-                                            <div key={document.id}>
-                                                <p className='pb-2'>{document.name}</p>
+                                            <div key={document.id} className='border-[1px] border-slate-400 px-4 py-2 rounded-lg mb-4 bg-slate-100 flex justify-between items-center'>
+                                                <div className=''>{document.name}</div>
+                                                <button>
+                                                    <XMarkIcon className='w-5 h-5 text-red-500' />
+                                                </button>
                                             </div>
                                         )
                                     })
@@ -322,6 +327,7 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                                 <input
                                                     id="inline-radio"
                                                     type="radio"
+                                                    defaultChecked={topic.status == "public" ? true : false}
                                                     {...register(`chapters.${indexChapter}.topics.${indexTopic}.status`)}
                                                     value="public"
                                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
@@ -337,6 +343,7 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                                 <input
                                                     id="inline-radio"
                                                     type="radio"
+                                                    defaultChecked={topic.status == "paid" ? true : false}
                                                     {...register(`chapters.${indexChapter}.topics.${indexTopic}.status`)}
                                                     value="paid"
                                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
@@ -352,6 +359,8 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                                 <input
                                                     id="inline-2-radio"
                                                     type="radio"
+                                                    defaultChecked={topic.status == "private" ? true : false}
+
                                                     {...register(`chapters.${indexChapter}.topics.${indexTopic}.status`)}
                                                     value="private"
                                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"

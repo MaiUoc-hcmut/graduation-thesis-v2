@@ -8,7 +8,7 @@ import examApi from "@/app/api/examApi"
 import uuid from 'react-uuid';
 import { DragDropContext, Draggable, Droppable, DroppableProps } from 'react-beautiful-dnd';
 import { StrictModeDroppable } from "@/app/_components/React_Beautiful_Dnd/StrictModeDroppable"
-import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { Control, Controller, FieldValues, useFieldArray, useForm } from "react-hook-form";
 import { Button, Label, Modal, TextInput } from 'flowbite-react';
 import { QuestionCard } from "@/app/_components/Card/Exam/QuestionCard"
 import { AnswerCard } from "@/app/_components/Card/Exam/AnswerCard"
@@ -22,7 +22,10 @@ import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import CustomCKEditor from "@/app/_components/Editor/CKEditor"
 import { ToastContainer, toast } from "react-toastify"
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 
+const MySwal = withReactContent(Swal)
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
 
 type ExamData = {
@@ -41,6 +44,7 @@ type QuestionData = {
     multi_choice: boolean
     explain: string
     answers: Array<AnswerData>
+    knowledges: string
 }
 
 type AnswerData = {
@@ -75,6 +79,7 @@ export default function CreateExam() {
     const [image, setImage] = useState<any>({})
     const [submit, setSubmit] = useState(false)
     const [change, setChange] = useState(false)
+    const [knowledges, setKnowledges] = useState([])
 
 
 
@@ -95,6 +100,14 @@ export default function CreateExam() {
     useEffect(() => {
         setExamData(examData)
     }, [examData]);
+    async function fetchData() {
+        let filterString = ''
+        if (getValues().grade) filterString += `grade=${getValues().grade}`
+        if (getValues().subject) filterString += `&subject=${getValues().subject}`
+        await examApi.getKnowledge(filterString).then((data: any) => setKnowledges(data.data)).catch((err: any) => { })
+    }
+
+
     useEffect(() => {
         async function fetchCategory() {
             await categoryApi.getAll().then((data: any) => setCategory(data)).catch((err: any) => { })
@@ -129,10 +142,9 @@ export default function CreateExam() {
                     <Modal.Body>
                         <form className="space-y-6" onSubmit={handleSubmit(async (dataForm: any) => {
                             if (!(Object.entries(errors).length === 0)) return
-
-
                             setQuestions(dataForm.questions)
                             setModal({ ...modal, [`add_question`]: false })
+
                         })}>
 
                             <h3 className="text-xl font-medium text-gray-900 dark:text-white">Thêm câu hỏi</h3>
@@ -162,14 +174,8 @@ export default function CreateExam() {
                                                 {errors?.questions?.[indexQuestion]?.explain?.message}
                                             </div>
                                         </div>
-                                        <div className="mb-5">
-                                            <div className="flex-1 flex items-center justify-end">
-                                                <label htmlFor="default-checkbox" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300 mr-2">Câu hỏi có nhiều đáp án đúng</label>
-                                                <input  {...register(`questions.${indexQuestion}.multi_choice`)} id="default-checkbox" type="checkbox" className="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-                                            </div>
 
-                                        </div>
-                                        <div className="mb-10 ">
+                                        <div className="mb-5">
                                             <div className="mb-2 block">
                                                 <Label htmlFor="email" value="Ảnh (tùy chọn)" />
                                             </div>
@@ -236,6 +242,39 @@ export default function CreateExam() {
                                             </div>
 
                                         </div>
+                                        <div className="mb-5">
+                                            <div className="flex-1 flex items-center justify-end">
+                                                <label htmlFor="default-checkbox" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300 mr-2">Câu hỏi có nhiều đáp án đúng</label>
+                                                <input  {...register(`questions.${indexQuestion}.multi_choice`)} id="default-checkbox" type="checkbox" className="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                                            </div>
+
+                                        </div>
+                                        <div className="mb-5 w-1/2">
+                                            <label
+                                                htmlFor="grade"
+                                                className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                            >
+                                                Danh mục kiến thức
+                                            </label>
+                                            <Controller
+                                                control={control as unknown as Control<FieldValues>}
+                                                name={`questions.${indexQuestion}.knowledges`}
+                                                rules={{ required: "Danh mục kiến thức không thể trống" }}
+                                                render={({ field }) => (
+                                                    <select {...field} className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                        <option value="" defaultChecked>Chọn danh mục kiến thức</option>
+
+                                                        {knowledges?.map((knowledge: any, index: any) => {
+                                                            return (
+                                                                <option key={index} value={`${knowledge.id}`}>{knowledge.name}</option>
+                                                            )
+                                                        })}
+                                                    </select>
+                                                )} />
+                                            <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                                {errors?.questions?.[indexQuestion]?.knowledges?.message}
+                                            </p>
+                                        </div>
                                         <AnswerCard hanldeForm={handleForm} indexQuestion={indexQuestion} setModal={setModal} modal={modal} />
                                     </div>
                                     : null
@@ -294,9 +333,32 @@ export default function CreateExam() {
                         // data1.pass_score = 8
                         setExamData(dataForm)
                         if (submit) {
-                            await examApi.create({ data: data1 }).then(() => {
-                                router.push("/teacher/dashboard/exam")
-                            }).catch((err: any) => { })
+                            MySwal.fire({
+                                title: <p className='text-lg'>Đang xử lý</p>,
+                                didOpen: async () => {
+                                    MySwal.showLoading()
+                                    await examApi.create({ data: data1 }).then(() => {
+                                        MySwal.fire({
+                                            title: <p className="text-2xl">Đề thi đã được tạo thành công</p>,
+                                            icon: 'success',
+                                            showConfirmButton: false,
+                                            timer: 1500
+                                        }).then(() => {
+                                            router.push("/teacher/dashboard/exam")
+                                        })
+                                    }).catch(() => {
+                                        MySwal.fire({
+                                            title: <p className="text-2xl">Tạo đề thi thất bại</p>,
+                                            icon: 'error',
+                                            showConfirmButton: false,
+                                            timer: 1500
+                                        })
+                                    }
+                                    )
+
+                                },
+                            })
+
                         }
 
                     })
@@ -486,19 +548,7 @@ export default function CreateExam() {
 
 
                                 </div>
-                                {/* 
-                                        <div className="mb-2">
-                                            <button
-                                                onClick={() => {
-                                                    remove(indexField)
-                                                    setToggle({ ...toggle, [`add_exam`]: false })
 
-                                                }} type="button" className="mr-4 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Huỷ</button>
-                                            <button type="submit"
-                                                onClick={() => {
-                                                }}
-                                                className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mt-3">Lưu</button>
-                                        </div> */}
                             </div>
                             <div className='mt-4'>
                                 <h2 className="text-[#171347] font-bold section-title flex items-center after:content-[''] after:flex after:grow after:shrink after:basis-4 after:h-[2px] after:ml-[10px] after:bg-[#f1f1f1]">Câu hỏi</h2>
@@ -510,7 +560,10 @@ export default function CreateExam() {
                                         multi_choice: false,
                                         explain: "",
                                         answers: [],
+                                        knowledges: ""
                                     })
+                                    fetchData()
+
                                 }}
                                     className="mt-3 bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover">
                                     Thêm câu hỏi
@@ -537,7 +590,7 @@ export default function CreateExam() {
                                                                         (provided) => (
 
                                                                             <QuestionCard
-                                                                                hanldeForm={handleForm} indexQuestion={indexQuestion} provided={provided} question={question} removeQuestion={removeQuestion} modal={modal} setModal={setModal} image={image} setImage={setImage} change={change} setChange={setChange} />
+                                                                                hanldeForm={handleForm} indexQuestion={indexQuestion} provided={provided} question={question} removeQuestion={removeQuestion} modal={modal} setModal={setModal} image={image} setImage={setImage} change={change} setChange={setChange} knowledges={knowledges} />
                                                                         )
                                                                     }
                                                                 </Draggable>

@@ -7,7 +7,7 @@ const notifyApi = {
         return await axiosConfig.get(url);
     },
     getNotifyBySendTeacher: async (id_teacher: string, page: string) => {
-        const url = `/notification/teacher/${id_teacher}`;
+        const url = `/notification/teacher/${id_teacher}/page/${page}`;
         return await axiosConfig.get(url);
     },
     readNotify: async (data: object) => {

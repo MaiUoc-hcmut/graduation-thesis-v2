@@ -6,10 +6,8 @@ import { Controller, set, useForm } from "react-hook-form"
 import { useSearchParams } from 'next/navigation';
 import { useAppSelector } from '@/redux/store';
 import courseApi from '@/app/api/courseApi';
-import { teacher } from '@/redux/features/teacherSlice';
 import notifyApi from '@/app/api/notifyApi';
 import { ToastContainer, toast } from 'react-toastify';
-import { initFlowbite } from 'flowbite';
 import { convertToVietnamTime } from '@/app/helper/FormatFunction';
 import Paginate from '@/app/_components/Paginate/Paginate';
 
@@ -45,7 +43,8 @@ export default function CreateNotify() {
                 setCourses(data.data.courses)
             }).catch((err: any) => { })
             await notifyApi.getNotifyBySendTeacher(`${user.id}`, page).then((data: any) => {
-                setNotifycations(data.data)
+                setNotifycations(data.data.notifications)
+                setCountPaginate(Math.ceil(data.data.count / 10))
             }).catch((err: any) => { })
         }
         fetchData()
@@ -70,9 +69,6 @@ export default function CreateNotify() {
         fetchData()
     }, [page, user.id, currentCourse]);
 
-    useEffect(() => {
-        initFlowbite();
-    }, []);
     return (
         <div>
             <ToastContainer />
@@ -129,7 +125,7 @@ export default function CreateNotify() {
                                 )}
                             </div>
                         </div>
-                        <div className={`w-full`}>
+                        {/* <div className={`w-full`}>
                             <button
                                 id="dropdownSearchButton"
                                 data-dropdown-toggle="dropdownSearch"
@@ -154,7 +150,6 @@ export default function CreateNotify() {
                                     />
                                 </svg>
                             </button>
-                            {/* Dropdown menu */}
                             <div
                                 id="dropdownSearch"
                                 className="z-10 hidden bg-white rounded-lg shadow w-80 dark:bg-gray-700"
@@ -242,7 +237,7 @@ export default function CreateNotify() {
 
                                 </ul>
                             </div>
-                        </div>
+                        </div> */}
 
                     </div>
                     <div className='w-3/4 flex flex-col mt-10'>

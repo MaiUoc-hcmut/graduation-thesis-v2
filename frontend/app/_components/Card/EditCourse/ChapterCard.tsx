@@ -7,7 +7,7 @@ import {
 import { convertTime } from '@/app/helper/FormatFunction'
 import { Dropdown } from 'flowbite-react';
 import { Button, Checkbox, Label, Modal, TextInput, Radio } from 'flowbite-react';
-import { ToastContainer, toast } from 'react-toastify';
+// import { ToastContainer, toast } from 'react-toastify';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { DragDropContext, Draggable, Droppable, DroppableProps } from 'react-beautiful-dnd';
 import { StrictModeDroppable } from "../../React_Beautiful_Dnd/StrictModeDroppable";
@@ -37,16 +37,16 @@ registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, F
 export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provided, data, setData, removeChapter, setTypeSubmit, toggle, setToggle, id_course }: any) => {
     const [modal, setModal] = useState<any>({})
     const notify = () => {
-        toast.success('Thành công', {
-            position: "bottom-right",
-            autoClose: 800,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-        });
+        // toast.success('Thành công', {
+        //     position: "bottom-right",
+        //     autoClose: 800,
+        //     hideProgressBar: false,
+        //     closeOnClick: true,
+        //     pauseOnHover: true,
+        //     draggable: true,
+        //     progress: undefined,
+        //     theme: "colored",
+        // });
     };
 
     const {
@@ -487,6 +487,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                                     <input
                                                         id="inline-radio"
                                                         type="radio"
+
                                                         {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.status`)}
                                                         value="public"
                                                         className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
@@ -502,7 +503,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                                     <input
                                                         id="inline-radio"
                                                         type="radio"
-                                                        defaultChecked
+
                                                         {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.status`)}
                                                         value="paid"
                                                         className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"

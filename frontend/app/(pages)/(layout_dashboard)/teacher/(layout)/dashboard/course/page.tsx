@@ -13,20 +13,12 @@ import { ExclamationCircleIcon, EllipsisVerticalIcon, MagnifyingGlassIcon } from
 import { Button, Modal } from 'flowbite-react';
 import { useSearchParams } from 'next/navigation'
 import Paginate from "@/app/_components/Paginate/Paginate"
-type CourseData = {
-    id: string
-    name: string
-    subject: string
-    grade: string
-    level: string
-    goal: string
-    object: string
-    description: string
-    requirement: string
-    price: string
-    thumbnail: Array<File>
-    cover_image: Array<File>
-}
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
+import AlertAdd from "@/app/_components/Alert/AlertAdd"
+
 
 export default function CourseDashboard() {
     const authUser = useAppSelector(state => state.authReducer.user);
@@ -95,34 +87,7 @@ export default function CourseDashboard() {
                     courses?.map((course: any) => {
                         return (
                             <div key={course.id} className="relative rounded-[10px] flex bg-white mb-8">
-                                <>
-                                    <Modal show={modal[`delete-course${course.id}`] || false} size="md" onClose={() => setModal({ ...modal, [`delete-course${course.id}`]: false })} popup>
-                                        <Modal.Header />
-                                        <Modal.Body>
-                                            <form className="space-y-6" onSubmit={async (e) => {
-                                                e.preventDefault()
-                                                await courseApi.delete(course.id).catch((err: any) => { })
-                                                setChange(!change)
-                                                setModal(false)
-                                            }}>
-                                                <ExclamationCircleIcon className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
-                                                <h3 className="mb-5 text-lg font-normal text-center text-gray-500 dark:text-gray-400">
-                                                    Bạn có chắc muốn xóa khóa học này?
-                                                </h3>
-                                                <div className="flex justify-center gap-4">
-                                                    <Button color="failure" type='submit'>
-                                                        Xóa
-                                                    </Button>
-                                                    <Button color="gray" onClick={() => {
-                                                        setModal({ ...modal, [`delete-course${course.id}`]: false })
-                                                    }}>
-                                                        Hủy
-                                                    </Button>
-                                                </div>
-                                            </form>
-                                        </Modal.Body>
-                                    </Modal>
-                                </>
+
 
                                 <div className="h-[200px] w-[300px] relative">
                                     <Image
@@ -134,11 +99,18 @@ export default function CourseDashboard() {
                                 </div>
                                 <div className="flex flex-col py-3 pl-[25px] pr-[17px] flex-1">
                                     <div className="flex justify-between items-center w-full">
-                                        <Link href="#" >
-                                            <h3 className="text-[#171347] font-bold text-lg">
+                                        <div className="flex ">
+                                            <h3 className="text-[#171347] font-bold text-lg mr-3">
                                                 {course.name}
                                             </h3>
-                                        </Link>
+                                            <div>
+                                                {
+                                                    course.status == 'public' ? <span className="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-700 dark:text-green-300">Công khai</span> : (course?.status == "draft" ? <span className="bg-gray-100 text-gray-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">Bản nháp</span> :
+                                                        (course.status == "private" ? <span className="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">Riêng tư</span> : <span className="bg-yellow-100 text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">Tính phí</span>))
+                                                }
+
+                                            </div>
+                                        </div>
 
                                         <Dropdown label="" renderTrigger={() => <EllipsisVerticalIcon className="w-7 h-7" />} placement="left">
                                             <Dropdown.Item onClick={() => {
@@ -150,7 +122,47 @@ export default function CourseDashboard() {
                                             </Dropdown.Item>
                                             <Dropdown.Item><Link href={`/course/learning/${course.id}`}>Đến trang học</Link></Dropdown.Item>
                                             <Dropdown.Item><Link href={`course/${course.id}/student`}>Danh sách học sinh</Link></Dropdown.Item>
-                                            <Dropdown.Item><div className="text-red-600" onClick={() => setModal({ ...modal, [`delete-course${course.id}`]: true })}>Xóa khóa học</div></Dropdown.Item>
+                                            <Dropdown.Item><div className="text-red-600" onClick={() => {
+                                                MySwal.fire({
+                                                    title: <p className="text-2xl">Bạn có chắc muốn xóa khóa học này?</p>,
+                                                    icon: "warning",
+                                                    showCancelButton: true,
+                                                    confirmButtonColor: "#3085d6",
+                                                    cancelButtonColor: "#d33",
+                                                    confirmButtonText: "Xóa",
+                                                    cancelButtonText: "Hủy",
+                                                }).then((result) => {
+                                                    if (result.isConfirmed) {
+                                                        MySwal.fire({
+                                                            title: <p className='text-lg'>Đang xử lý</p>,
+                                                            didOpen: async () => {
+                                                                MySwal.showLoading()
+                                                                await courseApi.delete(course.id).then(() => {
+                                                                    MySwal.close()
+
+                                                                    MySwal.fire({
+                                                                        title: <p className="text-2xl">Khóa học đã được tạo thành công</p>,
+                                                                        icon: 'success',
+                                                                        showConfirmButton: false,
+                                                                        timer: 1500
+                                                                    })
+                                                                    setChange(!change)
+                                                                }).catch((err: any) => {
+                                                                    MySwal.close()
+                                                                    MySwal.fire({
+                                                                        title: <p className="text-2xl">Xóa khóa học thất bại</p>,
+                                                                        icon: 'error',
+                                                                        showConfirmButton: false,
+                                                                        timer: 1500
+                                                                    })
+                                                                })
+                                                            },
+                                                        })
+
+
+                                                    }
+                                                });
+                                            }}>Xóa khóa học</div></Dropdown.Item>
                                         </Dropdown>
                                     </div>
                                     <div className="flex items-center mt-4">

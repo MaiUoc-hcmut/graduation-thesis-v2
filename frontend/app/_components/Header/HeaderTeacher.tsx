@@ -55,6 +55,7 @@ export default function HeaderTeacher() {
                     audio.play();
                 });
                 socket.on("created_topic", (data) => {
+                    if (user.id === data.author.id) return;
                     const audio = new Audio("/audio/audio-notification.mp3");
                     audio.play();
                 });
@@ -227,9 +228,9 @@ export default function HeaderTeacher() {
                                                                                 <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400 relative">
 
                                                                                     <div className="ml-3">
-                                                                                        {
-                                                                                            notify.read ? null : <span className="mr-1 inline-block rounded-full bg-red-500 h-[10px] w-[10px]"></span>
-                                                                                        }
+                                                                                        {notify.read ? null : (
+                                                                                            <div className="rounded-full w-2 h-2 p-1 bg-[#f63c3c] absolute top-[5px] left-0"></div>
+                                                                                        )}
                                                                                         Thông báo mới từ <span className="">hệ thống</span>: Khóa học {notify.name} vừa được tạo thành công
                                                                                     </div>
                                                                                 </div>

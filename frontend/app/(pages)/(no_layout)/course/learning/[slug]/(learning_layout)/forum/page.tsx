@@ -14,6 +14,10 @@ import { Dropdown } from 'flowbite-react';
 import { useAppSelector } from '@/redux/store';
 import { ToastContainer, toast } from 'react-toastify';
 import Paginate from '@/app/_components/Paginate/Paginate';
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
 
 type TopicData = {
     title: string,
@@ -70,10 +74,33 @@ export default function ForumPage({ params }: { params: { slug: string } }) {
                                 },
                                 file: data.file[0]
                             }
-                            await courseApi.createTopicForum(formData).catch((err: any) => { })
-                            setChange(!change)
-                            reset()
                             setModal({ ...modal, [`add-topic`]: false })
+                            MySwal.fire({
+                                title: <p className='text-lg'>Đang xử lý</p>,
+                                didOpen: async () => {
+                                    MySwal.showLoading()
+                                    await courseApi.createTopicForum(formData).then(() => {
+                                        setChange(!change)
+
+                                        MySwal.fire({
+                                            title: <p className="text-2xl">Chủ đề đã được tạo thành công</p>,
+                                            icon: 'success',
+                                            showConfirmButton: false,
+                                            timer: 1500
+                                        })
+                                    }).catch((err: any) => {
+                                        MySwal.fire({
+                                            title: <p className="text-2xl">Tạo chủ đề thất bại</p>,
+                                            icon: 'error',
+                                            showConfirmButton: false,
+                                            timer: 1500
+                                        })
+                                    })
+                                    reset()
+                                },
+                            })
+
+
                         })}>
 
                             <h3 className="text-xl font-medium text-gray-900 dark:text-white">Thêm chủ đề</h3>
