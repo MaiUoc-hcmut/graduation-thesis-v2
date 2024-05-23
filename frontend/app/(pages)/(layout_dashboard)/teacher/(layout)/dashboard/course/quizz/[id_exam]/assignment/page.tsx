@@ -12,7 +12,7 @@ import { Dropdown } from 'flowbite-react';
 import { ExclamationCircleIcon, EllipsisVerticalIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline"
 import { Button, Modal } from 'flowbite-react';
 import { DataTable } from "@/app/_components/Table/TableFormat"
-import { columns } from "@/app/_components/Table/AssignmentColumns/columns"
+import { columns } from "@/app/_components/Table/AssignmentColumns/columns_exercise"
 import courseApi from "@/app/api/courseApi"
 import { useSearchParams } from "next/navigation"
 import { Controller, useForm } from "react-hook-form"
@@ -56,7 +56,7 @@ export default function AssignmentDashboard() {
             <div>
                 <div className="font-bold text-[#171347] text-lg">Lọc kết quả</div>
                 <form className="p-5 bg-white mt-4 rounded-lg">
-                    <div className="grid grid-cols-4 gap-8">
+                    <div className="grid grid-cols-4 gap-8 gay-y-4">
 
                         <div>
                             {courses.length > 0 ? (

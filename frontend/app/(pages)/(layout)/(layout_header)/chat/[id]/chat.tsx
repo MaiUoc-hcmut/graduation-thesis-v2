@@ -17,7 +17,7 @@ import { MessageContent, TextContent, User } from "@chatscope/use-chat";
 import chatApi from "@/app/api/chatApi";
 import Link from "next/link";
 import { useEffect, useRef, useState } from 'react';
-
+import { Dropdown } from 'flowbite-react';
 import { Label, Modal, TextInput, Textarea, Button } from 'flowbite-react';
 import { set, useForm } from "react-hook-form";
 import React from "react";
@@ -29,8 +29,9 @@ import uuid from "react-uuid";
 import userApi from "@/app/api/userApi";
 import { get } from "http";
 import { useAppSelector } from "@/redux/store";
+import { EllipsisVerticalIcon } from "@heroicons/react/24/solid";
 
-export default function Chat({ user, params, change, setChange, userStorage, createConversation }: any) {
+export default function Chat({ user, params, change, setChange, userStorage, createConversation, unseen }: any) {
     const socket = useSocket();
 
     const [lastMessage, setLastMessage] = useState('');
@@ -38,12 +39,12 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
     const loadingRef = useRef(null);;
     const [hasMore, setHasMore] = useState(true);
     const [chats, setChats] = useState<any>([])
-
+    const [userOnline, setUserOnline] = useState<any>({})
     const [modal, setModal] = useState<any>({})
     const [listStudent, setListStudent] = useState<any>({})
     const [isAllStudent, setIsAllStudent] = useState(true)
-    const [courses, setCourses] = useState<any>()
-    const [students, setStudents] = useState<any>()
+    const [courses, setCourses] = useState<any>([])
+    const [students, setStudents] = useState<any>([])
     const [users, setUsers] = useState<any>([])
     const [messages, setMessages] = useState<any>([]);
     const [blurTimeoutId, setBlurTimeoutId] = useState<any>(null);
@@ -154,6 +155,16 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                 userStorage.addConversation(newConversation);
             }
         })
+        socket?.on("new_user_online", (data: any) => {
+            console.log(data.userId);
+
+            setUserOnline({ ...userOnline, [data.userId]: true })
+        })
+        socket?.on("userDisconnected", (data: any) => {
+            console.log(data);
+
+            setUserOnline({ ...userOnline, [data.id]: false })
+        })
 
 
         return () => {
@@ -161,7 +172,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                 socket.off('new_message_created');
             }
         };
-    }, [activeConversation?.id, converGroup, converStudent, converTeacher, createConversation, getConversation, socket, user.id, userStorage]);
+    }, [activeConversation?.id, converGroup, converStudent, converTeacher, createConversation, getConversation, socket, user.id, userOnline, userStorage]);
 
 
     useEffect(() => {
@@ -403,6 +414,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
 
     return (
         <div className="h-[calc(100vh-80px)] px-2">
+
             <ToastContainer />
             <>
                 <Modal show={modal[`add-group`] || false} size="xl" onClose={() => setModal({ ...modal, [`add-group`]: false })} popup>
@@ -596,6 +608,198 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                     </Modal.Body>
                 </Modal>
             </>
+            <>
+                <Modal show={modal[`edit-group`] || false} size="xl" onClose={() => setModal({ ...modal, [`edit-group`]: false })} popup>
+                    <Modal.Header />
+                    <Modal.Body>
+
+                        <form className="space-y-6" onSubmit={handleSubmit(async (data: any) => {
+                            const studentIds = Object.keys(listStudent).filter(key => listStudent[key]);
+
+
+                            const dataForm = {
+                                data: {
+                                    name: data.name,
+                                    members: studentIds,
+                                    individual: false
+                                }
+                            }
+
+                            await chatApi.createGroup(dataForm).then(() => {
+                                setChange(!change)
+                                setModal({ ...modal, [`edit-group`]: false })
+
+                                toast.success('Nhóm đã được tạo thành công', {
+                                    position: "top-center",
+                                    autoClose: 1000,
+                                    hideProgressBar: false,
+                                    closeOnClick: true,
+                                    pauseOnHover: true,
+                                    draggable: true,
+                                    progress: undefined,
+                                    theme: "light",
+                                    transition: Bounce,
+                                });
+
+                            }).catch((err: any) => { })
+                        })}>
+                            <h3 className="text-xl font-medium text-gray-900 dark:text-white">Sửa nhóm</h3>
+                            <div className="">
+                                <label
+                                    htmlFor="name"
+                                    className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                >
+                                    Tên nhóm
+                                </label>
+                                <input
+                                    {...register("name", {
+                                        required: "Tên nhóm không thể trống."
+                                    })}
+                                    type="text"
+                                    id="name"
+                                    name="name"
+                                    className={`bg-white border border-gray-300 text-[#343434] text-sm focus:ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
+                                />
+                                <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                    {errors?.name?.message?.toString()}
+                                </p>
+                            </div>
+                            <div className='w-full'>
+                                <label
+                                    htmlFor="course"
+                                    className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                >
+                                    Chọn khóa học
+                                </label>
+                                <select {...register("course", {
+                                    required: 'Hãy chọn khóa học'
+                                })}
+                                    id="courses" name="course" className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" onChange={async (e) => {
+                                        if (e.target.value) {
+                                            if (e.target.value === 'all_course')
+                                                await courseApi.getAllStudenBuyCourseOfTeacher(`${user.id}`, '1').then((data: any) => {
+                                                    setStudents(data.data)
+                                                    let temp: any = {}
+                                                    data.data?.map((student: any) => {
+                                                        temp[student.id] = true
+                                                    });
+
+                                                    setListStudent(temp)
+
+
+                                                }).catch((err: any) => { })
+                                            else
+                                                await courseApi.getAllStudenBuySpecificCourseOfTeacher(e.target.value, `${user.id}`, '1').then((data: any) => {
+                                                    setStudents(data.data)
+                                                    data.data?.map((student: any) => {
+                                                        setListStudent({ ...listStudent, [student.id]: true })
+                                                    })
+                                                }).catch((err: any) => { })
+                                        }
+
+
+                                    }}>
+                                    <option value="" defaultChecked>Chọn khóa học</option>
+                                    <option value="all_course" >Tất cả khóa học</option>
+                                    {courses?.map((course: any, index: number) => {
+                                        return (
+                                            <option key={course.id} value={`${course.id}`}>{course.name}</option>
+                                        )
+                                    })}
+                                </select>
+                                <div className="mt-1 text-sm text-red-600 dark:text-red-500">
+                                    {errors?.course?.message && (
+                                        <React.Fragment>{errors.course.message.toString()}</React.Fragment>
+                                    )}
+                                </div>
+                            </div>
+                            <div className={`${!students || students?.length === 0 ? "hidden" : ""} mt-5`}>
+                                <div className="mb-4 font-semibold">
+                                    Danh sách người dùng
+                                </div>
+                                <div className="flex justify-between items-center border-[1px] border-slate-200 px-4 py-2 rounded-lg mb-2">
+                                    <div className="font-semibold text-sm">
+                                        Tất cả
+                                    </div>
+                                    <div className="flex items-center">
+                                        <input
+                                            onChange={(e) => {
+                                                setIsAllStudent((e.target as HTMLInputElement).checked)
+
+                                            }}
+                                            type="checkbox"
+                                            checked={isAllStudent}
+                                            id={'all'}
+                                            className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                                        />
+                                    </div>
+
+                                </div>
+                                <div className="sidebar py-2 max-h-80 overflow-y-auto">
+                                    {
+                                        students ? students?.map((student: any) => {
+                                            return (
+                                                <div key={student.id} className="border-[1px] flex items-center justify-between border-slate-200 px-4 py-2 rounded-lg mb-2">
+                                                    <div className="flex justify-center items-center">
+                                                        <div className="mr-2">
+                                                            <Image src={student.avatar ? student.avatar : '/images/avatar.png'} alt="" width={40} height={40} className="rounded-full" />
+                                                        </div>
+                                                        <div className="text-sm">
+                                                            <div className="font-semibold">
+                                                                {student.name}
+                                                            </div>
+                                                            <div>
+                                                                {student.email}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center ">
+                                                        <input
+                                                            onChange={(e) => {
+
+                                                                setListStudent({ ...listStudent, [student.id]: (e.target as HTMLInputElement).checked })
+                                                                if (!e.target.checked)
+                                                                    setIsAllStudent(false)
+                                                            }}
+                                                            checked={listStudent[student.id] ? true : isAllStudent}
+                                                            type="checkbox"
+                                                            defaultValue=""
+                                                            id={student.id}
+                                                            className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                                                        />
+
+                                                    </div>
+                                                </div>
+                                            )
+                                        }) : null
+                                    }
+                                </div>
+                            </div>
+
+                            <div className="mt-6 flex justify-end">
+                                <button
+                                    onClick={() => {
+                                        setModal({ ...modal, [`edit-group`]: false })
+                                    }
+                                    }
+                                    type="button"
+                                    className="mr-4 text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                                >
+                                    Hủy
+                                </button>
+                                <div>
+                                    <button
+                                        type="submit"
+                                        className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                    >
+                                        Tạo
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </Modal.Body>
+                </Modal>
+            </>
             <MainContainer responsive className="">
                 <Sidebar position="left" scrollable={!modal['dropdownSearch']} className="">
                     <ConversationHeader style={{ backgroundColor: "#fff" }}>
@@ -698,7 +902,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                     </div>
                     <ExpansionPanel
                         open
-                        title="Giáo viên"
+                        title={`Giáo viên (${unseen?.teacher || 0})`}
                         className=""
                     >
                         <ConversationList>
@@ -714,7 +918,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
 
                                         if (user) {
 
-                                            return [<Avatar key={user.id} src={user.avatar ? user.avatar : '/images/avatar.png'} status="available" />, user.username]
+                                            return [<Avatar key={user.id} src={user.avatar ? user.avatar : '/images/avatar.png'} status={`${userOnline[participant.id] ? "available" : "unavailable"}`} />, user.username]
 
                                         }
                                     }
@@ -743,7 +947,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                     </ExpansionPanel>
                     <ExpansionPanel
                         open
-                        title="Học sinh"
+                        title={`Học sinh (${unseen?.student || 0})`}
                         className=""
                     >
                         <ConversationList>
@@ -759,7 +963,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
 
                                         if (user) {
 
-                                            return [<Avatar key={user.id} src={user.avatar ? user.avatar : '/images/avatar.png'} status="available" />, user.username]
+                                            return [<Avatar key={user.id} src={user.avatar ? user.avatar : '/images/avatar.png'} status={`${userOnline[participant.id] ? "available" : "unavailable"}`} />, user.username]
 
                                         }
                                     }
@@ -788,7 +992,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                     </ExpansionPanel>
                     <ExpansionPanel
                         open
-                        title="Nhóm"
+                        title={`Nhóm (${unseen?.mix || 0})`}
                         className=""
                     >
                         <ConversationList>
@@ -804,7 +1008,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
 
                                         if (user) {
 
-                                            return [<Avatar key={user.id} src={user.avatar ? user.avatar : '/images/avatar.png'} status="available" />, user.username]
+                                            return [<Avatar key={user.id} src={user.avatar ? user.avatar : '/images/avatar.png'} />, user.username]
 
                                         }
                                     }
@@ -842,7 +1046,17 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                         <ConversationHeader.Content userName={currentUserName} />
                         {
                             activeConversation?.data?.type === "group" && <ConversationHeader.Actions>
-                                <EllipsisButton orientation="vertical" />
+
+                                <Dropdown label="" renderTrigger={() => <EllipsisVerticalIcon className="w-8 h-8" />} placement="left">
+                                    <Dropdown.Item onClick={() => {
+                                        setModal({ ...modal, [`edit-group`]: true })
+                                    }}>
+                                        Sửa nhóm
+                                    </Dropdown.Item>
+                                    <Dropdown.Item onClick={() => {
+
+                                    }}><p className="text-red-500">Xóa nhóm</p></Dropdown.Item>
+                                </Dropdown>
                             </ConversationHeader.Actions>
                         }
 
@@ -900,7 +1114,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
 
 
                     </MessageList>
-                    <MessageInput className="mb-2" value={currentMessage} onChange={handleChange} onSend={handleSend} disabled={!activeConversation} attachButton={true} placeholder="Nhập ở đây..." />
+                    <MessageInput className="mb-2" value={currentMessage} onChange={handleChange} onSend={handleSend} disabled={!activeConversation} attachButton={false} placeholder="Nhập ở đây..." />
                 </ChatContainer>
 
             </MainContainer>

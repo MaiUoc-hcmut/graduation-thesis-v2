@@ -102,7 +102,7 @@ export default function ResultExam({ params }: { params: { slug: string, id_assi
                                                 <label htmlFor={answer.id} className="text-sm font-medium text-gray-900 dark:text-gray-300">{parse(answer.content_text)}</label>
                                                 <div className='ml-4'>
                                                     {
-                                                        answer.is_correct ? <CheckIcon className="w-5 h-5 text-green-500" /> : <XMarkIcon className="w-5 h-5 text-red-500" />
+                                                        answer.is_correct ? <CheckIcon className="w-5 h-5 text-green-500" /> : (answer.selected_answer?.is_selected ? <XMarkIcon className="w-5 h-5 text-red-500" /> : '')
                                                     }
 
                                                 </div>

@@ -381,7 +381,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                                 formData.append('data', JSON.stringify(data));
 
                                                 const request = new XMLHttpRequest();
-                                                request.open('POST', 'http://localhost:4001/api/v1/videos')
+                                                request.open('POST', 'http://13.229.142.225:4001/api/v1/videos')
 
                                                 request.upload.onprogress = (e) => {
                                                     progress(e.lengthComputable, e.loaded, e.total);
@@ -428,7 +428,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                                 formData.append('data', JSON.stringify(data));
 
                                                 const request = new XMLHttpRequest();
-                                                request.open('POST', 'http://localhost:4001/api/v1/document')
+                                                request.open('POST', 'http://13.229.142.225:4001/api/v1/document')
 
                                                 request.upload.onprogress = (e) => {
                                                     progress(e.lengthComputable, e.loaded, e.total);

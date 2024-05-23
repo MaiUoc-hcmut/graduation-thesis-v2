@@ -9,17 +9,60 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation'
 export default function AttempExam({ params, exam }: { params: { slug: string, id_exam: string }, exam: any }) {
     const [open, setOpen] = useState(true);
+    const [countDownTime, setCountDownTime] = useState('00:00');
     const [openSidebar, setOpenSideBar] = useState(true);
     const intervalRef = useRef<any>(null);
     const alphabet = ['A', 'B', 'C', 'D', 'E', 'F'];
     const COUNTER_KEY = 'countdown';
+    const [answers, setAnswers] = useState(() => {
+        // Lấy các đáp án từ localStorage khi khởi tạo state
+        const savedAnswers = localStorage.getItem('answers');
+        return savedAnswers ? JSON.parse(savedAnswers) : {};
+    });
+    const router = useRouter()
+
+    const handleAnswerChange = (questionId: string, answer: any, checked: boolean, multi_choice: boolean) => {
+        setAnswers((prevAnswers: any) => {
+            let newAnswers = { ...prevAnswers };
+
+            if (multi_choice) {
+                // Nếu câu hỏi cho phép chọn nhiều đáp án
+                if (checked) {
+                    // Nếu đáp án được chọn, thêm nó vào danh sách các đáp án cho câu hỏi này
+                    newAnswers[questionId] = [...(newAnswers[questionId] || []), answer];
+                } else {
+                    // Nếu đáp án bị bỏ chọn, loại bỏ nó khỏi danh sách các đáp án cho câu hỏi này
+                    newAnswers[questionId] = newAnswers[questionId].filter((a: any) => a !== answer);
+                }
+            } else {
+                // Nếu câu hỏi chỉ cho phép chọn một đáp án
+                if (checked) {
+                    // Nếu đáp án được chọn, đặt nó làm đáp án cho câu hỏi này
+                    newAnswers[questionId] = answer;
+
+                } else {
+                    // Nếu đáp án bị bỏ chọn, xóa đáp án cho câu hỏi này
+                    delete newAnswers[questionId];
+                }
+            }
+
+            // Lưu các đáp án vào localStorage
+            localStorage.setItem('answers', JSON.stringify(newAnswers));
+
+            return newAnswers;
+        });
+    };
+
     const {
         register,
         getValues,
         handleSubmit,
         reset,
         formState: { errors },
-    } = useForm()
+    } = useForm({
+        defaultValues: answers,
+    })
+
 
     function convertTime(i: number) {
         let hours = parseInt(`${i / 3600}`, 10);
@@ -39,10 +82,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
 
     function countDown(i: number, callback: any) {
         intervalRef.current = setInterval(function () {
-            let tmp = document.getElementById('displayDiv')
-            if (tmp) {
-                tmp.innerHTML = convertTime(i);
-            }
+            setCountDownTime(convertTime(i));
             if (i-- > 0) {
                 window.localStorage.setItem(`${COUNTER_KEY}`, `${i}`);
             } else {
@@ -53,22 +93,12 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
         }, 1000);
     }
 
-    useEffect(() => {
-        if (exam?.period) {
-            var countDownTime = Number(window.localStorage.getItem(COUNTER_KEY)) || exam?.period * 60;
-            countDown(countDownTime, function () {
-                alert('Hết giờ làm bài!!!');
-                // submitTest(convertTime(state.currentTest.period));
-            });
-        }
-
-    }, [exam?.period]);
-
-    async function submitTest(time: string, formData: any) {
+    async function submitTest(formData: any) {
         let data: any = {
             id_exam: params.id_exam,
-            time_start: "2024-03-12 16:38:55",
+            time_start: localStorage.getItem(`${COUNTER_KEY}`) ? Date.now() - Number(localStorage.getItem(`${COUNTER_KEY}`)) * 1000 : Date.now() - exam.period * 60 * 1000,
             time_end: Date.now(),
+            id_topic: exam.id_topic,
             assignment: []
         }
         exam.questions.map((question: any) => {
@@ -77,44 +107,66 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                 answers: question.answers.map((answer: any) => {
                     return {
                         id_answer: answer.id,
-                        is_selected: formData[question.id].includes(answer.id)
+                        is_selected: formData[question.id] ? formData[question.id].includes(answer.id) : false
                     }
                 })
 
             })
         })
 
-        const submitAnswer = async () => {
-            await examApi.submitExam({ data }).catch((err: any) => { })
-        };
-        console.log(data);
-
-
-        try {
-            const response = await submitAnswer();
+        examApi.submitExam({ data }).then(() => {
             clearInterval(intervalRef.current);
             intervalRef.current = null;
             window.localStorage.removeItem(`${COUNTER_KEY}`);
-        } catch (error) {
-            console.error('Error submitting answer:', error);
-        }
+            window.localStorage.removeItem('answers');
+            router.push(`/course/learning/${params.slug}?exam=${params.id_exam}`)
+        }).catch((err: any) => { });
     }
-    // console.log(formData, exam);
-    // console.log(errors);
+
+
+    useEffect(() => {
+        // Lưu các đáp án vào localStorage mỗi khi state thay đổi
+        localStorage.setItem('answers', JSON.stringify(answers));
+    }, [answers])
+
+    useEffect(() => {
+        if (exam?.period) {
+            var countDownTime = Number(window.localStorage.getItem(COUNTER_KEY)) || exam?.period * 60;
+            countDown(countDownTime, function () {
+                alert('Hết giờ làm bài!!!');
+                console.log(getValues());
+
+                submitTest(getValues());
+
+            });
+        }
+
+    }, [exam?.period]);
+
+
+
+
 
     let listQuestion;
-    let listNumber;
     if (exam) {
         listQuestion = exam?.questions?.map((question: any, index: number) => {
             if (question.multi_choice) {
                 return (
                     <div id={`question${index + 1}`} key={index} className="mb-4">
-                        <div className="text-lg mb-[-10px] text-[#000]">
-                            <div style={{ display: "flex" }}>
-                                <span style={{ marginRight: '8px' }} className="font-semibold text-[#153462]">Câu {index + 1}: </span>
-                                {parse(question.content_text)}
+                        <div className="text-lg  mb-[-10px] font-normal text-[#000] flex">
+                            <span className="font-semibold text-[#153462] flex mr-1">Câu {index + 1}: </span>
+                            {parse(question.content_text)}
+                        </div >
+                        {
+                            question.content_image && <div className='relative w-1/2 h-64 mt-5 z-0'>
+                                <Image
+                                    src={question.content_image}
+                                    fill
+                                    className='w-full h-full overflow-hidden object-cover object-center'
+                                    alt="logo"
+                                />
                             </div>
-                        </div>
+                        }
                         <div>
                             <ul
                                 className="mt-4 text-base text-gray-900 rounded-lg dark:bg-gray-700 dark:text-white"
@@ -124,23 +176,39 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                                         <li key={index} className="flex items-center mb-4">
 
                                             <input
-                                                {...register(`${question.id}`, { required: "Câu hỏi chưa hoàn thành." })}
-                                                id="checked-checkbox"
+                                                {...register(`${question.id}`, {
+                                                    required: "Câu hỏi chưa hoàn thành.",
+                                                })}
+                                                id={question.id}
                                                 type="checkbox"
                                                 value={answer.id}
                                                 name={question.id}
                                                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAnswerChange(question.id, answer.id, e.target.checked, true)}
                                             />
+                                            <p className='ml-2 mr-1'>{alphabet[index]}.</p>
                                             <label
-                                                htmlFor="checked-checkbox"
-                                                className="ms-2 font-medium text-gray-900 dark:text-gray-300"
+                                                htmlFor={question.id}
+                                                className="font-medium text-gray-900 dark:text-gray-300"
                                             >
                                                 {parse(answer.content_text)}
                                             </label>
-
+                                            {
+                                                answer.content_image && <div className='relative w-1/2 h-64 mt-5 z-0'>
+                                                    <Image
+                                                        src={answer.content_image}
+                                                        fill
+                                                        className='w-full h-full overflow-hidden object-cover object-center'
+                                                        alt="logo"
+                                                    />
+                                                </div>
+                                            }
                                         </li>
                                     );
                                 })}
+                                {errors?.[question.id]?.message && (
+                                    <p className='text-sm text-red-400'>{`${errors?.[question.id]?.message}`}</p>
+                                )}
                             </ul>
                         </div>
                     </div>
@@ -148,42 +216,43 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
             } else {
                 return (
                     <div id={`question${index + 1}`} key={index} className="mb-4">
-                        <div className="text-lg  mb-[-10px] font-normal text-[#000]">
-                            <span className="font-semibold text-[#153462] flex">Câu {index + 1}: {parse(question.content_text)}</span>
-                            {/* <div className='relative w-1/2 h-64 mt-2 z-0'>
+                        <div className="text-lg  mb-[-10px] font-normal text-[#000] flex">
+                            <span className="font-semibold text-[#153462] flex mr-1">Câu {index + 1}: </span> {parse(question.content_text)}
+                        </div >
+                        {
+                            question.content_image && <div className='relative w-1/2 h-64 mt-5 z-0'>
                                 <Image
-                                    src="/images/course-cover-1.jpg"
+                                    src={question.content_image}
                                     fill
                                     className='w-full h-full overflow-hidden object-cover object-center'
                                     alt="logo"
                                 />
-                            </div> */}
-                        </div >
+                            </div>
+                        }
                         <div>
                             <ul
                                 className="mt-6 text-base text-gray-900 rounded-lg dark:bg-gray-700 dark:text-white"
-                            // onChange={(e: any) => {
-                            //     handlerInput(question.id, e.target.id);
-                            // }}
 
                             >
                                 {question.answers.map((answer: any, index: number) => {
                                     return (
                                         <li key={index} className=" mb-5">
                                             <div className="flex items-center mb-2">
-                                                <input  {...register(`${question.id}`, { required: "Câu hỏi chưa hoàn thành." })} id={answer.id} type="radio" value={answer.id} name={question.id} className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                                                <input  {...register(`${question.id}`, { required: "Câu hỏi chưa hoàn thành." })} id={answer.id} type="radio" value={answer.id} name={question.id} className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAnswerChange(question.id, answer.id, e.target.checked, false)} />
                                                 <p className='ml-2 mr-1'>{alphabet[index]}.</p>
 
                                                 <label htmlFor="default-radio-1" className="font-medium text-gray-900 dark:text-gray-300">{parse(answer.content_text)}</label>
                                             </div>
-                                            {/* <div className='relative w-1/2 h-64 mt-3 z-0'>
-                                                <Image
-                                                    src="/images/course-cover-1.jpg"
-                                                    fill
-                                                    className='w-full h-full overflow-hidden object-cover object-center'
-                                                    alt="logo"
-                                                />
-                                            </div> */}
+                                            {
+                                                answer.content_image && <div className='relative w-1/2 h-64 mt-5 z-0'>
+                                                    <Image
+                                                        src={answer.content_image}
+                                                        fill
+                                                        className='w-full h-full overflow-hidden object-cover object-center'
+                                                        alt="logo"
+                                                    />
+                                                </div>
+                                            }
                                         </li>
                                     );
                                 })}
@@ -196,52 +265,19 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                 );
             }
         });
-        listNumber = exam?.questions?.map((question: any, index: number) => {
-            if (!getValues().hasOwnProperty(question.questionId)) {
-                return (
-                    <Link
-                        href={`#question${index + 1}`}
-                        key={index}
-                        className="bg-[#f0efef] p-2 w-9 h-9 rounded-xl flex justify-center items-center font-normal"
-                        style={{
-                            boxShadow: '0px 1px 4px 0px #00000033 -1px -1px 4px 0px #00000026 inset 1px 1px 4px 0px #0000001A inset',
-                            textDecoration: 'none',
-                        }}
-                    >
-                        {index + 1}
-                    </Link>
-                );
-            } else {
-                return (
-                    <a
-                        href={`#question${index + 1}`}
-                        key={index}
-                        className="p-2 w-10 h-10 rounded-xl flex justify-center items-center font-normal text-[#2FD790]"
-                        style={{
-                            background: 'rgba(47, 215, 144, 0.15)',
-                            boxShadow: '1px 1px 2px 0px #2FD79040 1px 1px 3px 0px #2FD7905C inset -1px -1px 2px 0px #2FD79052 inset',
-                            textDecoration: 'none',
-                        }}
-                    >
-                        {index + 1}
-                    </a>
-                );
-            }
-        });
     }
-    const router = useRouter()
+
 
     return (
         <form onSubmit={handleSubmit((data) => {
-            console.log(data, 1);
-            submitTest('1', data)
-            router.push(`/course/learning/${params.slug}/exam/${params.id_exam}`)
+
+            submitTest(data)
 
         })} className="bg-[#FBFAF9] relative py-10 min-h-screen">
             <div className="px-10 py-5 bg-[#153462] fixed w-full top-0 left-0 z-10">
                 <div className="flex justify-between h-full items-center">
                     <div className="text-[#fff] text-[22px] font-medium text-center ">{exam?.title}</div>
-                    <div className="text-white text-[22px] font-medium" id="displayDiv"></div>
+                    <div className="text-white text-[22px] font-medium" id="displayDiv">{countDownTime}</div>
                 </div>
             </div>
 
@@ -264,7 +300,39 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                     </button>
                     <div className="border-[1px] border-[#ececec] shadow-sm rounded-xl p-3 mt-4">
                         <p className="rounded-md text-center font-medium text-lg text-[#153462] mb-5">Điều hướng bài kiểm tra</p>
-                        <div className="grid grid-cols-5 justify-items-center gap-y-3">{listNumber}</div>
+                        <div className="grid grid-cols-5 justify-items-center gap-y-3">{
+                            exam?.questions?.map((question: any, index: number) => {
+                                if (answers[question.id]?.length === 0 || !answers[question.id]) {
+                                    return (
+                                        <Link
+                                            href={`#question${index + 1}`}
+                                            key={index}
+                                            className="bg-[#f0efef] p-2 w-10 h-10 rounded-xl flex justify-center items-center font-normal"
+                                            style={{
+                                                boxShadow: '0px 1px 4px 0px #00000033 -1px -1px 4px 0px #00000026 inset 1px 1px 4px 0px #0000001A inset',
+                                                textDecoration: 'none',
+                                            }}
+                                        >
+                                            {index + 1}
+                                        </Link>
+                                    );
+                                } else {
+                                    return (
+                                        <Link
+                                            href={`#question${index + 1}`}
+                                            key={index}
+                                            className="p-2 w-10 h-10 rounded-xl flex justify-center items-center font-normal text-[#2FD790]"
+                                            style={{
+                                                background: 'rgba(47, 215, 144, 0.15)',
+                                                boxShadow: '1px 1px 2px 0px #2FD79040 1px 1px 3px 0px #2FD7905C inset -1px -1px 2px 0px #2FD79052 inset',
+                                                textDecoration: 'none',
+                                            }}
+                                        >
+                                            {index + 1}
+                                        </Link>
+                                    );
+                                }
+                            })}</div>
                         <div className="text-center mt-10 mb-2">
                             <button
                                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"

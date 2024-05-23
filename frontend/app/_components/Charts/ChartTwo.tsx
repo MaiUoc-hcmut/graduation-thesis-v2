@@ -92,7 +92,7 @@ export default function ChartTwo() {
     series: [
       {
         name: "Phần trăm",
-        data: [8, 5, 7, 6, 4, 9, 40],
+        data: [8, 5, 7, 6, 4, 9, 40, 10, 6, 5],
       },
     ],
   });

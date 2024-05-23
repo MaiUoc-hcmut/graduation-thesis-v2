@@ -1,18 +1,33 @@
 "use client"
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ChartOne from "@/app/_components/Charts/ChartOne";
 import ChartThree from "@/app/_components/Charts/ChartThree";
 import ChartTwo from "@/app/_components/Charts/ChartTwo";
 import CardDataStats from "@/app/_components/Card/CardDataStats";
 import ChartFour from "@/app/_components/Charts/ChartFour";
 import Image from "next/image";
+import userApi from "@/app/api/userApi";
+import { useAppSelector } from "@/redux/store";
 
 export default function TeacherDashboard() {
+    const { user } = useAppSelector(state => state.authReducer);
+    const [dashboard, setDashboard] = useState<any>({});
+    useEffect(() => {
+        async function fetchData() {
+            await userApi.getProfileTeacher(`${user.id}`).then((data: any) => {
+                setDashboard(data.data)
+            }
+            ).catch((err: any) => { })
+        }
+        fetchData()
+    }, [user.id])
+
+
     return (
         <div className="">
             <div className="font-bold text-[#171347] text-lg mb-8">Dashboard</div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
-                <CardDataStats title="Tổng khóa học" total="5">
+                <CardDataStats title="Tổng khóa học" total={`${dashboard?.course_quantity || 0}`}>
                     <div className='p-3 rounded-md border-2 border-[#00a1d9]'>
                         <div className='w-8 h-8 relative'>
                             <Image
@@ -24,7 +39,7 @@ export default function TeacherDashboard() {
                         </div>
                     </div>
                 </CardDataStats>
-                <CardDataStats title="Tổng đề thi" total="10">
+                <CardDataStats title="Tổng đề thi" total={`${dashboard?.exam_quantity || 0}`}>
                     <div className='p-3 rounded-md border-2 border-[#a855ff]'>
                         <div className='w-8 h-8 relative'>
                             <Image
@@ -36,7 +51,7 @@ export default function TeacherDashboard() {
                         </div>
                     </div>
                 </CardDataStats>
-                <CardDataStats title="Tổng học viên" total="230">
+                <CardDataStats title="Tổng học viên" total={`${dashboard?.total_registration || 0}`}>
                     <div className='p-3 rounded-md border-2 border-[#ef9d69]'>
                         <div className='w-8 h-8 relative'>
                             <Image
@@ -48,7 +63,7 @@ export default function TeacherDashboard() {
                         </div>
                     </div>
                 </CardDataStats>
-                <CardDataStats title="Tổng đánh giá" total="106">
+                <CardDataStats title="Tổng đánh giá" total={`${dashboard?.total_exam || 0}`}>
                     <div className='p-3 rounded-md border-2  border-[#4fb949]'>
                         <div className='w-8 h-8 relative'>
                             <Image
@@ -70,22 +85,19 @@ export default function TeacherDashboard() {
                 </h2>
                 <ul className="mt-1 grid grid-cols-1 gap-y-1">
                     <li className="text-[#818894] text-lg ">
-                        <span className="font-medium text-black">10</span> lượt bình luận mới
+                        <span className="font-medium text-black">{dashboard?.newCommentOnDay}</span> lượt bình luận mới
                     </li>
                     <li className="text-[#818894] text-lg">
-                        <span className="font-medium text-black">15</span> lượt chủ đề được tạo mới
+                        <span className="font-medium text-black">{dashboard?.newTopicInForumOnDay}</span> lượt chủ đề được tạo mới
                     </li>
                     <li className="text-[#818894] text-lg">
-                        <span className="font-medium text-black">20</span> lượt làm bài mới
+                        <span className="font-medium text-black">{dashboard?.newAssignmentOnDay}</span> lượt làm bài mới
                     </li>
                     <li className="text-[#818894] text-lg">
-                        <span className="font-medium text-black">10</span> lượt đánh giá bạn mới
+                        <span className="font-medium text-black">{dashboard?.newReviewCourseOnDay}</span> lượt đánh giá khóa học mới
                     </li>
                     <li className="text-[#818894] text-lg">
-                        <span className="font-medium text-black">10</span> lượt đánh giá khóa học mới
-                    </li>
-                    <li className="text-[#818894] text-lg">
-                        <span className="font-medium text-black">10</span> lượt đánh giá đề thi mới
+                        <span className="font-medium text-black">{dashboard?.newReviewExamOnDay}</span> lượt đánh giá đề thi mới
                     </li>
                 </ul>
                 <div className="w-[564px] h-[375px] absolute right-0 bottom-0">

@@ -29,14 +29,14 @@ const userApi = {
     getReviewOfTeacher: (id: string, page: number) => {
         const url = `/reviews/teacher/${id}/page/${page}`;
         return axiosConfig.get(url, {
-            baseURL: 'http://localhost:4000/api/v1'
+            baseURL: 'http://18.143.75.75:4000/api/v1'
         });
     },
     createReviewTeacher: async (data: object) => {
         const url = `/reviews`;
 
         await axiosConfig.post(url, data, {
-            baseURL: 'http://localhost:4000/api/v1'
+            baseURL: 'http://18.143.75.75:4000/api/v1'
         });
         return
     },

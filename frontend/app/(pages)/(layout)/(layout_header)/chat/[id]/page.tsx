@@ -110,9 +110,9 @@ export default function ChatBox({ params }: { params: { id: string } }) {
     const [converTeacher, setConverTeacher] = useState<any>([]);
     const [converGroup, setConverGroup] = useState<any>([]);
     const [change, setChange] = useState(false);
+    const [unseen, setUnseen] = useState([]);
 
     const user = useAppSelector(state => state.authReducer.user);
-    console.log(user);
 
 
     useEffect(() => {
@@ -120,6 +120,7 @@ export default function ChatBox({ params }: { params: { id: string } }) {
             setConverStudent(res.data.student);
             setConverTeacher(res.data.teacher);
             setConverGroup(res.data.mix);
+            setUnseen(res.data.unseen);
         }).catch((err) => { });
     }, [change]);
 
@@ -201,7 +202,7 @@ export default function ChatBox({ params }: { params: { id: string } }) {
                             autoDraft: AutoDraft.Save | AutoDraft.Restore
                         }}>
                             <Chat user={userCurrent} params={params} change={change} setChange={setChange} createConversation={createConversation}
-                                userStorage={userStorage} />
+                                userStorage={userStorage} unseen={unseen} />
                         </ChatProvider>
                     </div>
 

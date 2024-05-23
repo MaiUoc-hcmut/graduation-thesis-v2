@@ -72,7 +72,7 @@ const courseApi = {
         const url = `/reviews`;
 
         await axiosConfig.post(url, data, {
-            baseURL: 'http://localhost:4001/api/v1'
+            baseURL: 'http://13.229.142.225:4001/api/v1'
         });
         return
     },
@@ -80,21 +80,21 @@ const courseApi = {
     getReview: (id: string, page: number) => {
         const url = `/reviews/course/${id}/page/${page}`;
         return axiosConfig.get(url, {
-            baseURL: 'http://localhost:4001/api/v1'
+            baseURL: 'http://13.229.142.225:4001/api/v1'
         });
     },
 
     getAllReview: (id_teacher: string) => {
         const url = `/reviews/teacher/${id_teacher}`;
         return axiosConfig.get(url, {
-            baseURL: 'http://localhost:4001/api/v1'
+            baseURL: 'http://13.229.142.225:4001/api/v1'
         });
     },
 
     getAllReviewAdmin: (page: string) => {
         const url = `/reviews`;
         return axiosConfig.get(url, {
-            baseURL: 'http://localhost:4001/api/v1'
+            baseURL: 'http://13.229.142.225:4001/api/v1'
         });
     },
 

@@ -107,7 +107,7 @@ export const AnswerCard = ({ hanldeForm, question, indexQuestion, image, setImag
 
 
                                             const request = new XMLHttpRequest();
-                                            request.open('POST', 'http://localhost:4002/api/v1/images')
+                                            request.open('POST', 'http://18.140.5.43:4002/api/v1/images')
 
 
 

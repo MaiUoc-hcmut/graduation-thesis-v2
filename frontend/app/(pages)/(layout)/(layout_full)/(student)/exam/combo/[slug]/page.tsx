@@ -3,9 +3,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon, CheckIcon, QuestionMarkCircleIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline'
+import { DocumentTextIcon, QuestionMarkCircleIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline'
 import { ChevronDownIcon, ChevronUpIcon, StarIcon } from '@heroicons/react/20/solid'
-import courseApi from '@/app/api/courseApi';
 import paymentApi from '@/app/api/paymentApi';
 import { useForm, SubmitHandler } from "react-hook-form"
 import parse from 'html-react-parser';
@@ -14,18 +13,20 @@ import { formatCash, convertTime, formatDateTime } from '@/app/helper/FormatFunc
 import { ToastContainer, toast } from 'react-toastify';
 import { useAppSelector } from '@/redux/store';
 import { renderOnlyStar } from '@/app/helper/RenderFunction';
+import examApi from '@/app/api/examApi';
+import { useSearchParams } from 'next/navigation';
 type Review = {
     content: string
     rating: number
 }
 
-export default function ComboDetail({ params }: { params: { slug: string } }) {
+export default function ComboList({ params }: { params: { slug: string } }) {
     const [tab, setTab] = useState(1)
     const [toggle, setToggle] = useState<any>({})
 
     const [reviews, setReviews] = useState([]);
     const [changeData, setChangeData] = useState(false);
-    const [course, setCourse] = useState<any>();
+    const [combos, setCombos] = useState<any>({});
     const [rating, setRating] = useState(0);
     const [avgReview, setAvgReview] = useState(0);
     const [starDetails, setStarDetails] = useState<any>();
@@ -42,11 +43,11 @@ export default function ComboDetail({ params }: { params: { slug: string } }) {
 
     useEffect(() => {
         async function fetchData() {
-            await courseApi.get(params.slug).then((data: any) => {
-                setCourse(data.data)
+            await examApi.getComboDetail(params.slug).then((data: any) => {
+                setCombos(data.data)
             }
             ).catch((err: any) => { })
-            // await courseApi.getReview(params.slug).then((data: any) => {
+            // await combosApi.getReview(params.slug).then((data: any) => {
             //     setReviews(data.data.reviews)
             //     if (data.data.averageRating) {
             //         setAvgReview(data.data.averageRating)
@@ -83,7 +84,7 @@ export default function ComboDetail({ params }: { params: { slug: string } }) {
             <ToastContainer />
             <div className="relative h-[530px] block overflow-hidden">
                 <Image
-                    src={`${course?.cover_image ? course?.cover_image : '/'}`}
+                    src={`${combos?.cover_image ? combos?.cover_image : '/'}`}
                     fill={true}
                     className='w-full h-full absolute top-0 left-0 object-cover object-center'
                     alt="logo"
@@ -97,7 +98,7 @@ export default function ComboDetail({ params }: { params: { slug: string } }) {
                     <div className='px-4 w-2/3 flex flex-col'>
                         <div className=''>
                             <h1 className='font-black text-3xl text-white h-22 ovet text-ellipsis overflow-hidden'>
-                                {course?.name}
+                                {combos?.name}
                             </h1>
                             <div className="flex items-center mt-10">
                                 {renderStars(Math.floor(avgReview))}
@@ -106,7 +107,7 @@ export default function ComboDetail({ params }: { params: { slug: string } }) {
                             </div>
                             <div className='mt-4 text-white text-sm font-medium'>
                                 <span className='mr-2'>Tạo bởi</span>
-                                <Link href={`/teacher/profile/${course?.id_teacher}`} className='underline decoration-1'>Việt Lê</Link>
+                                <Link href={`/teacher/profile/${combos?.id_teacher}`} className='underline decoration-1'></Link>
                             </div>
                         </div>
                         <div className='mt-9'>
@@ -127,7 +128,7 @@ export default function ComboDetail({ params }: { params: { slug: string } }) {
                                             className={`text-white inline-flex items-center justify-center p-4 ${tab == 2 ? 'border-b-2 border-primary rounded-t-lg active' : 'border-b-4 border-transparent rounded-t-lg hover:text-gray-300'} group`}
                                             aria-current="page"
                                         >
-                                            Danh sách đề thi ({course?.chapters?.length})
+                                            Danh sách đề thi ({combos?.Exams?.length})
                                         </button>
                                     </li>
                                     <li className="me-2">
@@ -148,9 +149,9 @@ export default function ComboDetail({ params }: { params: { slug: string } }) {
                                         <h2 className="text-[#171347] font-bold flex items-center after:content-[''] after:flex after:grow after:shrink after:basis-4 after:h-[2px] after:ml-[10px] after:bg-[#f1f1f1]">
                                             Mô tả
                                         </h2>
-                                        <div className='mt-5 text-[#818894]'>
+                                        <div className='mt-2 text-[#818894]'>
                                             <p>
-                                                {parse(course?.description || '')}
+                                                {parse(combos?.description || '')}
                                             </p>
                                         </div>
 
@@ -158,32 +159,146 @@ export default function ComboDetail({ params }: { params: { slug: string } }) {
                                 </div>
                                 <div className={`${tab == 2 ? '' : 'hidden'}`}>
                                     <ul>
-                                        {course?.chapters?.map((chapter: any) => {
+                                        {combos?.Exams?.map((combo: any) => {
                                             return (
-                                                <li key={chapter.id} className='bg-white py-3 pl-[20px] pr-6 rounded-lg mb-5 list-none border-[1px] border-[#ececec]'>
-                                                    <div className='flex items-center justify-between'>
+                                                <li key={combo.id} className='bg-white py-3 pl-[20px] pr-6 rounded-lg mb-5 list-none border-[1px] border-slate-300'>
+                                                    <div className={`flex items-center justify-between ${toggle[`open_chapter_${combo.id}`] ? 'pb-2 border-b-[1px] border-slate-200' : ''}`}>
                                                         <div className="flex justify-between items-center">
                                                             <div className="">
 
                                                                 <div className="font-bold text-[rgb(23,19,71)] text-lg">
-                                                                    Đề thi 1
+                                                                    {combo.title}
                                                                 </div>
                                                                 <div className="font-normal text-[818894] text-xs">
-                                                                    50 câu
-                                                                    | 60 phút
+                                                                    {combo.quantity_question} câu
+                                                                    | {combo.period} phút
                                                                 </div>
-                                                                <div>
+                                                                {/* <div>
                                                                     <div className="flex items-center ml-[-4px] mt-2">
                                                                         {renderOnlyStar(Math.floor(avgReview))}
                                                                         <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-2 py-0.5 rounded">{avgReview.toFixed(1)}</span>
                                                                         <span className='text-white'>({reviews.length} Đánh giá)</span>
                                                                     </div>
-                                                                </div>
+                                                                </div> */}
 
 
                                                             </div>
                                                         </div>
+                                                        <div className="ml-5 flex items-center justify-center">
 
+                                                            <div className="" >
+                                                                {
+                                                                    !toggle[`open_chapter_${combo.id}`] ?
+                                                                        <button type="button" className=" text-[#818894]" onClick={() => {
+                                                                            setToggle({ ...toggle, [`open_chapter_${combo.id}`]: true })
+                                                                        }}>
+                                                                            <ChevronDownIcon className="w-6 h-6" />
+                                                                        </button>
+                                                                        :
+                                                                        <button type="button" className=" text-[#818894]" onClick={() => {
+                                                                            setToggle({ ...toggle, [`open_chapter_${combo.id}`]: false })
+                                                                        }}>
+                                                                            <ChevronUpIcon className="w-6 h-6" />
+                                                                        </button>
+                                                                }
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className={`${toggle[`open_chapter_${combo.id}`] ? '' : 'hidden'}`}>
+                                                        <form onSubmit={handleSubmit(async (dataReview) => {
+                                                            if (rating == 0) return
+                                                            const formData = {
+                                                                data: {
+                                                                    ...dataReview,
+                                                                    "id_combos": params.slug,
+                                                                    rating
+                                                                }
+                                                            }
+                                                            // await examApi.createReview(formData).catch((err: any) => { })
+                                                            reset()
+                                                            setRating(0)
+                                                            setChangeData(!changeData)
+
+                                                        })} className="flex flex-col items-start mt-4 mb-6">
+                                                            <div className=''>
+                                                                <div className='flex items-center mb-4'>
+                                                                    <div className=''>
+                                                                        <Image
+                                                                            src={`${user.avatar ? user.avatar : '/images/avatar.png'}`}
+                                                                            width={20}
+                                                                            height={20}
+                                                                            className='w-10 h-10 rounded-full'
+                                                                            alt="logo"
+                                                                        />
+                                                                    </div>
+                                                                    <div className='flex flex-col ml-2'>
+                                                                        <span className='font-medium text-secondary text-sm'>
+                                                                            {user.name}
+                                                                        </span>
+                                                                        <div className="flex items-center">
+                                                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                                                <StarIcon
+                                                                                    key={star}
+                                                                                    className={`h-5 w-5 cursor-pointer ${(hoverRating || rating) >= star ? 'text-yellow-300' : 'text-gray-300'
+                                                                                        }`}
+                                                                                    onMouseEnter={() => handleHover(star)}
+                                                                                    onMouseLeave={() => handleHover(0)}
+                                                                                    onClick={() => setRating(star)}
+                                                                                />
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <textarea
+                                                                placeholder="Nhập đánh giá của bạn..."
+                                                                {...register("content")}
+                                                                className="w-full p-2 border rounded focus:ring-0 focus:border-primary_border"
+                                                                rows={2}
+                                                            ></textarea>
+                                                            <button
+                                                                type="submit"
+
+                                                                className="mt-3 px-3 py-1 bg-primary text-white rounded hover:bg-primary_hover"
+                                                            >
+                                                                Đánh giá
+                                                            </button>
+                                                        </form>
+                                                        <div className=''>
+                                                            {
+                                                                reviews?.map((review: any) => (
+                                                                    <div key={review.id} className="bg-white px-4 py-4 mb-5 border rounded-lg shadow-md">
+                                                                        <div className='flex items-center justify-between'>
+                                                                            <div className='flex items-center mt-2'>
+                                                                                <div>
+                                                                                    <Image
+                                                                                        src={`${review?.user?.avatar ? review?.user?.avatar : '/images/avatar.png'}`}
+                                                                                        width={40}
+                                                                                        height={40}
+                                                                                        className='w-10 h-10 rounded-full'
+                                                                                        alt="logo"
+                                                                                    />
+                                                                                </div>
+                                                                                <div className='flex flex-col ml-2'>
+                                                                                    <span className='font-medium text-secondary'>
+                                                                                        {review?.user?.name}
+                                                                                    </span>
+                                                                                    <div className="flex items-center">{renderStars(review.rating)}</div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div>
+                                                                                <span className='text-[#818894] text-sm'>
+                                                                                    {formatDateTime(review.createdAt)}
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className='text-[#818894] mt-4 font-normal'>
+                                                                            {review.content}
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                        </div>
                                                     </div>
                                                 </li>
                                             )
@@ -280,11 +395,11 @@ export default function ComboDetail({ params }: { params: { slug: string } }) {
                                             const formData = {
                                                 data: {
                                                     ...dataReview,
-                                                    "id_course": params.slug,
+                                                    "id_combos": params.slug,
                                                     rating
                                                 }
                                             }
-                                            await courseApi.createReview(formData).catch((err: any) => { })
+                                            // await examApi.createReview(formData).catch((err: any) => { })
                                             reset()
                                             setRating(0)
                                             setChangeData(!changeData)
@@ -377,7 +492,7 @@ export default function ComboDetail({ params }: { params: { slug: string } }) {
                         <div className='rounded-2xl '>
                             <div className='h-[200px] relative'>
                                 <Image
-                                    src={`${course?.thumbnail ? course?.thumbnail : '/'}`}
+                                    src={`${combos?.thumbnail ? combos?.thumbnail : '/'}`}
                                     fill={true}
                                     className='w-full h-full overflow-hidden object-center object-cover rounded-tl-2xl rounded-tr-2xl'
                                     alt="logo"
@@ -385,13 +500,13 @@ export default function ComboDetail({ params }: { params: { slug: string } }) {
                             </div>
                             <div className='px-5 border-[1px] border-slate-200 pb-5  rounded-bl-2xl rounded-br-2xl shadow-md'>
                                 <div className='flex items-center justify-center mt-5'>
-                                    <span className='text-3xl text-primary font-bold'>{formatCash(`${course?.price}`)} VNĐ</span>
+                                    <span className='text-3xl text-primary font-bold'>{formatCash(`${combos?.price}`)} VNĐ</span>
                                 </div>
                                 <div className='mt-5 flex flex-col'>
                                     <button onClick={async () => {
                                         let id_cart = ''
 
-                                        await paymentApi.addToCart(course?.id).then(() => {
+                                        await paymentApi.addToCart(combos?.id).then(() => {
                                             toast.success('Thêm vào giỏ hàng thành công', {
                                                 position: "bottom-right",
                                                 autoClose: 800,
@@ -410,15 +525,15 @@ export default function ComboDetail({ params }: { params: { slug: string } }) {
                                     <div className='mt-4 grid grid-cols-2 gap-2'>
                                         <div className='flex items-center'>
                                             <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                            <span className='text-[#171347] font-medium text-sm'>{course?.chapters?.length} đề thi</span>
+                                            <span className='text-[#171347] font-medium text-sm'>{combos?.chapters?.length} đề thi</span>
                                         </div>
                                         <div className='flex items-center'>
                                             <QuestionMarkCircleIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                            <span className='text-[#171347] font-medium text-sm'>{course?.total_lecture} câu hỏi</span>
+                                            <span className='text-[#171347] font-medium text-sm'>{combos?.total_lecture} câu hỏi</span>
                                         </div>
                                         <div className='flex items-center'>
                                             <ClipboardDocumentIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                            <span className='text-[#171347] font-medium text-sm'>{course?.total_exam} dạng</span>
+                                            <span className='text-[#171347] font-medium text-sm'>{combos?.total_exam} dạng</span>
                                         </div>
 
                                     </div>

@@ -13,8 +13,17 @@ const examApi = {
     getAllReviewExamByTeacher: (id_teacher: string) => {
         const url = `/reviews/teacher/${id_teacher}`;
         return axiosConfig.get(url, {
-            baseURL: 'http://localhost:4002/api/v1'
+            baseURL: 'http://18.140.5.43:4002/api/v1'
         });
+    },
+
+    createReview: async (data: object) => {
+        const url = `/reviews`;
+
+        await axiosConfig.post(url, data, {
+            baseURL: 'http://18.140.5.43:4002/api/v1'
+        });
+        return
     },
 
     get: async (id: string) => {
@@ -63,6 +72,11 @@ const examApi = {
 
     getComboExam: async (id_teacher: string, page: string) => {
         const url = `/combos/teacher/${id_teacher}/page/${page}`;
+        return await axiosConfig.get(url);
+    },
+
+    getComboDetail: async (id_combo: string) => {
+        const url = `/combos/${id_combo}`;
         return await axiosConfig.get(url);
     },
 

@@ -256,7 +256,7 @@ export default function ExamDashboard() {
 
 
                                             const request = new XMLHttpRequest();
-                                            request.open('POST', 'http://localhost:4001/api/v1/images/single')
+                                            request.open('POST', 'http://13.229.142:4001/api/v1/images/single')
 
 
                                             request.upload.onprogress = (e) => {

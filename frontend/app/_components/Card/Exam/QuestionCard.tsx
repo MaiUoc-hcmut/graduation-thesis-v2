@@ -107,7 +107,7 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
 
 
                                                 const request = new XMLHttpRequest();
-                                                request.open('POST', 'http://localhost:4002/api/v1/images')
+                                                request.open('POST', 'http://18.140.5.43:4002/api/v1/images')
 
 
                                                 request.upload.onprogress = (e) => {
@@ -184,7 +184,7 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
 
 
                                                 const request = new XMLHttpRequest();
-                                                request.open('POST', 'http://localhost:4002/api/v1/images')
+                                                request.open('POST', 'http://18.140.5.43:4002/api/v1/images')
 
 
 

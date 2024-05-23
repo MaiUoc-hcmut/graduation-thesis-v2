@@ -7,7 +7,7 @@ const SocketContext = createContext<Socket<any, any> | null>(null);
 
 // Tạo một provider cho socket
 export function SocketProvider({ children, isLoggedIn }: { children: any, isLoggedIn: boolean }) {
-    const socket = isLoggedIn ? io("http://localhost:4005", { transports: ["websocket"] }) : null;
+    const socket = isLoggedIn ? io("http://54.169.94.103:4005", { transports: ["websocket"] }) : null;
     const { user } = useAppSelector(state => state.authReducer);
 
     useEffect(() => {

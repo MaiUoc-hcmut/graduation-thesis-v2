@@ -3,7 +3,7 @@ import { jwtDecode } from 'jwt-decode';
 import { config } from 'process';
 
 const instance = axios.create({
-    baseURL: 'http://localhost:4000/api/v1',
+    baseURL: 'http://18.143.75.75:4000/api/v1',
     headers: {
         'Content-Type': 'application/json',
     },
@@ -22,7 +22,7 @@ instance.interceptors.request.use(
                 config.url.indexOf('/refresh-token') >= 0
 
             ) {
-                config.baseURL = 'http://localhost:4000/api/v1';
+                config.baseURL = 'http://18.143.75.75:4000/api/v1';
                 return config;
             }
 
@@ -34,7 +34,7 @@ instance.interceptors.request.use(
                 config.url.indexOf('/coupons') >= 0 ||
                 config.url.indexOf('/progresses') >= 0
             ) {
-                config.baseURL = 'http://localhost:4001/api/v1';
+                config.baseURL = 'http://13.229.142.225:4001/api/v1';
             }
 
 
@@ -44,7 +44,7 @@ instance.interceptors.request.use(
                 config.url.indexOf('/forums') >= 0 ||
                 config.url.indexOf('/topicsforum') >= 0
             ) {
-                config.baseURL = 'http://localhost:4001/api/v1';
+                config.baseURL = 'http://13.229.142.225:4001/api/v1';
                 config.headers['Content-Type'] = 'multipart/form-data';
                 config.headers['Accept'] = 'multipart/form-data';
             }
@@ -56,25 +56,25 @@ instance.interceptors.request.use(
                 config.url.indexOf('/combos') >= 0 ||
                 config.url.indexOf('/knowledges') >= 0
             ) {
-                config.baseURL = 'http://localhost:4002/api/v1';
+                config.baseURL = 'http://18.140.5.43:4002/api/v1';
             }
             if (
                 config.url.indexOf('/notification') >= 0
             ) {
-                config.baseURL = 'http://localhost:4003/api/v1';
+                config.baseURL = 'http://13.250.97.182:4003/api/v1';
             }
             if (
                 config.url.indexOf('/test') >= 0 ||
                 config.url.indexOf('/payment') >= 0 ||
                 config.url.indexOf('/cart') >= 0
             ) {
-                config.baseURL = 'http://localhost:4004/api/v1';
+                config.baseURL = 'http://13.250.108.30:4004/api/v1';
             }
             if (
                 config.url.indexOf('/messages') >= 0 ||
                 config.url.indexOf('/groups') >= 0
             ) {
-                config.baseURL = 'http://localhost:4005/api/v1';
+                config.baseURL = 'http://54.169.94.103:4005/api/v1';
             }
         }
 

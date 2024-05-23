@@ -154,7 +154,7 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
                             className="w-full mt-5 p-2 border rounded focus:ring-0 focus:border-primary_border"
                             rows={4}
                         ></textarea> */}
-                        <TinyMceEditorComment value={question.comment} setValue={setValue} position={question.id} link={'http://localhost:4001/api/v1/images/single'} />
+                        <TinyMceEditorComment value={question.comment} setValue={setValue} position={question.id} link={'http://13.229.142.225:4001/api/v1/images/single'} />
                     </div>
                 </div>
             );
@@ -361,7 +361,7 @@ export default function ReviewExam({ params }: { params: { slug: string, id_assi
                                     <h3 className='text-secondary font-bold text-xl'>Nhận xét bài làm</h3>
                                     <div className='mt-5'>
 
-                                        <TinyMceEditorComment value={assignment?.comment} setValue={setValue} position={'comment'} link={'http://localhost:4001/api/v1/images/single'} />
+                                        <TinyMceEditorComment value={assignment?.comment} setValue={setValue} position={'comment'} link={'http://13.229.142.225:4001/api/v1/images/single'} />
                                     </div>
                                     <div className='flex justify-end'>
                                         <button type='submit' onClick={() => setType('draft')} className='mt-5 mr-5 h-[36px] px-[22px] bg-primary shadow-primary_btn_shadow border-primary text-white rounded-md hover:bg-primary_hover'>Lưu bản nháp</button>

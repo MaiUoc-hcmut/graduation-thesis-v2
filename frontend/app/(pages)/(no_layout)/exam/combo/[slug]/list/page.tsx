@@ -11,44 +11,52 @@ import { HeaderLearning } from "@/app/_components/Header/HeaderLearning"
 import SidebarLearning from "@/app/_components/Sidebar/SidebarLearning"
 import courseApi from "@/app/api/courseApi"
 import PaginateButton from "@/app/_components/Paginate/PaginateButton"
+import { HeaderExam } from "@/app/_components/Header/HeaderExam"
+import { useSearchParams } from "next/navigation"
 
 export default function ExamDetail({ params }: { params: { slug: string } }) {
     const [assignments, setAssignments] = useState<any>([])
     const { user } = useAppSelector(state => state.authReducer);
     const initToggle: any = {}
     const [toggle, setToggle] = useState(initToggle)
-
+    const [combos, setCombos] = useState<any>({});
     const [countPaginate, setCountPaginate] = useState(0)
     const [course, setCourse] = useState<any>({})
+    const searchParams = useSearchParams();
+    const [examId, setExamId] = useState<any>(searchParams.get('exam'))
     const [currentPage, setCurrentPage] = useState(1)
+    const [currExam, setCurrExam] = useState<any>({})
+
+
+
 
     useEffect(() => {
         async function fetchData() {
-            if (params.slug)
-                examApi.getAssigmnentByExamId(`${user.id}`, params.slug, currentPage).then((data) => {
+            await examApi.getComboDetail(params.slug).then((data: any) => {
+                setCombos(data.data)
+                setExamId(data.data?.Exams[0]?.id)
+                setCurrExam(data.data?.Exams[0])
+            }
+            ).catch((err: any) => { })
+        }
+        fetchData()
+    }, [params.slug]);
+
+    useEffect(() => {
+        async function fetchData() {
+            if (examId)
+                examApi.getAssigmnentByExamId(`${user.id}`, examId, currentPage).then((data) => {
                     setAssignments(data.data.assignments)
                     setCountPaginate(Math.ceil(data.data.count / 10))
                 })
         }
         fetchData()
-    }, [currentPage, countPaginate, params.slug, user.id]);
+    }, [currentPage, countPaginate, user.id, examId]);
 
 
-
-    useEffect(() => {
-        async function fetchData() {
-            await courseApi.get(params.slug).then((data: any) => {
-                setCourse(data.data)
-            }
-            ).catch((err: any) => { })
-        }
-        fetchData()
-
-
-    }, [params.slug, user?.id]);
     return (
         <div>
-            <HeaderLearning params={params} course={{}} progress={[]} />
+            <HeaderExam params={params} combo={{}} />
             <div className="relative flex w-[calc(100%-373px)] mt-24">
                 <div className='w-full'>
                     <div className='relative flex'>
@@ -65,18 +73,18 @@ export default function ExamDetail({ params }: { params: { slug: string } }) {
                                             />
                                         </div>
                                         <div className="h-28 pr-10">
-                                            <div className='text-[#818894] text-2xl'>Đề thi THPT quốc gia môn toán năm 2022-2023</div>
+                                            <div className='text-[#818894] text-2xl'>{currExam.title}</div>
                                             <div>
                                                 <span className="mr-2">
-                                                    Thời gian: 60 phút
+                                                    Thời gian: {currExam.period} phút
                                                 </span>
                                                 <span>
-                                                    Số câu: 40
+                                                    Số câu: {currExam.quantity_question}
                                                 </span>
 
                                             </div>
                                             <div className='mt-5'>
-                                                <Link href={`/course/learning/${params.slug}/exam/attemp/${params.slug}`} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Làm bài</Link>
+                                                <Link href={`/exam/attemp/${currExam.id}`} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Làm bài</Link>
                                             </div>
                                         </div>
 
@@ -156,77 +164,36 @@ export default function ExamDetail({ params }: { params: { slug: string } }) {
             <>
                 <div className='w-[373px] min-w-[373px] mt-24 h-full fixed right-0 top-0 border-l-[1px] shadow-sm border-[#f1f1f1]'>
                     <div className='text-left text-lg font-bold mx-4 py-2 mt-2 border-b-[1px] border-[#f1f1f1]'>
-                        Nội dung
+                        Danh sách đề thi
                     </div>
                     <div className='overflow-auto h-[400px] sidebar_learning'>
                         <div className=''>
                             <div className='p-4'>
-
-                                {
-                                    course?.chapters?.map((chapter: any) => {
+                                <ul>
+                                    {combos?.Exams?.map((combo: any) => {
                                         return (
-                                            <div key={chapter.id} className='mb-3'>
+                                            <Link onClick={() => { setCurrExam(combo) }} key={combo.id} href={`/exam/combo/${params.slug}/list?exam=${combo.id}`}>
+                                                <li className='bg-white py-2 px-4 rounded-lg mb-2 list-none border-[1px] border-slate-300 hover:bg-slate-100'>
+                                                    <div className={`flex items-center justify-between ${toggle[`open_chapter_${combo.id}`] ? 'pb-2 border-b-[1px] border-slate-200' : ''}`}>
+                                                        <div className="flex justify-between items-center">
+                                                            <div className="">
 
-                                                <div className='border-[1px] border-[#f1f1f1] px-2 py-2 rounded-lg'>
-                                                    <div className={`flex justify-between items-center ${toggle[`open_chapter_${chapter.id}`] ? 'pb-3' : ''}`}>
-                                                        <div className="flex justify-center items-center">
-                                                            <span className="flex justify-center items-center w-10 h-10 min-w-10 min-h-10 bg-primary rounded-full mr-[10px]">
-                                                                <Squares2X2Icon className="w-6 h-6 text-white" />
-                                                            </span>
-                                                            <div>
-                                                                <span className="font-bold text-[rgb(23,19,71)] text-lg">
-                                                                    {chapter.name}
-                                                                </span>
-                                                                <span className="font-normal text-[818894] text-xs flex">
-                                                                    {chapter.topics?.length} chủ đề
-
-                                                                </span>
+                                                                <div className="font-bold text-[rgb(23,19,71)] text-lg text-ellipsis overflow-hidden whitespace-nowrap ">
+                                                                    {combo.title}
+                                                                </div>
+                                                                <div className="font-normal text-[818894] text-xs">
+                                                                    {combo.quantity_question} câu
+                                                                    | {combo.period} phút
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        <div className="ml-5 flex items-center justify-center">
-                                                            {
-                                                                !toggle[`open_chapter_${chapter.id}`] ?
-                                                                    <button type="button" className="mr-[10px] text-[#818894]" onClick={() => {
-                                                                        setToggle({ ...toggle, [`open_chapter_${chapter.id}`]: true })
-                                                                    }}>
-                                                                        <ChevronDownIcon className="w-5 h-5" />
-                                                                    </button>
-                                                                    :
-                                                                    <button type="button" className="mr-[10px] text-[#818894]" onClick={() => {
-                                                                        setToggle({ ...toggle, [`open_chapter_${chapter.id}`]: false })
-                                                                    }}>
-                                                                        <ChevronUpIcon className="w-5 h-5" />
-                                                                    </button>
-                                                            }
-                                                        </div>
                                                     </div>
-                                                    <div className={`${toggle[`open_chapter_${chapter.id}`] ? '' : 'hidden'} border-t-[1px] border-[#f1f1f1] pt-4`}>
-                                                        <div>
-                                                            {
-                                                                chapter.topics.map((topic: any) => {
-
-                                                                    return (
-                                                                        <Link href={`/course/learning/${123}/?exam=${topic.id_exam}`} key={topic.id} className={`${params.slug == topic.id_exam ? 'bg-[#f1f1f1]' : 'bg-white'} px-2 py-2 mb-1 cursor-pointer flex items-center rounded-sm`}>
-                                                                            <span className='mr-3 bg-[#ececec] w-10 h-10 rounded-full flex justify-center items-center'>
-                                                                                <DocumentIcon className='w-4 h-4' />
-                                                                            </span>
-                                                                            <div className='flex flex-col w-2/3'>
-                                                                                <span className='font-medium text-[#171347] text-ellipsis overflow-hidden whitespace-nowrap'>{topic.name}</span>
-                                                                                <span className='text-[#818894] text-xs'>{topic.exam?.quantity_question} câu</span>
-                                                                            </div>
-
-                                                                        </Link>
-                                                                    )
-                                                                })
-                                                            }
-
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                                </li>
+                                            </Link>
                                         )
-                                    })
-                                }
+
+                                    })}
+                                </ul>
                             </div>
                         </div>
                     </div>

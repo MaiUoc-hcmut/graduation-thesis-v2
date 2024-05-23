@@ -307,7 +307,7 @@ export function BasicInfomationForm({
 
 
                             const request = new XMLHttpRequest();
-                            request.open('POST', 'http://localhost:4001/api/v1/images')
+                            request.open('POST', 'http://13.229.142.225:4001/api/v1/images')
 
 
 
@@ -358,7 +358,7 @@ export function BasicInfomationForm({
                                 type: "cover"
                             }));
                             const request = new XMLHttpRequest();
-                            request.open('POST', 'http://localhost:4001/api/v1/images')
+                            request.open('POST', 'http://13.229.142.225:4001/api/v1/images')
 
 
 

@@ -321,7 +321,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                     }} type="text" className="bg-gray-50 border-b border-[#ccc] mb-2 text-gray-900 text-sm rounded-lg block w-full p-2.5" placeholder="Bạn có thắc mắc gì trong bài học này?" />
                                                 </div>
                                                 <div className={`${toggle[`edit-cmt`] ? '' : 'hidden'}`}>
-                                                    <TinyMceEditorComment value={content} setValue={setValue} position={'content'} editorRef={editorRef} link={'http://localhost:4001/api/v1/images/single'} />
+                                                    <TinyMceEditorComment value={content} setValue={setValue} position={'content'} editorRef={editorRef} link={'http://13.229.142.225:4001/api/v1/images/single'} />
                                                 </div>
                                                 <div className='flex justify-end mt-4'>
                                                     <button type="button" className="py-2.5 px-5 mr-2 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-gray-200" onClick={() => (setToggle({ ...toggle, [`edit-cmt`]: false }))}>Hủy</button>
@@ -444,7 +444,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                             }
                                                         })}>
 
-                                                            <TinyMceEditorComment value={getValues()[cmt.id]} setValue={setValue} position={`${cmt.id}`} link={'http://localhost:4001/api/v1/images/single'} />
+                                                            <TinyMceEditorComment value={getValues()[cmt.id]} setValue={setValue} position={`${cmt.id}`} link={'http://13.229.142.225:4001/api/v1/images/single'} />
                                                             <div className='flex justify-end mt-4'>
                                                                 <button type="button" className="py-2.5 px-5 mr-2 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-gray-200" onClick={() => (setToggle({ ...toggle, [`form${cmt.id}`]: false }))}>Hủy</button>
                                                                 <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-2 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Bình luận</button>
