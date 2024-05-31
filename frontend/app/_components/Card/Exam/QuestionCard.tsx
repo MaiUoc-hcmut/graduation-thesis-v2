@@ -16,6 +16,7 @@ import { useState } from "react";
 import Image from "next/image";
 import parse from 'html-react-parser';
 import CustomCKEditor from "../../Editor/CKEditor";
+import Select from 'react-select'
 
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
 
@@ -58,7 +59,7 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
                             }
                             setChange(!change)
                             setValue(`questions.${indexQuestion}.modify`, "change")
-                            setValue(`questions.${indexQuestion}.knowledges`, [getValues()?.questions[indexQuestion]?.knowledges])
+
                             setModal({ ...modal, [`edit_question_${question.id}`]: false })
                         }, (errors: any) => {
                             const hasCorrectAnswer = getValues().questions[indexQuestion].answers.some((answer: any) => answer.is_correct);
@@ -107,7 +108,7 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
 
 
                                                 const request = new XMLHttpRequest();
-                                                request.open('POST', 'http://18.140.5.43:4002/api/v1/images')
+                                                request.open('POST', `${process.env.NEXT_PUBLIC_BASE_URL_EXAM_LOCAL}/images`)
 
 
                                                 request.upload.onprogress = (e) => {
@@ -184,7 +185,7 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
 
 
                                                 const request = new XMLHttpRequest();
-                                                request.open('POST', 'http://18.140.5.43:4002/api/v1/images')
+                                                request.open('POST', `${process.env.NEXT_PUBLIC_BASE_URL_EXAM_LOCAL}/images`)
 
 
 
@@ -237,7 +238,7 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
                                     </div>
 
                                 </div>
-                                <div className="mb-5 w-1/2">
+                                <div className="mb-5">
                                     <label
                                         htmlFor="grade"
                                         className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
@@ -248,16 +249,12 @@ export const QuestionCard = ({ hanldeForm, indexQuestion, provided, question, re
                                         control={control}
                                         name={`questions.${indexQuestion}.knowledges`}
                                         rules={{ required: "Danh mục kiến thức không thể trống" }}
-                                        render={({ field }) => (
-                                            <select {...field} className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                                <option value="" defaultChecked>Chọn danh mục kiến thức</option>
 
-                                                {knowledges?.map((knowledge: any, index: any) => {
-                                                    return (
-                                                        <option key={index} value={`${knowledge.id}`}>{knowledge.name}</option>
-                                                    )
-                                                })}
-                                            </select>
+                                        render={({ field }) => (
+                                            <Select {...field} value={field.value}
+                                                className="z-50" isMulti={true} options={knowledges?.map((knowledge: any) => {
+                                                    return { value: knowledge.id, label: knowledge.name }
+                                                })} />
                                         )} />
                                     <p className="mt-2 text-sm text-red-600 dark:text-red-500">
                                         {errors?.questions?.[indexQuestion]?.knowledge?.message}

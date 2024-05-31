@@ -26,7 +26,7 @@ export function ContentForm({
         setValue,
         formState: { errors },
     } = handleForm
-    const [chaptersData, setChaptersData] = useState(data?.chapters ? data.chapters.filter((chapter: any) => chapter.modify != "delete") : [])
+    const [chaptersData, setChaptersData] = useState(data?.chapters ? data.chapters?.filter((chapter: any) => chapter.modify != "delete") : [])
 
     useEffect(() => {
         setChaptersData(data?.chapters ? data.chapters?.filter((chapter: any) => chapter.modify != "delete") : [])
@@ -47,7 +47,6 @@ export function ContentForm({
         return result;
     };
 
-    console.log(errors, getValues());
 
     return (
         <div className="mb-10">

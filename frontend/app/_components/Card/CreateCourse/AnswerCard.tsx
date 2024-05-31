@@ -3,10 +3,18 @@ import { Label, TextInput } from 'flowbite-react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import uuid from "react-uuid";
 import CustomCKEditor from "../../Editor/CKEditor";
+import { FilePond, registerPlugin } from 'react-filepond'
+import 'filepond/dist/filepond.min.css'
+import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation'
+import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
+import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
+import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
+import { useEffect, useState } from "react";
+import Image from "next/image";
+registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
 
-
-export const AnswerCard = ({ indexChapter, indexTopic, hanldeForm, indexQuestion, setModal, modal, topic, quesiton }: any) => {
-
+export const AnswerCard = ({ indexChapter, indexTopic, hanldeForm, indexQuestion, setModal, modal, topic, quesiton, setImage, image }: any) => {
+    const [files, setFiles] = useState([])
     const {
         register,
         control,
@@ -44,19 +52,76 @@ export const AnswerCard = ({ indexChapter, indexTopic, hanldeForm, indexQuestion
                                 <div className="mb-2 block">
                                     <Label htmlFor="title" value="Nội dung câu trả lời" />
                                 </div>
-                                {/* <CustomCKEditor className="h-50" setValue={setValue} value={getValues().chapters[indexChapter].topics[indexTopic].questions[indexQuestion].answers[indexAnswer].content_text} position={`chapters.${indexChapter}.topics.${indexTopic}.questions.${indexQuestion}.answers.${indexAnswer}.content_text`} /> */}
+                                <CustomCKEditor className="h-50" setValue={setValue} value={getValues().chapters[indexChapter].topics[indexTopic].questions[indexQuestion].answers[indexAnswer].content_text} position={`chapters.${indexChapter}.topics.${indexTopic}.questions.${indexQuestion}.answers.${indexAnswer}.content_text`} />
                                 <div className="mt-2 text-sm text-red-600 dark:text-red-500">
                                     {errors?.chapters?.[indexChapter]?.topics?.[indexTopic]?.questions?.[indexQuestion]?.answers?.[indexAnswer]?.content_text?.message}
                                 </div>
                             </div>
-                            <div className='flex justify-between items-end mb-2'>
-                                <div className='w-2/3'>
-                                    <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white" htmlFor="small_size">Câu trả lời hình ảnh (tùy chọn)</label>
-                                    <input className="block w-full text-xs text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="small_size" type="file" />
+                            <div className="mb-5">
+                                <div className="mb-2 block">
+                                    <Label htmlFor="email" value="Ảnh (tùy chọn)" />
                                 </div>
-                                <div className="flex-1 flex items-center justify-end">
+
+                                <FilePond
+                                    files={files}
+                                    onupdatefiles={() => setFiles}
+                                    acceptedFileTypes={['image/*']}
+                                    server={{
+                                        process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
+                                            const formData = new FormData();
+                                            formData.append(fieldName, file, file.name);
+                                            formData.append('data', JSON.stringify({
+                                                id_answer: getValues().questions[indexQuestion]?.answers[indexAnswer]?.id,
+                                                type: "answer"
+                                            }));
+
+
+                                            const request = new XMLHttpRequest();
+                                            request.open('POST', `${process.env.NEXT_PUBLIC_BASE_URL_EXAM_LOCAL}/images`)
+
+
+
+                                            request.upload.onprogress = (e) => {
+                                                progress(e.lengthComputable, e.loaded, e.total);
+                                            };
+
+                                            request.onload = function () {
+                                                if (request.status >= 200 && request.status < 300) {
+                                                    setImage({ ...image, [`${getValues().chapters?.[indexChapter].topics?.[indexTopic].questions[indexQuestion]?.answers[indexAnswer]?.id}`]: JSON.parse(request.response).url });
+                                                    // the load method accepts either a string (id) or an object
+                                                    load(request.responseText);
+                                                } else {
+                                                    // Can call the error method if something is wrong, should exit after
+                                                    error('oh no');
+                                                }
+                                            };
+                                            request.send(formData)
+
+                                        }
+                                    }
+                                    }
+
+                                    name="image"
+                                    labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
+                                />
+                                {/* {
+                                    getValues().questions[indexQuestion]?.answers[indexAnswer].content_image || image?.[`${getValues().questions[indexQuestion]?.answers[indexAnswer]?.id}`] ? <div className="w-full h-[240px] relative">
+                                        <Image
+                                            src={`${image[`${getValues().questions[indexQuestion]?.answers[indexAnswer]?.id}`] || getValues().questions[indexQuestion]?.answers[indexAnswer].content_image} `}
+                                            fill={true}
+                                            className='w-full h-full absolute top-0 left-0 overflow-hidden object-cover object-center'
+                                            alt="logo"
+                                        />
+                                    </div>
+                                        : null
+                                } */}
+                            </div>
+
+                            <div className=' mb-2'>
+                                <div className="flex-1 flex items-center ">
+                                    <input {...register(`chapters.${indexChapter}.topics.${indexTopic}.questions.${indexQuestion}.answers.${indexAnswer}.is_correct`)}
+                                        id="default-checkbox" type="checkbox" className="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
                                     <label htmlFor="default-checkbox" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300 mr-2">Câu trả lời đúng</label>
-                                    <input  {...register(`chapters.${indexChapter}.topics.${indexTopic}.questions.${indexQuestion}.answers.${indexAnswer}.is_correct`)} id="default-checkbox" type="checkbox" className="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
                                 </div>
                             </div>
                             <button onClick={() => removeAnswer(indexAnswer)} className='w-8 h-8 flex justify-center items-center rounded-full bg-[#f63c3c] absolute right-2 top-[-16px]'>

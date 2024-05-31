@@ -264,7 +264,7 @@ export default function CreateNotify() {
                     </div>
                 </form>
             </div>
-            <div>
+            {/* <div>
                 <h2 className="text-[#171347] font-bold section-title text-lg flex items-center after:content-[''] after:flex after:grow after:shrink after:basis-4 after:h-[2px] after:ml-[10px] after:bg-[#f1f1f1] mb-5 mt-8">Thông báo đã gửi</h2>
                 {
                     notifycations?.map((notify: any, index: any) => {
@@ -296,7 +296,7 @@ export default function CreateNotify() {
                 }
 
                 <Paginate countPaginate={countPaginate} currentPage={page} />
-            </div>
+            </div> */}
 
         </div >
     )

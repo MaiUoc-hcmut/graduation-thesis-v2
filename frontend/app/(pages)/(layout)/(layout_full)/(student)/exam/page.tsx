@@ -19,13 +19,13 @@ function classNames(...classes: any) {
 
 
 
-export default function CourseList() {
-    const [courses, setCourses] = useState<any[]>([]);
-    const [category, setCategory] = useState<any[]>([]);
+export default function ComboList() {
+    const [combos, setCombos] = useState<any>([]);
+    const [category, setCategory] = useState<any>([]);
     const searchParams = useSearchParams();
-    const subjectFilters = searchParams.getAll('subject');
-    const levelFilters = searchParams.getAll('level');
-    const classFilters = searchParams.getAll('class');
+    const subjectFilters = searchParams.getAll('subject') || [];
+    const levelFilters = searchParams.getAll('level') || [];
+    const classFilters = searchParams.getAll('class') || [];
     const priceFilters = searchParams.get('maxPrice');
     const sortFilters = searchParams.get('sort');
     const orderFilters = searchParams.get('order');
@@ -54,15 +54,15 @@ export default function CourseList() {
         async function fetchData() {
             let filterString = ''
             subjectFilters?.map((s) => { filterString += `subject=${s}&` })
-            levelFilters?.map((l) => { filterString += `&level=${l}&` })
-            classFilters?.map((c) => { filterString += `&class=${c}&` })
-            priceFilters ? filterString += `&minPrice=0&maxPrice=${priceFilters}` : null
+            levelFilters?.map((l) => { filterString += `level=${l}&` })
+            classFilters?.map((c) => { filterString += `class=${c}&` })
+            priceFilters ? filterString += `minPrice=0&maxPrice=${priceFilters}` : null
 
-            sortFilters && orderFilters ? filterString += `&sort=${sortFilters}&order=${orderFilters}` : null
+            sortFilters && orderFilters ? filterString += `sort=${sortFilters}&order=${orderFilters}` : null
 
 
-            await examApi.getComboExam(`${authUser.id}`, page).then((data: any) => {
-                setCourses(data.data.combos)
+            await examApi.getAllCombo(page, filterString).then((data: any) => {
+                setCombos(data.data.combos)
                 setCountPaginate(Math.ceil(data.data.count / 10))
             }).catch((err: any) => { })
             await categoryApi.getAll().then((data: any) => {
@@ -232,13 +232,13 @@ export default function CourseList() {
                             <div className="lg:col-span-3 flex-1">
                                 <div className='grid grid-cols-2 gap-x-8 gap-y-8 mt-2'>
                                     {
-                                        courses?.map((course: any) => {
+                                        combos?.map((combo: any) => {
                                             return (
-                                                <Link key={course.id} href={`exam/combo/${course.id}`} className=''>
+                                                <Link key={combo.id} href={`exam/combo/${combo.id}`} className=''>
                                                     <div className='bg-white shadow-md rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300 border-[1px] border-slate-200'>
                                                         <div className='relative w-full h-60'>
                                                             <Image
-                                                                src={`${course.thumbnail}`}
+                                                                src={`${combo.thumbnail ? combo.thumbnail : ''}`}
                                                                 fill
                                                                 className='rounded-tl-2xl rounded-tr-2xl overflow-hidden object-cover object-center'
                                                                 alt="logo"
@@ -248,7 +248,7 @@ export default function CourseList() {
                                                             <div className='flex items-center'>
                                                                 <div className='mr-2 w-10 h-10 max-h-10 max-w-10 rounded-full relative'>
                                                                     <Image
-                                                                        src='/images/avatar-teacher.png'
+                                                                        src={`${combo.teacher?.avatar ? combo.teacher.avatar : '/images/avatar-teacher.png'}`}
                                                                         width={40}
                                                                         height={40}
                                                                         className='rounded-full overflow-hidden object-cover object-center'
@@ -256,50 +256,67 @@ export default function CourseList() {
                                                                     />
                                                                 </div>
                                                                 <div>
-                                                                    <p className='font-medium text-[#818894]'>{course.user?.name}</p>
+                                                                    <p className='font-medium text-[#818894]'>{combo.teacher.name}</p>
                                                                 </div>
                                                             </div>
                                                             <h3 className="overflow-hidden text-[#17134] mt-4 h-8 font-bold">
-                                                                {course.name}
+                                                                {combo.name}
                                                             </h3>
                                                             <div className="flex items-center">
-                                                                {renderStars(Math.floor(course?.average_rating))}
-                                                                <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{course?.average_rating.toFixed(1)}</span>
+                                                                {renderStars(Math.floor(combo?.average_rating))}
+                                                                <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{combo?.average_rating.toFixed(1)}</span>
                                                             </div>
                                                             <div className='mt-2'>
-                                                                Số người đã mua: {course?.registrations}
+                                                                Số người đã mua: {combo?.total_registration}
                                                             </div>
-                                                            {/* <div className='grid grid-cols-2 mt-4'>
-                                                                <div className='flex items-center'>
-                                                                    <span className='mr-1'>Lớp:</span>
-                                                                    <p className='font-semibold'>{course?.Categories[0]?.Class}</p>
-                                                                </div>
-                                                                <div className='flex items-center'>
-                                                                    <span className='mr-1'>Môn học:</span>
-                                                                    <p className='font-semibold'>{course?.Categories[1]?.Subject}</p>
-                                                                </div>
-                                                                <div className='flex items-center'>
-                                                                    <span className='mr-1'>Mức độ:</span>
-                                                                    <p className='font-semibold'>{course?.Categories[2]?.Level}</p>
-                                                                </div>
-                                                            </div> */}
+                                                            <div className='grid grid-cols-2 mt-4'>
+
+
+                                                                {
+                                                                    combo?.Categories?.map((category: any, index: number) => {
+                                                                        if (category.Class) {
+                                                                            return (
+                                                                                <div key={category.id} className='flex items-center'>
+                                                                                    <span className='mr-1'>Lớp:</span>
+                                                                                    <p className='font-semibold'>{category?.Class}</p>
+                                                                                </div>
+                                                                            )
+                                                                        }
+                                                                        else if (category.Subject) {
+                                                                            return (
+                                                                                <div key={category.id} className='flex items-center'>
+                                                                                    <span className='mr-1'>Môn học:</span>
+                                                                                    <p className='font-semibold'>{category?.Subject}</p>
+                                                                                </div>
+                                                                            )
+                                                                        } else {
+                                                                            return (
+                                                                                <div key={category.id} className='flex items-center'>
+                                                                                    <span className='mr-1'>Mức độ:</span>
+                                                                                    <p className='font-semibold'>{category?.Level}</p>
+                                                                                </div>
+                                                                            )
+                                                                        }
+                                                                    })
+                                                                }
+                                                            </div>
                                                             <div className='mt-4 grid grid-cols-2 gap-2'>
                                                                 <div className='flex items-center'>
                                                                     <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-semibold text-sm'>{course?.chapters?.length} đề thi</span>
+                                                                    <span className='text-[#171347] font-semibold text-sm'>{combo?.exam_quantity} đề thi</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
                                                                     <QuestionMarkCircleIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-semibold text-sm'>{course?.total_lecture} câu hỏi</span>
+                                                                    <span className='text-[#171347] font-semibold text-sm'>{combo?.question_quantity} câu hỏi</span>
                                                                 </div>
-                                                                <div className='flex items-center'>
+                                                                {/* <div className='flex items-center'>
                                                                     <ClipboardDocumentIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-semibold text-sm'>{course?.total_exam} dạng</span>
-                                                                </div>
+                                                                    <span className='text-[#171347] font-semibold text-sm'>{combo?.total_exam} dạng</span>
+                                                                </div> */}
 
                                                             </div>
                                                             <div className='mt-6'>
-                                                                <span className='text-xl text-primary font-extrabold'>{formatCash(`${course.price}`)} VNĐ</span>
+                                                                <span className='text-xl text-primary font-extrabold'>{formatCash(`${combo.price}`)} VNĐ</span>
                                                             </div>
                                                         </div>
                                                     </div>

@@ -18,16 +18,11 @@ export default function CheckoutResultPage() {
 
     useEffect(() => {
         async function fetchData() {
-            await paymentApi.getCartOfStudent().then(async (data: any) => {
-                await paymentApi.sendInfoTransaction({
-                    data: {
-                        "user": user.id,
-                        "courses": data.data.map((course: any) => course.id),
-                        ...info
-                    }
-                }).catch((err: any) => {})
-            }
-            )
+            await paymentApi.sendInfoTransaction({
+                data: {
+                    ...info
+                }
+            }).catch((err: any) => { })
 
         }
         fetchData()

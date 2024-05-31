@@ -1,5 +1,6 @@
 import axiosConfig from "@/redux/axios.config"
 import { changePassword } from "@/redux/features/teacherSlice";
+require('dotenv').config();
 
 const userApi = {
     // admin
@@ -29,14 +30,14 @@ const userApi = {
     getReviewOfTeacher: (id: string, page: number) => {
         const url = `/reviews/teacher/${id}/page/${page}`;
         return axiosConfig.get(url, {
-            baseURL: 'http://18.143.75.75:4000/api/v1'
+            baseURL: `${process.env.NEXT_PUBLIC_BASE_URL_LOCAL}`
         });
     },
     createReviewTeacher: async (data: object) => {
         const url = `/reviews`;
 
         await axiosConfig.post(url, data, {
-            baseURL: 'http://18.143.75.75:4000/api/v1'
+            baseURL: `${process.env.NEXT_PUBLIC_BASE_URL_LOCAL}`
         });
         return
     },

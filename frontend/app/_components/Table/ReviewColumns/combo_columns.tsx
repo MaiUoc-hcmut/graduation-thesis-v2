@@ -3,11 +3,12 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowsUpDownIcon } from "@heroicons/react/24/outline"
 import { ReactNode } from "react"
+import { renderOnlyStar } from "@/app/helper/RenderFunction"
 import { convertToVietnamTime } from "@/app/helper/FormatFunction"
 
 export const columns: ColumnDef<any>[] = [
     {
-        accessorKey: "student.name",
+        accessorKey: "user.name",
         header: ({ column }) => {
             return (
                 <button
@@ -21,14 +22,14 @@ export const columns: ColumnDef<any>[] = [
         },
     },
     {
-        accessorKey: "student.email",
+        accessorKey: "combo_name",
         header: ({ column }) => {
             return (
                 <button
                     className="flex justify-center items-center font-semibold"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Email
+                    Tên combo
                     <ArrowsUpDownIcon className="ml-2 h-4 w-4" />
                 </button>
             )
@@ -36,79 +37,49 @@ export const columns: ColumnDef<any>[] = [
     },
 
     {
-        accessorKey: "item.name",
+        accessorKey: "content",
+        header: ({ column }) => {
+            return (
+                <div className=" font-semibold">Nội dung</div>
+            )
+        },
+    },
+    {
+        accessorKey: "rating",
         header: ({ column }) => {
             return (
                 <button
                     className="flex justify-center items-center  font-semibold"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Mặt hàng
+                    Đánh giá
                     <ArrowsUpDownIcon className="ml-2 h-4 w-4" />
                 </button>
             )
         },
         cell: ({ cell }) => {
-            if (cell.row.original.item.delete)
-                return (
-                    <span className="font-medium">Mặt hàng đã bị xóa</span>
-                )
-            else
-                return (
-                    <span>{cell.getValue() as ReactNode}</span>
-                )
+            return (
+                renderOnlyStar(Number(cell.getValue() || 0))
+            )
         },
     },
     {
-        accessorKey: "type",
+        accessorKey: "updatedAt",
         header: ({ column }) => {
             return (
                 <button
                     className="flex justify-center items-center  font-semibold"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Loại giao dịch
+                    Thời gian tạo
                     <ArrowsUpDownIcon className="ml-2 h-4 w-4" />
                 </button>
             )
         },
         cell: ({ cell }) => {
             return (
-                <span>Momo</span>
+                convertToVietnamTime(cell.getValue() as string)
             )
-        },
-    },
-    {
-        accessorKey: "createdAt",
-        header: ({ column }) => {
-            return (
-                <button
-                    className="flex justify-center items-center  font-semibold"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Thời gian
-                    <ArrowsUpDownIcon className="ml-2 h-4 w-4" />
-                </button>
-            )
-        },
-        cell: ({ cell }) => {
-            return (
-                <span>{convertToVietnamTime(cell.getValue() as string)}</span>
-            )
-        },
-    },
-    {
-        accessorKey: "status",
-        header: ({ column }) => {
-            return (
-                <div className=" font-semibold">Trạng thái</div>
-            )
-        },
-        cell: ({ cell }) => {
-            if (cell.row.original.course?.status == "paid")
-                return <span className="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Thành công</span>
-            else
-                return <span className="bg-red-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">Thất bại</span>
         },
     },
 ]

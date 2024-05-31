@@ -1,4 +1,5 @@
 import axiosConfig from "@/redux/axios.config"
+require('dotenv').config();
 
 const courseApi = {
     // admin
@@ -72,7 +73,7 @@ const courseApi = {
         const url = `/reviews`;
 
         await axiosConfig.post(url, data, {
-            baseURL: 'http://13.229.142.225:4001/api/v1'
+            baseURL: `${process.env.NEXT_PUBLIC_BASE_URL_COURSE_LOCAL}`
         });
         return
     },
@@ -80,21 +81,21 @@ const courseApi = {
     getReview: (id: string, page: number) => {
         const url = `/reviews/course/${id}/page/${page}`;
         return axiosConfig.get(url, {
-            baseURL: 'http://13.229.142.225:4001/api/v1'
+            baseURL: `${process.env.NEXT_PUBLIC_BASE_URL_COURSE_LOCAL}`
         });
     },
 
     getAllReview: (id_teacher: string) => {
         const url = `/reviews/teacher/${id_teacher}`;
         return axiosConfig.get(url, {
-            baseURL: 'http://13.229.142.225:4001/api/v1'
+            baseURL: `${process.env.NEXT_PUBLIC_BASE_URL_COURSE_LOCAL}`
         });
     },
 
     getAllReviewAdmin: (page: string) => {
         const url = `/reviews`;
         return axiosConfig.get(url, {
-            baseURL: 'http://13.229.142.225:4001/api/v1'
+            baseURL: `${process.env.NEXT_PUBLIC_BASE_URL_COURSE_LOCAL}`
         });
     },
 

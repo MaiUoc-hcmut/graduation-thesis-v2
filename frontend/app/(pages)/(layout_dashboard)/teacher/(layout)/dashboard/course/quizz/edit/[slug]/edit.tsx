@@ -38,6 +38,7 @@ type ExamData = {
     level: string,
     subject: string,
     questions: Array<QuestionData>
+    pass_score: number
 }
 
 type QuestionData = {
@@ -208,7 +209,7 @@ export default function EditExam({ id, exam }: any) {
 
 
                                                         const request = new XMLHttpRequest();
-                                                        request.open('POST', 'http://18.140.5.43:4002/api/v1/images')
+                                                        request.open('POST', `${process.env.NEXT_PUBLIC_BASE_URL_COURSE_LOCAL}/images`)
 
 
 
@@ -360,7 +361,32 @@ export default function EditExam({ id, exam }: any) {
                                         {errors.period?.message}
                                     </p>
                                 </div>
+                                <div className="mb-5 w-1/3">
+                                    <label
+                                        className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                    >
+                                        Điểm hoàn thành
+                                    </label>
+                                    <input
+                                        {...register(`pass_score`, {
+                                            required: "Điểm hoàn thành không thể thiếu",
+                                            min: {
+                                                value: 0,
+                                                message: "Điểm hoàn thành không thể nhỏ hơn 0"
+                                            },
+                                            max: {
+                                                value: 10,
+                                                message: "Điểm hoàn thành không thể lớn hơn 10"
+                                            }
+                                        })}
+                                        type="number"
+                                        className={`bg-white border-[1px] border-[#ececec] text-[#343434] text-sm focus: ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
+                                    />
 
+                                    <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                        {errors.pass_score?.message}
+                                    </p>
+                                </div>
 
                                 <div className="mb-5 w-full">
                                     <div

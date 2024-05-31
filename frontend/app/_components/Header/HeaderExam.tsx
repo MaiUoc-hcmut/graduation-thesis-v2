@@ -21,7 +21,7 @@ export function HeaderExam({ combo, params }: any) {
                     </Link>
                 </div>
                 <div className='flex justify-center items-center ml-10 text-2xl text-secondary font-semibold'>
-                    Combo đề thi
+                    {combo?.name}
                 </div>
             </div>
 

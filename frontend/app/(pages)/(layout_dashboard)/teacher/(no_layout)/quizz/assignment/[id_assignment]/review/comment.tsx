@@ -9,15 +9,33 @@ import { XMarkIcon, ChevronLeftIcon, CheckIcon } from '@heroicons/react/24/outli
 import examApi from '@/app/api/examApi';
 import { useForm } from 'react-hook-form';
 import { convertToHourMinuteSecond, convertToVietnamTime } from '@/app/helper/FormatFunction';
+import { useRouter, useSearchParams } from 'next/navigation';
+import TinyMceEditorComment from '@/app/_components/Editor/TinyMceEditorComment';
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 
+const MySwal = withReactContent(Swal)
 
-export default function ResultExam({ params }: { params: { slug: string, id_assignment: string } }) {
+export default function CommentAssignment({ params, assignment, details }: { params: { slug: string, id_assignment: string }, assignment: any, details: any }) {
+    const router = useRouter()
     const [open, setOpen] = useState(false);
-    const [assignment, setAssignment] = useState<any>({})
-    const [details, setDetails] = useState<any>([])
     const [openSidebar, setOpenSideBar] = useState(true);
     const alphabet = ['A', 'B', 'C', 'D', 'E', 'F'];
     const [toggle, setToggle] = useState<any>({})
+    const [type, setType] = useState('comment')
+    const searchParams = useSearchParams()
+    const typeAss = searchParams.get('type') || 'exam'
+
+    const comments = assignment?.details?.reduce((acc: any, question: any) => {
+        if (question.comment) {
+            acc[question.id_question] = question.comment;
+        }
+        if (question.draft) {
+            acc[question.id_question] = question.draft;
+        }
+        return acc;
+    }, {});
+
     const {
         register,
         reset,
@@ -25,21 +43,13 @@ export default function ResultExam({ params }: { params: { slug: string, id_assi
         setValue,
         handleSubmit,
         formState: { errors },
-    } = useForm()
-    useEffect(() => {
-        async function fetchData() {
-            examApi.getDetailAssigmnent(params.id_assignment).then((data) => {
-                setAssignment(data.data)
-                setDetails(data.data.details.sort((a: any, b: any) => a.order - b.order).map((detail: any) => {
-                    return {
-                        ...detail,
-                        Answers: detail.Answers.sort((a: any, b: any) => a.selected_answer.order - b.selected_answer.order)
-                    };
-                }));
-            })
+    } = useForm({
+        defaultValues: {
+            comment: assignment?.comment || assignment?.draft,
+            ...comments,
         }
-        fetchData()
-    }, [params.id_assignment]);
+    }
+    )
 
 
     let listQuestion;
@@ -143,12 +153,26 @@ export default function ResultExam({ params }: { params: { slug: string, id_assi
                             })}
                         </div>
                     </div>
+                    <div className='flex justify-end text-sm'>
+                        <button className='underline' type="button" onClick={() => setToggle({ ...toggle, [`form-${question.id_question}`]: !toggle[`form-${question.id_question}`] })}>
+                            Thêm nhận xét
+                        </button>
+                    </div>
+                    <div className={`${question?.comment != '' ? '' : 'hidden'} mt-5`}>
+                        <h3 className='text-secondary font-bold'>Bản chính</h3>
+                        <div className='border-slate-300 border-[1px] p-4 rounded-lg mt-2'>
+                            {parse(question?.comment || '')}
+                        </div>
+                    </div>
+                    <div className={`${toggle[`form-${question.id_question}`] || question.comment != '' || question.draft != '' ? '' : 'hidden'} mt-5`}>
 
-                    {/* 123 */}
+                        <TinyMceEditorComment value={question.draft || question.comment} setValue={setValue} position={question.id} link={`${process.env.NEXT_PUBLIC_BASE_URL_COURSE_LOCAL}/images/single`} />
+                    </div>
                 </div>
             );
         });
         listNumber = details?.map((question: any, index: number) => {
+
             if (!question.is_correct) {
                 return (
                     <Link
@@ -210,7 +234,7 @@ export default function ResultExam({ params }: { params: { slug: string, id_assi
                                     boxShadow: '1px 2px 4px 0px #00000040 -1px -2px 4px 0px #00000040 inset',
                                 }}
                             >
-                                {assignment?.score.toFixed(1)}
+                                {(assignment?.score || 0).toFixed(1)}
                             </div>
                             <div className="flex">
                                 <div className="flex flex-col justify-between mr-4">
@@ -232,23 +256,163 @@ export default function ResultExam({ params }: { params: { slug: string, id_assi
                             </div>
 
                         </div>
+                        {
+                            typeAss === "exam" ?
+                                <div className='mt-5 mx-5'>
+                                    <h3 className='font-semibold text-lg'>Phân tích chi tiết</h3>
+                                    <div className="mt-5 overflow-x-auto shadow-md sm:rounded-lg">
+                                        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                                            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                                <tr>
+                                                    <th scope="col" className="px-6 py-3">
+                                                        Dạng kiến thức
+                                                    </th>
+                                                    <th scope="col" className="px-6 py-3">
+                                                        Đúng
+                                                    </th>
+                                                    <th scope="col" className="px-6 py-3">
+                                                        Sai
+                                                    </th>
+                                                    <th scope="col" className="px-6 py-3">
+                                                        Danh sách câu hỏi
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {
+                                                    assignment?.classification?.map((item: any, index: number) => {
+                                                        return (
+                                                            <tr key={`${index}-cla`} className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
+                                                                <th
+                                                                    scope="row"
+                                                                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                                                                >
+                                                                    {item.name != 'other' ? item.name : 'Khác'}
+                                                                </th>
+                                                                <td className="px-6 py-4 w-1/12">{item.right_answer}</td>
+                                                                <td className="px-6 py-4 w-1/12">{item.wrong_answer}</td>
+                                                                <td className="px-6 py-4">
+                                                                    {
+                                                                        item.questions?.map((question: any, index: number) => {
+                                                                            if (!question.is_correct) {
+                                                                                return (
+                                                                                    <Link
+                                                                                        href={`#question${question.order}`}
+                                                                                        key={`${index}-question`}
+                                                                                        className="p-2 w-10 h-10 rounded-xl flex justify-center items-center font-normal text-[#E44848]"
+                                                                                        style={{
+                                                                                            boxShadow: '0px 1px 4px 0px rgba(207, 56, 56, 0.25) -1px -1px 4px 0px rgba(207, 56, 56, 0.36) inset 1px 1px 4px 0px rgba(207, 56, 56, 0.32 inset',
+                                                                                            backgroundColor: 'rgba(228, 72, 72, 0.15)',
+                                                                                            textDecoration: 'none',
+                                                                                        }}
+                                                                                    >
+                                                                                        {question.order}
+                                                                                    </Link>
+                                                                                );
+                                                                            }
+                                                                            else {
+                                                                                return (
+                                                                                    <Link
+                                                                                        href={`#question${question.order}`}
+                                                                                        key={`${index}-question`}
+                                                                                        className="p-2 w-10 h-10 rounded-xl flex justify-center items-center font-normal text-[#2FD790]"
+                                                                                        style={{
+                                                                                            background: 'rgba(47, 215, 144, 0.15)',
+                                                                                            boxShadow: '1px 1px 2px 0px #2FD79040 1px 1px 3px 0px #2FD7905C inset -1px -1px 2px 0px #2FD79052 inset',
+                                                                                            textDecoration: 'none',
+                                                                                        }}
+                                                                                    >
+                                                                                        {question.order}
+                                                                                    </Link>
+                                                                                );
+                                                                            }
+                                                                        })
+                                                                    }
+                                                                </td>
+                                                            </tr>
+                                                        )
+                                                    })
+                                                }
+
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div> : null
+                        }
 
 
                         <div className='bg-white rounded-xl py-3 px-6 mt-4' style={{
                             boxShadow: '0px 0px 4px 0px #00000040 mt-10',
                         }}>
                             <div className="text-lg text-[#000] font-semibold">Đáp án</div>
-                            <div className='mt-2'>{listQuestion}
-                                <div className='mt-2'>{listQuestion}
+                            <form onSubmit={handleSubmit(async (data: any) => {
+
+                                const detail_questions = []
+
+                                for (const key in data) {
+                                    if (data.hasOwnProperty(key) && key !== 'comment') {
+                                        detail_questions.push({
+                                            id: key,
+                                            comment: data[key]
+                                        });
+                                    }
+                                }
+
+                                const formData = {
+                                    data: {
+                                        comment: data.comment || "",
+                                        type: type,
+                                        detail_questions: detail_questions
+                                    }
+                                }
+                                MySwal.fire({
+                                    title: <p className='text-lg'>Đang xử lý</p>,
+                                    didOpen: async () => {
+                                        MySwal.showLoading()
+                                        await examApi.commentAssigmnent(params.id_assignment, formData)
+                                            .then(() => {
+                                                MySwal.fire({
+                                                    title: <p className="text-2xl">Đánh giá thành công</p>,
+                                                    icon: 'success',
+                                                    showConfirmButton: false,
+                                                    timer: 1000
+                                                })
+                                                router.push(`/teacher/dashboard/course/quizz/${assignment?.id_exam}/assignment`)
+                                            }).catch((err: any) => {
+                                                MySwal.fire({
+                                                    title: <p className="text-2xl">Đánh giá thất bại</p>,
+                                                    icon: 'error',
+                                                    showConfirmButton: false,
+                                                    timer: 1000
+                                                })
+                                            })
+                                    },
+                                })
+
+
+
+                            })} className='mt-2'>{listQuestion}
+                                <div className='mt-5'>
+                                    <h3 className='text-secondary font-bold text-xl'>Nhận xét bài làm</h3>
                                     <div className={`${assignment?.comment != '' ? '' : 'hidden'} mt-5`}>
-                                        <h3 className='text-secondary font-bold text-xl'>Nhận xét của giáo viên</h3>
+                                        <h3 className='text-secondary font-bold text-lg'>Bản chính</h3>
                                         <div className='border-slate-300 border-[1px] p-4 rounded-lg mt-2'>
                                             {parse(assignment?.comment || '')}
                                         </div>
                                     </div>
+                                    <div className='mt-5'>
+                                        <TinyMceEditorComment value={assignment?.draft || assignment?.comment} setValue={setValue} position={'comment'} link={`${process.env.NEXT_PUBLIC_BASE_URL_COURSE_LOCAL}/images/single`} />
+
+                                    </div>
+
+                                    <div className='flex justify-end'>
+                                        <button type='submit' onClick={() => setType('draft')} className='mt-5 mr-5 h-[36px] px-[22px] bg-primary shadow-primary_btn_shadow border-primary text-white rounded-md hover:bg-primary_hover'>Lưu bản nháp</button>
+                                        <button type='submit' onClick={() => setType('comment')} className='mt-5 h-[36px] px-[22px] bg-primary shadow-primary_btn_shadow border-primary text-white rounded-md hover:bg-primary_hover'>Hoàn thành đánh giá</button>
+                                    </div>
 
                                 </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
 
@@ -263,7 +427,7 @@ export default function ResultExam({ params }: { params: { slug: string, id_assi
                             <p className="rounded-md text-center font-medium text-lg text-[#153462] mb-5">Điều hướng bài kiểm tra</p>
                             <div className="grid grid-cols-5 justify-items-center gap-y-3">{listNumber}</div>
                             <div className="text-center mt-10 mb-2">
-                                <Link href={`/course/learning/${params.slug}?exam=${assignment?.id_exam}`}>
+                                <Link href={`${typeAss === 'exam' ? '/teacher/dashboard/exam/assignment' : `/teacher/dashboard/course/quizz/${assignment?.id_exam}/assignment`}`}>
                                     <button
                                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                                         onClick={() => {

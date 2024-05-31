@@ -9,7 +9,7 @@ export default function CustomTinyMceEditor({ setValue, value, position }: any) 
     const handleImageUpload: any = (blobInfo: any, success: any, failure: any) => {
         return new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
-            xhr.open("POST", "http://18.140.5.43:4002/api/v1/images", true);
+            xhr.open("POST", `${process.env.NEXT_PUBLIC_BASE_URL_EXAM_LOCAL}/images`, true);
 
             const formData = new FormData();
             formData.append("image", blobInfo.blob(), blobInfo.filename());
@@ -63,7 +63,7 @@ export default function CustomTinyMceEditor({ setValue, value, position }: any) 
                 plugins: [
                     'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
                     'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                    'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+                    'insertdatetime', 'media', 'table', 'code'
                 ],
                 toolbar: 'undo redo | blocks | ' +
                     'bold italic forecolor | alignleft aligncenter ' +
@@ -80,7 +80,7 @@ export default function CustomTinyMceEditor({ setValue, value, position }: any) 
                     help: { title: 'Help', items: 'help' }
                 },
                 images_upload_handler: handleImageUpload,
-                images_upload_url: "http://18.140.5.43:4002/api/v1/images",
+                images_upload_url: `${process.env.NEXT_PUBLIC_BASE_URL_EXAM_LOCAL}/images`,
                 image_title: true,
                 file_picker_types: 'image',
             }}

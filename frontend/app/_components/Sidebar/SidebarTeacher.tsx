@@ -24,7 +24,7 @@ export default function SidebarTeacher() {
                     <div className='flex flex-row items-end justify-center'>
                         <Link href="#">
                             <Image
-                                src={`${user.avatar ? user.avatar : '/images/avatar.png'} `}
+                                src={`${user.avatar ? user.avatar : '/images/avatar-teacher.png'} `}
                                 width={100}
                                 height={100}
                                 alt="avatar"
@@ -197,46 +197,6 @@ export default function SidebarTeacher() {
                                     </li>
                                 </ul>
                             </li>
-                            {/* <li>
-                                <button
-                                    type="button"
-                                    className="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                                    aria-controls="student"
-                                    data-collapse-toggle="student"
-                                >
-                                    <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">
-                                        Quản lý học sinh
-                                    </span>
-                                    <svg
-                                        className="w-3 h-3"
-                                        aria-hidden="true"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 10 6"
-                                    >
-                                        <path
-                                            stroke="currentColor"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="m1 1 4 4 4-4"
-                                        />
-                                    </svg>
-                                </button>
-                                <ul id="student" className="hidden py-2 space-y-2">
-                                    <li>
-                                        <Link
-                                            href="/teacher/dashboard/student"
-                                            className={`${pathname == '/teacher/dashboard/student' ? 'bg-slate-100' : ''} ml-4 flex items-center p-2 text-gray-900 transition duration-75 rounded-lg pl-2 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700`}
-                                        >
-                                            <div className='ml-2'>
-                                                Danh sách học sinh
-                                            </div>
-
-                                        </Link>
-                                    </li>
-                                </ul>
-                            </li> */}
                             <li>
                                 <button
                                     type="button"
@@ -282,6 +242,17 @@ export default function SidebarTeacher() {
                                         >
                                             <div className='ml-2'>
                                                 Đánh giá khóa học
+                                            </div>
+
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link
+                                            href="/teacher/dashboard/review/combo"
+                                            className={`${pathname == '/teacher/dashboard/review/combo' ? 'bg-slate-100' : ''} ml-4 flex items-center p-2 text-gray-900 transition duration-75 rounded-lg pl-2 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700`}
+                                        >
+                                            <div className='ml-2'>
+                                                Đánh giá combo đề thi
                                             </div>
 
                                         </Link>

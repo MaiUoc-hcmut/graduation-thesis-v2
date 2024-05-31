@@ -11,11 +11,13 @@ import { useForm } from 'react-hook-form';
 import { convertToHourMinuteSecond, convertToVietnamTime } from '@/app/helper/FormatFunction';
 
 
-export default function ResultExam({ params }: { params: { slug: string, id_assignment: string } }) {
+export default function ResultExam({ params }: { params: { id_assignment: string } }) {
     const [open, setOpen] = useState(false);
-    const [assignment, setAssignment] = useState<any>()
+    const [assignment, setAssignment] = useState<any>({})
+    const [details, setDetails] = useState<any>([])
     const [openSidebar, setOpenSideBar] = useState(true);
     const alphabet = ['A', 'B', 'C', 'D', 'E', 'F'];
+    
     const [toggle, setToggle] = useState<any>({})
     const {
         register,
@@ -28,7 +30,13 @@ export default function ResultExam({ params }: { params: { slug: string, id_assi
     useEffect(() => {
         async function fetchData() {
             examApi.getDetailAssigmnent(params.id_assignment).then((data) => {
-                setAssignment(data.data)
+                setAssignment(data.data);
+                setDetails(data.data.details.sort((a: any, b: any) => a.order - b.order).map((detail: any) => {
+                    return {
+                        ...detail,
+                        Answers: detail.Answers.sort((a: any, b: any) => a.selected_answer.order - b.selected_answer.order)
+                    };
+                }));
             })
         }
         fetchData()
@@ -37,15 +45,15 @@ export default function ResultExam({ params }: { params: { slug: string, id_assi
 
     let listQuestion;
     let listNumber;
-    if (assignment) {
-        listQuestion = assignment.details?.map((question: any, index: number) => {
+    if (assignment.id) {
+        listQuestion = details?.map((question: any, index: number) => {
             return (
                 <div id={`question${index + 1}`} key={index} className="mt-5 border-[1px] border-[#ececec] p-3 rounded-md shadow-sm bg-slate-50">
                     <div className="flex justify-between items-center">
                         <div className=" font-normal text-[#000] flex-1">
                             <div className='flex'>
                                 <span className="font-semibold text-[#153462] mr-1">Câu {index + 1}: </span>
-                                {parse(question.content_text)}
+                                {parse(question.content_text || '')}
 
                             </div>
 
@@ -99,7 +107,7 @@ export default function ResultExam({ params }: { params: { slug: string, id_assi
 
                                                 }
                                                 <p className='ml-2 mr-1'>{alphabet[index]}.</p>
-                                                <label htmlFor={answer.id} className="text-sm font-medium text-gray-900 dark:text-gray-300">{parse(answer.content_text)}</label>
+                                                <label htmlFor={answer.id} className="text-sm font-medium text-gray-900 dark:text-gray-300">{parse(answer.content_text || '')}</label>
                                                 <div className='ml-4'>
                                                     {
                                                         answer.is_correct ? <CheckIcon className="w-5 h-5 text-green-500" /> : (answer.selected_answer?.is_selected ? <XMarkIcon className="w-5 h-5 text-red-500" /> : '')
@@ -137,22 +145,16 @@ export default function ResultExam({ params }: { params: { slug: string, id_assi
                         </div>
                     </div>
 
-                    <div className={`${question.comment != '' || toggle[`form-${question.id_question}`] ? '' : 'hidden'} mt-5`}>
-                        <div className='font-semibold'>
-                            Nhận xét câu hỏi
+                    <div className={`${question?.comment != '' ? '' : 'hidden'} mt-5`}>
+                        <h3 className='text-secondary font-bold text-lg'>Nhận xét câu hỏi</h3>
+                        <div className='border-slate-300 border-[1px] p-4 rounded-lg mt-2'>
+                            {parse(question?.comment || '')}
                         </div>
-                        <textarea
-                            defaultValue={question.comment}
-                            disabled
-                            {...register(`${question.id}`)}
-                            className="w-full mt-2 p-2 border rounded focus:ring-0 focus:border-primary_border"
-                            rows={4}
-                        ></textarea>
                     </div>
                 </div>
             );
         });
-        listNumber = assignment.details?.map((question: any, index: number) => {
+        listNumber = details?.map((question: any, index: number) => {
             if (!question.is_correct) {
                 return (
                     <Link
@@ -214,7 +216,7 @@ export default function ResultExam({ params }: { params: { slug: string, id_assi
                                     boxShadow: '1px 2px 4px 0px #00000040 -1px -2px 4px 0px #00000040 inset',
                                 }}
                             >
-                                {assignment?.score.toFixed(1)}
+                                {(assignment?.score || 0).toFixed(1)}
                             </div>
                             <div className="flex">
                                 <div className="flex flex-col justify-between mr-4">
@@ -227,7 +229,7 @@ export default function ResultExam({ params }: { params: { slug: string, id_assi
                                 </div>
                                 <div className="flex flex-col justify-between">
                                     <div className="py-1 text-[#000]">{assignment?.exam_name}</div>
-                                    <div className="py-1 text-[#000]">{convertToVietnamTime(assignment?.time_end)}</div>
+                                    <div className="py-1 text-[#000]">{convertToVietnamTime(assignment?.time_end || '')}</div>
                                     <div className="py-1 text-[#000]">{convertToHourMinuteSecond(assignment?.time_to_do || '')}</div>
                                     <div className="py-1 text-[#000]">{assignment?.empty_question}</div>
                                     <div className="py-1 text-[#000]">{assignment?.right_question}</div>
@@ -237,113 +239,104 @@ export default function ResultExam({ params }: { params: { slug: string, id_assi
 
                         </div>
 
-                        {/* <div className='mt-5 mx-5'>
+                        <div className='mt-5 mx-5'>
                             <h3 className='font-semibold text-lg'>Phân tích chi tiết</h3>
                             <div className="mt-5 overflow-x-auto shadow-md sm:rounded-lg">
                                 <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                         <tr>
                                             <th scope="col" className="px-6 py-3">
-                                                Chuyên đề
+                                                Dạng kiến thức
                                             </th>
                                             <th scope="col" className="px-6 py-3">
-                                                Số câu đúng
+                                                Đúng
                                             </th>
                                             <th scope="col" className="px-6 py-3">
-                                                Số câu sai
+                                                Sai
                                             </th>
+                                            {/* <th scope="col" className="px-6 py-3">
+                                                Bỏ qua
+                                            </th> */}
                                             <th scope="col" className="px-6 py-3">
-                                                Số câu bỏ qua
-                                            </th>
-                                            <th scope="col" className="px-6 py-3">
-                                                Phàn trăm
+                                                Danh sách câu hỏi
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
-                                            <th
-                                                scope="row"
-                                                className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                                            >
-                                                Apple MacBook Pro 17
-                                            </th>
-                                            <td className="px-6 py-4">Silver</td>
-                                            <td className="px-6 py-4">Laptop</td>
-                                            <td className="px-6 py-4">$2999</td>
-                                            <td className="px-6 py-4">
-                                                <a
-                                                    href="#"
-                                                    className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                                >
-                                                    Edit
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        <tr className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
-                                            <th
-                                                scope="row"
-                                                className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                                            >
-                                                Microsoft Surface Pro
-                                            </th>
-                                            <td className="px-6 py-4">White</td>
-                                            <td className="px-6 py-4">Laptop PC</td>
-                                            <td className="px-6 py-4">$1999</td>
-                                            <td className="px-6 py-4">
-                                                <a
-                                                    href="#"
-                                                    className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                                >
-                                                    Edit
-                                                </a>
-                                            </td>
-                                        </tr>
+                                        {
+                                            assignment?.classification?.map((item: any, index: number) => {
+                                                return (
+                                                    <tr key={`${index}-cla`} className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
+                                                        <th
+                                                            scope="row"
+                                                            className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                                                        >
+                                                            {item.name != 'other' ? item.name : 'Khác'}
+                                                        </th>
+                                                        <td className="px-6 py-4 w-1/12">{item.right_answer}</td>
+                                                        <td className="px-6 py-4 w-1/12">{item.wrong_answer}</td>
+                                                        <td className="px-6 py-4">
+                                                            {
+                                                                item.questions?.map((question: any, index: number) => {
+                                                                    if (!question.is_correct) {
+                                                                        return (
+                                                                            <Link
+                                                                                href={`#question${question.order}`}
+                                                                                key={`${index}-question`}
+                                                                                className="p-2 w-10 h-10 rounded-xl flex justify-center items-center font-normal text-[#E44848]"
+                                                                                style={{
+                                                                                    boxShadow: '0px 1px 4px 0px rgba(207, 56, 56, 0.25) -1px -1px 4px 0px rgba(207, 56, 56, 0.36) inset 1px 1px 4px 0px rgba(207, 56, 56, 0.32 inset',
+                                                                                    backgroundColor: 'rgba(228, 72, 72, 0.15)',
+                                                                                    textDecoration: 'none',
+                                                                                }}
+                                                                            >
+                                                                                {question.order}
+                                                                            </Link>
+                                                                        );
+                                                                    }
+                                                                    else {
+                                                                        return (
+                                                                            <Link
+                                                                                href={`#question${question.order}`}
+                                                                                key={`${index}-question`}
+                                                                                className="p-2 w-10 h-10 rounded-xl flex justify-center items-center font-normal text-[#2FD790]"
+                                                                                style={{
+                                                                                    background: 'rgba(47, 215, 144, 0.15)',
+                                                                                    boxShadow: '1px 1px 2px 0px #2FD79040 1px 1px 3px 0px #2FD7905C inset -1px -1px 2px 0px #2FD79052 inset',
+                                                                                    textDecoration: 'none',
+                                                                                }}
+                                                                            >
+                                                                                {question.order}
+                                                                            </Link>
+                                                                        );
+                                                                    }
+                                                                })
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })
+                                        }
+
+
                                     </tbody>
                                 </table>
                             </div>
-                        </div> */}
+                        </div>
 
                         <div className='bg-white rounded-xl py-3 px-6 mt-4' style={{
                             boxShadow: '0px 0px 4px 0px #00000040 mt-10',
                         }}>
                             <div className="text-lg text-[#000] font-semibold">Đáp án</div>
-                            <form onSubmit={handleSubmit(async (data: any) => {
-                                const detail_questions = []
-
-                                for (const key in data) {
-                                    if (data.hasOwnProperty(key)) {
-                                        detail_questions.push({
-                                            id: key,
-                                            comment: data[key]
-                                        });
-                                    }
-                                }
-                                detail_questions.shift();
-                                const formData = {
-                                    data: {
-                                        comment: data.comment,
-                                        detail_questions: detail_questions
-                                    }
-                                }
-                                await examApi.commentAssigmnent(params.id_assignment, formData)
-
-
-                            })} className='mt-2'>{listQuestion}
+                            <div className='mt-2'>{listQuestion}
                                 <div className={`${assignment?.comment != '' ? '' : 'hidden'} mt-5`}>
                                     <h3 className='text-secondary font-bold text-xl'>Nhận xét của giáo viên</h3>
-
-                                    <textarea
-                                        defaultValue={assignment?.comment}
-                                        disabled
-                                        {...register(`comment`)}
-                                        className="w-full mt-5 p-2 border rounded focus:ring-0 focus:border-primary_border"
-                                        rows={4}
-                                    ></textarea>
-
-
+                                    <div className='border-slate-300 border-[1px] p-4 rounded-lg mt-2'>
+                                        {parse(assignment?.comment || '')}
+                                    </div>
                                 </div>
-                            </form>
+
+                            </div>
                         </div>
                     </div>
 
@@ -358,7 +351,7 @@ export default function ResultExam({ params }: { params: { slug: string, id_assi
                             <p className="rounded-md text-center font-medium text-lg text-[#153462] mb-5">Điều hướng bài kiểm tra</p>
                             <div className="grid grid-cols-5 justify-items-center gap-y-3">{listNumber}</div>
                             <div className="text-center mt-10 mb-2">
-                                <Link href={`/course/learning/${params.slug}?exam=${assignment?.id_exam}`}>
+                                <Link href={`exam/combo/${assignment.combo[0]?.id}/list?exam=${assignment.id_exam}`}>
                                     <button
                                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                                         onClick={() => {

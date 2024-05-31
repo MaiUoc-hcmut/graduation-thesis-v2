@@ -39,7 +39,7 @@ export default function SidebarStudent() {
                     </div>
                     <div className='relative mt-6 overflow-y-scroll mb-6 h-[calc(100%-200px)] sidebar'>
                         <ul className="space-y-2 font-medium absolute top-0 left-0 w-full h-auto pr-1">
-                            <li>
+                            {/* <li>
                                 <Link
                                     href="/student/dashboard"
                                     className={`${pathname == '/student/dashboard' ? 'bg-slate-100' : ''} flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group`}
@@ -47,7 +47,7 @@ export default function SidebarStudent() {
 
                                     <span className="ms-3">Tổng quan</span>
                                 </Link>
-                            </li>
+                            </li> */}
                             <li>
                                 <Link
                                     href="/student/dashboard/course"
@@ -59,7 +59,7 @@ export default function SidebarStudent() {
                             </li>
                             <li>
                                 <Link
-                                    href="/student/dashboard/course"
+                                    href="/student/dashboard/exam"
                                     className={`${pathname == '/student/dashboard/exam' ? 'bg-slate-100' : ''} flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group`}
                                 >
 

@@ -1,11 +1,11 @@
 import axios from 'axios';
 import queryString from 'query-string';
-
+require('dotenv').config();
 // Set up default config for http requests here
 // Please have a look at here `https://github.com/axios/axios#request- config` for the full list of configs
 const axiosClient = axios.create({
     // baseURL: process.env.NEXT_APP_API_URL,
-    baseURL: "http://13.229.142.225:4001/api/v1",
+    baseURL: `${process.env.NEXT_PUBLIC_BASE_URL_COURSE_LOCAL}`,
     headers: {
         'content-type': 'application/json',
     },

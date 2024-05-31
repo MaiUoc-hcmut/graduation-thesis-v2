@@ -207,7 +207,7 @@ const EditProfilePage = () => {
                                                     formData.append(fieldName, file, file.name);
 
                                                     const request = new XMLHttpRequest();
-                                                    request.open('POST', 'http://18.140.5.43:4002/api/v1/images')
+                                                    request.open('POST', `${process.env.NEXT_PUBLIC_BASE_URL_COURSE_LOCAL}/images`)
 
                                                     request.upload.onprogress = (e) => {
                                                         progress(e.lengthComputable, e.loaded, e.total);

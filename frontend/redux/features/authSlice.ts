@@ -59,10 +59,24 @@ export const login = createAsyncThunk('auth/login', async (user: LogInData, thun
 })
 
 export const loginTeacher = createAsyncThunk('auth-teacher/login', async (user: LogInData, thunkAPI) => {
-    console.log(user);
     try {
 
         const response = await axiosConfig.post('auth-teacher/login', user);
+        if (response.data) {
+            localStorage.setItem('accessToken', JSON.stringify(response.data.accessToken));
+            localStorage.setItem('refreshToken', JSON.stringify(response.data.refreshToken));
+        }
+        if (response.status !== 200) return thunkAPI.rejectWithValue(response.data.message);
+        return response.data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error);
+    }
+})
+
+export const loginAdmin = createAsyncThunk('admin/login', async (user: LogInData, thunkAPI) => {
+    try {
+
+        const response = await axiosConfig.post('admin/login', user);
         if (response.data) {
             localStorage.setItem('accessToken', JSON.stringify(response.data.accessToken));
             localStorage.setItem('refreshToken', JSON.stringify(response.data.refreshToken));
@@ -240,6 +254,32 @@ export const auth = createSlice({
                 console.log(action.payload);
             })
             .addCase(loginTeacher.fulfilled, (state, action) => {
+                console.log("Fullfiled");
+                state.isAuthTeacher = true;
+                state.isLoading = false;
+                state.isSuccess = true;
+                state.user = action.payload.user;
+                state.accessToken = action.payload.accessToken;
+            })
+            .addCase(loginAdmin.pending, (state) => {
+                console.log("Pending");
+                state.isLoading = true;
+            })
+            .addCase(loginAdmin.rejected, (state, action) => {
+                console.log("Rejected");
+                state.isLoading = false;
+                state.isFailed = true;
+                if (typeof action.payload === 'string') {
+                    state.message = action.payload;
+                } else if (action.payload instanceof Error) {
+                    state.message = action.payload.message;
+                } else {
+                    // Handle other cases or assign a default message
+                    state.message = "An error occurred";
+                }
+                console.log(action.payload);
+            })
+            .addCase(loginAdmin.fulfilled, (state, action) => {
                 console.log("Fullfiled");
                 state.isAuthTeacher = true;
                 state.isLoading = false;

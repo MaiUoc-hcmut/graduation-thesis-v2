@@ -4,25 +4,22 @@ import Image from 'next/image';
 import React, { useEffect, useState, useRef } from 'react';
 import { Controller, set, useForm } from "react-hook-form"
 import { useSearchParams } from 'next/navigation';
-import { useAppSelector } from '@/redux/store';
-import courseApi from '@/app/api/courseApi';
-import notifyApi from '@/app/api/notifyApi';
 import { ToastContainer, toast } from 'react-toastify';
 import { convertToVietnamTime } from '@/app/helper/FormatFunction';
-import Paginate from '@/app/_components/Paginate/Paginate';
 import { Label, Modal, TextInput, Textarea, Button } from 'flowbite-react';
 import categoryApi from '@/app/api/category';
 import examApi from '@/app/api/examApi';
+import { columns } from '@/app/_components/Table/KnowledgeColumns/columns';
+import { DataTable } from "@/app/_components/Table/TableFormat"
 
 export default function CreateKnowledge() {
     const [modal, setModal] = useState<any>({})
     const searchParams = useSearchParams()
-    const page = searchParams.get('page') || '1'
-    const [paginate, setPaginate] = useState(1)
-    const { user } = useAppSelector(state => state.authReducer);
+    const [knowledges, setKnowledges] = useState<any>([])
 
-    const [notifycations, setNotifycations] = useState<any>([])
-    const [countPaginate, setCountPaginate] = useState(1)
+    const [page, setPage] = useState(1)
+    const [pageCount, setPageCount] = useState(1)
+    const queries = Object.fromEntries(searchParams.entries());
 
     const [category, setCategory] = useState<any>({})
     const {
@@ -44,13 +41,12 @@ export default function CreateKnowledge() {
 
     useEffect(() => {
         async function fetchData() {
-            await notifyApi.getNotifyBySendTeacher(`${user.id}`, page).then((data: any) => {
-                setNotifycations(data.data.notifications)
-                setCountPaginate(Math.ceil(data.data.count / 10))
+            await examApi.getAllKnowledge().then((data: any) => {
+                setKnowledges(data.data)
             }).catch((err: any) => { })
         }
         fetchData()
-    }, [page, user.id]);
+    }, []);
 
     return (
         <div>
@@ -218,37 +214,8 @@ export default function CreateKnowledge() {
                     </form>
                 </div>
             </div>
-            <div className='mt-8'>
-                {
-                    notifycations?.map((notify: any, index: any) => {
-                        return (
-                            <div key={notify.id} className='rounded-md bg-white shadow-sm mb-5 px-10 py-5'>
-
-                                <div className='flex items-center justify-between'>
-                                    <div className="text-[#171347] text-sm font-semibold w-1/3 flex flex-col justify-center items-start">
-                                        <div className='mb-2 flex justify-center items-center'>
-                                            <div>
-
-                                                Khóa học
-
-                                            </div>
-                                        </div>
-                                        <span className='text-[#818894] text-xs'>
-                                            {convertToVietnamTime(notify.createdAt)}
-                                        </span>
-                                    </div>
-                                    <div className="text-gray-500 text-sm flex-1 text-center px-5">
-
-                                        {notify.content}
-
-                                    </div>
-                                </div>
-                            </div>
-                        )
-                    })
-                }
-
-                <Paginate countPaginate={countPaginate} currentPage={page} />
+            <div className="container mx-auto rounded-lg mt-8">
+                <DataTable columns={columns} data={knowledges} page={page} setPage={setPage} pageCount={pageCount} />
             </div>
 
         </div >

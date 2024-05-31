@@ -1,4 +1,5 @@
 export function formatCash(str: string) {
+    if (str === null || str === undefined) return ''
     return str.split('').reverse().reduce((prev, next, index) => {
         return ((index % 3) ? next : (next + '.')) + prev
     })

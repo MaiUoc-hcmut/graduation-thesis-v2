@@ -1,7 +1,7 @@
 "use client"
 
 import examApi from "@/app/api/examApi"
-import { convertToVietnamTime } from "@/app/helper/FormatFunction"
+import { convertToHourMinuteSecond, convertToVietnamTime } from "@/app/helper/FormatFunction"
 import { useAppSelector } from "@/redux/store"
 import { ChevronDownIcon, ChevronUpIcon, DocumentIcon, Squares2X2Icon } from "@heroicons/react/24/outline"
 import Link from "next/link"
@@ -34,13 +34,16 @@ export default function ExamDetail({ params }: { params: { slug: string } }) {
         async function fetchData() {
             await examApi.getComboDetail(params.slug).then((data: any) => {
                 setCombos(data.data)
-                setExamId(data.data?.Exams[0]?.id)
-                setCurrExam(data.data?.Exams[0])
+                if (!examId) {
+                    setExamId(data.data?.Exams[0]?.id)
+                }
+                if (!currExam?.id)
+                    setCurrExam(data.data?.Exams[0])
             }
             ).catch((err: any) => { })
         }
         fetchData()
-    }, [params.slug]);
+    }, [params.slug, currExam?.id, examId]);
 
     useEffect(() => {
         async function fetchData() {
@@ -51,12 +54,15 @@ export default function ExamDetail({ params }: { params: { slug: string } }) {
                 })
         }
         fetchData()
-    }, [currentPage, countPaginate, user.id, examId]);
+    }, [currentPage, examId, user.id]);
+    // useEffect(() => {
+    //     setExamId(searchParams.get('exam'))
+    // }, [examId]);
 
 
     return (
         <div>
-            <HeaderExam params={params} combo={{}} />
+            <HeaderExam params={params} combo={combos} />
             <div className="relative flex w-[calc(100%-373px)] mt-24">
                 <div className='w-full'>
                     <div className='relative flex'>
@@ -73,18 +79,18 @@ export default function ExamDetail({ params }: { params: { slug: string } }) {
                                             />
                                         </div>
                                         <div className="h-28 pr-10">
-                                            <div className='text-[#818894] text-2xl'>{currExam.title}</div>
+                                            <div className='text-[#818894] text-2xl'>{currExam?.title}</div>
                                             <div>
                                                 <span className="mr-2">
-                                                    Thời gian: {currExam.period} phút
+                                                    Thời gian: {currExam?.period} phút
                                                 </span>
                                                 <span>
-                                                    Số câu: {currExam.quantity_question}
+                                                    Số câu: {currExam?.quantity_question}
                                                 </span>
 
                                             </div>
                                             <div className='mt-5'>
-                                                <Link href={`/exam/attemp/${currExam.id}`} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Làm bài</Link>
+                                                <Link href={`/exam/attemp/${currExam?.id}`} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Làm bài</Link>
                                             </div>
                                         </div>
 
@@ -113,7 +119,7 @@ export default function ExamDetail({ params }: { params: { slug: string } }) {
                                                                     Điểm
                                                                 </th>
                                                                 <th scope="col" className="w-1/3 px-6 py-3 text-center">
-                                                                    Hoàn thành
+                                                                    Thời gian làm bài
                                                                 </th>
 
                                                                 <th scope="col" className="w-1/4 px-6 py-3 text-center">
@@ -134,14 +140,11 @@ export default function ExamDetail({ params }: { params: { slug: string } }) {
                                                                                 {index + 1}
                                                                             </th>
                                                                             <td className="w-1/3 px-6 py-4">{convertToVietnamTime(assignment.time_end)}</td>
-                                                                            <td className="w-1/6 px-6 py-4 text-center">{assignment.score}</td>
+                                                                            <td className="w-1/6 px-6 py-4 text-center">{(assignment.score || 0).toFixed(1)}</td>
                                                                             <td className="w-1/3 px-6 py-4 text-center">
-                                                                                {assignment.passed ?
-                                                                                    <span className="bg-red-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">Chưa hoàn thành</span>
-                                                                                    :
-                                                                                    <span className="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Hoàn thành</span>}
+                                                                                {convertToHourMinuteSecond(assignment.time_to_do || 0)}
                                                                             </td>
-                                                                            <td className="w-1/4 px-6 py-4 text-center"><Link href={`/course/learning/${params.slug}/exam/result/${assignment.id}`} className='underline text-blue-500'>Xem lại</Link></td>
+                                                                            <td className="w-1/4 px-6 py-4 text-center"><Link href={`/exam/result/${assignment.id}`} className='underline text-blue-500'>Xem lại</Link></td>
                                                                         </tr>
                                                                     )
                                                                 })
@@ -172,7 +175,10 @@ export default function ExamDetail({ params }: { params: { slug: string } }) {
                                 <ul>
                                     {combos?.Exams?.map((combo: any) => {
                                         return (
-                                            <Link onClick={() => { setCurrExam(combo) }} key={combo.id} href={`/exam/combo/${params.slug}/list?exam=${combo.id}`}>
+                                            <Link onClick={() => {
+                                                setCurrExam(combo)
+                                                setExamId(combo.id)
+                                            }} key={combo.id} href={`/exam/combo/${params.slug}/list?exam=${combo.id}`}>
                                                 <li className='bg-white py-2 px-4 rounded-lg mb-2 list-none border-[1px] border-slate-300 hover:bg-slate-100'>
                                                     <div className={`flex items-center justify-between ${toggle[`open_chapter_${combo.id}`] ? 'pb-2 border-b-[1px] border-slate-200' : ''}`}>
                                                         <div className="flex justify-between items-center">

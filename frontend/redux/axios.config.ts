@@ -1,9 +1,12 @@
 import axios, { AxiosResponse } from 'axios';
+import { log } from 'console';
 import { jwtDecode } from 'jwt-decode';
-import { config } from 'process';
+
+require('dotenv').config();
+
 
 const instance = axios.create({
-    baseURL: 'http://18.143.75.75:4000/api/v1',
+    baseURL: `${process.env.NEXT_PUBLIC_BASE_URL_LOCAL}`,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -22,7 +25,7 @@ instance.interceptors.request.use(
                 config.url.indexOf('/refresh-token') >= 0
 
             ) {
-                config.baseURL = 'http://18.143.75.75:4000/api/v1';
+                config.baseURL = `${process.env.NEXT_PUBLIC_BASE_URL_LOCAL}`;
                 return config;
             }
 
@@ -34,7 +37,7 @@ instance.interceptors.request.use(
                 config.url.indexOf('/coupons') >= 0 ||
                 config.url.indexOf('/progresses') >= 0
             ) {
-                config.baseURL = 'http://13.229.142.225:4001/api/v1';
+                config.baseURL = `${process.env.NEXT_PUBLIC_BASE_URL_COURSE_LOCAL}`;
             }
 
 
@@ -44,7 +47,7 @@ instance.interceptors.request.use(
                 config.url.indexOf('/forums') >= 0 ||
                 config.url.indexOf('/topicsforum') >= 0
             ) {
-                config.baseURL = 'http://13.229.142.225:4001/api/v1';
+                config.baseURL = `${process.env.NEXT_PUBLIC_BASE_URL_COURSE_LOCAL}`;
                 config.headers['Content-Type'] = 'multipart/form-data';
                 config.headers['Accept'] = 'multipart/form-data';
             }
@@ -56,25 +59,25 @@ instance.interceptors.request.use(
                 config.url.indexOf('/combos') >= 0 ||
                 config.url.indexOf('/knowledges') >= 0
             ) {
-                config.baseURL = 'http://18.140.5.43:4002/api/v1';
+                config.baseURL = `${process.env.NEXT_PUBLIC_BASE_URL_EXAM_LOCAL}`;
             }
             if (
                 config.url.indexOf('/notification') >= 0
             ) {
-                config.baseURL = 'http://13.250.97.182:4003/api/v1';
+                config.baseURL = `${process.env.NEXT_PUBLIC_BASE_URL_NOTIFICATION_LOCAL}`;
             }
             if (
                 config.url.indexOf('/test') >= 0 ||
                 config.url.indexOf('/payment') >= 0 ||
                 config.url.indexOf('/cart') >= 0
             ) {
-                config.baseURL = 'http://13.250.108.30:4004/api/v1';
+                config.baseURL = `${process.env.NEXT_PUBLIC_BASE_URL_PAYMENT_LOCAL}`;
             }
             if (
                 config.url.indexOf('/messages') >= 0 ||
                 config.url.indexOf('/groups') >= 0
             ) {
-                config.baseURL = 'http://54.169.94.103:4005/api/v1';
+                config.baseURL = `${process.env.NEXT_PUBLIC_BASE_URL_CHAT_LOCAL}`;
             }
         }
 

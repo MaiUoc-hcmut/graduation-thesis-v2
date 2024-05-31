@@ -160,7 +160,7 @@ export default function TopicPage({ params }: { params: { id: string, slug: stri
                                                         }
 
                                                     </div>
-                                                    <div className='w-1/3 flex flex-col justify-between items-end'>
+                                                    <div className='w-1/4 flex flex-col justify-between items-end'>
                                                         <div className='text-[#818894] text-sm'>{formatDateTime(answer.createdAt)}</div>
                                                         <div className='flex text-sm'>
                                                             <span className='mr-4 text-[#818894] underline cursor-pointer' onClick={() => setToggle({ ...toggle, [`reply-${answer.id}`]: !toggle[`reply-${answer.id}`] })}>{answer.replies?.length} phản hồi</span>
@@ -171,12 +171,12 @@ export default function TopicPage({ params }: { params: { id: string, slug: stri
                                                 </div>
                                             </div>
                                             <div className={`border-t-[1px] border-[#ececec] pt-4 flex justify-end items-center mt-10`}>
-                                                <div className='w-5/6'>
+                                                <div className='w-11/12'>
                                                     <div className={`${toggle[`form-${answer.id}`] ? '' : 'hidden'}`}>
 
                                                         <div className='mb-6 flex w-full  border-b-[1px] border-[#ececec] pb-6'>
                                                             <div className='flex w-full'>
-                                                                <div className='flex-1 bg-[#f7fafd] p-2 rounded-lg flex justify-center items-center'>
+                                                                <div className='flex-1 h-[180px] bg-[#f7fafd] p-2 rounded-lg flex justify-center items-center'>
                                                                     <div className=' flex-1 flex flex-col justify-center items-center p-2 pt-0'>
                                                                         <div className='p-[6px] bg-white rounded-full'>
                                                                             <Image
@@ -195,7 +195,7 @@ export default function TopicPage({ params }: { params: { id: string, slug: stri
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div className='ml-7 w-5/6 '>
+                                                                <div className='ml-7 w-3/4'>
                                                                     <form onSubmit={handleSubmit(async (data: any) => {
                                                                         if (
                                                                             data[`content-${index}`] != '' && data[`content-${index}`]
@@ -224,7 +224,7 @@ export default function TopicPage({ params }: { params: { id: string, slug: stri
                                                                         {/* <div className="mt-2 text-sm text-red-600 dark:text-red-500">
                                                                             {errors?.`content-${index}`.message}
                                                                         </div> */}
-                                                                        <div className='mt-2 w-1/3'>
+                                                                        <div className='mt-2 w-1/2'>
                                                                             <div className="mb-2 block">
                                                                             </div>
                                                                             <input  {...register(`file-${index}`)} className="block w-full mb-5 text-xs text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="file" type="file" />
@@ -266,7 +266,7 @@ export default function TopicPage({ params }: { params: { id: string, slug: stri
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
-                                                                                <div className='ml-7 w-4/6 '>
+                                                                                <div className='ml-7 w-7/12'>
                                                                                     <p className='text-[#818894] text-sm'>{reply.content}</p>
                                                                                     {
                                                                                         reply.file ? <Link href={reply.file} className='bg-[#f7fafd] text-sm mt-6 p-1 flex justify-center items-center rounded-xl text-[#818894] w-28'>
@@ -303,7 +303,7 @@ export default function TopicPage({ params }: { params: { id: string, slug: stri
                         <h3 className='text-secondary font-bold text-xl'>Phản hồi</h3>
                         <div className='mt-4 rounded-lg border-[1px] border-[#ececec] p-4 flex w-full'>
                             <div className='flex w-full'>
-                                <div className='flex-1 h-auto bg-[#f7fafd] p-4 rounded-lg flex justify-center items-center'>
+                                <div className='flex-1 h-[180px] bg-[#f7fafd] p-4 rounded-lg flex justify-center items-center'>
                                     <div className=' flex-1 flex flex-col justify-center items-center p-2 pt-0'>
                                         <div className='p-[6px] bg-white rounded-full'>
                                             {

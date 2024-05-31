@@ -26,7 +26,7 @@ import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 
 const MySwal = withReactContent(Swal)
-
+import Select from 'react-select'
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
 
 type ExamData = {
@@ -46,6 +46,7 @@ type QuestionData = {
     answers: Array<AnswerData>
     explain: string
     modify: string
+    knowledges: Array<any>
 }
 
 type AnswerData = {
@@ -97,6 +98,8 @@ export default function EditExam({ id, exam }: any) {
         getValues,
         register,
         control,
+        clearErrors,
+        setError,
         formState: { errors },
     } = handleForm
 
@@ -119,7 +122,7 @@ export default function EditExam({ id, exam }: any) {
             await examApi.getKnowledge(filterString).then((data: any) => setKnowledges(data.data)).catch((err: any) => { })
         }
         fetchData()
-    }, [getValues]);
+    }, [getValues().grade, getValues().subject]);
     const { fields: fieldsQuestion, append: appendQuestion, remove: removeQuestion } = useFieldArray({
         control,
         name: `questions`
@@ -147,8 +150,32 @@ export default function EditExam({ id, exam }: any) {
                             if (!(Object.entries(errors).length === 0)) return
 
                             setQuestions(dataForm.questions)
+                            const hasCorrectAnswer = getValues().questions[fieldsQuestion?.length - 1].answers.some((answer: any) => answer.is_correct);
+
+                            if (!hasCorrectAnswer) {
+                                // Đặt lỗi nếu không có đáp án nào được chọn là đáp án đúng
+                                setError(`questions.${fieldsQuestion?.length - 1}` as const, {
+                                    type: "manual",
+                                    message: "Câu hỏi cần ít nhất một đáp án đúng"
+                                });
+                                return;
+                            }
+                            else {
+                                clearErrors(`questions.${fieldsQuestion?.length - 1}`);
+                            }
 
                             setModal({ ...modal, [`add_question`]: false })
+                        }, (errors: any) => {
+                            const hasCorrectAnswer = getValues().questions[fieldsQuestion?.length - 1].answers.some((answer: any) => answer.is_correct);
+
+                            if (hasCorrectAnswer) {
+                                clearErrors(`questions.${fieldsQuestion?.length - 1}`);
+                            }
+                            if (!(Object.entries(errors).length === 0)) {
+                                setChange(!change)
+                                setValue(`questions.${fieldsQuestion?.length - 1}.modify`, "change")
+                                setModal({ ...modal, [`add_question`]: false })
+                            }
                         })}>
 
                             <h3 className="text-xl font-medium text-gray-900 dark:text-white">Thêm câu hỏi</h3>
@@ -178,14 +205,8 @@ export default function EditExam({ id, exam }: any) {
                                                 {errors?.questions?.[indexQuestion]?.explain?.message}
                                             </div>
                                         </div>
-                                        <div className="mb-5">
-                                            <div className="flex-1 flex items-center justify-end">
-                                                <label htmlFor="default-checkbox" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300 mr-2">Câu hỏi có nhiều đáp án đúng</label>
-                                                <input  {...register(`questions.${indexQuestion}.multi_choice`)} id="default-checkbox" type="checkbox" className="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-                                            </div>
 
-                                        </div>
-                                        <div className="mb-10 ">
+                                        <div className="mb-5">
                                             <div className="mb-2 block">
                                                 <Label htmlFor="email" value="Ảnh (tùy chọn)" />
                                             </div>
@@ -206,7 +227,7 @@ export default function EditExam({ id, exam }: any) {
 
 
                                                         const request = new XMLHttpRequest();
-                                                        request.open('POST', 'http://18.140.5.43:4002/api/v1/images')
+                                                        request.open('POST', `${process.env.NEXT_PUBLIC_BASE_URL_EXAM_LOCAL}/images`)
 
 
 
@@ -247,12 +268,42 @@ export default function EditExam({ id, exam }: any) {
                                                     />
                                                 </div> : null
                                             }
-                                            <div>
 
-                                            </div>
 
                                         </div>
+                                        <div className="mb-5">
+                                            <div className="flex-1 flex items-center justify-end">
+                                                <label htmlFor="default-checkbox" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300 mr-2">Câu hỏi có nhiều đáp án đúng</label>
+                                                <input  {...register(`questions.${indexQuestion}.multi_choice`)} id="default-checkbox" type="checkbox" className="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                                            </div>
+                                        </div>
+                                        <div className="mb-5">
+                                            <label
+                                                htmlFor="grade"
+                                                className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
+                                            >
+                                                Danh mục kiến thức
+                                            </label>
+                                            <Controller
+                                                control={control}
+                                                name={`questions.${indexQuestion}.knowledges`}
+                                                rules={{ required: "Danh mục kiến thức không thể trống" }}
+
+                                                render={({ field }) => (
+                                                    <Select {...field} value={field.value}
+                                                        className="z-50" isMulti options={knowledges.map((knowledge: any) => {
+                                                            return { value: knowledge.id, label: knowledge.name }
+                                                        })} />
+                                                )} />
+
+                                            <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                                {errors?.questions?.[indexQuestion]?.knowledges?.message}
+                                            </p>
+                                        </div>
                                         <AnswerCard hanldeForm={handleForm} indexQuestion={indexQuestion} setModal={setModal} modal={modal} />
+                                        <div className="text-sm text-red-600 dark:text-red-500">
+                                            {errors?.questions?.[indexQuestion]?.message}
+                                        </div>
                                     </div>
                                     : null
 
@@ -474,7 +525,6 @@ export default function EditExam({ id, exam }: any) {
                                                     <input
                                                         id="inline-radio"
                                                         type="radio"
-                                                        defaultChecked
                                                         {...register(`status`)}
                                                         value="public"
                                                         className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
@@ -484,6 +534,21 @@ export default function EditExam({ id, exam }: any) {
                                                         className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                                                     >
                                                         Công khai
+                                                    </label>
+                                                </div>
+                                                <div className="flex items-center me-4" >
+                                                    <input
+                                                        id="inline-radio"
+                                                        type="radio"
+                                                        {...register(`status`)}
+                                                        value="paid"
+                                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                    />
+                                                    <label
+                                                        htmlFor="inline-radio"
+                                                        className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                                    >
+                                                        Tính phí
                                                     </label>
                                                 </div>
                                                 <div className="flex items-center me-4">
@@ -532,7 +597,8 @@ export default function EditExam({ id, exam }: any) {
                                         multi_choice: false,
                                         answers: [],
                                         explain: "",
-                                        modify: "create"
+                                        modify: "create",
+                                        knowledges: []
                                     })
                                 }}
                                     className="mt-3 bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover">

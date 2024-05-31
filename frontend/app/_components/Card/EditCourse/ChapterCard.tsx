@@ -8,7 +8,7 @@ import { convertTime } from '@/app/helper/FormatFunction'
 import { Dropdown } from 'flowbite-react';
 import { Button, Checkbox, Label, Modal, TextInput, Radio } from 'flowbite-react';
 // import { ToastContainer, toast } from 'react-toastify';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { set, useFieldArray, useForm } from 'react-hook-form';
 import { DragDropContext, Draggable, Droppable, DroppableProps } from 'react-beautiful-dnd';
 import { StrictModeDroppable } from "../../React_Beautiful_Dnd/StrictModeDroppable";
 import { TopicCard } from './TopicCard';
@@ -36,6 +36,7 @@ registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, F
 
 export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provided, data, setData, removeChapter, setTypeSubmit, toggle, setToggle, id_course }: any) => {
     const [modal, setModal] = useState<any>({})
+    const [change, setChange] = useState<any>(false)
     const notify = () => {
         // toast.success('Thành công', {
         //     position: "bottom-right",
@@ -55,22 +56,34 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
         getValues,
         setValue,
         watch,
+        trigger,
         reset,
         handleSubmit,
         formState: { errors },
     } = handleForm
 
-    const { fields: fieldsTopic, append: appendTopic, remove: removeTopic } = useFieldArray({
+    const { fields: fieldsLecture, append: appendLecture, remove: removeLecture } = useFieldArray({
         control,
-        name: `chapters.${indexChapter}.topics`
+        name: `chapters.${indexChapter}.topics`,
     });
 
-    const [topicsData, setTopicsData] = useState(chapter.topics.filter((topic: any) => topic.modify != "delete"))
+    // const { fields: fieldsLecture, append: appendExam, remove: removeExam } = useFieldArray({
+    //     control,
+    //     name: `chapters.${indexChapter}.exams`
+    // });
+    const [topicsData, setTopicsData] = useState<any>([])
     const [files, setFiles] = useState([])
 
     useEffect(() => {
-        setTopicsData(data.chapters[indexChapter]?.topics?.filter((topic: any) => topic.modify != "delete"))
-    }, [data, indexChapter]);
+        // const currLectures = getValues().chapters[indexChapter]?.lectures || []
+        // const currExams = getValues().chapters[indexChapter]?.exams || []
+        // const tmp = [...currLectures?.filter((topic: any) => topic.modify != "delete" && topic.name != '' && topic.name), ...(currExams?.filter((topic: any) => topic.modify != "delete" && topic.name != ''))]
+        const tmp = getValues().chapters[indexChapter]?.topics?.filter((topic: any) => topic.modify != "delete" && topic.name != '')
+        setTopicsData(tmp)
+
+        // setValue(`chapters.${indexChapter}.topics`, [...currLectures, ...currExams])
+
+    }, [getValues, indexChapter, change, setValue, chapter.topics]);
 
 
     const reorder = (list: Array<any>, startIndex: any, endIndex: any) => {
@@ -81,35 +94,81 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
         return result;
     };
 
+    const handleDeleteSection = async () => {
+        setModal({ ...modal, [`delete_section${chapter.id || chapter.key}`]: false })
+
+        if (chapter.modify != "create") {
+            setValue(`chapters.${indexChapter}.modify`, "delete")
+        } else {
+            removeChapter(indexChapter)
+
+            setData((data: any) => {
+                data.chapters.splice(indexChapter, 1)
+                return data
+            })
+        }
+
+        notify()
+
+    };
+    const handleUpdateSection = async (position: string) => {
+        const isValid = await trigger(`${position}`);
+        if (isValid) {
+            setModal({ ...modal, [`edit_section_${chapter.id || chapter.key}`]: false })
+            setData((data: any) => {
+                data.chapters[indexChapter].name = getValues().chapters[indexChapter].name
+                data.chapters[indexChapter].status = getValues().chapters[indexChapter].status
+                if (getValues().chapters[indexChapter].modify != "create") {
+                    setValue(`chapters.${indexChapter}.modify`, "change")
+                }
+                return data
+            })
+            notify()
+        }
+    };
+    const handleAddLecture = async (position: string) => {
+        const isValid = await trigger(`${position}`);
+
+        if (isValid) {
+            setToggle({ ...toggle, [`add_lecture_${chapter.id || chapter.key}`]: false })
+            setChange(!change)
+            if (chapter.modify != "create") {
+                setValue(`chapters.${indexChapter}.modify`, "change")
+            }
+        }
+
+
+    };
+    const handleAddExam = async (position: string) => {
+        const isValid = await trigger(`${position}`);
+
+        if (isValid) {
+            setToggle({ ...toggle, [`add_exam_${chapter.id || chapter.key}`]: false })
+            setChange(!change)
+            if (chapter.modify != "create") {
+                setValue(`chapters.${indexChapter}.modify`, "change")
+            }
+        }
+    };
+
+    console.log(fieldsLecture, errors, 231);
+
+
     return (
         <div ref={innerRef}  {...provided.draggableProps}  >
             <>
                 <Modal show={modal[`delete_section${chapter.id || chapter.key}`]} size="md" onClose={() => setModal({ ...modal, [`delete_section${chapter.id || chapter.key}`]: false })} popup>
                     <Modal.Header />
                     <Modal.Body>
-                        <form className="space-y-6" onSubmit={(e: any) => {
-                            e.preventDefault()
-                            setModal({ ...modal, [`delete_section${chapter.id || chapter.key}`]: false })
-
-                            if (chapter.modify != "create") {
-                                setValue(`chapters.${indexChapter}.modify`, "delete")
-                            } else {
-                                removeChapter(indexChapter)
-
-                                setData((data: any) => {
-                                    data.chapters.splice(indexChapter, 1)
-                                    return data
-                                })
-                            }
-
-                            notify()
-                        }}>
+                        <form className="space-y-6" >
                             <ExclamationCircleIcon className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
                             <h3 className="mb-5 text-lg text-center font-normal text-gray-500 dark:text-gray-400">
                                 Bạn có chắc muốn xóa mục này?
                             </h3>
                             <div className="flex justify-center gap-4">
-                                <Button color="failure" type='submit'>
+                                <Button color="failure" type='submit' onClick={() => {
+                                    handleDeleteSection()
+                                }}>
                                     Xóa
                                 </Button>
                                 <Button color="gray" onClick={() => {
@@ -128,21 +187,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                 <Modal show={modal[`edit_section_${chapter.id || chapter.key}`]} size="md" onClose={() => setModal({ ...modal, [`edit_section_${chapter.id || chapter.key}`]: false })} popup>
                     <Modal.Header />
                     <Modal.Body>
-                        <form className="space-y-6" onSubmit={handleSubmit(async (data1: any) => {
-                            if (!(Object.entries(errors).length === 0)) return
-                            setModal({ ...modal, [`edit_section_${chapter.id || chapter.key}`]: false })
-                            setData((data: any) => {
-                                data.chapters[indexChapter].name = data1.chapters[indexChapter].name
-                                data.chapters[indexChapter].status = data1.chapters[indexChapter].status
-                                if (getValues().chapters[indexChapter].modify != "create") {
-                                    setValue(`chapters.${indexChapter}.modify`, "change")
-                                }
-                                return data
-                            })
-
-                            setTypeSubmit(`edit_section_${chapter.id || chapter.key}`)
-                            notify()
-                        })}>
+                        <form className="space-y-6">
 
                             <h3 className="text-xl font-medium text-gray-900 dark:text-white">Sửa mục</h3>
                             <div>
@@ -235,6 +280,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                 <div>
                                     <button
                                         onClick={() => {
+                                            handleUpdateSection(`chapters.${indexChapter}`)
                                         }}
                                         type="submit"
                                         className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
@@ -272,13 +318,10 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                             <Dropdown label="" renderTrigger={() => <PlusCircleIcon className="w-7 h-7 text-primary" />} placement="left">
                                 <Dropdown.Item onClick={() => {
 
-                                    appendTopic({
-                                        key: `lecture_${topicsData.length}`,
+                                    appendLecture({
+                                        id: uuid(),
                                         name: "",
-                                        title: "a",
                                         description: "",
-                                        duration: 0,
-                                        pass_score: 0,
                                         status: "paid",
                                         type: "lecture",
                                         modify: "create"
@@ -289,13 +332,12 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                 </Dropdown.Item>
                                 <Dropdown.Item onClick={() => {
 
-                                    appendTopic({
-                                        key: `exam_${topicsData.length}`,
-                                        title: "",
-                                        duration: "",
+                                    appendLecture({
+                                        id: uuid(),
+                                        period: "",
                                         status: "paid",
                                         type: "exam",
-                                        name: "ads",
+                                        name: "",
                                         modify: "create"
                                     })
                                     setToggle({ ...toggle, [`add_exam_${chapter.id || chapter.key}`]: true, [`open_chapter_${chapter.id || chapter.key}`]: true })
@@ -339,9 +381,9 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
 
 
                 <div className={`${toggle[`add_lecture_${chapter.id || chapter.key}`] ? "" : "hidden"} mt-3 pt-4 border-t-[1px] border-[#ececec]`}>
-                    {fieldsTopic.map((field: any, indexFieldTopic: any) => (
+                    {fieldsLecture.map((field: any, indexFieldTopic: any) => (
 
-                        indexFieldTopic == fieldsTopic.length - 1 ?
+                        indexFieldTopic == fieldsLecture.length - 1 && field.type === "lecture" ?
                             <div key={field.id} className="mt-3">
                                 <div className="mb-5 w-1/3">
                                     <label
@@ -400,7 +442,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                                 formData.append('data', JSON.stringify(data));
 
                                                 const request = new XMLHttpRequest();
-                                                request.open('POST', 'http://13.229.142.225:4001/api/v1/videos')
+                                                request.open('POST', `${process.env.NEXT_PUBLIC_BASE_URL_COURSE_LOCAL}/videos`)
 
                                                 request.upload.onprogress = (e) => {
                                                     progress(e.lengthComputable, e.loaded, e.total);
@@ -424,7 +466,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                         name="video"
                                         labelIdle='Kéo & thả hoặc <span class="filepond--label-action">Tìm kiếm</span>'
                                     />
-                                    <p>{getValues().chapters?.indexChapter?.topics?.indexTopic?.link_video}</p>
+
                                 </div>
 
                                 <div className="mb-5 w-1/2">
@@ -447,7 +489,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                                 formData.append('data', JSON.stringify(data));
 
                                                 const request = new XMLHttpRequest();
-                                                request.open('POST', 'http://13.229.142.225:4001/api/v1/document')
+                                                request.open('POST', `${process.env.NEXT_PUBLIC_BASE_URL_COURSE_LOCAL}/document`)
 
                                                 request.upload.onprogress = (e) => {
                                                     progress(e.lengthComputable, e.loaded, e.total);
@@ -541,13 +583,14 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                 <div className="mb-2">
                                     <button
                                         onClick={() => {
-                                            removeTopic(indexFieldTopic)
+                                            removeLecture(indexFieldTopic)
                                             setToggle({ ...toggle, [`add_lecture_${chapter.id || chapter.key}`]: false })
 
                                         }} type="button" className="mr-4 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Huỷ</button>
-                                    <button type="submit"
+                                    <button type="button"
                                         onClick={() => {
-                                            setTypeSubmit(`add_lecture_${chapter.id || chapter.key}`)
+
+                                            handleAddLecture(`chapters.${indexChapter}.topics.${indexFieldTopic}`)
                                         }}
                                         className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mt-3">Lưu</button>
                                 </div>
@@ -558,9 +601,9 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                 </div>
 
                 <div className={`${toggle[`add_exam_${chapter.id || chapter.key}`] ? "" : "hidden"} mt-3 pt-4 border-t-[1px] border-[#ececec]`}>
-                    {fieldsTopic.map((field: any, indexFieldTopic: any) => (
+                    {fieldsLecture.map((field: any, indexFieldTopic: any) => (
 
-                        indexFieldTopic == fieldsTopic.length - 1 ?
+                        indexFieldTopic == fieldsLecture.length - 1 && field.type === "exam" ?
                             <div key={field.id} className="mt-3">
                                 <div className="mb-5 w-1/3">
                                     <label
@@ -569,15 +612,15 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                         Tiêu đề
                                     </label>
                                     <input
-                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.title`, {
-                                            // required: "Tiêu đề không thể thiếu",
+                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.name`, {
+                                            required: "Tiêu đề bài tập không thể thiếu",
                                         })}
                                         type="text"
                                         className={`bg-white border-[1px] border-[#ececec] text-[#343434] text-sm focus: ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
                                     />
 
                                     <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                        {errors.chapters?.[indexChapter]?.topics?.[indexFieldTopic]?.title?.message}
+                                        {errors.chapters?.[indexChapter]?.topics?.[indexFieldTopic]?.name?.message}
                                     </p>
                                 </div>
                                 <div className="mb-5 w-1/3">
@@ -587,15 +630,23 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                         Thời gian (phút)
                                     </label>
                                     <input
-                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.duration`, {
+                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.exam.data.period`, {
                                             required: "Thời gian không thể thiếu",
+                                            min: {
+                                                value: 0,
+                                                message: "Thời gian hoàn thành không thể nhỏ hơn 0"
+                                            },
+                                            max: {
+                                                value: 180,
+                                                message: "Thời gian hoàn thành không thể lớn hơn 180 phút"
+                                            }
                                         })}
                                         type="number"
                                         className={`bg-white border-[1px] border-[#ececec] text-[#343434] text-sm focus: ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
                                     />
 
                                     <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                        {errors.chapters?.[indexChapter]?.topics?.[indexFieldTopic]?.duration?.message}
+                                        {errors.chapters?.[indexChapter]?.topics?.[indexFieldTopic]?.exam?.data?.period?.message}
                                     </p>
                                 </div>
                                 <div className="mb-5 w-1/3">
@@ -605,8 +656,8 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                         Điểm hoàn thành
                                     </label>
                                     <input
-                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.pass_score`, {
-                                            // required: "Điểm hoàn thành không thể thiếu",
+                                        {...register(`chapters.${indexChapter}.topics.${indexFieldTopic}.exam.data.pass_score`, {
+                                            required: "Điểm hoàn thành không thể thiếu",
                                             min: {
                                                 value: 0,
                                                 message: "Điểm hoàn thành không thể nhỏ hơn 0"
@@ -621,7 +672,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                     />
 
                                     <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                        {errors.chapters?.[indexChapter]?.topics?.[indexFieldTopic]?.pass_score?.message}
+                                        {errors.chapters?.[indexChapter]?.topics?.[indexFieldTopic]?.exam?.data?.pass_score?.message}
                                     </p>
                                 </div>
                                 <div className="mb-5 w-full">
@@ -688,13 +739,15 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                 <div className="mb-2">
                                     <button
                                         onClick={() => {
-                                            removeTopic(indexFieldTopic)
+                                            removeLecture(indexFieldTopic)
                                             setToggle({ ...toggle, [`add_exam_${chapter.id || chapter.key}`]: false })
 
                                         }} type="button" className="mr-4 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Huỷ</button>
-                                    <button type="submit"
+                                    <button type="button"
                                         onClick={() => {
-                                            setTypeSubmit(`add_exam_${chapter.id || chapter.key}`)
+
+                                            handleAddExam(`chapters.${indexChapter}.topics.${indexFieldTopic}`)
+
                                         }}
                                         className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mt-3">Lưu</button>
                                 </div>
@@ -734,8 +787,8 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                                         (provided) => (
 
                                                             <TopicCard
-                                                                chapter={chapter} topic={topic} indexChapter={indexChapter} indexTopic={indexTopic} hanldeForm={handleForm} innerRef={provided.innerRef} provided={provided} data={data} setData={setData}
-                                                                removeTopic={removeTopic} fieldsTopic={fieldsTopic} setTypeSubmit={setTypeSubmit} id_course={id_course}
+                                                                chapter={chapter} topic={topic} indexChapter={indexChapter} indexTopic={indexTopic} indexLecture={indexTopic} indexExam={indexTopic} hanldeForm={handleForm} innerRef={provided.innerRef} provided={provided} data={data} setData={setData}
+                                                                removeLecture={removeLecture} fieldsLecture={fieldsLecture} setTypeSubmit={setTypeSubmit} id_course={id_course} setChange={setChange} change={change}
                                                             />
                                                         )
                                                     }
@@ -745,6 +798,25 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                         })
 
                                     }
+                                    {/* {
+                                        getValues().chapters[indexChapter]?.exams?.filter((topic: any) => topic.modify != "delete" && topic.name != '').map((topic: any, indexTopic: any) => {
+                                            return (
+                                                <Draggable key={topic.id} index={indexTopic} draggableId={`${topic.id} `}>
+                                                    {
+                                                        (provided) => (
+
+                                                            <TopicCard
+                                                                chapter={chapter} topic={topic} indexChapter={indexChapter} indexTopic={indexTopic} indexLecture={topic.type === "lecture" ? fieldsLecture.indexOf({ id: topic.id }) : 0} indexExam={topic.type === "exam" ? fieldsLecture.indexOf({ id: topic.id }) : 0} hanldeForm={handleForm} innerRef={provided.innerRef} provided={provided} data={data} setData={setData}
+                                                                removeLecture={removeLecture} fieldsLecture={fieldsLecture} setTypeSubmit={setTypeSubmit} id_course={id_course} setChange={setChange} change={change}
+                                                            />
+                                                        )
+                                                    }
+                                                </Draggable>
+
+                                            )
+                                        })
+
+                                    } */}
                                     {provided.placeholder}
                                 </ul>
                             )

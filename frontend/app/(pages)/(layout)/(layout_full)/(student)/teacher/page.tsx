@@ -256,7 +256,7 @@ export default function TeacherList() {
                                                                             alt="logo"
                                                                         />
                                                                     </div>
-                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.exam_quantity?.exam_quantity || 0} đề thi</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.exam_quantity || 0} đề thi</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
                                                                     <div className='w-5 h-5 relative mr-1'>
@@ -267,7 +267,7 @@ export default function TeacherList() {
                                                                             alt="logo"
                                                                         />
                                                                     </div>
-                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_reviews || 0} đánh giá</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_review || 0} đánh giá</span>
                                                                 </div>
                                                                 <div className='flex items-center'>
                                                                     <div className='w-5 h-5 relative mr-1'>
@@ -278,7 +278,7 @@ export default function TeacherList() {
                                                                             alt="logo"
                                                                         />
                                                                     </div>
-                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.total_registration || 0} học viên</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{teacher?.student_quantity || 0} học viên</span>
                                                                 </div>
 
                                                             </div>

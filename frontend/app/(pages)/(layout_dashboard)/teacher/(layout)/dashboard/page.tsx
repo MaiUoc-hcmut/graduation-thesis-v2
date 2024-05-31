@@ -51,7 +51,7 @@ export default function TeacherDashboard() {
                         </div>
                     </div>
                 </CardDataStats>
-                <CardDataStats title="Tổng học viên" total={`${dashboard?.total_registration || 0}`}>
+                <CardDataStats title="Tổng học viên" total={`${dashboard?.student_quantity || 0}`}>
                     <div className='p-3 rounded-md border-2 border-[#ef9d69]'>
                         <div className='w-8 h-8 relative'>
                             <Image
@@ -63,7 +63,7 @@ export default function TeacherDashboard() {
                         </div>
                     </div>
                 </CardDataStats>
-                <CardDataStats title="Tổng đánh giá" total={`${dashboard?.total_exam || 0}`}>
+                <CardDataStats title="Tổng đánh giá" total={`${dashboard?.total_review || 0}`}>
                     <div className='p-3 rounded-md border-2  border-[#4fb949]'>
                         <div className='w-8 h-8 relative'>
                             <Image

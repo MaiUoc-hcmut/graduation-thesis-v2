@@ -17,12 +17,11 @@ import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 
 const MySwal = withReactContent(Swal)
-import AlertAdd from "@/app/_components/Alert/AlertAdd"
 
 
 export default function CourseDashboard() {
     const authUser = useAppSelector(state => state.authReducer.user);
-    const [courses, setCourses] = useState<any>()
+    const [courses, setCourses] = useState<any>([])
     const [modal, setModal] = useState<any>({})
     const [change, setChange] = useState<boolean>(false)
     const [countPaginate, setCountPaginate] = useState(1)
@@ -141,7 +140,7 @@ export default function CourseDashboard() {
                                                                     MySwal.close()
 
                                                                     MySwal.fire({
-                                                                        title: <p className="text-2xl">Khóa học đã được tạo thành công</p>,
+                                                                        title: <p className="text-2xl">Khóa học đã được xóa thành công</p>,
                                                                         icon: 'success',
                                                                         showConfirmButton: false,
                                                                         timer: 1500
@@ -175,18 +174,33 @@ export default function CourseDashboard() {
                                         <span className="text-[20px] font-bold text-primary">{formatCash(`${course.price}`)} VNĐ</span>
                                     </div>
                                     <div className="mt-auto flex items-center justify-between flex-wrap">
-                                        <div className="flex items-center flex-col mt-[20px] mr-[15px]">
-                                            <span className="text-sm text-[#818894]">Lớp:</span>
-                                            <span className="text-sm text-[#171347]">{course.Categories[0]?.Class}</span>
-                                        </div>
-                                        <div className="flex items-center flex-col mt-[20px] mr-[15px]">
-                                            <span className="text-sm text-[#818894]">Môn học:</span>
-                                            <span className="text-sm text-[#171347]">{course.Categories[1]?.Subject}</span>
-                                        </div>
-                                        <div className="flex items-center flex-col mt-[20px] mr-[15px]">
-                                            <span className="text-sm text-[#818894]">Mức độ:</span>
-                                            <span className="text-sm text-[#171347]">{course.Categories[2]?.Level}</span>
-                                        </div>
+                                        {
+                                            course?.Categories.map((category: any, index: number) => {
+                                                if (category.Class) {
+                                                    return (
+                                                        <div key={category.id} className="flex items-center flex-col mt-[20px] mr-[15px]">
+                                                            <span className="text-sm text-[#818894]">Lớp:</span>
+                                                            <span className="text-sm text-[#171347]">{category.Class}</span>
+                                                        </div>
+                                                    )
+                                                }
+                                                else if (category.Subject) {
+                                                    return (
+                                                        <div key={category.id} className="flex items-center flex-col mt-[20px] mr-[15px]">
+                                                            <span className="text-sm text-[#818894]">Môn học:</span>
+                                                            <span className="text-sm text-[#171347]">{category.Subject}</span>
+                                                        </div>
+                                                    )
+                                                } else {
+                                                    return (
+                                                        <div key={category.id} className="flex items-center flex-col mt-[20px] mr-[15px]">
+                                                            <span className="text-sm text-[#818894]">Mức độ:</span>
+                                                            <span className="text-sm text-[#171347]">{category.Level}</span>
+                                                        </div>
+                                                    )
+                                                }
+                                            })
+                                        }
                                     </div>
                                 </div>
                                 {/* <div

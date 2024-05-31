@@ -7,14 +7,15 @@ import { useAppSelector } from '@/redux/store';
 import { formatCash } from '@/app/helper/FormatFunction';
 export default function CheckoutPage() {
     const router = useRouter();
-    const [cartItems, setCartItems] = useState([]);
+    const [cartItems, setCartItems] = useState<any>([]);
     const [total, setTotal] = useState(0);
     const { user } = useAppSelector(state => state.authReducer);
     useEffect(() => {
         async function fetchData() {
             await paymentApi.getCartOfStudent().then((data: any) => {
-                setCartItems(data.data)
-                setTotal(data.data.reduce((total: any, item: any) => total + item.price, 0))
+                const tmp = [...data.data.courses, ...data.data.combos];
+                setCartItems(tmp);
+                setTotal(tmp?.reduce((total: any, item: any) => total + item.price, 0))
             }
             ).catch((err: any) => { })
         }
@@ -39,7 +40,7 @@ export default function CheckoutPage() {
                             return (
                                 <div key={item.id} className="mt-4 space-y-3 rounded-lg border bg-white px-2 py-4 sm:px-6">
                                     <div className="flex flex-col rounded-lg bg-white sm:flex-row ">
-                                        <div className='relative flex-1'>
+                                        <div className='relative flex-1 h-28 w-28'>
                                             <Image
                                                 src={`${'/images/cousre-thumnail-1.jpg'}`}
                                                 fill
@@ -48,7 +49,7 @@ export default function CheckoutPage() {
                                             />
                                         </div>
                                         <div className="flex w-3/4 flex-col px-4 py-4">
-                                            <span className="font-semibold">
+                                            <span className="font-semibold ">
                                                 {item.name}
                                             </span>
                                             <p className="text-lg font-bold">{formatCash(`${item.price}`)} VNĐ</p>
@@ -193,7 +194,7 @@ export default function CheckoutPage() {
                     <div className="mt-6 border-t border-b py-4">
                         <div className="flex items-center justify-between mb-3">
                             <p className="text-sm font-medium text-gray-900">Tổng phụ</p>
-                            <p className="font-semibold text-gray-900">{formatCash(`${total}`)} VNĐ</p>
+                            <p className="font-semibold text-gray-900">{formatCash(`${total}` || '0')} VNĐ</p>
                         </div>
                         <div className="flex items-center justify-between">
                             <p className="text-sm font-medium text-gray-900">Khuyển mãi</p>
@@ -202,7 +203,7 @@ export default function CheckoutPage() {
                     </div>
                     <div className="mt-6 flex items-center justify-between">
                         <p className="text-sm font-medium text-gray-900">Tổng</p>
-                        <p className="text-2xl font-semibold text-gray-900">{formatCash(`${total}`)} VNĐ</p>
+                        <p className="text-2xl font-semibold text-gray-900">{formatCash(`${total}` || '0')} VNĐ</p>
                     </div>
                     <button onClick={async () => {
                         let res: any

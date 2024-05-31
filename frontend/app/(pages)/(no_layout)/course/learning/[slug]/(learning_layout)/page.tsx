@@ -22,14 +22,14 @@ const MySwal = withReactContent(Swal)
 
 export default function LearningPage({ params }: { params: { slug: string } }) {
     const searchParams = useSearchParams();
-    const [course, setCourse] = useState<any>()
+    const [course, setCourse] = useState<any>({})
     const initToggle: any = {}
     const playRef = useRef<any>()
     const [toggle, setToggle] = useState(initToggle)
     const [tab, setTab] = useState(2)
     const [content, setContent] = useState('')
-    const [topic, setTopic] = useState<any>()
-    const [comments, setComments] = useState<any>()
+    const [topic, setTopic] = useState<any>({})
+    const [comments, setComments] = useState<any>({})
     const [change, setChange] = useState(false)
     const [countPaginate, setCountPaginate] = useState(0)
     const [currentPage, setCurrentPage] = useState(1)
@@ -37,7 +37,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
     const [modal, setModal] = useState<any>({})
     const editorRef = useRef<any>(null);
     const [assignments, setAssignments] = useState<any>([])
-    const [progress, setProgress] = useState<any>()
+    const [progress, setProgress] = useState<any>({})
 
     const lectureId = searchParams.get('lecture') || (topic?.type === "lecture" && !searchParams.get('exam') ? topic?.id : null)
     const examId = searchParams.get('exam') || (topic?.type === "exam" && !searchParams.get('lecture') ? topic?.id_exam : null)
@@ -321,7 +321,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                     }} type="text" className="bg-gray-50 border-b border-[#ccc] mb-2 text-gray-900 text-sm rounded-lg block w-full p-2.5" placeholder="Bạn có thắc mắc gì trong bài học này?" />
                                                 </div>
                                                 <div className={`${toggle[`edit-cmt`] ? '' : 'hidden'}`}>
-                                                    <TinyMceEditorComment value={content} setValue={setValue} position={'content'} editorRef={editorRef} link={'http://13.229.142.225:4001/api/v1/images/single'} />
+                                                    <TinyMceEditorComment value={content} setValue={setValue} position={'content'} editorRef={editorRef} link={`${process.env.NEXT_PUBLIC_BASE_URL_COURSE_LOCAL}/images/single`} />
                                                 </div>
                                                 <div className='flex justify-end mt-4'>
                                                     <button type="button" className="py-2.5 px-5 mr-2 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-gray-200" onClick={() => (setToggle({ ...toggle, [`edit-cmt`]: false }))}>Hủy</button>
@@ -444,7 +444,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                             }
                                                         })}>
 
-                                                            <TinyMceEditorComment value={getValues()[cmt.id]} setValue={setValue} position={`${cmt.id}`} link={'http://13.229.142.225:4001/api/v1/images/single'} />
+                                                            <TinyMceEditorComment value={getValues()[cmt.id]} setValue={setValue} position={`${cmt.id}`} link={`${process.env.NEXT_PUBLIC_BASE_URL_COURSE_LOCAL}/images/single`} />
                                                             <div className='flex justify-end mt-4'>
                                                                 <button type="button" className="py-2.5 px-5 mr-2 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-gray-200" onClick={() => (setToggle({ ...toggle, [`form${cmt.id}`]: false }))}>Hủy</button>
                                                                 <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-2 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Bình luận</button>
@@ -515,9 +515,9 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
 
                             </div>
                             <div className={`${tab === 2 ? '' : 'hidden'} px-10 py-5`}>
-                                <p>Bài giảng: {topic?.name}</p>
+                                <p><span className='font-medium'>Bài giảng:</span> {topic?.name}</p>
                                 <p className={`${topic?.description != "" ? topic?.description : "hidden"} mt-2`}>
-                                    Mô tả:
+                                    <span className='font-medium'>Mô tả: </span>
                                     {
                                         topic?.description
                                     }
@@ -538,12 +538,21 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                         <div className='bg-white rounded-[10px] p-4 '>
                             <section className='flex justify-between items-center border-[1px] border-[#ececec] p-3 rounded-lg'>
                                 <div className='flex items-center'>
-                                    <div className='p-4 bg-slate-100 mr-2 rounded-md'>
-                                        <DocumentIcon className='w-6 h-6' />
+                                    <div className='p-6 bg-slate-100 mr-2 rounded-md'>
+                                        <DocumentIcon className='w-8 h-8' />
                                     </div>
                                     <div>
                                         <div className='text-[#818894] text-sm'>BÀI KIỂM TRA</div>
                                         <h3 className='text-xl text-secondary font-bold'>{topic?.name}</h3>
+                                        <div>
+                                            <span className="mr-2">
+                                                Thời gian: {topic?.exam?.data?.period} phút
+                                            </span>
+                                            <span>
+                                                Số câu: {topic?.exam?.data?.quantity_question}
+                                            </span>
+
+                                        </div>
                                     </div>
 
                                 </div>
@@ -595,7 +604,7 @@ export default function LearningPage({ params }: { params: { slug: string } }) {
                                                                             {index + 1}
                                                                         </th>
                                                                         <td className="w-1/3 px-6 py-4">{convertToVietnamTime(assignment.time_end)}</td>
-                                                                        <td className="w-1/6 px-6 py-4 text-center">{assignment.score}</td>
+                                                                        <td className="w-1/6 px-6 py-4 text-center">{(assignment.score || 0).toFixed(1)}</td>
                                                                         <td className="w-1/3 px-6 py-4 text-center">
                                                                             {!assignment.passed ?
                                                                                 <span className="bg-red-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">Chưa hoàn thành</span>

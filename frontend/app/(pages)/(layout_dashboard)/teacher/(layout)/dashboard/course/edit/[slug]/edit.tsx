@@ -28,6 +28,7 @@ type CourseData = {
     thumbnail: File
     cover: File
     chapters: Array<ChapterData>
+    status: string
 }
 
 type ChapterData = {
@@ -64,8 +65,11 @@ export default function Edit({ id, course }: any) {
 
     const {
         handleSubmit,
+        setValue,
+        getValues,
         formState: { errors },
     } = handleForm
+
 
 
     const { steps, step, isFirstStep, isLastStep, back, next, goTo } =
@@ -133,10 +137,36 @@ export default function Edit({ id, course }: any) {
 
 
 
+
                         if (typeSubmit === "submit") {
+                            // data1.chapters.map((chapter: any, indexChapter: any) => {
+                            //     chapter.topics.map((topic: any, indexTopic: any) => {
+                            //         if (topic.type == "exam") {
+                            //             data1.chapters[indexChapter].topics[indexTopic] = {
+                            //                 id: topic.id,
+                            //                 type: topic.type,
+                            //                 status: topic.status,
+                            //                 modify: topic.modify,
+                            //                 name: topic.name,
+                            //                 exam: {
+                            //                     data: {
+                            //                         period: topic.duration,
+                            //                         pass_score: topic.pass_score,
+                            //                         questions: topic.questions,
+                            //                     }
+                            //                 }
+                            //             }
+                            //         }
+                            //     })
+                            // })
+
+                            console.log(data1, 32);
+
+
                             const formData = new FormData();
 
                             formData.append("data", JSON.stringify(data1))
+
 
                             MySwal.fire({
                                 title: <p className='text-lg'>Đang xử lý</p>,
@@ -186,7 +216,11 @@ export default function Edit({ id, course }: any) {
                             </button>
                         </div>
                         <div>
-                            <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover mr-5" onClick={() => setTypeSubmit("submit")}>Lưu bản nháp</button>
+                            {/* <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover mr-5" onClick={() => {
+                                setTypeSubmit("submit")
+                                setValue("status", "draft")
+                            }
+                            }>Lưu bản nháp</button> */}
                             <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover" onClick={() => setTypeSubmit("submit")}>Hoàn thành</button>
                         </div>
                     </div>

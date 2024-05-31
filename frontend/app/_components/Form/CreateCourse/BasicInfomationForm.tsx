@@ -266,6 +266,21 @@ export function BasicInfomationForm({
                                     id="inline-2-radio"
                                     type="radio"
                                     {...register(`status`)}
+                                    value="draft"
+                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                />
+                                <label
+                                    htmlFor="inline-2-radio"
+                                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                >
+                                    Bản nháp
+                                </label>
+                            </div>
+                            <div className="flex items-center me-4">
+                                <input
+                                    id="inline-2-radio"
+                                    type="radio"
+                                    {...register(`status`)}
                                     value="private"
                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                 />
@@ -307,7 +322,7 @@ export function BasicInfomationForm({
 
 
                             const request = new XMLHttpRequest();
-                            request.open('POST', 'http://13.229.142.225:4001/api/v1/images')
+                            request.open('POST', `${process.env.NEXT_PUBLIC_BASE_URL_COURSE_LOCAL}/images`)
 
 
 
@@ -358,7 +373,7 @@ export function BasicInfomationForm({
                                 type: "cover"
                             }));
                             const request = new XMLHttpRequest();
-                            request.open('POST', 'http://13.229.142.225:4001/api/v1/images')
+                            request.open('POST', `${process.env.NEXT_PUBLIC_BASE_URL_COURSE_LOCAL}/images`)
 
 
 

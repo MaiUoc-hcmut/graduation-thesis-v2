@@ -15,10 +15,12 @@ import { useAppSelector } from '@/redux/store';
 import { renderOnlyStar } from '@/app/helper/RenderFunction';
 import examApi from '@/app/api/examApi';
 import { useSearchParams } from 'next/navigation';
-type Review = {
-    content: string
-    rating: number
-}
+import PaginateButton from '@/app/_components/Paginate/PaginateButton';
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
+
 
 export default function ComboList({ params }: { params: { slug: string } }) {
     const [tab, setTab] = useState(1)
@@ -26,20 +28,22 @@ export default function ComboList({ params }: { params: { slug: string } }) {
 
     const [reviews, setReviews] = useState([]);
     const [changeData, setChangeData] = useState(false);
-    const [combos, setCombos] = useState<any>({});
+    const [combos, setCombos] = useState<any>();
     const [rating, setRating] = useState(0);
     const [avgReview, setAvgReview] = useState(0);
-    const [starDetails, setStarDetails] = useState<any>();
+    const [reviewExams, setReviewExams] = useState<any>({});
+    const [starDetails, setStarDetails] = useState<any>({});
     const [hoverRating, setHoverRating] = useState(0);
     const { user } = useAppSelector(state => state.authReducer);
-
+    const [countPaginate, setCountPaginate] = useState(0)
+    const [currentPage, setCurrentPage] = useState(1)
 
     const {
         register,
         handleSubmit,
         reset,
         formState: { errors },
-    } = useForm<Review>()
+    } = useForm<any>()
 
     useEffect(() => {
         async function fetchData() {
@@ -47,19 +51,28 @@ export default function ComboList({ params }: { params: { slug: string } }) {
                 setCombos(data.data)
             }
             ).catch((err: any) => { })
-            // await combosApi.getReview(params.slug).then((data: any) => {
-            //     setReviews(data.data.reviews)
-            //     if (data.data.averageRating) {
-            //         setAvgReview(data.data.averageRating)
-            //     }
-            //     if (data.data.starDetails) {
-            //         setStarDetails(data.data.starDetails)
-            //     }
-            // }
-            // ).catch((err: any) => { })
+            await examApi.getReviewCombo(params.slug, currentPage).then((data: any) => {
+                setReviews(data.data.reviews)
+                setCountPaginate(Math.ceil(data.data.count / 10))
+                if (data.data.averageRating) {
+                    setAvgReview(data.data.averageRating)
+                }
+                if (data.data.starDetails) {
+                    setStarDetails(data.data.starDetails)
+                }
+            }
+            ).catch((err: any) => { })
         }
         fetchData()
-    }, [changeData, params.slug])
+    }, [changeData, currentPage, params.slug])
+
+    async function fetchReview(id: string) {
+        await examApi.getReviewExam(id).then((data: any) => {
+            setReviewExams({ ...reviewExams, [id]: data.data.reviews })
+        }
+        ).catch((err: any) => { })
+    }
+
 
 
     const handleHover = (hoverRating: any) => {
@@ -107,7 +120,7 @@ export default function ComboList({ params }: { params: { slug: string } }) {
                             </div>
                             <div className='mt-4 text-white text-sm font-medium'>
                                 <span className='mr-2'>Tạo bởi</span>
-                                <Link href={`/teacher/profile/${combos?.id_teacher}`} className='underline decoration-1'></Link>
+                                <Link href={`/teacher/profile/${combos?.teacher?.id}`} className='underline decoration-1'>{combos?.teacher?.name}</Link>
                             </div>
                         </div>
                         <div className='mt-9'>
@@ -173,13 +186,13 @@ export default function ComboList({ params }: { params: { slug: string } }) {
                                                                     {combo.quantity_question} câu
                                                                     | {combo.period} phút
                                                                 </div>
-                                                                {/* <div>
+                                                                <div>
                                                                     <div className="flex items-center ml-[-4px] mt-2">
-                                                                        {renderOnlyStar(Math.floor(avgReview))}
-                                                                        <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-2 py-0.5 rounded">{avgReview.toFixed(1)}</span>
+                                                                        {renderOnlyStar(Math.floor(combo?.average_rating || 0))}
+                                                                        <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-2 py-0.5 rounded">{(combo?.average_rating || 0).toFixed(1)}</span>
                                                                         <span className='text-white'>({reviews.length} Đánh giá)</span>
                                                                     </div>
-                                                                </div> */}
+                                                                </div>
 
 
                                                             </div>
@@ -189,9 +202,12 @@ export default function ComboList({ params }: { params: { slug: string } }) {
                                                             <div className="" >
                                                                 {
                                                                     !toggle[`open_chapter_${combo.id}`] ?
-                                                                        <button type="button" className=" text-[#818894]" onClick={() => {
+                                                                        <button type="button" className=" text-[#818894]" onClick={async () => {
                                                                             setToggle({ ...toggle, [`open_chapter_${combo.id}`]: true })
+                                                                            fetchReview(combo.id)
+
                                                                         }}>
+
                                                                             <ChevronDownIcon className="w-6 h-6" />
                                                                         </button>
                                                                         :
@@ -210,15 +226,38 @@ export default function ComboList({ params }: { params: { slug: string } }) {
                                                             if (rating == 0) return
                                                             const formData = {
                                                                 data: {
-                                                                    ...dataReview,
-                                                                    "id_combos": params.slug,
+                                                                    content: dataReview[combo.id],
+                                                                    "id_exam": combo.id,
                                                                     rating
                                                                 }
                                                             }
-                                                            // await examApi.createReview(formData).catch((err: any) => { })
-                                                            reset()
-                                                            setRating(0)
-                                                            setChangeData(!changeData)
+
+                                                            MySwal.fire({
+                                                                title: <p className='text-lg'>Đang xử lý</p>,
+                                                                didOpen: async () => {
+                                                                    MySwal.showLoading()
+                                                                    await examApi.createReview(formData)
+                                                                        .then(() => {
+                                                                            reset()
+                                                                            setRating(0)
+                                                                            fetchReview(combo.id)
+                                                                            MySwal.fire({
+                                                                                title: <p className="text-2xl">Thành công</p>,
+                                                                                icon: 'success',
+                                                                                showConfirmButton: false,
+                                                                                timer: 1000
+                                                                            })
+                                                                        }).catch((err: any) => {
+                                                                            MySwal.fire({
+                                                                                title: <p className="text-2xl">Thất bại</p>,
+                                                                                icon: 'error',
+                                                                                showConfirmButton: false,
+                                                                                timer: 1000
+                                                                            })
+                                                                        })
+                                                                },
+                                                            })
+
 
                                                         })} className="flex flex-col items-start mt-4 mb-6">
                                                             <div className=''>
@@ -253,7 +292,7 @@ export default function ComboList({ params }: { params: { slug: string } }) {
                                                             </div>
                                                             <textarea
                                                                 placeholder="Nhập đánh giá của bạn..."
-                                                                {...register("content")}
+                                                                {...register(`${combo.id}`)}
                                                                 className="w-full p-2 border rounded focus:ring-0 focus:border-primary_border"
                                                                 rows={2}
                                                             ></textarea>
@@ -267,8 +306,8 @@ export default function ComboList({ params }: { params: { slug: string } }) {
                                                         </form>
                                                         <div className=''>
                                                             {
-                                                                reviews?.map((review: any) => (
-                                                                    <div key={review.id} className="bg-white px-4 py-4 mb-5 border rounded-lg shadow-md">
+                                                                reviewExams[combo.id]?.map((review: any) => (
+                                                                    <div key={review.id} className="bg-white px-3 py-2 mb-3 border rounded-lg shadow-md">
                                                                         <div className='flex items-center justify-between'>
                                                                             <div className='flex items-center mt-2'>
                                                                                 <div>
@@ -296,6 +335,7 @@ export default function ComboList({ params }: { params: { slug: string } }) {
                                                                         <div className='text-[#818894] mt-4 font-normal'>
                                                                             {review.content}
                                                                         </div>
+
                                                                     </div>
                                                                 ))}
                                                         </div>
@@ -326,10 +366,10 @@ export default function ComboList({ params }: { params: { slug: string } }) {
                                                     5 sao
                                                 </div>
                                                 <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['5star']?.quantity == 0 ? 0 : starDetails?.['5star'].percentage}%` }} />
+                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['5star']?.quantity == 0 ? 0 : starDetails?.['5star']?.percentage}%` }} />
                                                 </div>
                                                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    {0 || Math.floor(starDetails?.['5star'].percentage)}%
+                                                    {0 || Math.floor(starDetails?.['5star']?.percentage)}%
                                                 </span>
                                             </div>
                                             <div className="flex items-center mt-4">
@@ -339,10 +379,10 @@ export default function ComboList({ params }: { params: { slug: string } }) {
                                                     4 sao
                                                 </div>
                                                 <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['4star']?.quantity == 0 ? 0 : starDetails?.['4star'].percentage}%` }} />
+                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['4star']?.quantity == 0 ? 0 : starDetails?.['4star']?.percentage}%` }} />
                                                 </div>
                                                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    {0 || Math.floor(starDetails?.['4star'].percentage)}%
+                                                    {0 || Math.floor(starDetails?.['4star']?.percentage)}%
                                                 </span>
                                             </div>
                                             <div className="flex items-center mt-4">
@@ -352,10 +392,10 @@ export default function ComboList({ params }: { params: { slug: string } }) {
                                                     3 sao
                                                 </div>
                                                 <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['3star']?.quantity == 0 ? 0 : starDetails?.['3star'].percentage}%` }} />
+                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['3star']?.quantity == 0 ? 0 : starDetails?.['3star']?.percentage}%` }} />
                                                 </div>
                                                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    {0 || Math.floor(starDetails?.['3star'].percentage)}%
+                                                    {0 || Math.floor(starDetails?.['3star']?.percentage)}%
                                                 </span>
                                             </div>
                                             <div className="flex items-center mt-4">
@@ -365,10 +405,10 @@ export default function ComboList({ params }: { params: { slug: string } }) {
                                                     2 sao
                                                 </div>
                                                 <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['2star']?.quantity == 0 ? 0 : starDetails?.['2star'].percentage}%` }} />
+                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['2star']?.quantity == 0 ? 0 : starDetails?.['2star']?.percentage}%` }} />
                                                 </div>
                                                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    {0 || Math.floor(starDetails?.['2star'].percentage)}%
+                                                    {0 || Math.floor(starDetails?.['2star']?.percentage)}%
                                                 </span>
                                             </div>
                                             <div className="flex items-center mt-4">
@@ -378,10 +418,10 @@ export default function ComboList({ params }: { params: { slug: string } }) {
                                                     1 sao
                                                 </div>
                                                 <div className="w-3/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
-                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['1star']?.quantity == 0 ? 0 : starDetails?.['1star'].percentage}%` }} />
+                                                    <div className="h-5 bg-yellow-300 rounded" style={{ width: `${starDetails?.['1star']?.quantity == 0 ? 0 : starDetails?.['1star']?.percentage}%` }} />
                                                 </div>
                                                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    {0 || Math.floor(starDetails?.['1star'].percentage)}%
+                                                    {0 || Math.floor(starDetails?.['1star']?.percentage)}%
                                                 </span>
                                             </div>
                                         </div>
@@ -394,15 +434,37 @@ export default function ComboList({ params }: { params: { slug: string } }) {
                                             if (rating == 0) return
                                             const formData = {
                                                 data: {
-                                                    ...dataReview,
-                                                    "id_combos": params.slug,
+                                                    content: dataReview.content,
+                                                    "id_combo": params.slug,
                                                     rating
                                                 }
                                             }
-                                            // await examApi.createReview(formData).catch((err: any) => { })
-                                            reset()
-                                            setRating(0)
-                                            setChangeData(!changeData)
+                                            MySwal.fire({
+                                                title: <p className='text-lg'>Đang xử lý</p>,
+                                                didOpen: async () => {
+                                                    MySwal.showLoading()
+                                                    await await examApi.createReview(formData)
+                                                        .then(() => {
+                                                            reset()
+                                                            setRating(0)
+                                                            setChangeData(!changeData)
+                                                            MySwal.fire({
+                                                                title: <p className="text-2xl">Thành công</p>,
+                                                                icon: 'success',
+                                                                showConfirmButton: false,
+                                                                timer: 1000
+                                                            })
+                                                        }).catch((err: any) => {
+                                                            MySwal.fire({
+                                                                title: <p className="text-2xl">Thất bại</p>,
+                                                                icon: 'error',
+                                                                showConfirmButton: false,
+                                                                timer: 1000
+                                                            })
+                                                        })
+                                                },
+                                            })
+
 
                                         })} className="flex flex-col items-start mt-5">
                                             <div className=''>
@@ -482,6 +544,8 @@ export default function ComboList({ params }: { params: { slug: string } }) {
                                                         </div>
                                                     </div>
                                                 ))}
+                                            <PaginateButton countPaginate={countPaginate} setCurrentPage={setCurrentPage} currentPage={currentPage} />
+
                                         </div>
                                     </div>
                                 </div>
@@ -503,38 +567,55 @@ export default function ComboList({ params }: { params: { slug: string } }) {
                                     <span className='text-3xl text-primary font-bold'>{formatCash(`${combos?.price}`)} VNĐ</span>
                                 </div>
                                 <div className='mt-5 flex flex-col'>
-                                    <button onClick={async () => {
-                                        let id_cart = ''
+                                    {
+                                        combos?.cart_or_bought ? (
+                                            combos?.cart_or_bought === 'bought' ?
+                                                <Link href={`/exam/combo/${combos.id}/list`} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Đi đến trang làm bài</Link>
+                                                : <button disabled className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Đã thêm vào giỏ hàng</button>
+                                        )
+                                            : <button onClick={async () => {
+                                                MySwal.fire({
+                                                    title: <p className='text-lg'>Đang xử lý</p>,
+                                                    didOpen: async () => {
+                                                        MySwal.showLoading()
+                                                        await paymentApi.addToCart(combos?.id, 'id_combo').then(() => {
+                                                            MySwal.fire({
+                                                                title: <p className="text-2xl">Thêm vào giỏ hàng thành công</p>,
+                                                                icon: 'success',
+                                                                showConfirmButton: false,
+                                                                timer: 1500
+                                                            })
+                                                        }).catch((err: any) => {
+                                                            MySwal.fire({
+                                                                title: <p className="text-2xl">Thêm vào giỏ hàng thất bại</p>,
+                                                                icon: 'error',
+                                                                showConfirmButton: false,
+                                                                timer: 1500
+                                                            })
+                                                        })
+                                                        reset()
+                                                    },
+                                                })
 
-                                        await paymentApi.addToCart(combos?.id).then(() => {
-                                            toast.success('Thêm vào giỏ hàng thành công', {
-                                                position: "bottom-right",
-                                                autoClose: 800,
-                                                hideProgressBar: false,
-                                                closeOnClick: true,
-                                                pauseOnHover: true,
-                                                draggable: true,
-                                                progress: undefined,
-                                                theme: "colored",
-                                            });
-                                        }).catch((err: any) => { })
-                                    }} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Thêm vào giỏ hàng</button>
+
+                                            }} className='px-8 font-medium rounded-lg flex items-center justify-center bg-primary text-white h-12'>Thêm vào giỏ hàng</button>
+                                    }
                                 </div>
                                 <div className='mt-9'>
                                     <strong className='text-[#343434]'>Combo này bao gồm</strong>
                                     <div className='mt-4 grid grid-cols-2 gap-2'>
                                         <div className='flex items-center'>
                                             <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                            <span className='text-[#171347] font-medium text-sm'>{combos?.chapters?.length} đề thi</span>
+                                            <span className='text-[#171347] font-medium text-sm'>{combos?.quantity_exam} đề thi</span>
                                         </div>
                                         <div className='flex items-center'>
                                             <QuestionMarkCircleIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                            <span className='text-[#171347] font-medium text-sm'>{combos?.total_lecture} câu hỏi</span>
+                                            <span className='text-[#171347] font-medium text-sm'>{combos?.quantity_question} câu hỏi</span>
                                         </div>
-                                        <div className='flex items-center'>
+                                        {/* <div className='flex items-center'>
                                             <ClipboardDocumentIcon className='w-5 h-5 text-secondary font-medium mr-1' />
                                             <span className='text-[#171347] font-medium text-sm'>{combos?.total_exam} dạng</span>
-                                        </div>
+                                        </div> */}
 
                                     </div>
                                 </div>

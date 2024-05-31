@@ -14,12 +14,14 @@ import { useEffect, useRef, useState } from 'react';
 import notifyApi from '@/app/api/notifyApi';
 import { convertToVietnamTime } from '@/app/helper/FormatFunction';
 import { initFlowbite } from 'flowbite';
-import { Message } from '@chatscope/chat-ui-kit-react';
 import MessageBox from '../MessageBox/MessageBox';
 import chatApi from '@/app/api/chatApi';
 import { useSocket } from '@/app/socket/SocketProvider';
 import { Bounce, toast } from 'react-toastify';
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 
+const MySwal = withReactContent(Swal)
 
 export default function HeaderTeacher() {
     const dispatch = useDispatch<AppDispatch>();
@@ -40,7 +42,7 @@ export default function HeaderTeacher() {
         async function fetchData() {
             if (user) {
                 //socket notify
-                const socket = io("http://localhost:4003", { transports: ["websocket"] });
+                const socket = io(`http://47.129.11.117:4003`, { transports: ["websocket"] });
                 socket.emit("new_user_online", user.id);
                 socket.on("created_course", (data) => {
                     const audio = new Audio("/audio/audio-notification.mp3");
@@ -371,7 +373,7 @@ export default function HeaderTeacher() {
 
                                     >
                                         <Image
-                                            src={`${user.avatar ? user.avatar : '/images/avatar.png'}`}
+                                            src={`${user.avatar ? user.avatar : '/images/avatar-teacher.png'}`}
                                             width={32}
                                             height={32}
                                             className='w-8 h-8 rounded-full'
@@ -425,7 +427,20 @@ export default function HeaderTeacher() {
                                             <button
                                                 onClick={async () => {
                                                     dispatch(signout())
+                                                    MySwal.fire({
+                                                        title: <p className='text-lg'>Đang xử lý</p>,
+                                                        didOpen: async () => {
+                                                            MySwal.showLoading()
 
+                                                            MySwal.fire({
+                                                                title: <p className="text-2xl">Đăng xuất thành công</p>,
+                                                                icon: 'success',
+                                                                showConfirmButton: false,
+                                                                timer: 1000
+                                                            })
+
+                                                        },
+                                                    })
                                                 }}
                                                 className="w-full text-left block py-2 px-4 text-sm text-[#f63c3c] hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                                             >

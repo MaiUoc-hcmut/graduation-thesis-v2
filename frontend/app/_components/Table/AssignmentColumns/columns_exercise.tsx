@@ -69,7 +69,7 @@ export const columns: ColumnDef<any>[] = [
             )
         },
         cell: ({ cell }) => {
-            return <span className="font-semibold">{cell.getValue() as ReactNode}</span>
+            <span className="font-semibold">{(Number(cell.getValue()) || 0).toFixed(1) as ReactNode}</span>
         },
     },
     {
@@ -124,7 +124,7 @@ export const columns: ColumnDef<any>[] = [
             )
         },
         cell: ({ cell }) => {
-            return <Link href={`/teacher/quizz/assignment/${cell.getValue()}/review`} className="underline text-blue-500">Đánh giá</Link>
+            return <Link href={`/teacher/quizz/assignment/${cell.getValue()}/review?type=exercise`} className="underline text-blue-500">Đánh giá</Link>
         },
     },
 ]

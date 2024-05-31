@@ -4,13 +4,14 @@ import Image from "next/image"
 import { useEffect, useState } from "react"
 import courseApi from '@/app/api/courseApi';
 import Carousel from 'react-multi-carousel';
-import { ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon } from '@heroicons/react/24/outline'
+import { ClockIcon, Squares2X2Icon, FilmIcon, DocumentTextIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
 import { StarIcon } from '@heroicons/react/20/solid'
 import Link from 'next/link';
 import { convertTime, formatCash } from "@/app/helper/FormatFunction";
 import { renderOnlyStar, renderStars } from "@/app/helper/RenderFunction";
 import CourseCard from "@/app/_components/Card/Course/CourseCard";
 import userApi from "@/app/api/userApi";
+import examApi from "@/app/api/examApi";
 
 export default function Home() {
 
@@ -35,7 +36,7 @@ export default function Home() {
   const responsiveTeacher = {
     desktop: {
       breakpoint: { max: 3000, min: 1024 },
-      items: 5,
+      items: 4,
       slidesToSlide: 5 // optional, default to 1.
     },
     tablet: {
@@ -54,6 +55,7 @@ export default function Home() {
   const [teachers, setTeachers] = useState([])
   const [coursesRating, setCoursesRating] = useState([])
   const [coursesResgistion, setCoursesRegistion] = useState([])
+  const [combos, setCombos] = useState<any>([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -73,6 +75,9 @@ export default function Home() {
         setTeachers(data.data.teachers)
       }
       ).catch((err: any) => { })
+      await examApi.getAllCombo('', '1').then((data: any) => {
+        setCombos(data.data.combos)
+      }).catch((err: any) => { })
     }
     fetchData()
   }, [])
@@ -200,12 +205,12 @@ export default function Home() {
           </Carousel>
         </div>
       </section>
-      {/* <section className="pt-12">
+      <section className="pt-12">
         <div className="flex justify-between">
           <div>
             <h2 className="text-[24px] text-secondary font-bold">Đề thi đánh giá tốt nhất</h2>
           </div>
-          <Link href='/course?sort=rating&order=desc' className="border-[1px] border-[#f1f1f1] text-[#818894] rounded-md px-4 py-2 hover:bg-slate-300">Xem tất cả</Link>
+          <Link href='/exam?sort=rating&order=desc' className="border-[1px] border-[#f1f1f1] text-[#818894] rounded-md px-4 py-2 hover:bg-slate-300">Xem tất cả</Link>
         </div>
         <div className="pt-4 pb-12 relative">
           <Carousel
@@ -226,14 +231,71 @@ export default function Home() {
             arrows={false}
             renderDotsOutside={true}
           >
-            {coursesRating.map((course: any) => {
-              return (
-                <CourseCard course={course} key={course.id} />
-              )
-            })}
+            {
+              combos?.map((combo: any) => {
+                return (
+                  <Link key={combo.id} href={`exam/combo/${combo.id}`} className=''>
+                    <div className='bg-white shadow-md rounded-2xl transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105  duration-300 border-[1px] border-slate-200'>
+                      <div className='relative w-full h-60'>
+                        <Image
+                          src={`${combo.thumbnail ? combo.thumbnail : '/'}`}
+                          fill
+                          className='rounded-tl-2xl rounded-tr-2xl overflow-hidden object-cover object-center'
+                          alt="logo"
+                        />
+                      </div>
+                      <div className='px-3 py-4'>
+                        <div className='flex items-center'>
+                          <div className='mr-2 w-10 h-10 max-h-10 max-w-10 rounded-full relative'>
+                            <Image
+                              src={`${combo.teacher?.avatar ? combo.teacher.avatar : '/images/avatar-teacher.png'}`}
+                              width={40}
+                              height={40}
+                              className='rounded-full overflow-hidden object-cover object-center'
+                              alt="logo"
+                            />
+                          </div>
+                          <div>
+                            <p className='font-medium text-[#818894]'>{combo.teacher.name}</p>
+                          </div>
+                        </div>
+                        <h3 className="overflow-hidden text-[#17134] mt-4 h-8 font-bold">
+                          {combo.name}
+                        </h3>
+                        <div className="flex items-center">
+                          {renderOnlyStar(Math.floor(combo?.average_rating))}
+                          <span className="ml-[10px] bg-primary text-white text-xs font-medium me-2 px-1.5 py-0.5 rounded">{combo?.average_rating.toFixed(1)}</span>
+                        </div>
+                        <div className='mt-2'>
+                          Số người đã mua: {combo?.total_registration}
+                        </div>
+                        <div className='mt-4 grid grid-cols-2 gap-2'>
+                          <div className='flex items-center'>
+                            <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />
+                            <span className='text-[#171347] font-semibold text-sm'>{combo?.exam_quantity} đề thi</span>
+                          </div>
+                          <div className='flex items-center'>
+                            <QuestionMarkCircleIcon className='w-5 h-5 text-secondary font-medium mr-1' />
+                            <span className='text-[#171347] font-semibold text-sm'>{combo?.question_quantity} câu hỏi</span>
+                          </div>
+                          {/* <div className='flex items-center'>
+                                                                    <ClipboardDocumentIcon className='w-5 h-5 text-secondary font-medium mr-1' />
+                                                                    <span className='text-[#171347] font-semibold text-sm'>{combo?.total_exam} dạng</span>
+                                                                </div> */}
+
+                        </div>
+                        <div className='mt-6'>
+                          <span className='text-xl text-primary font-extrabold'>{formatCash(`${combo.price}`)} VNĐ</span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })
+            }
           </Carousel>
         </div>
-      </section> */}
+      </section>
       <section className="pt-12">
         <div className="flex justify-between">
           <div>

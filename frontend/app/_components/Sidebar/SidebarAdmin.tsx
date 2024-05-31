@@ -279,58 +279,16 @@ export default function SidebarTeacher() {
                                 </ul>
                             </li>
 
+
+
                             <li>
-                                <button
-                                    type="button"
-                                    className="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                                    aria-controls="notification"
-                                    data-collapse-toggle="notification"
+                                <Link
+                                    href="/admin/dashboard/notifycation"
+                                    className={`${pathname == '/admin/dashboard/notifycation' ? 'bg-slate-100' : ''} flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group`}
                                 >
-                                    <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">
-                                        Quản lý thông báo
-                                    </span>
-                                    <svg
-                                        className="w-3 h-3"
-                                        aria-hidden="true"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 10 6"
-                                    >
-                                        <path
-                                            stroke="currentColor"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="m1 1 4 4 4-4"
-                                        />
-                                    </svg>
-                                </button>
-                                <ul id="notification" className="hidden py-2 space-y-2">
-                                    <li>
-                                        <Link
-                                            href="/admin/dashboard/notifycation/new"
-                                            className={`${pathname == '/admin/dashboard/notifycation/new' ? 'bg-slate-100' : ''} ml-4 flex items-center p-2 text-gray-900 transition duration-75 rounded-lg pl-2 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700`}
-                                        >
-                                            <div className='ml-2'>
-                                                Tạo thông báo
-                                            </div>
-
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link
-                                            href="/admin/dashboard/notifycation"
-                                            className={`${pathname == '/admin/dashboard/notifycation' ? 'bg-slate-100' : ''} ml-4 flex items-center p-2 text-gray-900 transition duration-75 rounded-lg pl-2 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700`}
-                                        >
-                                            <div className='ml-2'>
-                                                Danh sách thông báo
-                                            </div>
-
-                                        </Link>
-                                    </li>
-                                </ul>
+                                    <span className="ms-3">Danh sách thông báo</span>
+                                </Link>
                             </li>
-
                             <li>
                                 <Link
                                     href="/admin/dashboard/discount"

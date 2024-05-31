@@ -25,14 +25,10 @@ export function ContentForm({
         reset,
         setValue,
         getValues,
+        watch,
+        trigger,
         formState: { errors },
     } = handleForm
-    const [chaptersData, setChaptersData] = useState(data?.chapters ? data.chapters : [])
-
-    useEffect(() => {
-        setChaptersData(data?.chapters ? data.chapters : [])
-    }, [data]);
-
 
 
     const { fields, append: appendChapter, remove: removeChapter } = useFieldArray({
@@ -48,7 +44,12 @@ export function ContentForm({
         return result;
     };
 
-
+    const handleSValidateSection = async (position: string, type: string) => {
+        const isValid = await trigger(`${position}`);
+        if (isValid) {
+            setToggle({ ...toggle, [`${type}`]: false })
+        }
+    };
 
     return (
         <div className="mb-10">
@@ -174,10 +175,10 @@ export function ContentForm({
                             }}
                             type="button" className="mr-5 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Hủy</button>
                         <button
-                            type="submit"
+                            type="button"
                             onClick={
                                 () => {
-                                    setTypeSubmit("add-section")
+                                    handleSValidateSection(`chapters.${fields.length - 1}`, 'add-section')
                                 }
                             }
                             className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
@@ -191,7 +192,7 @@ export function ContentForm({
 
             <div className="mt-8">
                 {
-                    data?.chapters?.length == 0 ?
+                    getValues()?.chapters?.length == 0 ?
                         <div>
                             <div className="mt-12 flex flex-col items-center justify-center">
                                 <div className="w-[175px] h-[175px] rounded-full" style={{
@@ -218,24 +219,24 @@ export function ContentForm({
                             <DragDropContext onDragEnd={(result) => {
                                 if (!result.destination) return;
                                 const items: any = reorder(
-                                    chaptersData,
+                                    getValues().chapters,
                                     result.source.index,
                                     result.destination.index
                                 );
-                                setChaptersData(items)
                                 setValue('chapters', items)
                             }}>
                                 <StrictModeDroppable droppableId="chapter">
                                     {(provided) => (
                                         <ul  {...provided.droppableProps} ref={provided.innerRef}>
                                             {
-                                                chaptersData.map((chapter: any, index: any) => {
+                                                getValues().chapters?.filter((chapter: any) => chapter.modify != "delete" && chapter.name != '').map((chapter: any, index: any) => {
+
                                                     return (
 
                                                         <Draggable key={chapter.key} index={index} draggableId={`${chapter.key}`}>
                                                             {
                                                                 (provided) => (
-                                                                    <ChapterCard chapter={chaptersData[index]} handleForm={handleForm} indexChapter={index} innerRef={provided.innerRef} provided={provided} data={data} setData={setData} removeChapter={removeChapter} setTypeSubmit={setTypeSubmit} toggle={toggle} setToggle={setToggle} getValues={getValues} id_course={id_course} />
+                                                                    <ChapterCard chapter={getValues().chapters[index]} handleForm={handleForm} indexChapter={index} innerRef={provided.innerRef} provided={provided} data={data} setData={setData} removeChapter={removeChapter} setTypeSubmit={setTypeSubmit} toggle={toggle} setToggle={setToggle} getValues={getValues} id_course={id_course} />
                                                                 )
                                                             }
                                                         </Draggable>

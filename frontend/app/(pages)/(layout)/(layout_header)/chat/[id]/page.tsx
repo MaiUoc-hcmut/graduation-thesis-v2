@@ -42,65 +42,33 @@ const serviceFactory = (storage: IStorage, updateState: UpdateState) => {
 };
 
 
-function createConversation(id: ConversationId, id_user: UserId, name: string, type: string, userLast: any): Conversation {
+function createConversation(id: ConversationId, id_user: UserId, name: string, type: string, userLast: any, members: []): Conversation {
 
     return new Conversation({
         id,
-        participants: [
+        participants: type === "group" ? members.map((member: any) => {
+            return new Participant({
+                id: member.id,
+                role: new ConversationRole([])
+            })
+        }) : [
             new Participant({
                 id: id_user,
                 role: new ConversationRole([])
             })
-        ],
+        ]
+        ,
         unreadCounter: 0,
         typingUsers: new TypingUsersList({ items: [] }),
         draft: "",
         data: {
             id_group: id,
             type: type,
+            name: name,
             userLast: userLast
         }
     });
 }
-
-// Add users and conversations to the states
-// chats.forEach(c => {
-//     users.forEach(u => {
-//         if (u.name !== c.name) {
-//             c.storage.addUser(new User({
-//                 id: u.name,
-//                 presence: new Presence({ status: UserStatus.Available, description: "" }),
-//                 firstName: "",
-//                 lastName: "",
-//                 username: u.name,
-//                 email: "",
-//                 avatar: u.avatar,
-//                 bio: ""
-//             }));
-
-//             const conversationId = uuid();
-
-//             const myConversation = c.storage.getState().conversations.find(cv => typeof cv.participants.find(p => p.id === u.name) !== "undefined");
-//             if (!myConversation) {
-
-//                 c.storage.addConversation(createConversation(conversationId, u.name));
-
-//                 const chat = chats.find(chat => chat.name === u.name);
-
-//                 if (chat) {
-
-//                     const hisConversation = chat.storage.getState().conversations.find(cv => typeof cv.participants.find(p => p.id === c.name) !== "undefined");
-//                     if (!hisConversation) {
-//                         chat.storage.addConversation(createConversation(conversationId, c.name));
-//                     }
-
-//                 }
-
-//             }
-
-//         }
-//     });
-// });
 
 
 
@@ -124,10 +92,7 @@ export default function ChatBox({ params }: { params: { id: string } }) {
         }).catch((err) => { });
     }, [change]);
 
-
-
     converTeacher?.forEach((c: any) => {
-
         userStorage.addUser(new User({
             id: c.friend.id,
             presence: new Presence({ status: UserStatus.Available, description: "" }),
@@ -142,7 +107,7 @@ export default function ChatBox({ params }: { params: { id: string } }) {
             lastMessage: c.lastMessage,
             lastSenderId: c.lastSenderId,
             lastSenderName: c.lastSenderName
-        }));
+        }, c.members));
     });
 
     converStudent?.forEach((c: any) => {
@@ -161,8 +126,9 @@ export default function ChatBox({ params }: { params: { id: string } }) {
             lastMessage: c.lastMessage,
             lastSenderId: c.lastSenderId,
             lastSenderName: c.lastSenderName
-        }));
+        }, []));
     });
+
     converGroup?.forEach((c: any) => {
         userStorage.addUser(new User({
             id: c.id,
@@ -179,9 +145,8 @@ export default function ChatBox({ params }: { params: { id: string } }) {
             lastMessage: c.lastMessage,
             lastSenderId: c.lastSenderId,
             lastSenderName: c.lastSenderName
-        }));
+        }, c.members));
     });
-
 
     const userCurrent = new User({
         id: `${user.id}`,

@@ -5,12 +5,15 @@ const paymentApi = {
         const url = `/payment/pay`;
         return axiosConfig.post(url, {
             amount: amount,
-            orderInfo: 'dsc'
+            orderInfo: 'Thanh toán'
         });
     },
-    addToCart: (id_course: any) => {
+    addToCart: (id: any, type: string) => {
         const url = `/cart/student`;
-        return axiosConfig.post(url, { data: { id_course } });
+        const formData = {
+            data: { [`${type}`]: id }
+        }
+        return axiosConfig.post(url, formData);
     },
     deleteCart: (data: any) => {
         const url = `/cart/student`;
@@ -21,7 +24,7 @@ const paymentApi = {
         return axiosConfig.get(url);
     },
     getTransactionOfTeacher: (id_teacher: string) => {
-        const url = `/payment/transaction/${id_teacher}`;
+        const url = `/payment/transactions/teacher/${id_teacher}/page/1`;
         return axiosConfig.get(url);
     },
     sendInfoTransaction: (data: object) => {

@@ -172,13 +172,13 @@ export default function CreateCourse() {
                                 chapter.topics.map((topic: any, indexTopic: any) => {
                                     if (topic.type == "exam") {
                                         data1.chapters[indexChapter].topics[indexTopic] = {
-                                            name: "test",
+                                            name: topic.title,
                                             type: "exam",
                                             exam: {
                                                 data: {
-                                                    title: topic.title,
                                                     period: topic.duration,
                                                     questions: topic.questions,
+                                                    pass_score: topic.pass_score,
                                                     status: topic.status
                                                 }
                                             }
@@ -187,6 +187,7 @@ export default function CreateCourse() {
                                 })
                             })
 
+                            console.log(data1);
 
                             formData.append("thumbnail", dataForm.thumbnail[0])
                             formData.append("cover", dataForm.cover[0])
@@ -241,11 +242,11 @@ export default function CreateCourse() {
                             </button>
                         </div>
                         <div>
-                            <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover mr-5" onClick={() => {
+                            {/* <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover mr-5" onClick={() => {
                                 setValue("status", "draft")
                                 setTypeSubmit("submit")
                             }
-                            }>Lưu bản nháp</button>
+                            }>Lưu bản nháp</button> */}
                             <button type="submit" className="bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover" onClick={() => {
                                 setTypeSubmit("submit")
                             }}>Hoàn thành</button>

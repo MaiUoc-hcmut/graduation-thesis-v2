@@ -21,6 +21,8 @@ export const QuestionCard = ({ indexChapter, indexTopic, hanldeForm, indexQuesti
             setModal({ ...modal, [`edit_question_${question.id}`]: false })
         }
     };
+    console.log(question);
+
     return (
         <div className='mb-5 border-[1px] border-[#ececec] bg-white p-5 rounded-xl flex justify-between items-center' ref={provided.innerRef} {...provided.draggableProps}>
             <>
@@ -38,7 +40,7 @@ export const QuestionCard = ({ indexChapter, indexTopic, hanldeForm, indexQuesti
                                         <Label htmlFor="email" value="Nội dung câu hỏi" />
                                     </div>
 
-                                    <CustomCKEditor className="h-50" setValue={setValue} value={question.content_text} position={`chapters.${indexChapter}.topics.${indexTopic}.questions.${indexQuestion}.content_text`} />
+                                    <CustomCKEditor className="h-50" setValue={setValue} value={question.content_text} position={`chapters.${indexChapter}.topics.${indexTopic}.exam.data.questions.${indexQuestion}.content_text`} />
                                     <div className="mt-2 text-sm text-red-600 dark:text-red-500">
                                         {errors?.chapters?.[indexChapter]?.topics?.[indexTopic]?.questions?.[indexQuestion]?.content_text?.message}
                                     </div>

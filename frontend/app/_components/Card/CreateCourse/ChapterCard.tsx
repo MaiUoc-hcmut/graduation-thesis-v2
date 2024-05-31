@@ -35,6 +35,7 @@ registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, F
 
 export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provided, data, setData, removeChapter, setTypeSubmit, toggle, setToggle, id_course }: any) => {
     const [modal, setModal] = useState<any>({})
+    // const [currChapter, setCurrChapter] = useState<any>({})
     const notify = () => {
 
     };
@@ -46,25 +47,34 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
         setValue,
         watch,
         reset,
+        trigger,
         handleSubmit,
         formState: { errors },
     } = handleForm
+    const currChapter = useRef<any>(null);
+
+    useEffect(() => {
+        currChapter.current = getValues().chapters[indexChapter];
+    }, [data, getValues, indexChapter]);
 
     const { fields: fieldsTopic, append: appendTopic, remove: removeTopic } = useFieldArray({
         control,
         name: `chapters.${indexChapter}.topics`
     });
 
-    const [topicsData, setTopicsData] = useState(chapter.topics)
+    const [topicsData, setTopicsData] = useState(chapter.topics?.filter((topic: any) => topic.name != '' && topic.name != 'ads'))
+
     const [files, setFiles] = useState([])
 
     useEffect(() => {
-        const topics = chapter?.topics
-        if (topics && topics[topics?.length - 1]?.name === "")
-            setTopicsData(chapter.topics.slice(0, -1))
-        else
-            setTopicsData(chapter.topics)
+        // const topics = chapter?.topics
+        // if (topics && topics[topics?.length - 1]?.name === "")
+        //     setTopicsData(chapter.topics.slice(0, -1))
+        // else
+        setTopicsData(chapter.topics?.filter((topic: any) => topic.name != ''))
     }, [chapter.topics, data]);
+
+
 
 
     const reorder = (list: Array<any>, startIndex: any, endIndex: any) => {
@@ -74,7 +84,32 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
 
         return result;
     };
-    console.log(errors, getValues());
+
+    const handleDeleteSection = async () => {
+        setModal({ ...modal, [`delete_section${chapter.key}`]: false })
+        removeChapter(indexChapter)
+        setData((data: any) => {
+            data.chapters?.splice(indexChapter, 1)
+            return data
+        })
+        notify()
+
+    };
+    const handleUpdateSection = async (position: string) => {
+        const isValid = await trigger(`${position}`);
+        if (isValid) {
+            setModal({ ...modal, [`edit_section_${chapter.key}`]: false })
+            notify()
+        }
+    };
+    const handleAddTopic = async (position: string, type: string) => {
+        const isValid = await trigger(`${position}`);
+
+        if (isValid) {
+            setToggle({ ...toggle, [`${type}`]: false })
+            notify()
+        }
+    };
 
     return (
         <div ref={innerRef}  {...provided.draggableProps}  >
@@ -82,22 +117,15 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                 <Modal show={modal[`delete_section${chapter.key}`]} size="md" onClose={() => setModal({ ...modal, [`delete_section${chapter.key}`]: false })} popup>
                     <Modal.Header />
                     <Modal.Body>
-                        <form className="space-y-6" onSubmit={(e: any) => {
-                            e.preventDefault()
-                            setModal({ ...modal, [`delete_section${chapter.key}`]: false })
-                            removeChapter(indexChapter)
-                            setData((data: any) => {
-                                data.chapters?.splice(indexChapter, 1)
-                                return data
-                            })
-                            notify()
-                        }}>
+                        <div className="space-y-6">
                             <ExclamationCircleIcon className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
                             <h3 className="mb-5 text-lg text-center font-normal text-gray-500 dark:text-gray-400">
                                 Bạn có chắc muốn xóa mục này?
                             </h3>
                             <div className="flex justify-center gap-4">
-                                <Button color="failure" type='submit'>
+                                <Button color="failure" type='button' onClick={() => {
+                                    handleDeleteSection()
+                                }}>
                                     Xóa
                                 </Button>
                                 <Button color="gray" onClick={() => {
@@ -107,7 +135,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                     Hủy
                                 </Button>
                             </div>
-                        </form>
+                        </div>
                     </Modal.Body>
                 </Modal>
             </>
@@ -116,18 +144,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                 <Modal show={modal[`edit_section_${chapter.key}`]} size="md" onClose={() => setModal({ ...modal, [`edit_section_${chapter.key}`]: false })} popup>
                     <Modal.Header />
                     <Modal.Body>
-                        <form className="space-y-6" onSubmit={handleSubmit(async (data1: any) => {
-                            if (!(Object.entries(errors).length === 0)) return
-                            setModal({ ...modal, [`edit_section_${chapter.key}`]: false })
-                            setData((data: any) => {
-                                data.chapters[indexChapter].name = data1.chapters[indexChapter].name
-                                data.chapters[indexChapter].status = data1.chapters[indexChapter].status
-                                return data
-                            })
-
-                            setTypeSubmit(`edit_section_${chapter.key}`)
-                            notify()
-                        })}>
+                        <div className="space-y-6" >
 
                             <h3 className="text-xl font-medium text-gray-900 dark:text-white">Sửa mục</h3>
                             <div>
@@ -208,8 +225,13 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                             <div className="mt-6 flex justify-end">
                                 <button
                                     onClick={() => {
-                                        reset({ [`chapters.${indexChapter}`]: {} })
+                                        // reset({ [`chapters.${indexChapter}`]: {} })
                                         setModal({ ...modal, [`edit_section_${chapter.key}`]: false })
+                                        setValue(`chapters.${indexChapter}`, currChapter.current?.current)
+                                        console.log(currChapter.current?.current);
+
+                                        console.log(getValues().chapters[indexChapter]);
+
                                     }
                                     }
                                     type="button"
@@ -219,14 +241,17 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                 </button>
                                 <div>
                                     <button
-                                        type="submit"
+                                        type="button"
+                                        onClick={() => {
+                                            handleUpdateSection(`chapters.${indexChapter}`)
+                                        }}
                                         className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     >
                                         Lưu
                                     </button>
                                 </div>
                             </div>
-                        </form>
+                        </div>
                     </Modal.Body>
                 </Modal>
             </>
@@ -283,9 +308,13 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                 }}>Thêm bài tập</Dropdown.Item>
                             </Dropdown>
 
+
                         </div>
                         <button type="button" className="mr-[10px] text-yellow-400"
-                            onClick={() => { setModal({ ...modal, [`edit_section_${chapter.key}`]: true }) }}>
+                            onClick={() => {
+                                setModal({ ...modal, [`edit_section_${chapter.key}`]: true })
+                                // setCurrChapter(getValues().chapters[indexChapter])
+                            }}>
                             <PencilSquareIcon className="w-6 h-6" />
                         </button>
                         <button type="button" className="mr-[10px] text-red-500">
@@ -381,7 +410,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                                 formData.append('data', JSON.stringify(data));
 
                                                 const request = new XMLHttpRequest();
-                                                request.open('POST', 'http://13.229.142.225:4001/api/v1/videos')
+                                                request.open('POST', `${process.env.NEXT_PUBLIC_BASE_URL_COURSE_LOCAL}/videos`)
 
                                                 request.upload.onprogress = (e) => {
                                                     progress(e.lengthComputable, e.loaded, e.total);
@@ -428,7 +457,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                                 formData.append('data', JSON.stringify(data));
 
                                                 const request = new XMLHttpRequest();
-                                                request.open('POST', 'http://13.229.142.225:4001/api/v1/document')
+                                                request.open('POST', `${process.env.NEXT_PUBLIC_BASE_URL_COURSE_LOCAL}/document`)
 
                                                 request.upload.onprogress = (e) => {
                                                     progress(e.lengthComputable, e.loaded, e.total);
@@ -525,9 +554,9 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                             setToggle({ ...toggle, [`add_lecture_${chapter.key}`]: false })
 
                                         }} type="button" className="mr-4 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Huỷ</button>
-                                    <button type="submit"
+                                    <button type="button"
                                         onClick={() => {
-                                            setTypeSubmit(`add_lecture_${chapter.key}`)
+                                            handleAddTopic(`chapters.${indexChapter}.topics.${indexFieldTopic}`, `add_lecture_${chapter.key}`)
                                         }}
                                         className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mt-3">Lưu</button>
                                 </div>
@@ -674,7 +703,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                                         }} type="button" className="mr-4 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Huỷ</button>
                                     <button type="submit"
                                         onClick={() => {
-                                            setTypeSubmit(`add_exam_${chapter.key}`)
+                                            handleAddTopic(`chapters.${indexChapter}.topics.${indexFieldTopic}`, `add_exam_${chapter.key}`)
                                         }}
                                         className="focus:outline-none text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mt-3">Lưu</button>
                                 </div>
@@ -704,7 +733,7 @@ export const ChapterCard = ({ chapter, handleForm, indexChapter, innerRef, provi
                             {(provided) => (
                                 <ul  {...provided.droppableProps} ref={provided.innerRef}>
                                     {
-                                        topicsData?.map((topic: any, indexTopic: any) => {
+                                        chapter.topics?.filter((topic: any) => topic.name != '' && topic.title != '').map((topic: any, indexTopic: any) => {
                                             return (
 
                                                 <Draggable key={topic.key} index={indexTopic} draggableId={`${topic.key}`}>

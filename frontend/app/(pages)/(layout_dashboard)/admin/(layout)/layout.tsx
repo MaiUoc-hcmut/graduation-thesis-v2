@@ -14,9 +14,9 @@ export default function DashboardAdminLayout({
 }: any) {
   const { user } = useAppSelector(state => state.authReducer);
 
-  if (user.id == 0) redirect('/login')
+  // if (user.id == 0) redirect('/login')
   return (
-    user?.role != "teacher" ? <div className='h-svh w-full flex justify-center items-center text-xl'> <p className='mr-2'>Bạn không có quyền truy cập vào trang này.</p> <Link className='underline text-blue-500' href="/">Quay lại</Link></div> :
+    user?.role != "admin" ? <div className='h-svh w-full flex justify-center items-center text-xl'> <p className='mr-2'>Bạn không có quyền truy cập vào trang này.</p> <Link className='underline text-blue-500' href="/">Quay lại</Link></div> :
       <section className="">
 
         <HeaderAdmin />

@@ -56,7 +56,7 @@ export default function AssignmentDashboard() {
             <div>
                 <div className="font-bold text-[#171347] text-lg">Lọc kết quả</div>
                 <form className="p-5 bg-white mt-4 rounded-lg">
-                    <div className="grid grid-cols-4 gap-8 gay-y-4">
+                    <div className="grid grid-cols-4 gap-8 gap-y-4">
 
                         <div>
                             {courses.length > 0 ? (

@@ -58,8 +58,11 @@ export default function NotifycationDashboard() {
                                         {notify.type === 'teacher' && (
                                             <> {notify.content}</>
                                         )}
-                                        {notify.type === 'assignment' && (
+                                        {notify.type === 'assignment exam' && (
                                             <>giáo viên {notify.name} đã đánh giá bài làm của bạn trong bài kiểm tra {notify.exam_name} </>
+                                        )}
+                                        {notify.type === 'assignment exercise' && (
+                                            <>giáo viên {notify.name} đã đánh giá bài làm của bạn trong bài tập {notify.exam_name} </>
                                         )}
                                         {notify.type === 'topic' && (
                                             <>Có người vừa tạo chủ đề {notify.name} trong khóa học{notify.course_name}</>
@@ -73,7 +76,12 @@ export default function NotifycationDashboard() {
                                             </div>)
                                         }
                                         {
-                                            notify.type === 'assignment' && (<Link href={`/course/learning/${notify.id_course}/exam/result/${notify.id_assignment}`} className="text-gray-500 text-sm w-1/12 flex justify-center items-center">
+                                            notify.type === 'assignment exam' && (<Link href={`/exam/result/${notify.id_assignment}`} className="text-gray-500 text-sm w-1/12 flex justify-center items-center">
+                                                <button type='button' onClick={async () => { if (!notify.read) await notifyApi.readNotify({ data: [notify.id] }) }} className='px-4 py-2 border-[1px] border-gray-200 rounded-md hover:text-white hover:bg-primary'>Xem</button>
+                                            </Link>)
+                                        }
+                                        {
+                                            notify.type === 'assignment exercise' && (<Link href={`/course/learning/${notify.id_course}/exam/result/${notify.id_assignment}`} className="text-gray-500 text-sm w-1/12 flex justify-center items-center">
                                                 <button type='button' onClick={async () => { if (!notify.read) await notifyApi.readNotify({ data: [notify.id] }) }} className='px-4 py-2 border-[1px] border-gray-200 rounded-md hover:text-white hover:bg-primary'>Xem</button>
                                             </Link>)
                                         }

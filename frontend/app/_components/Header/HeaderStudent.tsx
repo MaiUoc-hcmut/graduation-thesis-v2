@@ -17,6 +17,10 @@ import MessageBox from '../MessageBox/MessageBox';
 import chatApi from '@/app/api/chatApi';
 import { Bounce, toast } from 'react-toastify';
 import { useSocket } from '@/app/socket/SocketProvider';
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
 
 export default function HeaderStudent() {
     const dispatch = useDispatch<AppDispatch>();
@@ -81,7 +85,7 @@ export default function HeaderStudent() {
     useEffect(() => {
         async function fetchData() {
             if (user) {
-                const socket = io("http://localhost:4003", { transports: ["websocket"] });
+                const socket = io(`http://47.129.11.117:4003`, { transports: ["websocket"] });
                 socket.emit("new_user_online", user.id);
                 socket.on("created_topic", (data) => {
                     const audio = new Audio("/audio/audio-notification.mp3");
@@ -223,13 +227,13 @@ export default function HeaderStudent() {
                                         <div className="block px-4 py-2 font-medium text-center text-gray-700 rounded-t-lg bg-gray-50 dark:bg-gray-800 dark:text-white">
                                             Thông báo
                                         </div>
-                                        <div className="divide-y divide-gray-100overflow-y-scroll max-h-[400px]">
+                                        <div className="divide-y divide-gray-100 overflow-y-scroll max-h-[400px]">
                                             {
                                                 notifycations?.map((notify: any, index: any) => {
                                                     return (
                                                         <Link key={index}
                                                             onClick={async () => { if (!notify.read) await notifyApi.readNotify({ data: [notify.id] }) }}
-                                                            href={`${notify.type === "topic" ? `/course/learning/${notify.id_course}/forum/${notify.id_topic}` : (notify.type === "assignment" ? `/course/learning/${notify.id_course}/exam/result/${notify.id_assignment}` : ``)}`}
+                                                            href={`${notify.type === "topic" ? `/course/learning/${notify.id_course}/forum/${notify.id_topic}` : (notify.type === "assignment exercise" ? `/course/learning/${notify.id_course}/exam/result/${notify.id_assignment}` : (notify.type === "assignment exam" ? `/exam/result/${notify.id_assignment}` : ``))}`}
                                                             className="flex p-3 hover:bg-gray-100 dark:hover:bg-gray-700"
                                                         >
                                                             <div className='flex'>
@@ -252,8 +256,11 @@ export default function HeaderStudent() {
                                                                                 {notify.type === 'teacher' && (
                                                                                     <> {notify.content}</>
                                                                                 )}
-                                                                                {notify.type === 'assignment' && (
+                                                                                {notify.type === 'assignment exam' && (
                                                                                     <>giáo viên {notify.name} đã đánh giá bài làm của bạn trong bài kiểm tra {notify.exam_name} </>
+                                                                                )}
+                                                                                {notify.type === 'assignment exercise' && (
+                                                                                    <>giáo viên {notify.name} đã đánh giá bài làm của bạn trong bài tập {notify.exam_name} </>
                                                                                 )}
                                                                                 {notify.type === 'topic' && (
                                                                                     <>Có người vừa tạo chủ đề {notify.name} trong khóa học{notify.course_name}</>
@@ -359,6 +366,21 @@ export default function HeaderStudent() {
                                             <button
                                                 onClick={() => {
                                                     dispatch(signout())
+                                                    MySwal.fire({
+                                                        title: <p className='text-lg'>Đang xử lý</p>,
+                                                        didOpen: async () => {
+                                                            MySwal.showLoading()
+
+                                                            MySwal.fire({
+                                                                title: <p className="text-2xl">Đăng xuất thành công</p>,
+                                                                icon: 'success',
+                                                                showConfirmButton: false,
+                                                                timer: 1000
+                                                            })
+
+                                                        },
+                                                    })
+
                                                 }}
                                                 className="w-full text-left block py-2 px-4 text-sm text-[#f63c3c] hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                                             >

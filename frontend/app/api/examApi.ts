@@ -1,4 +1,5 @@
 import axiosConfig from "@/redux/axios.config"
+require('dotenv').config();
 
 const examApi = {
     getAllExamByTeacher: (id_teacher: string, page: string) => {
@@ -13,7 +14,13 @@ const examApi = {
     getAllReviewExamByTeacher: (id_teacher: string) => {
         const url = `/reviews/teacher/${id_teacher}`;
         return axiosConfig.get(url, {
-            baseURL: 'http://18.140.5.43:4002/api/v1'
+            baseURL: `${process.env.NEXT_PUBLIC_BASE_URL_EXAM_LOCAL}`
+        });
+    },
+    getAllReviewComboByTeacher: (id_teacher: string) => {
+        const url = `/reviews/combo/teacher/${id_teacher}`;
+        return axiosConfig.get(url, {
+            baseURL: `${process.env.NEXT_PUBLIC_BASE_URL_EXAM_LOCAL}`
         });
     },
 
@@ -21,9 +28,23 @@ const examApi = {
         const url = `/reviews`;
 
         await axiosConfig.post(url, data, {
-            baseURL: 'http://18.140.5.43:4002/api/v1'
+            baseURL: `${process.env.NEXT_PUBLIC_BASE_URL_EXAM_LOCAL}`
         });
         return
+    },
+
+    getReviewExam: (id_exam: string) => {
+        const url = `/reviews/exam/${id_exam}/page/1`;
+        return axiosConfig.get(url, {
+            baseURL: `${process.env.NEXT_PUBLIC_BASE_URL_EXAM_LOCAL}`
+        });
+    },
+
+    getReviewCombo: (id_combo: string, page: number) => {
+        const url = `/reviews/combo/${id_combo}/page/${page}`;
+        return axiosConfig.get(url, {
+            baseURL: `${process.env.NEXT_PUBLIC_BASE_URL_EXAM_LOCAL}`
+        });
     },
 
     get: async (id: string) => {
@@ -70,8 +91,27 @@ const examApi = {
         return await axiosConfig.post(url, data);
     },
 
+    updateComboExam: async (data: object, id_combo: string) => {
+        const url = `/combos/${id_combo}`;
+        return await axiosConfig.put(url, data);
+    },
+
+    deleteComboExam: async (id_combo: string) => {
+        const url = `/combos/${id_combo}`;
+        return await axiosConfig.delete(url);
+    },
+
     getComboExam: async (id_teacher: string, page: string) => {
         const url = `/combos/teacher/${id_teacher}/page/${page}`;
+        return await axiosConfig.get(url);
+    },
+
+    getComboExamOfStudent: async (id_student: string, page: string) => {
+        const url = `/combos/student/${id_student}/page/${page}`;
+        return await axiosConfig.get(url);
+    },
+    getAllCombo: async (page: string, filterString: string) => {
+        const url = `/combos/page/${page}?${filterString}`;
         return await axiosConfig.get(url);
     },
 
@@ -102,6 +142,10 @@ const examApi = {
     },
     getKnowledge: async (filterString: string) => {
         const url = `/knowledges/filter?${filterString}`;
+        return await axiosConfig.get(url);
+    },
+    getAllKnowledge: async () => {
+        const url = `/knowledges`;
         return await axiosConfig.get(url);
     },
 

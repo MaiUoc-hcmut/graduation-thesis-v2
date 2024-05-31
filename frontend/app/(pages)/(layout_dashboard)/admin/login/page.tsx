@@ -2,7 +2,7 @@
 'use client'
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
-import { login, loginTeacher, reset } from '@/redux/features/authSlice';
+import { loginAdmin, reset } from '@/redux/features/authSlice';
 import { useAppSelector, AppDispatch } from '@/redux/store';
 import { useDispatch } from 'react-redux';
 import { redirect } from 'next/navigation';
@@ -15,7 +15,6 @@ import withReactContent from 'sweetalert2-react-content'
 const MySwal = withReactContent(Swal)
 
 export default function Login() {
-    const [tab, setTab] = useState("student")
     const [error, setError] = useState<any>()
     const { isSuccess, isFailed, message } = useAppSelector(state => state.authReducer);
     const dispatch = useDispatch<AppDispatch>();
@@ -31,83 +30,50 @@ export default function Login() {
     })
 
     const handleLoginSubmit: SubmitHandler<{ email: string, password: string }> = async (data) => {
-        if (tab == "student") {
-            let res: any = await dispatch(login(data))
+        let res: any = await dispatch(loginAdmin(data))
 
 
-            MySwal.fire({
-                title: <p className='text-lg'>Đang xử lý</p>,
-                didOpen: async () => {
-                    MySwal.showLoading()
-                    if (res.payload?.response?.data?.message?.message === "Invalid email!") {
-                        MySwal.fire({
-                            title: <p className="text-2xl">Đăng nhập thất bại</p>,
-                            icon: 'error',
-                            showConfirmButton: false,
-                            timer: 1000
-                        })
 
-                    }
-                    else {
-                        MySwal.fire({
-                            title: <p className="text-2xl">Đăng nhập thành công</p>,
-                            icon: 'success',
-                            showConfirmButton: false,
-                            timer: 1000
-                        })
-                    }
+        MySwal.fire({
+            title: <p className='text-lg'>Đang xử lý</p>,
+            didOpen: async () => {
+                MySwal.showLoading()
+                if (!res.payload?.success) {
+                    MySwal.fire({
+                        title: <p className="text-2xl">Đăng nhập thất bại</p>,
+                        icon: 'error',
+                        showConfirmButton: false,
+                        timer: 1000
+                    })
 
-
-                },
-            })
+                }
+                else {
+                    MySwal.fire({
+                        title: <p className="text-2xl">Đăng nhập thành công</p>,
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 1000
+                    })
+                    // redirect('/admin/dashboard')
+                }
 
 
-        }
-        else {
-            let res: any = await dispatch(loginTeacher(data))
-            MySwal.fire({
-                title: <p className='text-lg'>Đang xử lý</p>,
-                didOpen: async () => {
-                    MySwal.showLoading()
-                    if (res.payload?.response?.data?.message?.message === "Invalid email!") {
-                        MySwal.fire({
-                            title: <p className="text-2xl">Đăng nhập thất bại</p>,
-                            icon: 'error',
-                            showConfirmButton: false,
-                            timer: 1000
-                        })
-
-                    }
-                    else {
-                        MySwal.fire({
-                            title: <p className="text-2xl">Đăng nhập thành công</p>,
-                            icon: 'success',
-                            showConfirmButton: false,
-                            timer: 1000
-                        })
-                    }
-
-
-                },
-            })
-        }
+            },
+        })
 
     };
+    console.log(isSuccess, isFailed);
 
     useEffect(() => {
         dispatch(reset());
         if (isSuccess) {
-            dispatch(reset());
-            if (tab == "student")
-                redirect('/')
-            else
-                redirect('/teacher/dashboard')
+            redirect('/admin/dashboard')
         }
         if (isFailed) {
             dispatch(reset());
             redirect('/login');
         }
-    }, [dispatch, isFailed, isSuccess, message, tab]);
+    }, [dispatch, isFailed, isSuccess, message]);
 
 
 
@@ -121,53 +87,7 @@ export default function Login() {
                                 Đăng nhập
                             </h1>
                             <form className="space-y-4 md:space-y-6" action="#" onSubmit={handleSubmit(handleLoginSubmit)}>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-900 dark:text-white">
-                                        Loại tài khoản
-                                    </label>
-                                    <ul style={{
-                                        marginTop: "10px"
-                                    }} className="tems-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                        <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
-                                            <div className="flex items-center ps-3">
-                                                <input
-                                                    id="horizontal-list-radio-license"
-                                                    type="radio"
-                                                    defaultChecked
-                                                    name="list-radio"
-                                                    onClick={() => setTab("student")
-                                                    }
-                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                                                />
-                                                <label
-                                                    htmlFor="horizontal-list-radio-license"
-                                                    className="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                                                >
-                                                    Học sinh
-                                                </label>
-                                            </div>
-                                        </li>
-                                        <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
-                                            <div className="flex items-center ps-3">
-                                                <input
-                                                    id="horizontal-list-radio-id"
-                                                    type="radio"
-                                                    defaultValue=""
-                                                    name="list-radio"
-                                                    onClick={() => setTab("teacher")
-                                                    }
-                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                                                />
-                                                <label
-                                                    htmlFor="horizontal-list-radio-id"
-                                                    className="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                                                >
-                                                    Giáo viên
-                                                </label>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
+
                                 <div>
                                     <label
                                         htmlFor="email"

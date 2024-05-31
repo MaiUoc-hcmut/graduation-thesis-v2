@@ -19,7 +19,7 @@ function classNames(...classes: any) {
 
 
 export default function CourseList() {
-    const [courses, setCourses] = useState<any[]>([]);
+    const [courses, setCourses] = useState<any>([]);
     const [category, setCategory] = useState<any[]>([]);
     const searchParams = useSearchParams();
     const subjectFilters = searchParams.getAll('subject');
@@ -52,11 +52,11 @@ export default function CourseList() {
         async function fetchData() {
             let filterString = ''
             subjectFilters?.map((s) => { filterString += `subject=${s}&` })
-            levelFilters?.map((l) => { filterString += `&level=${l}&` })
-            classFilters?.map((c) => { filterString += `&class=${c}&` })
-            priceFilters ? filterString += `&minPrice=0&maxPrice=${priceFilters}` : null
+            levelFilters?.map((l) => { filterString += `level=${l}&` })
+            classFilters?.map((c) => { filterString += `class=${c}&` })
+            priceFilters ? filterString += `minPrice=0&maxPrice=${priceFilters}` : null
 
-            sortFilters && orderFilters ? filterString += `&sort=${sortFilters}&order=${orderFilters}` : null
+            sortFilters && orderFilters ? filterString += `sort=${sortFilters}&order=${orderFilters}` : null
 
 
             await courseApi.getAll(filterString, page).then((data: any) => {
@@ -269,18 +269,33 @@ export default function CourseList() {
                                                                 Số người đăng ký khóa học: {course?.registrations}
                                                             </div>
                                                             <div className='grid grid-cols-2 mt-4'>
-                                                                <div className='flex items-center'>
-                                                                    <span className='mr-1'>Lớp:</span>
-                                                                    <p className='font-semibold'>{course?.Categories[0]?.Class}</p>
-                                                                </div>
-                                                                <div className='flex items-center'>
-                                                                    <span className='mr-1'>Môn học:</span>
-                                                                    <p className='font-semibold'>{course?.Categories[1]?.Subject}</p>
-                                                                </div>
-                                                                <div className='flex items-center'>
-                                                                    <span className='mr-1'>Mức độ:</span>
-                                                                    <p className='font-semibold'>{course?.Categories[2]?.Level}</p>
-                                                                </div>
+                                                                {
+                                                                    courses?.Categories?.map((category: any, index: number) => {
+                                                                        if (category.Class) {
+                                                                            return (
+                                                                                <div key={category.id} className='flex items-center'>
+                                                                                    <span className='mr-1'>Lớp:</span>
+                                                                                    <p className='font-semibold'>{category?.Class}</p>
+                                                                                </div>
+                                                                            )
+                                                                        }
+                                                                        else if (category.Subject) {
+                                                                            return (
+                                                                                <div key={category.id} className='flex items-center'>
+                                                                                    <span className='mr-1'>Môn học:</span>
+                                                                                    <p className='font-semibold'>{category?.Subject}</p>
+                                                                                </div>
+                                                                            )
+                                                                        } else {
+                                                                            return (
+                                                                                <div key={category.id} className='flex items-center'>
+                                                                                    <span className='mr-1'>Mức độ:</span>
+                                                                                    <p className='font-semibold'>{category?.Level}</p>
+                                                                                </div>
+                                                                            )
+                                                                        }
+                                                                    })
+                                                                }
                                                             </div>
 
 
@@ -299,7 +314,7 @@ export default function CourseList() {
                                                                 </div>
                                                                 <div className='flex items-center'>
                                                                     <DocumentTextIcon className='w-5 h-5 text-secondary font-medium mr-1' />
-                                                                    <span className='text-[#171347] font-medium text-sm'>{course?.total_exam} đề thi</span>
+                                                                    <span className='text-[#171347] font-medium text-sm'>{course?.total_exam} bài tập</span>
                                                                 </div>
 
                                                             </div>

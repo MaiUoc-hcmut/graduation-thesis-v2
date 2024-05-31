@@ -11,11 +11,14 @@ import { formatCash } from "@/app/helper/FormatFunction"
 import { Dropdown } from 'flowbite-react';
 import { ExclamationCircleIcon, EllipsisVerticalIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline"
 import { Button, Modal } from 'flowbite-react';
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 
+const MySwal = withReactContent(Swal)
 
 export default function ExamDashboard() {
     const authUser = useAppSelector(state => state.authReducer.user);
-    const [exams, setExams] = useState<[any]>()
+    const [exams, setExams] = useState<[]>([])
     const [modal, setModal] = useState<any>({})
     const [change, setChange] = useState<boolean>(false)
     const [searchInput, setSearchInput] = useState('')
@@ -67,38 +70,9 @@ export default function ExamDashboard() {
             </div>
             <div className="mt-8">
                 {
-                    exams?.map((exam) => {
+                    exams?.map((exam: any) => {
                         return (
                             <div key={exam.id} className="relative rounded-[10px] flex bg-white mb-8">
-                                <>
-                                    <Modal show={modal[`delete-exam${exam.id}`] || false} size="md" onClose={() => setModal({ ...modal, [`delete-exam${exam.id}`]: false })} popup>
-                                        <Modal.Header />
-                                        <Modal.Body>
-                                            <form className="space-y-6" onSubmit={async (e) => {
-                                                e.preventDefault()
-                                                await examApi.delete(exam.id).catch((err: any) => { })
-                                                setChange(!change)
-                                                setModal(false)
-                                            }}>
-                                                <ExclamationCircleIcon className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
-                                                <h3 className="mb-5 text-lg font-normal text-center text-gray-500 dark:text-gray-400">
-                                                    Bạn có chắc muốn xóa đề thi này?
-                                                </h3>
-                                                <div className="flex justify-center gap-4">
-                                                    <Button color="failure" type='submit'>
-                                                        Xóa
-                                                    </Button>
-                                                    <Button color="gray" onClick={() => {
-                                                        setModal({ ...modal, [`delete-exam${exam.id}`]: false })
-                                                    }}>
-                                                        Hủy
-                                                    </Button>
-                                                </div>
-                                            </form>
-                                        </Modal.Body>
-                                    </Modal>
-                                </>
-
                                 <div className="h-[200px] w-[200px] relative py-3 px-10 bg-slate-100 flex justify-center items-center">
                                     <Image
                                         src={`/images/exam_icon.png`}
@@ -125,7 +99,46 @@ export default function ExamDashboard() {
                                                     Sửa đề thi
                                                 </Link>
                                             </Dropdown.Item>
-                                            <Dropdown.Item><p className="text-red-600" onClick={() => setModal({ ...modal, [`delete-exam${exam.id}`]: true })}>Xóa đề thi</p></Dropdown.Item>
+                                            <Dropdown.Item><p className="text-red-600" onClick={() => {
+                                                MySwal.fire({
+                                                    title: <p className="text-2xl">Bạn có chắc muốn xóa đề thi này?</p>,
+                                                    icon: "warning",
+                                                    showCancelButton: true,
+                                                    confirmButtonColor: "#3085d6",
+                                                    cancelButtonColor: "#d33",
+                                                    confirmButtonText: "Xóa",
+                                                    cancelButtonText: "Hủy",
+                                                }).then((result) => {
+                                                    if (result.isConfirmed) {
+                                                        MySwal.fire({
+                                                            title: <p className='text-lg'>Đang xử lý</p>,
+                                                            didOpen: async () => {
+                                                                MySwal.showLoading()
+                                                                await examApi.delete(exam.id).then(() => {
+                                                                    MySwal.close()
+
+                                                                    MySwal.fire({
+                                                                        title: <p className="text-2xl">Đề thi đã được xóa tạo thành công</p>,
+                                                                        icon: 'success',
+                                                                        showConfirmButton: false,
+                                                                        timer: 1500
+                                                                    })
+                                                                    setChange(!change)
+                                                                }).catch((err: any) => {
+                                                                    MySwal.close()
+                                                                    MySwal.fire({
+                                                                        title: <p className="text-2xl">Xóa đề thi thất bại</p>,
+                                                                        icon: 'error',
+                                                                        showConfirmButton: false,
+                                                                        timer: 1500
+                                                                    })
+                                                                })
+                                                            },
+                                                        })
+
+                                                    }
+                                                })
+                                            }}>Xóa đề thi</p></Dropdown.Item>
                                         </Dropdown>
                                     </div>
                                     <div className="flex items-center mt-4">

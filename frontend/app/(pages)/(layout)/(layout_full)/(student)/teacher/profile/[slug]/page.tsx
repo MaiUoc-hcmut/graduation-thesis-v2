@@ -14,6 +14,10 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useAppSelector } from '@/redux/store';
 import userApi from '@/app/api/userApi';
 import PaginateButton from '@/app/_components/Paginate/PaginateButton';
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
 
 export default function TeacherProfile({ params }: { params: { slug: string } }) {
     const [tab, setTab] = useState(1)
@@ -21,8 +25,8 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
 
     const [reviews, setReviews] = useState([]);
     const [changeData, setChangeData] = useState(false);
-    const [courses, setCourses] = useState<any>();
-    const [profile, setProfile] = useState<any>();
+    const [courses, setCourses] = useState<any>([]);
+    const [profile, setProfile] = useState<any>({});
     const [rating, setRating] = useState(0);
     const [avgReview, setAvgReview] = useState(0);
     const [starDetails, setStarDetails] = useState<any>();
@@ -111,7 +115,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                     </div>
                                 </div>
                                 <span className='font-bold text-[#171347] text-xl'>
-                                    {profile?.total_registration || 0}
+                                    {profile?.student_quantity || 0}
                                 </span>
                                 <span className='text-[#818894] text-sm'>
                                     Học viên
@@ -147,7 +151,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                     </div>
                                 </div>
                                 <span className='font-bold text-[#171347] text-xl'>
-                                    {profile?.total_reviews || 0}
+                                    {profile?.total_review || 0}
                                 </span>
                                 <span className='text-[#818894] text-sm'>
                                     Đánh giá
@@ -165,7 +169,7 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                     </div>
                                 </div>
                                 <span className='font-bold text-[#171347] text-xl'>
-                                    {profile?.exam_quantity?.exam_quantity || 0}
+                                    {profile?.exam_quantity || 0}
                                 </span>
                                 <span className='text-[#818894] text-sm'>
                                     Đề thi
@@ -365,10 +369,31 @@ export default function TeacherProfile({ params }: { params: { slug: string } })
                                         rating
                                     }
                                 }
-                                await userApi.createReviewTeacher(formData).catch((err: any) => { })
-                                reset()
-                                setRating(0)
-                                setChangeData(!changeData)
+                                MySwal.fire({
+                                    title: <p className='text-lg'>Đang xử lý</p>,
+                                    didOpen: async () => {
+                                        MySwal.showLoading()
+                                        await userApi.createReviewTeacher(formData)
+                                            .then(() => {
+                                                reset()
+                                                setRating(0)
+                                                setChangeData(!changeData)
+                                                MySwal.fire({
+                                                    title: <p className="text-2xl">Thành công</p>,
+                                                    icon: 'success',
+                                                    showConfirmButton: false,
+                                                    timer: 1000
+                                                })
+                                            }).catch((err: any) => {
+                                                MySwal.fire({
+                                                    title: <p className="text-2xl">Thất bại</p>,
+                                                    icon: 'error',
+                                                    showConfirmButton: false,
+                                                    timer: 1000
+                                                })
+                                            })
+                                    },
+                                })
 
                             })} className="flex flex-col items-start mt-5 w-2/3">
                                 <div className=''>

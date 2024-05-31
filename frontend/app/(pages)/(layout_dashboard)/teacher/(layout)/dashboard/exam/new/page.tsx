@@ -27,6 +27,8 @@ import withReactContent from 'sweetalert2-react-content'
 
 const MySwal = withReactContent(Swal)
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
+import Select from 'react-select'
+
 
 type ExamData = {
     title: string
@@ -44,7 +46,7 @@ type QuestionData = {
     multi_choice: boolean
     explain: string
     answers: Array<AnswerData>
-    knowledges: string
+    knowledges: []
 }
 
 type AnswerData = {
@@ -95,17 +97,22 @@ export default function CreateExam() {
         getValues,
         register,
         control,
+        setError,
+        clearErrors,
         formState: { errors },
     } = handleForm
     useEffect(() => {
         setExamData(examData)
     }, [examData]);
-    async function fetchData() {
-        let filterString = ''
-        if (getValues().grade) filterString += `grade=${getValues().grade}`
-        if (getValues().subject) filterString += `&subject=${getValues().subject}`
-        await examApi.getKnowledge(filterString).then((data: any) => setKnowledges(data.data)).catch((err: any) => { })
-    }
+    useEffect(() => {
+        async function fetchData() {
+            let filterString = ''
+            if (getValues().grade) filterString += `grade=${getValues().grade}`
+            if (getValues().subject) filterString += `&subject=${getValues().subject}`
+            await examApi.getKnowledge(filterString).then((data: any) => setKnowledges(data.data)).catch((err: any) => { })
+        }
+        fetchData()
+    }, [getValues().grade, getValues().subject]);
 
 
     useEffect(() => {
@@ -144,7 +151,6 @@ export default function CreateExam() {
                             if (!(Object.entries(errors).length === 0)) return
                             setQuestions(dataForm.questions)
                             setModal({ ...modal, [`add_question`]: false })
-
                         })}>
 
                             <h3 className="text-xl font-medium text-gray-900 dark:text-white">Thêm câu hỏi</h3>
@@ -196,7 +202,7 @@ export default function CreateExam() {
 
 
                                                         const request = new XMLHttpRequest();
-                                                        request.open('POST', 'http://18.140.5.43:4002/api/v1/images')
+                                                        request.open('POST', `${process.env.NEXT_PUBLIC_BASE_URL_EXAM_LOCAL}/images`)
 
 
 
@@ -249,7 +255,7 @@ export default function CreateExam() {
                                             </div>
 
                                         </div>
-                                        <div className="mb-5 w-1/2">
+                                        <div className="mb-5">
                                             <label
                                                 htmlFor="grade"
                                                 className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
@@ -260,17 +266,14 @@ export default function CreateExam() {
                                                 control={control as unknown as Control<FieldValues>}
                                                 name={`questions.${indexQuestion}.knowledges`}
                                                 rules={{ required: "Danh mục kiến thức không thể trống" }}
-                                                render={({ field }) => (
-                                                    <select {...field} className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                                        <option value="" defaultChecked>Chọn danh mục kiến thức</option>
 
-                                                        {knowledges?.map((knowledge: any, index: any) => {
-                                                            return (
-                                                                <option key={index} value={`${knowledge.id}`}>{knowledge.name}</option>
-                                                            )
-                                                        })}
-                                                    </select>
+                                                render={({ field }) => (
+                                                    <Select {...field} value={field.value}
+                                                        className="z-50" isMulti options={knowledges.map((knowledge: any) => {
+                                                            return { value: knowledge.id, label: knowledge.name }
+                                                        })} />
                                                 )} />
+
                                             <p className="mt-2 text-sm text-red-600 dark:text-red-500">
                                                 {errors?.questions?.[indexQuestion]?.knowledges?.message}
                                             </p>
@@ -332,6 +335,21 @@ export default function CreateExam() {
                         data1.categories.push(dataForm.level)
                         // data1.pass_score = 8
                         setExamData(dataForm)
+
+
+                        const hasCorrectAnswer = getValues().questions[fieldsQuestion?.length - 1].answers.some((answer: any) => answer.is_correct);
+
+                        if (!hasCorrectAnswer) {
+                            // Đặt lỗi nếu không có đáp án nào được chọn là đáp án đúng
+                            setError(`questions.${fieldsQuestion?.length - 1}` as const, {
+                                type: "manual",
+                                message: "Câu hỏi cần ít nhất một đáp án đúng"
+                            });
+                            return;
+                        }
+                        else {
+                            clearErrors(`questions.${fieldsQuestion?.length - 1}`);
+                        }
                         if (submit) {
                             MySwal.fire({
                                 title: <p className='text-lg'>Đang xử lý</p>,
@@ -361,7 +379,7 @@ export default function CreateExam() {
 
                         }
 
-                    })
+                    },)
                 }>
                     <h2 className="text-[#171347] font-bold section-title text-lg flex items-center after:content-[''] after:flex after:grow after:shrink after:basis-4 after:h-[2px] after:ml-[10px] after:bg-[#f1f1f1]">Đề thi</h2>
                     <div className={`mt-5 `}>
@@ -560,9 +578,8 @@ export default function CreateExam() {
                                         multi_choice: false,
                                         explain: "",
                                         answers: [],
-                                        knowledges: ""
+                                        knowledges: []
                                     })
-                                    fetchData()
 
                                 }}
                                     className="mt-3 bg-primary border border-primary text-white rounded-md shadow-primary_btn_shadow px-4 h-9 font-medium hover:bg-primary_hover">

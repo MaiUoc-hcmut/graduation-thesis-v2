@@ -17,7 +17,7 @@ const MySwal = withReactContent(Swal)
 
 
 export default function Cart() {
-    const [cartItems, setCartItems] = useState([]);
+    const [cartItems, setCartItems] = useState<any>([]);
     const [change, setChange] = useState(false);
     const [modal, setModal] = useState<any>({});
     const { user } = useAppSelector(state => state.authReducer);
@@ -32,12 +32,13 @@ export default function Cart() {
     useEffect(() => {
         async function fetchData() {
             await paymentApi.getCartOfStudent().then((data: any) => {
-                setCartItems(data.data)
+                setCartItems([...data.data.courses, ...data.data.combos]);
             }
             ).catch((err: any) => { })
         }
         fetchData()
     }, [change, user.id])
+
 
     return (
         <section className="py-10 flex flex-col justify-center items-center">
@@ -56,7 +57,7 @@ export default function Cart() {
                         : <table className="w-full">
                             <thead>
                                 <tr>
-                                    <th className="py-2 text-left text-lg">Khóa học</th>
+                                    <th className="py-2 text-left text-lg">Mặt hàng</th>
                                     <th className="py-2 text-center text-lg">Giá</th>
                                     <th className="py-2 text-center text-lg">Xóa</th>
                                 </tr>
@@ -93,7 +94,7 @@ export default function Cart() {
                                         </>
                                         <td className="py-4">
                                             <div className='w-full flex'>
-                                                <div className='relative w-40 h-32 mr-4'>
+                                                <div className='relative w-20 h-20 mr-4'>
                                                     <Image
                                                         src={`${item.thumbnail ? item.thumbnail : '/images/cousre-thumnail-1.jpg'}`}
                                                         fill
@@ -102,7 +103,7 @@ export default function Cart() {
                                                     />
                                                 </div>
                                                 <div>
-                                                    <div className='mb-4 font-bold'>
+                                                    <div className='mb-2 font-bold'>
 
                                                         {item.name}
                                                     </div>
@@ -181,7 +182,7 @@ export default function Cart() {
                                     </td>
                                     <td className='py-8'>
                                         <h6 className="font-manrope font-bold text-3xl lead-10 text-primary text-center">
-                                            {formatCash(`${cartItems.reduce((total, item: any) => total + item.price, 0)}`)} VNĐ
+                                            {formatCash(`${cartItems.reduce((total: any, item: any) => total + item.price, 0)}`)} VNĐ
                                         </h6>
                                     </td>
                                     <td className='py-8 w-60'>

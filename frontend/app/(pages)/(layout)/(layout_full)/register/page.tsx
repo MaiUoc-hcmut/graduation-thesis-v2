@@ -10,6 +10,10 @@ import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import categoryApi from "@/app/api/category";
 import { ToastContainer, toast } from "react-toastify";
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
 
 export default function RegisterPage() {
     const [tab, setTab] = useState("student")
@@ -17,22 +21,57 @@ export default function RegisterPage() {
     const dispatch = useDispatch<AppDispatch>();
 
     const handleRegisterSubmit = async (data: any) => {
-        dispatch(signup(data)).then(() => {
-            toast.success('Tài khoản đã được tạo thành công', {
-                position: "bottom-right",
-                autoClose: 800,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-            });
-        });
+
+        MySwal.fire({
+            title: <p className='text-lg'>Đang xử lý</p>,
+            didOpen: async () => {
+                MySwal.showLoading()
+                await dispatch(signup(data)).then(() => {
+                    MySwal.fire({
+                        title: <p className="text-2xl">Đăng ký thành công</p>,
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 1000
+                    })
+                }).catch(() => {
+                    MySwal.fire({
+                        title: <p className="text-2xl">Đăng ký thất bại</p>,
+                        icon: 'error',
+                        showConfirmButton: false,
+                        timer: 1000
+                    })
+                }
+                )
+
+            },
+        })
     };
     const handleRegisterTeacherSubmit = async (data: any) => {
         data.subjects = [data.subject]
-        dispatch(signupTeacher(data));
+        MySwal.fire({
+            title: <p className='text-lg'>Đang xử lý</p>,
+            didOpen: async () => {
+                MySwal.showLoading()
+                await dispatch(signupTeacher(data)).then(() => {
+                    MySwal.fire({
+                        title: <p className="text-2xl">Đăng ký thành công</p>,
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 1000
+                    })
+                }).catch(() => {
+                    MySwal.fire({
+                        title: <p className="text-2xl">Đăng ký thất bại</p>,
+                        icon: 'error',
+                        showConfirmButton: false,
+                        timer: 1000
+                    })
+                }
+                )
+
+            },
+        })
+
     };
 
     useEffect(() => {

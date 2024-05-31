@@ -27,9 +27,12 @@ import { useSocket } from "@/app/socket/SocketProvider";
 import { Bounce, ToastContainer, toast } from "react-toastify";
 import uuid from "react-uuid";
 import userApi from "@/app/api/userApi";
-import { get } from "http";
 import { useAppSelector } from "@/redux/store";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/solid";
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
 
 export default function Chat({ user, params, change, setChange, userStorage, createConversation, unseen }: any) {
     const socket = useSocket();
@@ -45,6 +48,8 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
     const [isAllStudent, setIsAllStudent] = useState(true)
     const [courses, setCourses] = useState<any>([])
     const [students, setStudents] = useState<any>([])
+    const [members, setMembers] = useState<any>([])
+    const [currGroup, setCurrGroup] = useState<any>({})
     const [users, setUsers] = useState<any>([])
     const [messages, setMessages] = useState<any>([]);
     const [blurTimeoutId, setBlurTimeoutId] = useState<any>(null);
@@ -63,6 +68,8 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
 
     useEffect(() => {
         socket?.on("new_message_created", (data: any) => {
+            console.log(data);
+
             if (user.id === data.author?.id) {
                 return
             }
@@ -135,8 +142,8 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                 return
             }
             else {
-                // const audio = new Audio("/audio/audio-notification.mp3");
-                // let audioPlay = audio.play();
+                const audio = new Audio("/audio/audio-notification.mp3");
+                let audioPlay = audio.play();
 
                 userStorage.addUser(new User({
                     id: data.id_group,
@@ -156,12 +163,10 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
             }
         })
         socket?.on("new_user_online", (data: any) => {
-            console.log(data.userId);
 
             setUserOnline({ ...userOnline, [data.userId]: true })
         })
         socket?.on("userDisconnected", (data: any) => {
-            console.log(data);
 
             setUserOnline({ ...userOnline, [data.id]: false })
         })
@@ -176,10 +181,11 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
 
 
     useEffect(() => {
-        setConverStudent(conversations.filter((c: any) => c.data.type === "student"))
-        setConverTeacher(conversations.filter((c: any) => c.data.type === "teacher"))
-        setConverGroup(conversations.filter((c: any) => c.data.type === "group"))
-    }, [conversations]);
+        setConverStudent(userStorage.conversations.filter((c: any) => c.data.type === "student"))
+        setConverTeacher(userStorage.conversations.filter((c: any) => c.data.type === "teacher"))
+        setConverGroup(userStorage.conversations.filter((c: any) => c.data.type === "group"))
+    }, [userStorage.conversations]);
+
 
 
 
@@ -275,18 +281,25 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
         setActiveConversation(params.id);
     }, [params.id, setActiveConversation]);
 
+    // console.log(converGroup);
+
 
 
     // Get current user data
     const [currentUserAvatar, currentUserName] = useMemo(() => {
 
         if (activeConversation) {
-            const participant = activeConversation.participants.length > 0 ? activeConversation.participants[0] : undefined;
+            if (activeConversation.data?.type === "group") {
+                return [<Avatar key="avatar" src={'/images/avatar-group.jpg'} />, <span key="username">{activeConversation.data.name}</span>]
+            } else {
 
-            if (participant) {
-                const user = getUser(participant.id);
-                if (user) {
-                    return [<Avatar key="avatar" src={user.avatar ? user.avatar : '/images/avatar.png'} />, <span key="username">{user.username}</span>]
+                const participant = activeConversation.participants.length > 0 ? activeConversation.participants[0] : undefined;
+
+                if (participant) {
+                    const user = getUser(participant.id);
+                    if (user) {
+                        return [<Avatar key="avatar" src={user.avatar ? user.avatar : '/images/avatar.png'} />, <span key="username">{user.username}</span>]
+                    }
                 }
             }
         }
@@ -330,15 +343,6 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                 conversationId: activeConversation.id,
                 senderId: user.id,
             });
-
-
-
-            // if (activeConversation.data?.userLast?.type === "temp") {
-            //     console.log(activeConversation.id);
-            //     socket?.emit("join_group", {
-            //         id_group: activeConversation.id,
-            //     })
-            // }
 
             const formData = activeConversation.data?.userLast?.type === "temp" ? {
                 data: {
@@ -417,7 +421,10 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
 
             <ToastContainer />
             <>
-                <Modal show={modal[`add-group`] || false} size="xl" onClose={() => setModal({ ...modal, [`add-group`]: false })} popup>
+                <Modal show={modal[`add-group`] || false} size="xl" onClose={() => {
+                    reset()
+                    setModal({ ...modal, [`add-group`]: false })
+                }} popup>
                     <Modal.Header />
                     <Modal.Body>
 
@@ -436,10 +443,10 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                             await chatApi.createGroup(dataForm).then(() => {
                                 setChange(!change)
                                 setModal({ ...modal, [`add-group`]: false })
-
+                                reset()
                                 toast.success('Nhóm đã được tạo thành công', {
                                     position: "top-center",
-                                    autoClose: 1000,
+                                    autoClose: 800,
                                     hideProgressBar: false,
                                     closeOnClick: true,
                                     pauseOnHover: true,
@@ -480,7 +487,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                                     Chọn khóa học
                                 </label>
                                 <select {...register("course", {
-                                    required: 'Hãy chọn khóa học'
+                                    // required: 'Hãy chọn khóa học'
                                 })}
                                     id="courses" name="course" className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" onChange={async (e) => {
                                         if (e.target.value) {
@@ -588,6 +595,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                                 <button
                                     onClick={() => {
                                         setModal({ ...modal, [`add-group`]: false })
+                                        reset()
                                     }
                                     }
                                     type="button"
@@ -609,29 +617,37 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                 </Modal>
             </>
             <>
-                <Modal show={modal[`edit-group`] || false} size="xl" onClose={() => setModal({ ...modal, [`edit-group`]: false })} popup>
+                <Modal show={modal[`edit-group`] || false} size="xl" onClose={() => {
+
+                    setModal({ ...modal, [`edit-group`]: false })
+                    reset()
+                }
+                } popup>
                     <Modal.Header />
                     <Modal.Body>
 
                         <form className="space-y-6" onSubmit={handleSubmit(async (data: any) => {
-                            const studentIds = Object.keys(listStudent).filter(key => listStudent[key]);
-
-
                             const dataForm = {
                                 data: {
                                     name: data.name,
-                                    members: studentIds,
-                                    individual: false
                                 }
                             }
 
-                            await chatApi.createGroup(dataForm).then(() => {
+                            await chatApi.updateGroup(dataForm, activeConversation?.id || '').then((data: any) => {
                                 setChange(!change)
                                 setModal({ ...modal, [`edit-group`]: false })
 
-                                toast.success('Nhóm đã được tạo thành công', {
+                                userStorage.updateConversation({
+                                    ...activeConversation,
+                                    data: {
+                                        ...activeConversation?.data,
+                                        name: dataForm.data.name
+                                    }
+                                })
+                                reset()
+                                toast.success('Nhóm đã được cập nhập thành công', {
                                     position: "top-center",
-                                    autoClose: 1000,
+                                    autoClose: 800,
                                     hideProgressBar: false,
                                     closeOnClick: true,
                                     pauseOnHover: true,
@@ -656,6 +672,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                                         required: "Tên nhóm không thể trống."
                                     })}
                                     type="text"
+                                    defaultValue={activeConversation?.data.name}
                                     id="name"
                                     name="name"
                                     className={`bg-white border border-gray-300 text-[#343434] text-sm focus:ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
@@ -664,80 +681,119 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                                     {errors?.name?.message?.toString()}
                                 </p>
                             </div>
-                            <div className='w-full'>
-                                <label
-                                    htmlFor="course"
-                                    className="block mb-2 text-sm font-semibold text-[14px] text-[#171347] "
-                                >
-                                    Chọn khóa học
-                                </label>
-                                <select {...register("course", {
-                                    required: 'Hãy chọn khóa học'
-                                })}
-                                    id="courses" name="course" className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" onChange={async (e) => {
-                                        if (e.target.value) {
-                                            if (e.target.value === 'all_course')
-                                                await courseApi.getAllStudenBuyCourseOfTeacher(`${user.id}`, '1').then((data: any) => {
-                                                    setStudents(data.data)
-                                                    let temp: any = {}
-                                                    data.data?.map((student: any) => {
-                                                        temp[student.id] = true
-                                                    });
 
-                                                    setListStudent(temp)
-
-
-                                                }).catch((err: any) => { })
-                                            else
-                                                await courseApi.getAllStudenBuySpecificCourseOfTeacher(e.target.value, `${user.id}`, '1').then((data: any) => {
-                                                    setStudents(data.data)
-                                                    data.data?.map((student: any) => {
-                                                        setListStudent({ ...listStudent, [student.id]: true })
-                                                    })
-                                                }).catch((err: any) => { })
-                                        }
-
-
-                                    }}>
-                                    <option value="" defaultChecked>Chọn khóa học</option>
-                                    <option value="all_course" >Tất cả khóa học</option>
-                                    {courses?.map((course: any, index: number) => {
-                                        return (
-                                            <option key={course.id} value={`${course.id}`}>{course.name}</option>
-                                        )
-                                    })}
-                                </select>
-                                <div className="mt-1 text-sm text-red-600 dark:text-red-500">
-                                    {errors?.course?.message && (
-                                        <React.Fragment>{errors.course.message.toString()}</React.Fragment>
-                                    )}
-                                </div>
-                            </div>
-                            <div className={`${!students || students?.length === 0 ? "hidden" : ""} mt-5`}>
+                            <div className={` mt-5`}>
                                 <div className="mb-4 font-semibold">
                                     Danh sách người dùng
                                 </div>
-                                <div className="flex justify-between items-center border-[1px] border-slate-200 px-4 py-2 rounded-lg mb-2">
-                                    <div className="font-semibold text-sm">
-                                        Tất cả
-                                    </div>
-                                    <div className="flex items-center">
-                                        <input
-                                            onChange={(e) => {
-                                                setIsAllStudent((e.target as HTMLInputElement).checked)
+                                <div className="relative">
+                                    <Search placeholder="Tìm kiếm..." className="h-10"
+                                        onFocus={() => {
+                                            setModal({ ...modal, [`dropdownSearch2`]: true })
 
-                                            }}
-                                            type="checkbox"
-                                            checked={isAllStudent}
-                                            id={'all'}
-                                            className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                                        />
-                                    </div>
+                                        }}
+                                        onBlur={() => {
+                                            // Trì hoãn việc tắt dropdown
+                                            const timeoutId = setTimeout(() => {
+                                                setModal({ ...modal, [`dropdownSearch2`]: false });
+                                            }, 500);
+                                            setBlurTimeoutId(timeoutId);
+                                        }}
+                                        onChange={(value: any) => {
+                                            userApi.searchUser(value).then((data: any) => {
+                                                setUsers(data.data)
+                                            }).catch((err: any) => { })
+                                        }}
+                                    />
+                                    <div
+                                        style={{
+                                            boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px'
+                                        }}
+                                        onMouseDown={() => {
+                                            // Hủy bỏ việc tắt dropdown nếu người dùng nhấp vào nó
+                                            clearTimeout(blurTimeoutId);
+                                        }}
+                                        id="dropdownSearch2"
+                                        className={`${modal['dropdownSearch2'] ? "" : "hidden"} absolute top-14 left-4 z-10 w-[90%] overflow-auto bg-white rounded-lg shadow-lg dark:bg-gray-700`}
+                                    >
+                                        <ul
+                                            className={`h-auto p-3 overflow-y-auto text-sm text-gray-700 dark:text-gray-200`}
+                                            aria-labelledby="dropdownSearchButton"
 
+                                        >
+                                            {
+                                                users?.length != 0 ?
+                                                    <div className="sidebar py-2 max-h-80 overflow-auto">
+                                                        {
+                                                            users ? users?.map((user: any) => {
+                                                                const tempId = uuid()
+                                                                return (
+                                                                    <div key={user.id} onClick={() => {
+
+                                                                    }} className=" flex items-center justify-between border-slate-200 px-2 py-2 rounded-lg mb-2 hover:bg-slate-100">
+                                                                        <div className="flex justify-center items-center">
+                                                                            <div className="mr-2">
+                                                                                <Image src={user.avatar ? user.avatar : '/images/avatar.png'} alt="" width={40} height={40} className="rounded-full" />
+                                                                            </div>
+                                                                            <div className="text-sm">
+                                                                                <div className="font-semibold">
+                                                                                    {user.name}
+                                                                                </div>
+                                                                                <div>
+                                                                                    {user.email}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className=" text-blue-500">
+                                                                            <button type="button" className="underline" onClick={() => {
+                                                                                const dataForm = {
+                                                                                    data: {
+                                                                                        users: [user.id]
+                                                                                    }
+                                                                                }
+
+                                                                                MySwal.fire({
+                                                                                    title: <p className='text-lg'>Đang xử lý</p>,
+                                                                                    didOpen: async () => {
+                                                                                        MySwal.showLoading()
+                                                                                        await chatApi.addUsertoGroup(activeConversation?.id || '', dataForm).then(() => {
+                                                                                            MySwal.fire({
+                                                                                                title: <p className="text-2xl">Thêm người dùng thành công</p>,
+                                                                                                icon: 'success',
+                                                                                                showConfirmButton: false,
+                                                                                                timer: 1500
+                                                                                            })
+                                                                                            setMembers([...members, user])
+                                                                                        }).catch(() => {
+                                                                                            MySwal.fire({
+                                                                                                title: <p className="text-2xl">Thêm người dùng thất bại</p>,
+                                                                                                icon: 'error',
+                                                                                                showConfirmButton: false,
+                                                                                                timer: 1500
+                                                                                            })
+                                                                                        }
+                                                                                        )
+
+                                                                                    },
+                                                                                })
+                                                                            }}>
+                                                                                Thêm
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                )
+                                                            }) : null
+                                                        }
+                                                    </div> : <p className='text-center'>Không có người dùng</p>
+
+                                            }
+
+                                        </ul>
+                                    </div>
                                 </div>
-                                <div className="sidebar py-2 max-h-80 overflow-y-auto">
+                                <div className={`${members?.length === 0 ? "hidden" : ""} sidebar py-2 max-h-80 overflow-y-auto mt-5`}>
                                     {
-                                        students ? students?.map((student: any) => {
+                                        members?.map((student: any) => {
                                             return (
                                                 <div key={student.id} className="border-[1px] flex items-center justify-between border-slate-200 px-4 py-2 rounded-lg mb-2">
                                                     <div className="flex justify-center items-center">
@@ -753,25 +809,44 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div className="flex items-center ">
-                                                        <input
-                                                            onChange={(e) => {
+                                                    <div className=" text-red-500">
+                                                        <button type="button" className="underline" onClick={() => {
+                                                            const dataForm = {
+                                                                data: {
+                                                                    users: [student.id]
+                                                                }
+                                                            }
+                                                            MySwal.fire({
+                                                                title: <p className='text-lg'>Đang xử lý</p>,
+                                                                didOpen: async () => {
+                                                                    MySwal.showLoading()
+                                                                    await chatApi.deleteUserGroup(activeConversation?.id || '', dataForm).then(() => {
+                                                                        MySwal.fire({
+                                                                            title: <p className="text-2xl">Xóa người dùng thành công</p>,
+                                                                            icon: 'success',
+                                                                            showConfirmButton: false,
+                                                                            timer: 1500
+                                                                        })
+                                                                        setMembers(members.filter((member: any) => member.id !== student.id));
+                                                                    }).catch(() => {
+                                                                        MySwal.fire({
+                                                                            title: <p className="text-2xl">Xóa người dùng thất bại</p>,
+                                                                            icon: 'error',
+                                                                            showConfirmButton: false,
+                                                                            timer: 1500
+                                                                        })
+                                                                    }
+                                                                    )
 
-                                                                setListStudent({ ...listStudent, [student.id]: (e.target as HTMLInputElement).checked })
-                                                                if (!e.target.checked)
-                                                                    setIsAllStudent(false)
-                                                            }}
-                                                            checked={listStudent[student.id] ? true : isAllStudent}
-                                                            type="checkbox"
-                                                            defaultValue=""
-                                                            id={student.id}
-                                                            className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                                                        />
-
+                                                                },
+                                                            })
+                                                        }}>
+                                                            Xóa
+                                                        </button>
                                                     </div>
                                                 </div>
                                             )
-                                        }) : null
+                                        })
                                     }
                                 </div>
                             </div>
@@ -780,6 +855,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                                 <button
                                     onClick={() => {
                                         setModal({ ...modal, [`edit-group`]: false })
+                                        reset()
                                     }
                                     }
                                     type="button"
@@ -792,7 +868,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                                         type="submit"
                                         className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     >
-                                        Tạo
+                                        Lưu
                                     </button>
                                 </div>
                             </div>
@@ -831,7 +907,7 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                                 // Trì hoãn việc tắt dropdown
                                 const timeoutId = setTimeout(() => {
                                     setModal({ ...modal, [`dropdownSearch`]: false });
-                                }, 300);
+                                }, 500);
                                 setBlurTimeoutId(timeoutId);
                             }}
                             onChange={(value: any) => {
@@ -1000,18 +1076,8 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
 
                                 // Helper for getting the data of the first participant
                                 const [avatar, name] = (() => {
-
-                                    const participant = c.participants.length > 0 ? c.participants[0] : undefined;
-
-                                    if (participant) {
-                                        const user = getUser(participant.id);
-
-                                        if (user) {
-
-                                            return [<Avatar key={user.id} src={user.avatar ? user.avatar : '/images/avatar.png'} />, user.username]
-
-                                        }
-                                    }
+                                    const user = c.data
+                                    return [<Avatar key={user.id} src={'/images/avatar-group.jpg'} />, user.name]
 
                                     return [undefined, undefined]
                                 })();
@@ -1046,17 +1112,93 @@ export default function Chat({ user, params, change, setChange, userStorage, cre
                         <ConversationHeader.Content userName={currentUserName} />
                         {
                             activeConversation?.data?.type === "group" && <ConversationHeader.Actions>
+                                {
+                                    authUser?.role === "teacher" ?
+                                        <Dropdown label="" renderTrigger={() => <EllipsisVerticalIcon className="w-8 h-8" />} placement="left">
+                                            <Dropdown.Item onClick={async () => {
 
-                                <Dropdown label="" renderTrigger={() => <EllipsisVerticalIcon className="w-8 h-8" />} placement="left">
-                                    <Dropdown.Item onClick={() => {
-                                        setModal({ ...modal, [`edit-group`]: true })
-                                    }}>
-                                        Sửa nhóm
-                                    </Dropdown.Item>
-                                    <Dropdown.Item onClick={() => {
+                                                await chatApi.getGroup(activeConversation.id).then((data: any) => {
+                                                    setCurrGroup(data.data)
+                                                    setMembers(data.data.members)
+                                                }).catch((err: any) => { })
+                                                setModal({ ...modal, [`edit-group`]: true })
+                                            }}>
+                                                Sửa nhóm
+                                            </Dropdown.Item>
+                                            <Dropdown.Item onClick={() => {
+                                                MySwal.fire({
+                                                    title: <p className="text-2xl">Bạn có chắc muốn xóa nhóm này?</p>,
+                                                    icon: "warning",
+                                                    showCancelButton: true,
+                                                    confirmButtonColor: "#3085d6",
+                                                    cancelButtonColor: "#d33",
+                                                    confirmButtonText: "Xóa",
+                                                    cancelButtonText: "Hủy",
+                                                }).then((result) => {
+                                                    if (result.isConfirmed) {
+                                                        MySwal.fire({
+                                                            title: <p className='text-lg'>Đang xử lý</p>,
+                                                            didOpen: async () => {
+                                                                MySwal.showLoading()
+                                                                await chatApi.deleteGroup(activeConversation.id).then(() => {
+                                                                    MySwal.fire({
+                                                                        title: <p className="text-2xl">Nhóm đã được xóa thành công</p>,
+                                                                        icon: 'success',
+                                                                        showConfirmButton: false,
+                                                                        timer: 1500
+                                                                    })
+                                                                    setChange(!change)
+                                                                }).catch((err: any) => {
+                                                                    MySwal.fire({
+                                                                        title: <p className="text-2xl">Xóa nhóm thất bại</p>,
+                                                                        icon: 'error',
+                                                                        showConfirmButton: false,
+                                                                        timer: 1500
+                                                                    })
+                                                                })
+                                                            },
+                                                        })
 
-                                    }}><p className="text-red-500">Xóa nhóm</p></Dropdown.Item>
-                                </Dropdown>
+
+                                                    }
+                                                });
+                                            }}><p className="text-red-500">Xóa nhóm</p></Dropdown.Item>
+                                        </Dropdown>
+                                        :
+                                        <Dropdown label="" renderTrigger={() => <EllipsisVerticalIcon className="w-8 h-8" />} placement="left">
+                                            <Dropdown.Item onClick={async () => {
+                                                await chatApi.leaveGroup(activeConversation.id).then(() => {
+                                                    setChange(!change);
+                                                    const updatedConverGroup = converGroup.filter((c: any) => c.data.id_group !== activeConversation.id);
+                                                    setConverGroup(updatedConverGroup);
+                                                    toast.success('Rời nhóm thành công', {
+                                                        position: "top-center",
+                                                        autoClose: 800,
+                                                        hideProgressBar: false,
+                                                        closeOnClick: true,
+                                                        pauseOnHover: true,
+                                                        draggable: true,
+                                                        progress: undefined,
+                                                        theme: "light",
+                                                        transition: Bounce,
+                                                    });
+                                                }).catch((err: any) => {
+                                                    toast.error('Rời nhóm thất bại', {
+                                                        position: "top-center",
+                                                        autoClose: 800,
+                                                        hideProgressBar: false,
+                                                        closeOnClick: true,
+                                                        pauseOnHover: true,
+                                                        draggable: true,
+                                                        progress: undefined,
+                                                        theme: "light",
+                                                        transition: Bounce,
+                                                    });
+                                                })
+                                            }}><p className="text-red-500">Rời nhóm</p></Dropdown.Item>
+                                        </Dropdown>
+                                }
+
                             </ConversationHeader.Actions>
                         }
 

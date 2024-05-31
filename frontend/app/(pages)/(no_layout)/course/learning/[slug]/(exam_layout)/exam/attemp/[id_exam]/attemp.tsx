@@ -7,6 +7,11 @@ import examApi from '@/app/api/examApi';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation'
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
+
 export default function AttempExam({ params, exam }: { params: { slug: string, id_exam: string }, exam: any }) {
     const [open, setOpen] = useState(true);
     const [countDownTime, setCountDownTime] = useState('00:00');
@@ -96,7 +101,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
     async function submitTest(formData: any) {
         let data: any = {
             id_exam: params.id_exam,
-            time_start: localStorage.getItem(`${COUNTER_KEY}`) ? Date.now() - Number(localStorage.getItem(`${COUNTER_KEY}`)) * 1000 : Date.now() - exam.period * 60 * 1000,
+            time_start: localStorage.getItem(`${COUNTER_KEY}`) ? Date.now() - (exam.period * 60 - Number(localStorage.getItem(`${COUNTER_KEY}`))) * 1000 : Date.now() - exam.period * 60 * 1000,
             time_end: Date.now(),
             id_topic: exam.id_topic,
             assignment: []
@@ -113,14 +118,30 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
 
             })
         })
+        await examApi.submitExam({ data })
+            .then(() => {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+                window.localStorage.removeItem(`${COUNTER_KEY}`);
+                window.localStorage.removeItem('answers');
+                MySwal.fire({
+                    title: <p className="text-2xl">Hoàn thành bài làm</p>,
+                    icon: 'success',
+                    showConfirmButton: false,
+                    timer: 1000
+                }).then(() => {
+                    router.push(`/course/learning/${params.slug}?exam=${params.id_exam}`)
+                })
 
-        examApi.submitExam({ data }).then(() => {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
-            window.localStorage.removeItem(`${COUNTER_KEY}`);
-            window.localStorage.removeItem('answers');
-            router.push(`/course/learning/${params.slug}?exam=${params.id_exam}`)
-        }).catch((err: any) => { });
+            }).catch((err: any) => {
+                MySwal.fire({
+                    title: <p className="text-2xl">Đã xảy ra lỗi</p>,
+                    icon: 'error',
+                    showConfirmButton: false,
+                    timer: 1000
+                })
+            })
+
     }
 
 
@@ -156,7 +177,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                         <div className="text-lg  mb-[-10px] font-normal text-[#000] flex">
                             <span className="font-semibold text-[#153462] flex mr-1">Câu {index + 1}: </span>
 
-                            {parse(question.content_text)}
+                            {parse(question.content_text || '')}
                         </div >
                         {
                             question.content_image && <div className='relative w-1/2 h-64 mt-5 z-0'>
@@ -192,7 +213,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                                                 htmlFor={question.id}
                                                 className="font-medium text-gray-900 dark:text-gray-300"
                                             >
-                                                {parse(answer.content_text)}
+                                                {parse(answer.content_text || '')}
                                             </label>
                                             {
                                                 answer.content_image && <div className='relative w-1/2 h-64 mt-5 z-0'>
@@ -218,7 +239,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                 return (
                     <div id={`question${index + 1}`} key={index} className="mb-4">
                         <div className="text-lg  mb-[-10px] font-normal text-[#000] flex">
-                            <span className="font-semibold text-[#153462] flex mr-1">Câu {index + 1}: </span> {parse(question.content_text)}
+                            <span className="font-semibold text-[#153462] flex mr-1">Câu {index + 1}: </span> {parse(question.content_text || '')}
                         </div >
                         {
                             question.content_image && <div className='relative w-1/2 h-64 mt-5 z-0'>
@@ -242,7 +263,7 @@ export default function AttempExam({ params, exam }: { params: { slug: string, i
                                                 <input  {...register(`${question.id}`, { required: "Câu hỏi chưa hoàn thành." })} id={answer.id} type="radio" value={answer.id} name={question.id} className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAnswerChange(question.id, answer.id, e.target.checked, false)} />
                                                 <p className='ml-2 mr-1'>{alphabet[index]}.</p>
 
-                                                <label htmlFor="default-radio-1" className="font-medium text-gray-900 dark:text-gray-300">{parse(answer.content_text)}</label>
+                                                <label htmlFor="default-radio-1" className="font-medium text-gray-900 dark:text-gray-300">{parse(answer.content_text || '')}</label>
                                             </div>
                                             {
                                                 answer.content_image && <div className='relative w-1/2 h-64 mt-5 z-0'>
