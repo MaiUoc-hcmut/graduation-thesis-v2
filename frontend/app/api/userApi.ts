@@ -5,7 +5,7 @@ require('dotenv').config();
 const userApi = {
     // admin
     getAllStudent: (page: string) => {
-        const url = `/student`;
+        const url = `/student/page/${page}`;
         return axiosConfig.get(url);
     },
 

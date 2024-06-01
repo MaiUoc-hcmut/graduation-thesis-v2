@@ -107,7 +107,7 @@ export default function StudentManageDashboard() {
     useEffect(() => {
         async function fetchData() {
             await userApi.getAllStudent(`${page}`).then((data: any) => {
-                setStudents(data.data)
+                setStudents(data.data.students)
             }).catch((err: any) => { })
         }
         fetchData()

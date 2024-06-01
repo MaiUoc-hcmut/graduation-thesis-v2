@@ -457,7 +457,7 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                         </label>
                                         <input
                                             {...register(`chapters.${indexChapter}.topics.${indexTopic}.name`, {
-                                                // required: "Tên bài giảng không thể thiếu",
+                                                required: "Tên bài giảng không thể thiếu",
                                             })}
                                             type="text"
                                             className={`bg-white border-[1px] border-[#ececec] text-[#343434] text-sm focus: ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
@@ -475,7 +475,7 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                         </label>
                                         <input
                                             {...register(`chapters.${indexChapter}.topics.${indexTopic}.duration`, {
-                                                // required: "Thời gian không thể thiếu",
+                                                required: "Thời gian không thể thiếu",
                                             })}
                                             type="number"
                                             className={`bg-white border-[1px] border-[#ececec] text-[#343434] text-sm focus: ring-blue-500 focus:border-blue-500 rounded-lg block w-full p-2.5`}
@@ -493,7 +493,7 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                         </label>
                                         <input
                                             {...register(`chapters.${indexChapter}.topics.${indexTopic}.pass_score`, {
-                                                // required: "Điểm hoàn thành không thể thiếu",
+                                                required: "Điểm hoàn thành không thể thiếu",
                                                 min: {
                                                     value: 0,
                                                     message: "Điểm hoàn thành không thể nhỏ hơn 0"
