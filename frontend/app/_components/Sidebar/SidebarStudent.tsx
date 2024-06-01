@@ -20,15 +20,14 @@ export default function SidebarStudent() {
             >
                 <div className="h-full px-3 py-4 overflow-y-auto">
                     <div className='flex flex-row items-end justify-center'>
-                        <Link href="#">
+                        <div className="w-[100px] h-[100px] relative">
                             <Image
                                 src={`${user.avatar ? user.avatar : '/images/avatar.png'} `}
-                                width={100}
-                                height={100}
+                                fill
                                 alt="avatar"
-                                className='rounded-full'
+                                className='rounded-full overflow-hidden object-cover object-center w-full h-full'
                             />
-                        </Link>
+                        </div>
                     </div>
                     <div className='flex flex-row items-end justify-center mt-4 font-semibold'>
                         <Link href="#">
