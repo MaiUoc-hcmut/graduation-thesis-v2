@@ -258,7 +258,7 @@ export default function CourseList() {
                                                                     <p className='font-medium text-[#818894]'>{course.user.name}</p>
                                                                 </div>
                                                             </div>
-                                                            <h3 className="overflow-hidden text-[#17134] mt-4 h-8 font-bold">
+                                                            <h3 className="overflow-hidden text-ellipsis whitespace-nowrap text-[#17134] mt-4 h-8 font-bold">
                                                                 {course.name}
                                                             </h3>
                                                             <div className="flex items-center">

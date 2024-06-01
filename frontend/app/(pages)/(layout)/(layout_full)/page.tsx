@@ -75,7 +75,7 @@ export default function Home() {
         setTeachers(data.data.teachers)
       }
       ).catch((err: any) => { })
-      await examApi.getAllCombo('', '1').then((data: any) => {
+      await examApi.getAllCombo('1', 'sort=rating&order=desc').then((data: any) => {
         setCombos(data.data.combos)
       }).catch((err: any) => { })
     }
@@ -259,7 +259,7 @@ export default function Home() {
                             <p className='font-medium text-[#818894]'>{combo.teacher.name}</p>
                           </div>
                         </div>
-                        <h3 className="overflow-hidden text-[#17134] mt-4 h-8 font-bold">
+                        <h3 className="overflow-hidden text-[#17134] mt-4 h-8 font-bold text-ellipsis whitespace-nowrap">
                           {combo.name}
                         </h3>
                         <div className="flex items-center">

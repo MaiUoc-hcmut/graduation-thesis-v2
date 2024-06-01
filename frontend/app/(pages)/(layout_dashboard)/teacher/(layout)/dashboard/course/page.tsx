@@ -88,7 +88,7 @@ export default function CourseDashboard() {
                             <div key={course.id} className="relative rounded-[10px] flex bg-white mb-8">
 
 
-                                <div className="h-[200px] w-[300px] relative">
+                                <div className="h-[200px] w-[320px] relative">
                                     <Image
                                         src={`${course.thumbnail ? course.thumbnail : '/images/cousre-thumnail-1.jpg'}`}
                                         fill

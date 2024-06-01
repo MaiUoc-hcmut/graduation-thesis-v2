@@ -10,7 +10,6 @@ import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import { useEffect, useState } from "react";
-import Image from "next/image";
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, FilePondPluginFileValidateType)
 
 export const AnswerCard = ({ indexChapter, indexTopic, hanldeForm, indexQuestion, setModal, modal, topic, quesiton, setImage, image }: any) => {

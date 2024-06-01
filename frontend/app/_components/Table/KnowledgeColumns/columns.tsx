@@ -19,7 +19,7 @@ export const columns: ColumnDef<any>[] = [
         },
     },
     {
-        accessorKey: "email",
+        accessorKey: "Categories.1.Subject",
         header: ({ column }) => {
             return (
                 <button
@@ -33,7 +33,7 @@ export const columns: ColumnDef<any>[] = [
         },
     },
     {
-        accessorKey: "progress",
+        accessorKey: "Categories.0.Class",
         header: ({ column }) => {
             return (
                 <button
@@ -45,27 +45,24 @@ export const columns: ColumnDef<any>[] = [
                 </button>
             )
         },
-        cell: ({ cell }) => {
-            return <span className="">{`${Number(cell.getValue()) * 100}%`}</span>
-        },
     },
-    {
-        accessorKey: "progress",
-        header: ({ column }) => {
-            return (
-                <button
-                    className="flex justify-center items-center  font-semibold"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Mức độ
-                    <ArrowsUpDownIcon className="ml-2 h-4 w-4" />
-                </button>
-            )
-        },
-        cell: ({ cell }) => {
-            return <span className="">{`${Number(cell.getValue()) * 100}%`}</span>
-        },
-    },
+    // {
+    //     accessorKey: "progress",
+    //     header: ({ column }) => {
+    //         return (
+    //             <button
+    //                 className="flex justify-center items-center  font-semibold"
+    //                 onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    //             >
+    //                 Mức độ
+    //                 <ArrowsUpDownIcon className="ml-2 h-4 w-4" />
+    //             </button>
+    //         )
+    //     },
+    //     cell: ({ cell }) => {
+    //         return <span className="">{`${Number(cell.getValue()) * 100}%`}</span>
+    //     },
+    // },
 
 
 ]

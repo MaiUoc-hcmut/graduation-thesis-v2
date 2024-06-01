@@ -51,6 +51,7 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
         setValue,
         reset,
         control,
+        trigger,
         handleSubmit,
         formState: { errors },
     } = hanldeForm
@@ -93,8 +94,14 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
 
     };
 
-    console.log(getValues());
-
+    const handleAddQuestion = async (position: string) => {
+        const isValid = await trigger(`${position}`);
+        if (isValid) {
+            setChange(!change)
+            setModal({ ...modal, [`add_question_${topic.key}`]: false })
+            notify()
+        }
+    };
 
     return (
         <div ref={innerRef} {...provided.draggableProps}  >
@@ -102,7 +109,7 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                 <Modal show={modal[`delete-topic${topic.id || topic.key}`]} size="md" onClose={() => setModal({ ...modal, [`delete-topic${topic.id || topic.key}`]: false })} popup>
                     <Modal.Header />
                     <Modal.Body>
-                        <form className="space-y-6">
+                        <div className="space-y-6">
                             <ExclamationCircleIcon className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
                             <h3 className="mb-5 text-lg font-normal text-center text-gray-500 dark:text-gray-400">
                                 Bạn có chắc muốn xóa chủ đề này?
@@ -114,12 +121,12 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                     Xóa
                                 </Button>
                                 <Button color="gray" onClick={() => {
-                                    setModal({ ...modal, [`delete-topic${topic.id || topic.key}`]: false })
+                                    handleDeleteTopic()
                                 }}>
                                     Hủy
                                 </Button>
                             </div>
-                        </form>
+                        </div>
                     </Modal.Body>
                 </Modal>
             </>
@@ -127,11 +134,7 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                 <Modal show={modal[`add_question_${topic.key}`]} size="3xl" onClose={() => setModal({ ...modal, [`add_question_${topic.key}`]: false })} popup>
                     <Modal.Header />
                     <Modal.Body>
-                        <form className="space-y-6" onSubmit={handleSubmit(async (data1: any) => {
-                            if (!(Object.entries(errors).length === 0)) return
-                            setChange(!change)
-                            setModal({ ...modal, [`add_question_${topic.key}`]: false })
-                        })}>
+                        <div className="space-y-6">
 
                             <h3 className="text-xl font-medium text-gray-900 dark:text-white">Thêm câu hỏi</h3>
 
@@ -187,14 +190,17 @@ export const TopicCard = ({ chapter, topic, indexChapter, indexTopic, hanldeForm
                                 </button>
                                 <div>
                                     <button
-                                        type="submit"
+                                        type="button"
+                                        onClick={() => {
+                                            handleAddQuestion(`chapters.${indexChapter}.topics.${indexTopic}.exam.data.questions.${fieldsQuestion?.length - 1}.content_text`)
+                                        }}
                                         className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     >
                                         Tạo
                                     </button>
                                 </div>
                             </div>
-                        </form>
+                        </div>
                     </Modal.Body>
                 </Modal>
             </>

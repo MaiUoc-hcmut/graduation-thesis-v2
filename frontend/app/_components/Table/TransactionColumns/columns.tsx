@@ -49,13 +49,13 @@ export const columns: ColumnDef<any>[] = [
             )
         },
         cell: ({ cell }) => {
-            if (cell.row.original.item.delete)
+            if (cell.row.original?.item?.delete || cell.row.original?.combo?.delete)
                 return (
                     <span className="font-medium">Mặt hàng đã bị xóa</span>
                 )
             else
                 return (
-                    <span>{cell.getValue() as ReactNode}</span>
+                    <span>{cell.getValue() as ReactNode || cell.row.original?.combo?.name}</span>
                 )
         },
     },
@@ -105,7 +105,7 @@ export const columns: ColumnDef<any>[] = [
             )
         },
         cell: ({ cell }) => {
-            if (cell.row.original.course?.status == "paid")
+            if (cell.row.original.course?.status !== "paid")
                 return <span className="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Thành công</span>
             else
                 return <span className="bg-red-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">Thất bại</span>

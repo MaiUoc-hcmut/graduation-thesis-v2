@@ -89,7 +89,10 @@ export default function ComboExamDashboard() {
     return (
         <div className="">
             <>
-                <Modal show={modal[`add-combo`] || false} size="3xl" onClose={() => setModal({ ...modal, [`add-combo`]: false })} popup>
+                <Modal show={modal[`add-combo`] || false} size="3xl" onClose={() => {
+                    setListExam([])
+                    setModal({ ...modal, [`add-combo`]: false })
+                }} popup>
                     <Modal.Header />
                     <Modal.Body>
                         <form className="space-y-6" onSubmit={handleSubmit(async (data: any) => {
@@ -507,6 +510,7 @@ export default function ComboExamDashboard() {
                                 <button
                                     onClick={() => {
                                         setModal({ ...modal, [`add-combo`]: false })
+                                        setListExam([])
                                         reset()
                                     }
                                     }
@@ -529,6 +533,7 @@ export default function ComboExamDashboard() {
                 </Modal>
 
                 <Modal show={modal[`edit-combo`] || false} size="3xl" onClose={() => {
+                    setListExam([])
                     setModal({ ...modal, [`edit-combo`]: false })
                     reset()
                 }} popup>
@@ -952,6 +957,7 @@ export default function ComboExamDashboard() {
                                 <button
                                     onClick={() => {
                                         setModal({ ...modal, [`edit-combo`]: false })
+                                        setListExam([])
                                         reset()
                                     }
                                     }
@@ -992,13 +998,12 @@ export default function ComboExamDashboard() {
                         return (
                             <div key={exam.id} className="relative rounded-[10px] flex bg-white mb-8">
 
-                                <div className="relative ">
+                                <div className="relative w-[320px] h-[200px]">
                                     <Image
                                         src={`${exam.thumbnail ? exam.thumbnail : '/images/cousre-thumnail-1.jpg'}`}
-                                        width={250}
-                                        height={250}
+                                        fill
                                         alt="logo"
-                                        className="rounded-l-[10px] overflow-hidden object-center object-cover"
+                                        className="rounded-l-[10px] h-full w-full overflow-hidden object-center object-cover"
                                     />
                                 </div>
                                 <div className="flex flex-col py-3 pl-[25px] pr-[17px] flex-1">

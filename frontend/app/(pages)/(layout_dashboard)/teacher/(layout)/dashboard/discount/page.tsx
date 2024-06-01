@@ -276,7 +276,7 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                                     </thead>
                                     <tbody className="divide-y divide-gray-200 dark:divide-neutral-700">
 
-                                        {discounts?.map((item: any) => (
+                                        {discounts && discounts?.length != 0 ? discounts?.map((item: any) => (
                                             <tr key={item.id} className="hover:bg-gray-100 dark:hover:bg-neutral-700">
                                                 <>
                                                     <Modal show={modal[`edit-discount${item.id}`] || false} size="xl" onClose={() => setModal({ ...modal, [`edit-discount${item.id}`]: false })} popup>
@@ -524,7 +524,7 @@ export default function DiscountDashboard({ params }: { params: { slug: string }
                                                     </Dropdown>
                                                 </td>
                                             </tr>
-                                        ))}
+                                        )) : <tr><td colSpan={7} className="text-center py-8">Không có dữ liệu</td></tr>}
 
                                     </tbody>
                                 </table>
